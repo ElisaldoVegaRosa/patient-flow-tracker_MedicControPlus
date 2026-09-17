@@ -450,6 +450,25 @@ details[open] .large-button {
   margin-top: 1rem;
 }
 
+/* --------------------------------------------------------------------------
+   Órdenes clínicas
+   --------------------------------------------------------------------------
+   Diferencia visualmente la creación de tareas y órdenes médicas.
+   -------------------------------------------------------------------------- */
+
+.order-panel {
+  border-top: 4px solid #8a5a24;
+}
+
+.order-icon {
+  background: #8a5a24;
+}
+
+.order-panel .role-badge {
+  color: #744713;
+  background: #f6ead8;
+}
+
 @media (max-width: 900px) {
   .header {
     flex-wrap: wrap;

@@ -121,3 +121,43 @@ las verificaciones realizadas y el estado de cada etapa.
 - Formulario de evaluación médica en React.
 - Compilación del frontend.
 - GitHub Actions.
+
+---
+
+## Etapa 6 — Órdenes clínicas
+
+### Implementado
+
+- Formulario de órdenes exclusivo para el rol médico.
+- Creación de órdenes para:
+  - laboratorio;
+  - enfermería;
+  - equipo médico.
+- Estado inicial `PENDING`.
+- Visualización de la orden en tareas pendientes.
+- Registro automático del evento `TASK_CREATED`.
+- Asociación de cada orden con un episodio clínico activo.
+
+### Flujo implementado
+
+1. El médico abre un episodio activo.
+2. Registra una evaluación médica.
+3. Crea una orden clínica.
+4. Selecciona el servicio responsable.
+5. La orden aparece como tarea pendiente.
+6. El evento queda registrado en el timeline.
+
+### Verificación manual
+
+- Se creó la orden `Hemograma completo`.
+- La orden fue asignada al servicio `LAB`.
+- La orden apareció en tareas pendientes.
+- El evento `TASK_CREATED` apareció en el timeline.
+- El frontend compiló correctamente.
+
+### Próxima etapa
+
+- Crear una bandeja exclusiva para laboratorio.
+- Permitir registrar un resultado simulado.
+- Completar la orden como usuario de laboratorio.
+- Mostrar el resultado en el timeline.

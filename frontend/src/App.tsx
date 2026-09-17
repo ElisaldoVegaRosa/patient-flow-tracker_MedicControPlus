@@ -462,6 +462,31 @@ function EpisodePage({
     event.currentTarget.reset();
   }
 
+  /**
+ * Crea una orden clínica y la asigna al servicio seleccionado.
+ *
+ * En esta etapa el médico puede enviar órdenes a laboratorio,
+ * enfermería o al mismo equipo médico. La creación queda auditada
+ * mediante un evento TASK_CREATED en el timeline.
+ */
+async function createClinicalOrder(
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+
+  const form = new FormData(event.currentTarget);
+
+  await call(`/episodes/${episode.id}/tasks`, {
+    method: "POST",
+    body: JSON.stringify({
+      title: form.get("title"),
+      service: form.get("service"),
+    }),
+  });
+
+  event.currentTarget.reset();
+}
+
   async function registerVitals(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -732,6 +757,56 @@ function EpisodePage({
   </section>
 )}
 
+{user.role === "DOCTOR" && episode.status === "ACTIVE" && (
+  <section className="panel order-panel">
+    <div className="section-heading">
+      <div>
+        <span className="section-icon order-icon">＋</span>
+
+        <div>
+          <h2>Nueva orden clínica</h2>
+
+          <p className="section-description">
+            Crea una tarea y asígnala al servicio responsable.
+          </p>
+        </div>
+      </div>
+
+      <span className="role-badge">ORDEN MÉDICA</span>
+    </div>
+
+    <form
+      className="medical-form"
+      onSubmit={createClinicalOrder}
+    >
+      <label>
+        Orden o procedimiento solicitado
+
+        <input
+          name="title"
+          placeholder="Ejemplo: hemograma completo"
+          minLength={3}
+          maxLength={300}
+          required
+        />
+      </label>
+
+      <label>
+        Servicio responsable
+
+        <select name="service" defaultValue="LAB">
+          <option value="LAB">Laboratorio</option>
+          <option value="NURSING">Enfermería</option>
+          <option value="MEDICAL">Equipo médico</option>
+        </select>
+      </label>
+
+      <button type="submit">
+        Crear y asignar orden
+      </button>
+    </form>
+  </section>
+)}
         <section className="panel alerts">
           <h2>Alertas activas</h2>
 

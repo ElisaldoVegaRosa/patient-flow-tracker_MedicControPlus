@@ -137,6 +137,54 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
         }
 
         assert "MEDICAL_EVALUATION" in evaluation_events
+        
+                # El médico crea una orden de laboratorio.
+        order_response = client.post(
+            f"/episodes/{episode['id']}/tasks",
+            headers=doctor_headers,
+            json={
+                "title": "Hemograma completo",
+                "service": "LAB",
+            },
+        )
+
+        assert order_response.status_code == 201
+
+        laboratory_tasks = [
+            task
+            for task in order_response.json()["tasks"]
+            if task["service"] == "LAB"
+        ]
+
+        assert len(laboratory_tasks) == 1
+        assert laboratory_tasks[0]["title"] == "Hemograma completo"
+        assert laboratory_tasks[0]["status"] == "PENDING"
+
+        laboratory_headers = login(client, "laboratorio")
+
+        # Laboratorio completa la orden y publica un resultado simulado.
+        completion_response = client.patch(
+            f"/tasks/{laboratory_tasks[0]['id']}/complete",
+            headers=laboratory_headers,
+            json={
+                "result": (
+                    "Hemoglobina 13.8 g/dL; "
+                    "leucocitos 8,400/mm3; "
+                    "plaquetas 245,000/mm3"
+                ),
+            },
+        )
+
+        assert completion_response.status_code == 200
+
+        completed_task = next(
+            task
+            for task in completion_response.json()["tasks"]
+            if task["id"] == laboratory_tasks[0]["id"]
+        )
+
+        assert completed_task["status"] == "COMPLETED"
+        assert "Hemoglobina" in completed_task["result"]
 
 
         resolve_response = client.patch(
@@ -174,6 +222,9 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
         assert "TRIAGE" in event_types
         assert "VITALS_RECORDED" in event_types
         assert "ALERT_ACKNOWLEDGED" in event_types
+        assert "MEDICAL_EVALUATION" in event_types
+        assert "TASK_CREATED" in event_types
+        assert "TASK_COMPLETED" in event_types
         assert "DISCHARGE" in event_types
 
 
