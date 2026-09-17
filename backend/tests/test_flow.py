@@ -1,0 +1,191 @@
+from pathlib import Path
+
+from fastapi.testclient import TestClient
+
+from app import main
+
+
+def login(client: TestClient, username: str) -> dict[str, str]:
+    response = client.post(
+        "/auth/login",
+        json={
+            "username": username,
+            "password": "demo123",
+        },
+    )
+
+    assert response.status_code == 200
+
+    token = response.json()["access_token"]
+
+    return {
+        "Authorization": f"Bearer {token}",
+    }
+
+
+def test_complete_clinical_flow(tmp_path: Path) -> None:
+    main.DATABASE_PATH = tmp_path / "clinical-test.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente Automatizado",
+                "birth_date": "1990-01-01",
+                "document": "TEST-001",
+                "priority": 2,
+                "location": "Recepción",
+            },
+        )
+
+        assert create_response.status_code == 201
+
+        episode = create_response.json()
+
+        assert episode["name"] == "Paciente Automatizado"
+        assert episode["status"] == "ACTIVE"
+        assert episode["priority"] == 2
+        assert episode["qr_token"]
+
+        scan_response = client.get(
+            f"/scan/{episode['qr_token']}",
+            headers=reception_headers,
+        )
+
+        assert scan_response.status_code == 200
+        assert scan_response.json()["id"] == episode["id"]
+
+        nurse_headers = login(client, "enfermeria")
+
+        triage_response = client.post(
+            f"/episodes/{episode['id']}/triage",
+            headers=nurse_headers,
+            json={
+                "priority": 1,
+                "location": "Área de choque",
+                "assigned_to": "Enfermería A",
+            },
+        )
+
+        assert triage_response.status_code == 200
+        assert triage_response.json()["priority"] == 1
+        assert triage_response.json()["location"] == "Área de choque"
+
+        vitals_response = client.post(
+            f"/episodes/{episode['id']}/vitals",
+            headers=nurse_headers,
+            json={
+                "temperature": 39.2,
+                "heart_rate": 130,
+                "systolic": 100,
+                "diastolic": 60,
+                "spo2": 88,
+                "respiratory_rate": 28,
+            },
+        )
+
+        assert vitals_response.status_code == 201
+
+        episode_with_alerts = vitals_response.json()
+
+        assert len(episode_with_alerts["alerts"]) == 3
+
+        alert_id = episode_with_alerts["alerts"][0]["id"]
+
+        acknowledge_response = client.patch(
+            f"/alerts/{alert_id}",
+            headers=nurse_headers,
+            json={
+                "status": "ACKNOWLEDGED",
+            },
+        )
+
+        assert acknowledge_response.status_code == 200
+
+        acknowledged_alert = next(
+            alert
+            for alert in acknowledge_response.json()["alerts"]
+            if alert["id"] == alert_id
+        )
+
+        assert acknowledged_alert["status"] == "ACKNOWLEDGED"
+
+        doctor_headers = login(client, "medico")
+
+        resolve_response = client.patch(
+            f"/alerts/{alert_id}",
+            headers=doctor_headers,
+            json={
+                "status": "RESOLVED",
+            },
+        )
+
+        assert resolve_response.status_code == 200
+
+        discharge_response = client.post(
+            f"/episodes/{episode['id']}/discharge",
+            headers=doctor_headers,
+            json={
+                "note": "Paciente estable",
+            },
+        )
+
+        assert discharge_response.status_code == 200
+
+        closed_episode = discharge_response.json()
+
+        assert closed_episode["status"] == "CLOSED"
+        assert closed_episode["closed_at"] is not None
+
+        event_types = {
+            event["type"]
+            for event in closed_episode["events"]
+        }
+
+        assert "EPISODE_CREATED" in event_types
+        assert "QR_SCANNED" in event_types
+        assert "TRIAGE" in event_types
+        assert "VITALS_RECORDED" in event_types
+        assert "ALERT_ACKNOWLEDGED" in event_types
+        assert "DISCHARGE" in event_types
+
+
+def test_reception_cannot_register_vitals(tmp_path: Path) -> None:
+    main.DATABASE_PATH = tmp_path / "permissions-test.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Prueba de permisos",
+                "birth_date": "1985-06-15",
+                "document": "TEST-002",
+                "priority": 3,
+                "location": "Recepción",
+            },
+        )
+
+        episode_id = create_response.json()["id"]
+
+        response = client.post(
+            f"/episodes/{episode_id}/vitals",
+            headers=reception_headers,
+            json={
+                "temperature": 37,
+                "heart_rate": 80,
+                "systolic": 120,
+                "diastolic": 80,
+                "spo2": 98,
+                "respiratory_rate": 16,
+            },
+        )
+
+        assert response.status_code == 403
