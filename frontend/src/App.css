@@ -436,6 +436,20 @@ details[open] .large-button {
   background: #963127;
 }
 
+.section-description {
+  margin-top: -0.35rem;
+  margin-bottom: 1.2rem;
+  color: #71848a;
+}
+
+.triage-panel {
+  border-top: 4px solid #087f78;
+}
+
+.triage-panel .form-grid {
+  margin-top: 1rem;
+}
+
 @media (max-width: 900px) {
   .header {
     flex-wrap: wrap;

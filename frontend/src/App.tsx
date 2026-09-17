@@ -422,6 +422,21 @@ function EpisodePage({
     }
   }
 
+  async function registerTriage(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+
+  const form = new FormData(event.currentTarget);
+
+  await call(`/episodes/${episode.id}/triage`, {
+    method: "POST",
+    body: JSON.stringify({
+      priority: Number(form.get("priority")),
+      location: form.get("location"),
+      assigned_to: form.get("assigned_to"),
+    }),
+  });
+}
+
   async function registerVitals(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -473,6 +488,63 @@ function EpisodePage({
             </div>
           </details>
         </section>
+
+        {(user.role === "NURSE" || user.role === "SUPERVISOR") && (
+  <section className="panel triage-panel">
+    <h2>Triaje y asignación</h2>
+
+    <p className="section-description">
+      Actualiza la prioridad, ubicación y personal responsable.
+    </p>
+
+    <form className="form-grid" onSubmit={registerTriage}>
+      <label>
+        Prioridad
+        <select
+          name="priority"
+          defaultValue={String(episode.priority)}
+        >
+          <option value="1">P1 · Crítica</option>
+          <option value="2">P2 · Alta</option>
+          <option value="3">P3 · Media</option>
+          <option value="4">P4 · Baja</option>
+          <option value="5">P5 · No urgente</option>
+        </select>
+      </label>
+
+      <label>
+        Área o ubicación
+        <select
+          name="location"
+          defaultValue={episode.location}
+        >
+          <option value="Recepción">Recepción</option>
+          <option value="Sala de espera">Sala de espera</option>
+          <option value="Triaje">Triaje</option>
+          <option value="Observación">Observación</option>
+          <option value="Consultorio 1">Consultorio 1</option>
+          <option value="Consultorio 2">Consultorio 2</option>
+          <option value="Área de choque">Área de choque</option>
+          <option value="Laboratorio">Laboratorio</option>
+        </select>
+      </label>
+
+      <label>
+        Personal responsable
+        <input
+          name="assigned_to"
+          defaultValue={episode.assigned_to || ""}
+          placeholder="Ejemplo: Enfermería A"
+          required
+        />
+      </label>
+
+      <button type="submit">
+        Guardar triaje y asignación
+      </button>
+    </form>
+  </section>
+)}
 
         <section className="panel">
           <h2>Signos vitales</h2>
