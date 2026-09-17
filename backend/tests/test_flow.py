@@ -115,6 +115,29 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
         assert acknowledged_alert["status"] == "ACKNOWLEDGED"
 
         doctor_headers = login(client, "medico")
+                # El médico registra una evaluación clínica sobre el episodio activo.
+        evaluation_response = client.post(
+            f"/episodes/{episode['id']}/medical-evaluation",
+            headers=doctor_headers,
+            json={
+                "clinical_note": (
+                    "Paciente evaluado, consciente y orientado"
+                ),
+                "diagnosis": "Síndrome febril en estudio",
+                "disposition": "ORDER_TESTS",
+            },
+        )
+
+        assert evaluation_response.status_code == 200
+
+        # La evaluación debe quedar registrada en el timeline auditable.
+        evaluation_events = {
+            event["type"]
+            for event in evaluation_response.json()["events"]
+        }
+
+        assert "MEDICAL_EVALUATION" in evaluation_events
+
 
         resolve_response = client.patch(
             f"/alerts/{alert_id}",

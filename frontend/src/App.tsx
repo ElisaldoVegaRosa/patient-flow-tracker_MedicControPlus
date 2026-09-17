@@ -437,6 +437,31 @@ function EpisodePage({
   });
 }
 
+  /**
+   * Registra la evaluación clínica realizada por el médico.
+   *
+   * El backend guardará la evaluación como un evento auditable,
+   * conservando el usuario, la fecha, el diagnóstico y la decisión.
+   */
+    async function registerMedicalEvaluation(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+
+    const form = new FormData(event.currentTarget);
+
+    await call(`/episodes/${episode.id}/medical-evaluation`, {
+      method: "POST",
+      body: JSON.stringify({
+        clinical_note: form.get("clinical_note"),
+        diagnosis: form.get("diagnosis"),
+        disposition: form.get("disposition"),
+      }),
+    });
+
+    event.currentTarget.reset();
+  }
+
   async function registerVitals(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -631,6 +656,81 @@ function EpisodePage({
             </details>
           )}
         </section>
+
+        {user.role === "DOCTOR" && episode.status === "ACTIVE" && (
+  <section className="panel medical-panel">
+    <div className="section-heading">
+      <div>
+        <span className="section-icon">⚕</span>
+
+        <div>
+          <h2>Evaluación médica</h2>
+
+          <p className="section-description">
+            Registra el diagnóstico y la decisión sobre el episodio.
+          </p>
+        </div>
+      </div>
+
+      <span className="role-badge">MÉDICO</span>
+    </div>
+
+    <form
+      className="medical-form"
+      onSubmit={registerMedicalEvaluation}
+    >
+      <label>
+        Diagnóstico o impresión clínica
+
+        <input
+          name="diagnosis"
+          placeholder="Ejemplo: síndrome febril en estudio"
+          minLength={2}
+          maxLength={500}
+          required
+        />
+      </label>
+
+      <label>
+        Nota de evaluación
+
+        <textarea
+          name="clinical_note"
+          placeholder="Describe el estado del paciente y la conducta médica"
+          minLength={3}
+          maxLength={2000}
+          rows={5}
+          required
+        />
+      </label>
+
+      <label>
+        Decisión médica
+
+        <select
+          name="disposition"
+          defaultValue="CONTINUE_OBSERVATION"
+        >
+          <option value="CONTINUE_OBSERVATION">
+            Continuar en observación
+          </option>
+
+          <option value="ORDER_TESTS">
+            Solicitar pruebas u órdenes
+          </option>
+
+          <option value="READY_FOR_DISCHARGE">
+            Preparar para alta
+          </option>
+        </select>
+      </label>
+
+      <button type="submit">
+        Guardar evaluación médica
+      </button>
+    </form>
+  </section>
+)}
 
         <section className="panel alerts">
           <h2>Alertas activas</h2>
