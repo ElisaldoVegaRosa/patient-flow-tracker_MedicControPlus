@@ -476,6 +476,25 @@ async function completeLaboratoryOrder(
       </button>
     </div>
 
+      <section className="rules-status">
+  <div>
+    <span className="rules-icon">⚙</span>
+
+    <div>
+      <strong>Motor de reglas actualizado</strong>
+      <p>
+        Se evaluaron{" "}
+        {supervisorData.rules.evaluated_episodes} episodios activos.
+      </p>
+    </div>
+  </div>
+
+  <div className="rules-result">
+    <strong>{supervisorData.rules.generated_alerts}</strong>
+    <span>Nuevas alertas generadas</span>
+  </div>
+</section>
+
     <section className="supervisor-stats">
       <article>
         <strong>

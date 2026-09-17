@@ -238,6 +238,203 @@ def add_event(
         ),
     )
 
+def create_alert_if_missing(
+    connection: sqlite3.Connection,
+    episode_id: int,
+    reason: str,
+    severity: str,
+) -> bool:
+    """
+    Crea una alerta solamente cuando no existe otra alerta abierta
+    con el mismo motivo para el episodio.
+
+    Retorna True cuando se crea una alerta y False cuando ya existía.
+    Esta verificación evita duplicados en cada ciclo del motor.
+    """
+
+    existing_alert = connection.execute(
+        """
+        SELECT id
+        FROM alerts
+        WHERE episode_id = ?
+        AND reason = ?
+        AND status != 'RESOLVED'
+        """,
+        (
+            episode_id,
+            reason,
+        ),
+    ).fetchone()
+
+    if existing_alert is not None:
+        return False
+
+    current_time = utc_now()
+
+    connection.execute(
+        """
+        INSERT INTO alerts (
+            episode_id,
+            reason,
+            severity,
+            status,
+            created_at,
+            updated_at
+        )
+        VALUES (?, ?, ?, 'ACTIVE', ?, ?)
+        """,
+        (
+            episode_id,
+            reason,
+            severity,
+            current_time,
+            current_time,
+        ),
+    )
+
+    add_event(
+        connection,
+        episode_id,
+        "ALERT_CREATED",
+        "time-rules-engine",
+        reason,
+    )
+
+    return True
+
+def evaluate_time_rules(
+    connection: sqlite3.Connection,
+) -> dict[str, int]:
+    """
+    Evalúa reglas de tiempo sobre todos los episodios activos.
+
+    Reglas iniciales:
+    - episodio sin triaje después de 30 minutos;
+    - tarea pendiente durante más de 60 minutos;
+    - paciente P1 o P2 sin eventos recientes durante 15 minutos.
+    """
+
+    current_time = datetime.now(timezone.utc)
+
+    active_episodes = connection.execute(
+        """
+        SELECT *
+        FROM episodes
+        WHERE status = 'ACTIVE'
+        """
+    ).fetchall()
+
+    evaluated_episodes = 0
+    generated_alerts = 0
+
+    for episode in active_episodes:
+        evaluated_episodes += 1
+        episode_id = episode["id"]
+
+        started_at = datetime.fromisoformat(
+            episode["started_at"]
+        )
+
+        minutes_since_arrival = (
+            current_time - started_at
+        ).total_seconds() / 60
+
+        # Regla 1: el paciente continúa sin triaje después de 30 minutos.
+        triage_event = connection.execute(
+            """
+            SELECT id
+            FROM events
+            WHERE episode_id = ?
+            AND type = 'TRIAGE'
+            LIMIT 1
+            """,
+            (episode_id,),
+        ).fetchone()
+
+        if triage_event is None and minutes_since_arrival > 30:
+            was_created = create_alert_if_missing(
+                connection,
+                episode_id,
+                "Tiempo de espera de triaje excedido",
+                "HIGH",
+            )
+
+            if was_created:
+                generated_alerts += 1
+
+        # Regla 2: existe una tarea pendiente durante más de 60 minutos.
+        pending_tasks = connection.execute(
+            """
+            SELECT id, created_at
+            FROM tasks
+            WHERE episode_id = ?
+            AND status = 'PENDING'
+            """,
+            (episode_id,),
+        ).fetchall()
+
+        for task in pending_tasks:
+            task_created_at = datetime.fromisoformat(
+                task["created_at"]
+            )
+
+            task_age_minutes = (
+                current_time - task_created_at
+            ).total_seconds() / 60
+
+            if task_age_minutes > 60:
+                was_created = create_alert_if_missing(
+                    connection,
+                    episode_id,
+                    "Tarea pendiente con tiempo excedido",
+                    "HIGH",
+                )
+
+                if was_created:
+                    generated_alerts += 1
+
+        # Regla 3: paciente prioritario sin actualización en 15 minutos.
+        if episode["priority"] <= 2:
+            # Los eventos creados por el propio motor no cuentan como
+            # seguimiento humano o clínico del paciente.
+            latest_event = connection.execute(
+                """
+                SELECT created_at
+                FROM events
+                WHERE episode_id = ?
+                AND type != 'ALERT_CREATED'
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (episode_id,),
+            ).fetchone()
+
+            if latest_event is not None:
+                latest_event_time = datetime.fromisoformat(
+                    latest_event["created_at"]
+                )
+
+                minutes_without_update = (
+                    current_time - latest_event_time
+                ).total_seconds() / 60
+
+                if minutes_without_update > 15:
+                    was_created = create_alert_if_missing(
+                        connection,
+                        episode_id,
+                        "Paciente prioritario sin actualización reciente",
+                        "CRITICAL",
+                    )
+
+                    if was_created:
+                        generated_alerts += 1
+
+    connection.commit()
+
+    return {
+        "evaluated_episodes": evaluated_episodes,
+        "generated_alerts": generated_alerts,
+    }
 
 def episode_detail(
     connection: sqlite3.Connection,
@@ -402,13 +599,37 @@ def dashboard(
     }
     
     # ---------------------------------------------------------------------------
+# EJECUCIÓN DEL MOTOR TEMPORAL
+# ---------------------------------------------------------------------------
+# En el demo, supervisor y médico pueden solicitar una evaluación inmediata.
+# Posteriormente este mismo servicio podrá ejecutarse mediante un proceso
+# programado sin cambiar las reglas clínicas.
+# ---------------------------------------------------------------------------
+
+@app.post("/rules/evaluate")
+def evaluate_rules(
+    user: dict[str, str] = Depends(
+        require_roles("SUPERVISOR", "DOCTOR")
+    ),
+) -> dict:
+    connection = get_connection()
+
+    result = evaluate_time_rules(connection)
+    connection.close()
+
+    return {
+        **result,
+        "evaluated_at": utc_now(),
+        "requested_by": user["username"],
+    }
+    
+    # ---------------------------------------------------------------------------
 # CENTRO DE CONTROL DEL SUPERVISOR
 # ---------------------------------------------------------------------------
 # Consolida indicadores de pacientes activos, prioridades, alertas, tareas
 # y tiempos desde el ingreso. La información se calcula en el servidor para
 # ofrecer una única lectura operacional y auditable de la situación actual.
 # ---------------------------------------------------------------------------
-
 @app.get("/supervisor/dashboard")
 def supervisor_dashboard(
     user: dict[str, str] = Depends(
@@ -416,6 +637,8 @@ def supervisor_dashboard(
     ),
 ) -> dict:
     connection = get_connection()
+    # El panel siempre presenta la evaluación temporal más reciente.
+    rules_result = evaluate_time_rules(connection)
 
     episode_rows = connection.execute(
         """
@@ -488,11 +711,12 @@ def supervisor_dashboard(
 
     return {
         "metrics": metrics,
+        "rules": rules_result,
         "patients": patients,
         "generated_at": utc_now(),
         "requested_by": user["username"],
     }
-
+    
 
 @app.post("/episodes", status_code=201)
 def create_episode(
@@ -580,7 +804,7 @@ def scan_qr(
         SELECT id
         FROM episodes
         WHERE qr_token = ?
-          AND status = 'ACTIVE'
+        AND status = 'ACTIVE'
         """,
         (qr_token,),
     ).fetchone()
@@ -620,10 +844,10 @@ def register_triage(
         """
         UPDATE episodes
         SET priority = ?,
-            location = ?,
-            assigned_to = ?
+        location = ?,
+        assigned_to = ?
         WHERE id = ?
-          AND status = 'ACTIVE'
+        AND status = 'ACTIVE'
         """,
         (
             data.priority,
@@ -715,8 +939,8 @@ def register_vitals(
             SELECT id
             FROM alerts
             WHERE episode_id = ?
-              AND reason = ?
-              AND status != 'RESOLVED'
+            AND reason = ?
+            AND status != 'RESOLVED'
             """,
             (
                 episode_id,

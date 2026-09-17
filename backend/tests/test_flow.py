@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
 
@@ -347,3 +348,140 @@ def test_supervisor_dashboard_and_permissions(
         )
 
         assert forbidden_response.status_code == 403
+        
+def test_time_rules_generate_alerts_without_duplicates(
+    tmp_path: Path,
+) -> None:
+    """
+    Simula el paso del tiempo y valida las tres reglas temporales.
+
+    También ejecuta el motor dos veces para comprobar que no se
+    creen alertas duplicadas.
+    """
+
+    main.DATABASE_PATH = tmp_path / "time-rules.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente con demora",
+                "birth_date": "1968-11-05",
+                "document": "TIME-001",
+                "priority": 1,
+                "location": "Sala de espera",
+            },
+        )
+
+        assert create_response.status_code == 201
+
+        episode_id = create_response.json()["id"]
+
+        doctor_headers = login(client, "medico")
+
+        task_response = client.post(
+            f"/episodes/{episode_id}/tasks",
+            headers=doctor_headers,
+            json={
+                "title": "Estudio pendiente",
+                "service": "LAB",
+            },
+        )
+
+        assert task_response.status_code == 201
+
+        # Se simula un ingreso ocurrido hace 90 minutos.
+        old_time = (
+            datetime.now(timezone.utc) - timedelta(minutes=90)
+        ).isoformat()
+
+        connection = main.get_connection()
+
+        connection.execute(
+            """
+            UPDATE episodes
+            SET started_at = ?
+            WHERE id = ?
+            """,
+            (
+                old_time,
+                episode_id,
+            ),
+        )
+
+        connection.execute(
+            """
+            UPDATE events
+            SET created_at = ?
+            WHERE episode_id = ?
+            """,
+            (
+                old_time,
+                episode_id,
+            ),
+        )
+
+        connection.execute(
+            """
+            UPDATE tasks
+            SET created_at = ?
+            WHERE episode_id = ?
+            """,
+            (
+                old_time,
+                episode_id,
+            ),
+        )
+
+        connection.commit()
+        connection.close()
+
+        supervisor_headers = login(client, "supervisor")
+
+        first_evaluation = client.post(
+            "/rules/evaluate",
+            headers=supervisor_headers,
+        )
+
+        assert first_evaluation.status_code == 200
+        assert first_evaluation.json()["evaluated_episodes"] == 1
+        assert first_evaluation.json()["generated_alerts"] == 3
+
+        episode_response = client.get(
+            f"/episodes/{episode_id}",
+            headers=supervisor_headers,
+        )
+
+        assert episode_response.status_code == 200
+
+        alert_reasons = {
+            alert["reason"]
+            for alert in episode_response.json()["alerts"]
+        }
+
+        assert "Tiempo de espera de triaje excedido" in alert_reasons
+        assert "Tarea pendiente con tiempo excedido" in alert_reasons
+        assert (
+            "Paciente prioritario sin actualización reciente"
+            in alert_reasons
+        )
+
+        # Una segunda ejecución no debe duplicar alertas abiertas.
+        second_evaluation = client.post(
+            "/rules/evaluate",
+            headers=supervisor_headers,
+        )
+
+        assert second_evaluation.status_code == 200
+        assert second_evaluation.json()["generated_alerts"] == 0
+
+        second_episode_response = client.get(
+            f"/episodes/{episode_id}",
+            headers=supervisor_headers,
+        )
+
+        assert len(second_episode_response.json()["alerts"]) == 3

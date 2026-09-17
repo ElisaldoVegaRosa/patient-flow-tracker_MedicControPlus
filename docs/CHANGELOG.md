@@ -264,3 +264,58 @@ El indicador `REQUIERE ATENCIÓN` se muestra cuando:
 
 - la prioridad es P1 o P2; o
 - existe al menos una alerta sin resolver.
+
+---
+
+## Etapa 9 — Motor de reglas temporales
+
+### En desarrollo
+
+El motor evalúa todos los episodios activos y crea alertas
+automáticas cuando detecta demoras operacionales.
+
+### Reglas implementadas
+
+#### Triaje demorado
+
+- Condición: episodio activo sin evento `TRIAGE`.
+- Umbral: más de 30 minutos desde el ingreso.
+- Severidad: `HIGH`.
+- Motivo: `Tiempo de espera de triaje excedido`.
+
+#### Tarea pendiente excedida
+
+- Condición: tarea con estado `PENDING`.
+- Umbral: más de 60 minutos desde su creación.
+- Severidad: `HIGH`.
+- Motivo: `Tarea pendiente con tiempo excedido`.
+
+#### Paciente prioritario sin actualización
+
+- Condición: paciente con prioridad P1 o P2.
+- Umbral: más de 15 minutos sin eventos clínicos u operacionales.
+- Severidad: `CRITICAL`.
+- Motivo: `Paciente prioritario sin actualización reciente`.
+
+### Prevención de duplicados
+
+Antes de crear una alerta, el motor comprueba que no exista otra
+alerta abierta con el mismo motivo para el mismo episodio.
+
+Una segunda ejecución del motor no debe duplicar alertas que continúan
+en estado `ACTIVE`, `ACKNOWLEDGED` o `ESCALATED`.
+
+### Eventos que no cuentan como seguimiento
+
+Los eventos `ALERT_CREATED` generados por el propio motor no se
+consideran una actualización clínica del paciente.
+
+Esta regla evita que la generación automática de una alerta reinicie
+incorrectamente el tiempo de seguimiento de un paciente prioritario.
+
+### Auditoría
+
+Cada alerta temporal genera un evento:
+
+```text
+ALERT_CREATED
