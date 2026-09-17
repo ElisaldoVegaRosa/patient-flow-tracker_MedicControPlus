@@ -297,3 +297,53 @@ def test_reception_cannot_access_laboratory_queue(
         )
 
         assert response.status_code == 403
+        
+def test_supervisor_dashboard_and_permissions(
+    tmp_path: Path,
+) -> None:
+    """Valida indicadores y acceso exclusivo del supervisor."""
+
+    main.DATABASE_PATH = tmp_path / "supervisor-dashboard.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente supervisado",
+                "birth_date": "1975-03-10",
+                "document": "SUP-001",
+                "priority": 1,
+                "location": "Área de choque",
+            },
+        )
+
+        assert create_response.status_code == 201
+
+        supervisor_headers = login(client, "supervisor")
+
+        dashboard_response = client.get(
+            "/supervisor/dashboard",
+            headers=supervisor_headers,
+        )
+
+        assert dashboard_response.status_code == 200
+
+        dashboard = dashboard_response.json()
+
+        assert dashboard["metrics"]["active_patients"] == 1
+        assert dashboard["metrics"]["high_priority_patients"] == 1
+        assert dashboard["metrics"]["patients_at_risk"] == 1
+        assert len(dashboard["patients"]) == 1
+        assert dashboard["patients"][0]["at_risk"] is True
+        assert dashboard["patients"][0]["waiting_minutes"] >= 0
+
+        forbidden_response = client.get(
+            "/supervisor/dashboard",
+            headers=reception_headers,
+        )
+
+        assert forbidden_response.status_code == 403

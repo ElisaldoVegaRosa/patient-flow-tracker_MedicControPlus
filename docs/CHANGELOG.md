@@ -211,3 +211,56 @@ necesaria para ejecutar la orden. El acceso se controla mediante roles.
 5. La orden cambia a `COMPLETED`.
 6. El resultado se conserva en la tarea.
 7. La acción genera un evento auditable.
+
+---
+
+## Etapa 8 — Centro de control del supervisor
+
+### Implementado
+- Endpoint exclusivo para supervisor.
+- Indicadores operacionales:
+  - pacientes activos;
+  - pacientes de prioridad alta;
+  - pacientes en riesgo;
+  - alertas abiertas;
+  - tareas pendientes.
+- Tiempo transcurrido desde el ingreso.
+- Conteo de alertas por paciente.
+- Conteo de tareas pendientes por paciente.
+- Clasificación operacional de riesgo.
+- Restricción de acceso por rol.
+
+### Regla de riesgo inicial
+
+Un paciente se considera en riesgo cuando:
+
+- tiene prioridad P1 o P2; o
+- tiene al menos una alerta sin resolver.
+
+### Verificación
+
+- Endpoint `/supervisor/dashboard` visible en Swagger.
+- Acceso restringido al rol supervisor.
+- Cuatro pruebas automáticas aprobadas.
+- Indicadores operacionales visibles.
+- Tiempo de espera calculado por paciente.
+- Pacientes P1 y P2 identificados.
+- Pacientes con alertas identificados.
+- Conteo de tareas pendientes visible.
+- Filtros operacionales funcionales.
+- Acceso rápido al episodio desde la tabla.
+- Frontend compilado correctamente.
+
+### Filtros disponibles
+
+- Todos los pacientes activos.
+- Pacientes en riesgo.
+- Pacientes con prioridad P1 o P2.
+- Pacientes con alertas abiertas.
+
+### Criterio inicial de riesgo
+
+El indicador `REQUIERE ATENCIÓN` se muestra cuando:
+
+- la prioridad es P1 o P2; o
+- existe al menos una alerta sin resolver.

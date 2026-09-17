@@ -400,6 +400,98 @@ def dashboard(
         "patients": patients,
         "requested_by": user["username"],
     }
+    
+    # ---------------------------------------------------------------------------
+# CENTRO DE CONTROL DEL SUPERVISOR
+# ---------------------------------------------------------------------------
+# Consolida indicadores de pacientes activos, prioridades, alertas, tareas
+# y tiempos desde el ingreso. La información se calcula en el servidor para
+# ofrecer una única lectura operacional y auditable de la situación actual.
+# ---------------------------------------------------------------------------
+
+@app.get("/supervisor/dashboard")
+def supervisor_dashboard(
+    user: dict[str, str] = Depends(
+        require_roles("SUPERVISOR")
+    ),
+) -> dict:
+    connection = get_connection()
+
+    episode_rows = connection.execute(
+        """
+        SELECT id
+        FROM episodes
+        WHERE status = 'ACTIVE'
+        ORDER BY priority, started_at
+        """
+    ).fetchall()
+
+    patients: list[dict] = []
+
+    for row in episode_rows:
+        patient = episode_detail(connection, row["id"])
+
+        started_at = datetime.fromisoformat(patient["started_at"])
+        waiting_minutes = int(
+            (
+                datetime.now(timezone.utc) - started_at
+            ).total_seconds()
+            / 60
+        )
+
+        open_alerts = [
+            alert
+            for alert in patient["alerts"]
+            if alert["status"] != "RESOLVED"
+        ]
+
+        pending_tasks = [
+            task
+            for task in patient["tasks"]
+            if task["status"] == "PENDING"
+        ]
+
+        patient["waiting_minutes"] = waiting_minutes
+        patient["open_alert_count"] = len(open_alerts)
+        patient["pending_task_count"] = len(pending_tasks)
+
+        patient["at_risk"] = (
+            patient["priority"] <= 2
+            or len(open_alerts) > 0
+        )
+
+        patients.append(patient)
+
+    metrics = {
+        "active_patients": len(patients),
+        "high_priority_patients": sum(
+            1
+            for patient in patients
+            if patient["priority"] <= 2
+        ),
+        "patients_at_risk": sum(
+            1
+            for patient in patients
+            if patient["at_risk"]
+        ),
+        "open_alerts": sum(
+            patient["open_alert_count"]
+            for patient in patients
+        ),
+        "pending_tasks": sum(
+            patient["pending_task_count"]
+            for patient in patients
+        ),
+    }
+
+    connection.close()
+
+    return {
+        "metrics": metrics,
+        "patients": patients,
+        "generated_at": utc_now(),
+        "requested_by": user["username"],
+    }
 
 
 @app.post("/episodes", status_code=201)

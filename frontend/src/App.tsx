@@ -57,6 +57,8 @@ function App() {
   const [dashboard, setDashboard] = useState<any>(null);
   const [episode, setEpisode] = useState<Episode | null>(null);
   const [laboratoryQueue, setLaboratoryQueue] = useState<any>(null);
+  const [supervisorData, setSupervisorData] = useState<any>(null);
+  const [supervisorFilter, setSupervisorFilter] = useState("ALL");
   const [error, setError] = useState("");
 
   async function loadDashboard() {
@@ -140,6 +142,24 @@ function App() {
       setError((exception as Error).message);
     }
   }
+
+  /**
+ * Carga el centro de control exclusivo del supervisor.
+ *
+ * Los indicadores se calculan en el backend para mantener una lectura
+ * operacional consistente de pacientes, riesgos, alertas y tareas.
+ */
+async function openSupervisorDashboard() {
+  try {
+    const result = await api("/supervisor/dashboard");
+
+    setSupervisorData(result);
+    setSupervisorFilter("ALL");
+    setPage("supervisor");
+  } catch (exception) {
+    setError((exception as Error).message);
+  }
+}
 
   /**
  * Abre la bandeja de laboratorio y carga las órdenes pendientes.
@@ -241,6 +261,12 @@ async function completeLaboratoryOrder(
           >
             Centro de control
           </button>
+
+          {user.role === "SUPERVISOR" && (
+        <button onClick={openSupervisorDashboard}>
+          Panel de supervisor
+        </button>
+          )}
 
           <button onClick={() => setPage("scan")}>
             Escanear pulsera
@@ -433,6 +459,196 @@ async function completeLaboratoryOrder(
           </section>
         </main>
       )}
+
+      {page === "supervisor" && supervisorData && (
+  <main className="container">
+    <div className="page-title">
+      <div>
+        <span>SUPERVISIÓN OPERACIONAL</span>
+        <h1>Centro de control del supervisor</h1>
+        <p>
+          Prioridades, riesgos, alertas y carga asistencial.
+        </p>
+      </div>
+
+      <button onClick={openSupervisorDashboard}>
+        Actualizar indicadores
+      </button>
+    </div>
+
+    <section className="supervisor-stats">
+      <article>
+        <strong>
+          {supervisorData.metrics.active_patients}
+        </strong>
+        <span>Pacientes activos</span>
+      </article>
+
+      <article className="warning-stat">
+        <strong>
+          {supervisorData.metrics.high_priority_patients}
+        </strong>
+        <span>Prioridad P1–P2</span>
+      </article>
+
+      <article className="danger-stat">
+        <strong>
+          {supervisorData.metrics.patients_at_risk}
+        </strong>
+        <span>Pacientes en riesgo</span>
+      </article>
+
+      <article className="danger-stat">
+        <strong>
+          {supervisorData.metrics.open_alerts}
+        </strong>
+        <span>Alertas abiertas</span>
+      </article>
+
+      <article>
+        <strong>
+          {supervisorData.metrics.pending_tasks}
+        </strong>
+        <span>Tareas pendientes</span>
+      </article>
+    </section>
+
+    <section className="panel supervisor-table">
+      <div className="supervisor-toolbar">
+        <div>
+          <h2>Seguimiento de pacientes</h2>
+          <p>
+            Filtra la operación para localizar situaciones prioritarias.
+          </p>
+        </div>
+
+        <div className="filter-buttons">
+          <button
+            className={
+              supervisorFilter === "ALL" ? "active-filter" : ""
+            }
+            onClick={() => setSupervisorFilter("ALL")}
+          >
+            Todos
+          </button>
+
+          <button
+            className={
+              supervisorFilter === "RISK" ? "active-filter" : ""
+            }
+            onClick={() => setSupervisorFilter("RISK")}
+          >
+            En riesgo
+          </button>
+
+          <button
+            className={
+              supervisorFilter === "HIGH" ? "active-filter" : ""
+            }
+            onClick={() => setSupervisorFilter("HIGH")}
+          >
+            P1–P2
+          </button>
+
+          <button
+            className={
+              supervisorFilter === "ALERTS" ? "active-filter" : ""
+            }
+            onClick={() => setSupervisorFilter("ALERTS")}
+          >
+            Con alertas
+          </button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Prioridad</th>
+            <th>Ubicación</th>
+            <th>Espera</th>
+            <th>Alertas</th>
+            <th>Tareas</th>
+            <th>Riesgo</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {supervisorData.patients
+            .filter((patient: any) => {
+              if (supervisorFilter === "RISK") {
+                return patient.at_risk;
+              }
+
+              if (supervisorFilter === "HIGH") {
+                return patient.priority <= 2;
+              }
+
+              if (supervisorFilter === "ALERTS") {
+                return patient.open_alert_count > 0;
+              }
+
+              return true;
+            })
+            .map((patient: any) => (
+              <tr key={patient.id}>
+                <td>
+                  <strong>{patient.name}</strong>
+                  <small>EP-{patient.id}</small>
+                </td>
+
+                <td>
+                  <span className={`priority p${patient.priority}`}>
+                    P{patient.priority}
+                  </span>
+                </td>
+
+                <td>{patient.location}</td>
+
+                <td>
+                  {patient.waiting_minutes} min
+                </td>
+
+                <td>
+                  <span
+                    className={
+                      patient.open_alert_count > 0
+                        ? "count-badge danger-count"
+                        : "count-badge"
+                    }
+                  >
+                    {patient.open_alert_count}
+                  </span>
+                </td>
+
+                <td>
+                  <span className="count-badge">
+                    {patient.pending_task_count}
+                  </span>
+                </td>
+
+                <td>
+                  {patient.at_risk ? (
+                    <span className="risk-badge">REQUIERE ATENCIÓN</span>
+                  ) : (
+                    <span className="stable-badge">ESTABLE</span>
+                  )}
+                </td>
+
+                <td>
+                  <button onClick={() => openEpisode(patient.id)}>
+                    Abrir
+                  </button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </section>
+  </main>
+)}
 
       {page === "laboratory" && laboratoryQueue && (
   <main className="container">

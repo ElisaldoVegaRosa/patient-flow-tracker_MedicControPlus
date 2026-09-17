@@ -586,6 +586,122 @@ details[open] .large-button {
   font-weight: 900;
 }
 
+/* --------------------------------------------------------------------------
+   Centro de control del supervisor
+   -------------------------------------------------------------------------- */
+
+.supervisor-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.supervisor-stats article {
+  border: 1px solid #e0e9e9;
+  border-radius: 14px;
+  padding: 1.2rem;
+  background: white;
+  box-shadow: 0 3px 12px rgba(49, 91, 88, 0.06);
+}
+
+.supervisor-stats strong {
+  display: block;
+  font-size: 2rem;
+}
+
+.supervisor-stats span {
+  color: #6f8187;
+}
+
+.supervisor-stats .warning-stat strong {
+  color: #9a5400;
+}
+
+.supervisor-stats .danger-stat strong {
+  color: #c43d31;
+}
+
+.supervisor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.supervisor-toolbar h2 {
+  margin-bottom: 0.25rem;
+}
+
+.supervisor-toolbar p {
+  margin: 0;
+  color: #71848a;
+}
+
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.filter-buttons button {
+  color: #4b646c;
+  background: #eef3f3;
+}
+
+.filter-buttons button:hover,
+.filter-buttons .active-filter {
+  color: white;
+  background: #087f78;
+}
+
+.count-badge {
+  display: inline-grid;
+  min-width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  color: #315f83;
+  background: #e4eef5;
+  font-weight: 800;
+}
+
+.danger-count {
+  color: #a72d23;
+  background: #ffe0dc;
+}
+
+.risk-badge,
+.stable-badge {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.risk-badge {
+  color: #a72d23;
+  background: #ffe0dc;
+}
+
+.stable-badge {
+  color: #17655f;
+  background: #dceeea;
+}
+
+@media (max-width: 1100px) {
+  .supervisor-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .supervisor-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 900px) {
   .header {
     flex-wrap: wrap;

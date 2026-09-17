@@ -50,3 +50,28 @@ flowchart LR
     D --> E[Tarea completada]
     E --> F[Evento auditable]
     F --> G[Timeline del episodio]
+
+    ## Centro de control del supervisor
+
+El supervisor dispone de una vista operacional exclusiva con:
+
+- pacientes activos;
+- pacientes de prioridad P1 y P2;
+- pacientes clasificados en riesgo;
+- alertas abiertas;
+- tareas pendientes;
+- tiempo transcurrido desde el ingreso;
+- ubicación actual;
+- acceso directo al episodio.
+
+### Clasificación operacional
+
+```mermaid
+flowchart TD
+    A[Paciente activo] --> B{Prioridad P1 o P2}
+    B -->|Sí| R[Requiere atención]
+    B -->|No| C{Tiene alertas abiertas}
+    C -->|Sí| R
+    C -->|No| E[Estado operacional estable]
+    R --> S[Supervisor abre episodio]
+    S --> T[Reasignación o seguimiento]
