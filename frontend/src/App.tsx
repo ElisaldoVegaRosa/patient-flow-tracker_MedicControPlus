@@ -56,6 +56,7 @@ function App() {
   const [page, setPage] = useState("dashboard");
   const [dashboard, setDashboard] = useState<any>(null);
   const [episode, setEpisode] = useState<Episode | null>(null);
+  const [laboratoryQueue, setLaboratoryQueue] = useState<any>(null);
   const [error, setError] = useState("");
 
   async function loadDashboard() {
@@ -140,6 +141,46 @@ function App() {
     }
   }
 
+  /**
+ * Abre la bandeja de laboratorio y carga las órdenes pendientes.
+ */
+async function openLaboratoryQueue() {
+  try {
+    const result = await api("/lab/orders?status=PENDING");
+
+    setLaboratoryQueue(result);
+    setPage("laboratory");
+  } catch (exception) {
+    setError((exception as Error).message);
+  }
+}
+
+/**
+ * Publica el resultado de una orden de laboratorio.
+ * Al finalizar, vuelve a consultar la bandeja para retirar la orden completada.
+ */
+async function completeLaboratoryOrder(
+  event: FormEvent<HTMLFormElement>,
+  taskId: number,
+) {
+  event.preventDefault();
+
+  const form = new FormData(event.currentTarget);
+
+  try {
+    await api(`/tasks/${taskId}/complete`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        result: form.get("result"),
+      }),
+    });
+
+    await openLaboratoryQueue();
+  } catch (exception) {
+    setError((exception as Error).message);
+  }
+}
+
   function logout() {
     localStorage.removeItem("token");
     setUser(null);
@@ -204,6 +245,12 @@ function App() {
           <button onClick={() => setPage("scan")}>
             Escanear pulsera
           </button>
+
+          {(user.role === "LAB" || user.role === "SUPERVISOR") && (
+          <button onClick={openLaboratoryQueue}>
+          Bandeja de laboratorio
+        </button>
+          )}
 
           {user.role === "RECEPTION" && (
             <button onClick={() => setPage("new")}>
@@ -386,6 +433,109 @@ function App() {
           </section>
         </main>
       )}
+
+      {page === "laboratory" && laboratoryQueue && (
+  <main className="container">
+    <div className="page-title">
+      <div>
+        <span>LABORATORIO SIMULADO</span>
+        <h1>Órdenes pendientes</h1>
+        <p>
+          Registra y publica resultados para los episodios activos.
+        </p>
+      </div>
+
+      <button onClick={openLaboratoryQueue}>
+        Actualizar bandeja
+      </button>
+    </div>
+
+    <section className="lab-summary">
+      <article>
+        <strong>{laboratoryQueue.total}</strong>
+        <span>Órdenes pendientes</span>
+      </article>
+    </section>
+
+    {laboratoryQueue.orders.length === 0 ? (
+      <section className="panel empty-state">
+        <div className="empty-icon">✓</div>
+        <h2>No hay órdenes pendientes</h2>
+        <p>
+          Las nuevas órdenes de laboratorio aparecerán aquí.
+        </p>
+      </section>
+    ) : (
+      <section className="lab-grid">
+        {laboratoryQueue.orders.map((order: any) => (
+          <article className="panel lab-order" key={order.id}>
+            <div className="lab-order-header">
+              <div>
+                <span className="order-number">
+                  ORDEN #{order.id}
+                </span>
+
+                <h2>{order.title}</h2>
+              </div>
+
+              <span className={`priority p${order.priority}`}>
+                P{order.priority}
+              </span>
+            </div>
+
+            <dl className="lab-details">
+              <div>
+                <dt>Paciente</dt>
+                <dd>{order.patient_name}</dd>
+              </div>
+
+              <div>
+                <dt>Episodio</dt>
+                <dd>EP-{order.episode_id}</dd>
+              </div>
+
+              <div>
+                <dt>Ubicación</dt>
+                <dd>{order.location}</dd>
+              </div>
+
+              <div>
+                <dt>Estado</dt>
+                <dd>{order.status}</dd>
+              </div>
+            </dl>
+
+            <form
+              className="lab-result-form"
+              onSubmit={(event) =>
+                completeLaboratoryOrder(event, order.id)
+              }
+            >
+              <label>
+                Resultado de laboratorio
+
+                <textarea
+                  name="result"
+                  rows={4}
+                  placeholder={
+                    "Ejemplo: hemoglobina 13.8 g/dL; " +
+                    "leucocitos 8,400/mm3"
+                  }
+                  minLength={3}
+                  required
+                />
+              </label>
+
+              <button type="submit">
+                Publicar resultado y completar
+              </button>
+            </form>
+          </article>
+        ))}
+      </section>
+    )}
+  </main>
+)}
 
       {page === "episode" && episode && (
         <EpisodePage

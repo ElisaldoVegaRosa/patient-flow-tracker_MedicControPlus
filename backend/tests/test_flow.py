@@ -161,6 +161,22 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
         assert laboratory_tasks[0]["status"] == "PENDING"
 
         laboratory_headers = login(client, "laboratorio")
+        
+                # Laboratorio consulta su bandeja de órdenes pendientes.
+        queue_response = client.get(
+            "/lab/orders?status=PENDING",
+            headers=laboratory_headers,
+        )
+
+        assert queue_response.status_code == 200
+        assert queue_response.json()["total"] == 1
+
+        queued_order = queue_response.json()["orders"][0]
+
+        assert queued_order["title"] == "Hemograma completo"
+        assert queued_order["patient_name"] == "Paciente Automatizado"
+        assert queued_order["status"] == "PENDING"
+        assert queued_order["episode_status"] == "ACTIVE"
 
         # Laboratorio completa la orden y publica un resultado simulado.
         completion_response = client.patch(
@@ -260,6 +276,24 @@ def test_reception_cannot_register_vitals(tmp_path: Path) -> None:
                 "spo2": 98,
                 "respiratory_rate": 16,
             },
+        )
+
+        assert response.status_code == 403
+        
+def test_reception_cannot_access_laboratory_queue(
+    tmp_path: Path,
+) -> None:
+    """Comprueba que recepción no acceda a órdenes de laboratorio."""
+
+    main.DATABASE_PATH = tmp_path / "laboratory-permissions.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+
+        response = client.get(
+            "/lab/orders",
+            headers=reception_headers,
         )
 
         assert response.status_code == 403

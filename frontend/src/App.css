@@ -469,6 +469,123 @@ details[open] .large-button {
   background: #f6ead8;
 }
 
+/* --------------------------------------------------------------------------
+   Bandeja de laboratorio
+   --------------------------------------------------------------------------
+   Presenta únicamente las órdenes asignadas al servicio de laboratorio.
+   -------------------------------------------------------------------------- */
+
+.lab-summary {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px);
+  margin-bottom: 1rem;
+}
+
+.lab-summary article {
+  border: 1px solid #d7e4ef;
+  border-radius: 14px;
+  padding: 1.25rem;
+  background: #f4f8fc;
+}
+
+.lab-summary strong {
+  display: block;
+  color: #315f83;
+  font-size: 2rem;
+}
+
+.lab-summary span {
+  color: #667b88;
+}
+
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(340px, 1fr)
+  );
+  gap: 1rem;
+}
+
+.lab-order {
+  border-top: 4px solid #315f83;
+}
+
+.lab-order-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.lab-order-header h2 {
+  margin-top: 0.4rem;
+}
+
+.order-number {
+  color: #315f83;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.lab-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.lab-details div {
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: #f5f8f9;
+}
+
+.lab-details dt {
+  color: #71848a;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.lab-details dd {
+  margin: 0.3rem 0 0;
+  font-weight: 700;
+}
+
+.lab-result-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.lab-result-form textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #cbd8d8;
+  border-radius: 8px;
+  padding: 0.8rem;
+  font: inherit;
+}
+
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-icon {
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  color: #087f78;
+  background: #dceeea;
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
 @media (max-width: 900px) {
   .header {
     flex-wrap: wrap;

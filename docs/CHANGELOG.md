@@ -161,3 +161,53 @@ las verificaciones realizadas y el estado de cada etapa.
 - Permitir registrar un resultado simulado.
 - Completar la orden como usuario de laboratorio.
 - Mostrar el resultado en el timeline.
+
+---
+
+## Etapa 7 — Bandeja de laboratorio
+
+### Implementado
+
+- Endpoint exclusivo para laboratorio y supervisor.
+- Consulta de órdenes pendientes.
+- Consulta de órdenes completadas.
+- Filtro por estado:
+  - `PENDING`;
+  - `COMPLETED`;
+  - `ALL`.
+- Información operativa incluida:
+  - paciente;
+  - episodio;
+  - prioridad;
+  - ubicación;
+  - orden;
+  - resultado;
+  - estado.
+- Restricción de acceso para recepción, enfermería y médico.
+
+### Decisión de seguridad
+
+La bandeja no devuelve el token QR ni información clínica que no sea
+necesaria para ejecutar la orden. El acceso se controla mediante roles.
+
+### Verificación
+
+- Endpoint `/lab/orders` visible en Swagger.
+- Tres pruebas automáticas aprobadas.
+- Acceso permitido para laboratorio y supervisor.
+- Acceso rechazado para recepción.
+- Bandeja React compilada correctamente.
+- Orden pendiente visible para laboratorio.
+- Resultado simulado publicado desde la interfaz.
+- Orden retirada de pendientes después de completarse.
+- Evento `TASK_COMPLETED` registrado en el timeline.
+
+### Flujo validado
+
+1. El médico crea una orden de laboratorio.
+2. La orden queda con estado `PENDING`.
+3. Laboratorio abre su bandeja.
+4. Laboratorio registra un resultado.
+5. La orden cambia a `COMPLETED`.
+6. El resultado se conserva en la tarea.
+7. La acción genera un evento auditable.

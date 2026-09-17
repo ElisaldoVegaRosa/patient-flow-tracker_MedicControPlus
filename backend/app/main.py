@@ -851,7 +851,65 @@ def create_task(
 
     return result
 
+# ---------------------------------------------------------------------------
+# BANDEJA DE LABORATORIO
+# ---------------------------------------------------------------------------
+# Devuelve las órdenes asignadas a laboratorio junto con los datos operativos
+# del episodio. No expone el token QR ni datos clínicos adicionales.
+# Solo laboratorio y supervisor pueden consultar esta bandeja.
+# ---------------------------------------------------------------------------
 
+@app.get("/lab/orders")
+def laboratory_orders(
+    status: Literal["PENDING", "COMPLETED", "ALL"] = "PENDING",
+    user: dict[str, str] = Depends(
+        require_roles("LAB", "SUPERVISOR")
+    ),
+) -> dict:
+    connection = get_connection()
+
+    query = """
+        SELECT
+            tasks.id,
+            tasks.episode_id,
+            tasks.title,
+            tasks.service,
+            tasks.status,
+            tasks.result,
+            tasks.created_at,
+            patients.name AS patient_name,
+            episodes.priority,
+            episodes.location,
+            episodes.status AS episode_status
+        FROM tasks
+        JOIN episodes ON episodes.id = tasks.episode_id
+        JOIN patients ON patients.id = episodes.patient_id
+        WHERE tasks.service = 'LAB'
+    """
+
+    parameters: tuple[str, ...] = ()
+
+    if status != "ALL":
+        query += " AND tasks.status = ?"
+        parameters = (status,)
+
+    query += " ORDER BY tasks.id DESC"
+
+    rows = connection.execute(
+        query,
+        parameters,
+    ).fetchall()
+
+    orders = [dict(row) for row in rows]
+    connection.close()
+
+    return {
+        "status_filter": status,
+        "total": len(orders),
+        "orders": orders,
+        "requested_by": user["username"],
+    }
+    
 @app.patch("/tasks/{task_id}/complete")
 def complete_task(
     task_id: int,
