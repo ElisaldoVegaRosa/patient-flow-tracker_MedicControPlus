@@ -602,3 +602,70 @@ def test_demo_seed_is_additive_idempotent_and_restricted(
         verification_connection.close()
 
         assert final_total == 13
+        
+def test_closed_episode_history_and_permissions(
+    tmp_path: Path,
+) -> None:
+    """Valida consulta de episodios cerrados y permisos por rol."""
+
+    main.DATABASE_PATH = tmp_path / "episode-history.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente Histórico",
+                "birth_date": "1970-07-07",
+                "document": "HISTORY-001",
+                "priority": 3,
+                "location": "Consultorio 1",
+            },
+        )
+
+        assert create_response.status_code == 201
+
+        episode_id = create_response.json()["id"]
+
+        doctor_headers = login(client, "medico")
+
+        discharge_response = client.post(
+            f"/episodes/{episode_id}/discharge",
+            headers=doctor_headers,
+            json={
+                "note": "Alta médica de prueba",
+            },
+        )
+
+        assert discharge_response.status_code == 200
+
+        supervisor_headers = login(client, "supervisor")
+
+        history_response = client.get(
+            "/episodes/history",
+            headers=supervisor_headers,
+        )
+
+        assert history_response.status_code == 200
+        assert history_response.json()["total"] == 1
+
+        closed_episode = history_response.json()["episodes"][0]
+
+        assert closed_episode["id"] == episode_id
+        assert closed_episode["name"] == "Paciente Histórico"
+        assert closed_episode["status"] == "CLOSED"
+        assert closed_episode["closed_at"] is not None
+        assert closed_episode["event_count"] >= 2
+
+        # Enfermería no tiene acceso al historial administrativo.
+        nurse_headers = login(client, "enfermeria")
+
+        forbidden_response = client.get(
+            "/episodes/history",
+            headers=nurse_headers,
+        )
+
+        assert forbidden_response.status_code == 403

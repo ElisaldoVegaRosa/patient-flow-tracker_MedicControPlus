@@ -1134,6 +1134,69 @@ def create_episode(
 
     return result
 
+# ---------------------------------------------------------------------------
+# HISTORIAL DE EPISODIOS CERRADOS
+# ---------------------------------------------------------------------------
+# Permite consultar episodios que ya finalizaron sin mezclarlos con la
+# operación clínica activa. El historial es accesible para recepción,
+# médicos y supervisores.
+# ---------------------------------------------------------------------------
+
+@app.get("/episodes/history")
+def episode_history(
+    user: dict[str, str] = Depends(
+        require_roles(
+            "RECEPTION",
+            "DOCTOR",
+            "SUPERVISOR",
+        )
+    ),
+) -> dict:
+    connection = get_connection()
+
+    rows = connection.execute(
+        """
+        SELECT
+            episodes.id,
+            episodes.status,
+            episodes.priority,
+            episodes.location,
+            episodes.assigned_to,
+            episodes.started_at,
+            episodes.closed_at,
+            patients.name,
+            patients.birth_date,
+            patients.document,
+            (
+                SELECT COUNT(*)
+                FROM events
+                WHERE events.episode_id = episodes.id
+            ) AS event_count,
+            (
+                SELECT COUNT(*)
+                FROM alerts
+                WHERE alerts.episode_id = episodes.id
+            ) AS alert_count,
+            (
+                SELECT COUNT(*)
+                FROM tasks
+                WHERE tasks.episode_id = episodes.id
+            ) AS task_count
+        FROM episodes
+        JOIN patients ON patients.id = episodes.patient_id
+        WHERE episodes.status = 'CLOSED'
+        ORDER BY episodes.closed_at DESC, episodes.id DESC
+        """
+    ).fetchall()
+
+    episodes = [dict(row) for row in rows]
+    connection.close()
+
+    return {
+        "total": len(episodes),
+        "episodes": episodes,
+        "requested_by": user["username"],
+    }
 
 @app.get("/episodes/{episode_id}")
 def get_episode(

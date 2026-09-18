@@ -462,3 +462,47 @@ error normal de autenticación.
 - Mensaje de sesión expirada mostrado.
 - Retorno automático al login.
 - Nuevo inicio de sesión realizado correctamente.
+
+---
+
+## Etapa 12 — Historial de episodios cerrados
+
+### Implementado
+
+- Endpoint `/episodes/history`.
+- Consulta separada de la operación activa.
+- Orden por fecha de cierre.
+- Información incluida:
+  - paciente;
+  - documento;
+  - prioridad;
+  - ubicación final;
+  - responsable;
+  - fecha de ingreso;
+  - fecha de cierre;
+  - cantidad de eventos;
+  - cantidad de alertas;
+  - cantidad de tareas.
+- Acceso para:
+  - recepción;
+  - médico;
+  - supervisor.
+- Acceso rechazado para enfermería y laboratorio.
+
+### Objetivo
+
+Permitir la consulta de episodios finalizados sin volver a activarlos
+ni mezclarlos con el dashboard operacional.
+
+### Verificación
+
+- Endpoint `/episodes/history` visible en Swagger.
+- Siete pruebas automáticas aprobadas.
+- Acceso permitido para recepción, médico y supervisor.
+- Acceso rechazado para enfermería.
+- Pantalla de historial compilada correctamente.
+- Nora Paz visible como episodio cerrado.
+- Iván Soto visible como episodio cerrado.
+- Timeline histórico disponible.
+- Los episodios cerrados no aparecen en el dashboard activo.
+- Los formularios clínicos quedan deshabilitados al estar cerrado.

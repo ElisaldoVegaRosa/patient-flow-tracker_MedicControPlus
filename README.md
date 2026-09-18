@@ -103,3 +103,25 @@ La operación:
 | Servicios | Enfermería y laboratorio |
 
 > Los datos son completamente ficticios y no deben utilizarse para atención clínica real.
+
+## Historial de episodios cerrados
+
+Los usuarios de recepción, médico y supervisor pueden consultar
+episodios finalizados desde **Historial de episodios**.
+
+La pantalla muestra:
+
+- paciente;
+- documento;
+- prioridad final;
+- ubicación final;
+- responsable;
+- fecha de cierre;
+- número de eventos;
+- número de alertas;
+- número de tareas;
+- acceso al timeline completo.
+
+Los episodios cerrados se mantienen separados del dashboard de
+pacientes activos y no pueden modificarse mediante los formularios
+operacionales.

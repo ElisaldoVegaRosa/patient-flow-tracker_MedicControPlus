@@ -88,6 +88,7 @@ function App() {
   const [laboratoryQueue, setLaboratoryQueue] = useState<any>(null);
   const [supervisorData, setSupervisorData] = useState<any>(null);
   const [supervisorFilter, setSupervisorFilter] = useState("ALL");
+  const [historyData, setHistoryData] = useState<any>(null);
   const [error, setError] = useState("");
 
   async function loadDashboard() {
@@ -206,6 +207,22 @@ async function loadDemoData() {
   }
 }
 
+/**
+ * Carga episodios cerrados sin mezclarlos con la operación activa.
+ *
+ * El historial es de consulta y no reactiva episodios dados de alta.
+ */
+async function openEpisodeHistory() {
+  try {
+    const result = await api("/episodes/history");
+
+    setHistoryData(result);
+    setPage("history");
+  } catch (exception) {
+    setError((exception as Error).message);
+  }
+}
+
   /**
  * Carga el centro de control exclusivo del supervisor.
  *
@@ -269,6 +286,7 @@ async function completeLaboratoryOrder(
     setUser(null);
     setEpisode(null);
     setDashboard(null);
+    setHistoryData(null);
   }
 
   if (!user) {
@@ -334,6 +352,16 @@ async function completeLaboratoryOrder(
           <button onClick={() => setPage("scan")}>
             Escanear pulsera
           </button>
+
+          {(
+  user.role === "RECEPTION" ||
+  user.role === "DOCTOR" ||
+  user.role === "SUPERVISOR"
+) && (
+  <button onClick={openEpisodeHistory}>
+    Historial de episodios
+  </button>
+)}
 
           {(user.role === "LAB" || user.role === "SUPERVISOR") && (
           <button onClick={openLaboratoryQueue}>
@@ -522,6 +550,117 @@ async function completeLaboratoryOrder(
           </section>
         </main>
       )}
+
+      {page === "history" && historyData && (
+  <main className="container">
+    <div className="page-title">
+      <div>
+        <span>CONSULTA HISTÓRICA</span>
+        <h1>Episodios cerrados</h1>
+        <p>
+          Pacientes dados de alta y episodios finalizados.
+        </p>
+      </div>
+
+      <button onClick={openEpisodeHistory}>
+        Actualizar historial
+      </button>
+    </div>
+
+    <section className="history-summary">
+      <article>
+        <strong>{historyData.total}</strong>
+        <span>Episodios cerrados</span>
+      </article>
+    </section>
+
+    <section className="panel history-table">
+      {historyData.episodes.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">✓</div>
+          <h2>No existen episodios cerrados</h2>
+          <p>
+            Los pacientes dados de alta aparecerán aquí.
+          </p>
+        </div>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Documento</th>
+              <th>Prioridad</th>
+              <th>Ubicación final</th>
+              <th>Responsable</th>
+              <th>Fecha de cierre</th>
+              <th>Actividad</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {historyData.episodes.map((closedEpisode: any) => (
+              <tr key={closedEpisode.id}>
+                <td>
+                  <strong>{closedEpisode.name}</strong>
+                  <small>EP-{closedEpisode.id}</small>
+                </td>
+
+                <td>{closedEpisode.document}</td>
+
+                <td>
+                  <span
+                    className={`priority p${closedEpisode.priority}`}
+                  >
+                    P{closedEpisode.priority}
+                  </span>
+                </td>
+
+                <td>{closedEpisode.location}</td>
+
+                <td>
+                  {closedEpisode.assigned_to || "Sin asignar"}
+                </td>
+
+                <td>
+                  {closedEpisode.closed_at
+                    ? new Date(
+                        closedEpisode.closed_at,
+                      ).toLocaleString()
+                    : "Sin fecha"}
+                </td>
+
+                <td>
+                  <div className="history-counts">
+                    <span>
+                      {closedEpisode.event_count} eventos
+                    </span>
+
+                    <span>
+                      {closedEpisode.alert_count} alertas
+                    </span>
+
+                    <span>
+                      {closedEpisode.task_count} tareas
+                    </span>
+                  </div>
+                </td>
+
+                <td>
+                  <button
+                    onClick={() => openEpisode(closedEpisode.id)}
+                  >
+                    Ver timeline
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  </main>
+)}
 
       {page === "supervisor" && supervisorData && (
   <main className="container">
