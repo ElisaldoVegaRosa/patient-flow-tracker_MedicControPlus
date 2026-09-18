@@ -471,19 +471,34 @@ def episode_detail(
             (episode_id,),
         )
     ]
-
+    
     result["alerts"] = [
-        dict(row)
-        for row in connection.execute(
-            """
-            SELECT *
-            FROM alerts
-            WHERE episode_id = ?
-            ORDER BY id DESC
-            """,
-            (episode_id,),
-        )
-    ]
+    dict(row)
+    for row in connection.execute(
+        """
+        SELECT *
+        FROM alerts
+        WHERE episode_id = ?
+        ORDER BY id DESC
+        """,
+        (episode_id,),
+    )
+]   
+
+    # Cada alerta incluye sus transiciones auditadas.
+    for alert in result["alerts"]:
+        alert["history"] = [
+            dict(row)
+            for row in connection.execute(
+                """
+                SELECT *
+                FROM alert_history
+                WHERE alert_id = ?
+                ORDER BY id ASC
+                """,
+                (alert["id"],),
+            )
+        ]
 
     result["tasks"] = [
         dict(row)

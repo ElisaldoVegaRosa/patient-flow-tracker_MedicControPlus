@@ -114,6 +114,20 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
         )
 
         assert acknowledged_alert["status"] == "ACKNOWLEDGED"
+        
+        assert len(acknowledged_alert["history"]) == 1
+        assert (
+            acknowledged_alert["history"][0]["old_status"]
+            == "ACTIVE"
+        )
+        assert (
+            acknowledged_alert["history"][0]["new_status"]
+            == "ACKNOWLEDGED"
+        )
+        assert (
+            acknowledged_alert["history"][0]["username"]
+            == "enfermeria"
+        )
 
         doctor_headers = login(client, "medico")
                 # El médico registra una evaluación clínica sobre el episodio activo.
@@ -213,6 +227,25 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
         )
 
         assert resolve_response.status_code == 200
+        
+        resolved_alert = next(
+            alert
+            for alert in resolve_response.json()["alerts"]
+            if alert["id"] == alert_id
+        )
+        
+        
+
+        assert resolved_alert["status"] == "RESOLVED"
+        assert len(resolved_alert["history"]) == 2
+        assert (
+            resolved_alert["history"][1]["new_status"]
+            == "RESOLVED"
+        )
+        assert (
+            resolved_alert["history"][1]["username"]
+            == "medico"
+        )
 
         discharge_response = client.post(
             f"/episodes/{episode['id']}/discharge",
