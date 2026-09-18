@@ -319,3 +319,43 @@ Cada alerta temporal genera un evento:
 
 ```text
 ALERT_CREATED
+
+---
+
+## Etapa 10 — Datos de demostración
+
+### Implementado
+
+- Generador de doce pacientes ficticios.
+- Diez episodios activos.
+- Dos episodios cerrados.
+- Prioridades P1 a P5.
+- Diferentes áreas y ubicaciones.
+- Personal responsable asignado.
+- Signos vitales ficticios.
+- Alertas activas para pacientes prioritarios.
+- Tareas de enfermería.
+- Órdenes de laboratorio.
+- Resultados simulados.
+- Eventos auditables.
+- Botón exclusivo para supervisor.
+
+### Comportamiento aditivo
+
+La carga de demostración conserva los pacientes creados manualmente.
+
+No se eliminan:
+
+- pacientes;
+- episodios;
+- alertas;
+- tareas;
+- eventos;
+- resultados.
+
+### Prevención de duplicados
+
+Los pacientes ficticios utilizan documentos con el prefijo:
+
+```text
+DEMO-SEED-

@@ -75,3 +75,31 @@ flowchart TD
     C -->|No| E[Estado operacional estable]
     R --> S[Supervisor abre episodio]
     S --> T[Reasignación o seguimiento]
+
+    ## Cargar datos ficticios
+
+Para poblar el sistema con datos de demostración:
+
+1. Inicie sesión como `supervisor`.
+2. Abra **Panel de supervisor**.
+3. Pulse **Cargar datos de demostración**.
+4. Confirme la operación.
+
+La operación:
+
+- agrega doce pacientes;
+- conserva los datos existentes;
+- puede ejecutarse de forma segura más de una vez;
+- no duplica pacientes ficticios.
+
+### Distribución de los datos
+
+| Tipo | Cantidad |
+|---|---:|
+| Pacientes ficticios | 12 |
+| Episodios activos | 10 |
+| Episodios cerrados | 2 |
+| Prioridades | P1–P5 |
+| Servicios | Enfermería y laboratorio |
+
+> Los datos son completamente ficticios y no deben utilizarse para atención clínica real.

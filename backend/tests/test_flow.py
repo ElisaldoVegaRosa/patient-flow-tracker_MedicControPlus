@@ -485,3 +485,120 @@ def test_time_rules_generate_alerts_without_duplicates(
         )
 
         assert len(second_episode_response.json()["alerts"]) == 3
+        
+def test_demo_seed_is_additive_idempotent_and_restricted(
+    tmp_path: Path,
+) -> None:
+    """
+    Comprueba que los datos demo:
+
+    - se agregan sin borrar pacientes existentes;
+    - crean exactamente doce pacientes ficticios;
+    - no se duplican al ejecutar el endpoint nuevamente;
+    - solamente pueden ser creados por el supervisor.
+    """
+
+    main.DATABASE_PATH = tmp_path / "demo-seed.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+
+        # Se crea primero un paciente manual que debe conservarse.
+        manual_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente Manual",
+                "birth_date": "1980-01-01",
+                "document": "MANUAL-001",
+                "priority": 3,
+                "location": "Recepción",
+            },
+        )
+
+        assert manual_response.status_code == 201
+
+        # Recepción no puede generar datos de demostración.
+        forbidden_response = client.post(
+            "/demo/seed",
+            headers=reception_headers,
+        )
+
+        assert forbidden_response.status_code == 403
+
+        supervisor_headers = login(client, "supervisor")
+
+        first_seed_response = client.post(
+            "/demo/seed",
+            headers=supervisor_headers,
+        )
+
+        assert first_seed_response.status_code == 200
+        assert first_seed_response.json()["created"] == 12
+        assert first_seed_response.json()["existing"] == 0
+
+        connection = main.get_connection()
+
+        total_patients = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM patients
+            """
+        ).fetchone()["total"]
+
+        manual_patient = connection.execute(
+            """
+            SELECT id
+            FROM patients
+            WHERE document = 'MANUAL-001'
+            """
+        ).fetchone()
+
+        demo_patients = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM patients
+            WHERE document LIKE 'DEMO-SEED-%'
+            """
+        ).fetchone()["total"]
+
+        closed_demo_episodes = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM episodes
+            JOIN patients ON patients.id = episodes.patient_id
+            WHERE patients.document LIKE 'DEMO-SEED-%'
+            AND episodes.status = 'CLOSED'
+            """
+        ).fetchone()["total"]
+
+        connection.close()
+
+        assert total_patients == 13
+        assert manual_patient is not None
+        assert demo_patients == 12
+        assert closed_demo_episodes == 2
+
+        # Una segunda ejecución no debe crear duplicados.
+        second_seed_response = client.post(
+            "/demo/seed",
+            headers=supervisor_headers,
+        )
+
+        assert second_seed_response.status_code == 200
+        assert second_seed_response.json()["created"] == 0
+        assert second_seed_response.json()["existing"] == 12
+
+        verification_connection = main.get_connection()
+
+        final_total = verification_connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM patients
+            """
+        ).fetchone()["total"]
+
+        verification_connection.close()
+
+        assert final_total == 13

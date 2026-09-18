@@ -144,6 +144,38 @@ function App() {
   }
 
   /**
+ * Solicita al backend la creación de los pacientes ficticios.
+ *
+ * El endpoint es aditivo e idempotente:
+ * - conserva pacientes existentes;
+ * - crea los doce pacientes demo una sola vez;
+ * - no duplica datos en ejecuciones posteriores.
+ */
+async function loadDemoData() {
+  const confirmed = window.confirm(
+    "Se agregarán 12 pacientes ficticios sin borrar los datos actuales. " +
+      "¿Deseas continuar?",
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    const result = await api("/demo/seed", {
+      method: "POST",
+    });
+
+    window.alert(result.message);
+
+    await openSupervisorDashboard();
+    await loadDashboard();
+  } catch (exception) {
+    setError((exception as Error).message);
+  }
+}
+
+  /**
  * Carga el centro de control exclusivo del supervisor.
  *
  * Los indicadores se calculan en el backend para mantener una lectura
@@ -471,9 +503,18 @@ async function completeLaboratoryOrder(
         </p>
       </div>
 
-      <button onClick={openSupervisorDashboard}>
-        Actualizar indicadores
-      </button>
+<div className="page-actions">
+  <button
+    className="secondary-button"
+    onClick={loadDemoData}
+  >
+    Cargar datos de demostración
+  </button>
+
+  <button onClick={openSupervisorDashboard}>
+    Actualizar indicadores
+  </button>
+</div>
     </div>
 
       <section className="rules-status">
