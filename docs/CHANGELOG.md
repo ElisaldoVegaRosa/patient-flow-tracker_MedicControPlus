@@ -269,7 +269,7 @@ El indicador `REQUIERE ATENCIÓN` se muestra cuando:
 
 ## Etapa 9 — Motor de reglas temporales
 
-### En desarrollo
+### Implementado
 
 El motor evalúa todos los episodios activos y crea alertas
 automáticas cuando detecta demoras operacionales.
@@ -302,23 +302,45 @@ automáticas cuando detecta demoras operacionales.
 Antes de crear una alerta, el motor comprueba que no exista otra
 alerta abierta con el mismo motivo para el mismo episodio.
 
-Una segunda ejecución del motor no debe duplicar alertas que continúan
-en estado `ACTIVE`, `ACKNOWLEDGED` o `ESCALATED`.
+Una segunda ejecución no duplica alertas que continúan en estado
+`ACTIVE`, `ACKNOWLEDGED` o `ESCALATED`.
 
 ### Eventos que no cuentan como seguimiento
 
 Los eventos `ALERT_CREATED` generados por el propio motor no se
 consideran una actualización clínica del paciente.
 
-Esta regla evita que la generación automática de una alerta reinicie
+Esto evita que la generación automática de una alerta reinicie
 incorrectamente el tiempo de seguimiento de un paciente prioritario.
 
 ### Auditoría
 
-Cada alerta temporal genera un evento:
+Cada alerta temporal genera el evento:
 
 ```text
 ALERT_CREATED
+```
+
+El usuario técnico registrado es:
+
+```text
+time-rules-engine
+```
+
+### Formas de ejecución
+
+- Ejecución manual mediante `POST /rules/evaluate`.
+- Ejecución automática al abrir el panel del supervisor.
+
+### Verificación
+
+- Endpoint `/rules/evaluate` visible en Swagger.
+- Regla de triaje demorado verificada.
+- Regla de tarea pendiente excedida verificada.
+- Regla de paciente prioritario sin actualización verificada.
+- Prevención de duplicados verificada.
+- Cinco pruebas automáticas aprobadas durante esta etapa.
+- Resultado del motor visible en el panel del supervisor.
 
 ---
 
@@ -359,3 +381,84 @@ Los pacientes ficticios utilizan documentos con el prefijo:
 
 ```text
 DEMO-SEED-
+```
+
+Antes de crear datos, el servidor comprueba si ese prefijo ya existe.
+
+Una segunda ejecución informa:
+
+```text
+Los datos de demostración ya existen
+```
+
+y no crea pacientes adicionales.
+
+### Seguridad
+
+- Solo el supervisor puede ejecutar `/demo/seed`.
+- Recepción recibe una respuesta `403`.
+- El endpoint no está disponible para enfermería, médico o laboratorio.
+
+### Verificación
+
+- Endpoint `/demo/seed` visible en Swagger.
+- Se crean exactamente doce pacientes ficticios.
+- Se conservan los pacientes creados manualmente.
+- Se crean diez episodios activos.
+- Se crean dos episodios cerrados.
+- Una segunda ejecución no duplica datos.
+- Seis pruebas automáticas aprobadas.
+- El frontend compila correctamente.
+- Los pacientes activos aparecen en el panel del supervisor.
+
+---
+
+## Etapa 11 — Manejo de sesión expirada
+
+### Implementado
+
+- Detección de respuestas HTTP `401`.
+- Eliminación automática del token inválido.
+- Aviso claro al usuario.
+- Recarga automática de la aplicación.
+- Retorno a la pantalla de inicio de sesión.
+- Posibilidad de iniciar una sesión nueva.
+
+### Motivo
+
+Los tokens del demo se almacenan temporalmente en la memoria del
+backend.
+
+Cuando FastAPI se reinicia, los tokens emitidos anteriormente dejan
+de existir. El navegador, sin embargo, puede conservar el token
+anterior en `localStorage`.
+
+Esto provocaba el mensaje:
+
+```text
+Sesión requerida
+```
+
+sin regresar automáticamente al login.
+
+### Solución implementada
+
+Cuando el cliente recibe una respuesta HTTP `401` y existe un token:
+
+1. elimina el token de `localStorage`;
+2. muestra el mensaje de sesión expirada;
+3. recarga la aplicación;
+4. presenta nuevamente la pantalla de login.
+
+Las credenciales incorrectas durante el login continúan mostrando el
+error normal de autenticación.
+
+### Verificación
+
+- Frontend compilado correctamente.
+- Backend reiniciado manualmente.
+- Respuesta `401` detectada por el cliente API.
+- Token inválido eliminado de `localStorage`.
+- Mensaje de sesión expirada mostrado.
+- Retorno automático al login.
+- Nuevo inicio de sesión realizado correctamente.

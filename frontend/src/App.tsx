@@ -44,6 +44,35 @@ async function api(
 
   const result = await response.json();
 
+  /*
+   * Si el backend rechaza un token que existía previamente,
+   * la sesión expiró o el servidor fue reiniciado.
+   *
+   * Se elimina el token y se notifica al componente principal
+   * para regresar de forma segura a la pantalla de login.
+   */
+  if (
+    response.status === 401 &&
+    token &&
+    path !== "/auth/login"
+  ) {
+    /*
+     * El backend dejó de reconocer el token.
+     * Se elimina la sesión local y se recarga la aplicación.
+     */
+    localStorage.removeItem("token");
+
+    window.alert(
+      "Tu sesión expiró. Inicia sesión nuevamente.",
+    );
+
+    window.location.reload();
+
+    throw new Error(
+      "Tu sesión expiró. Inicia sesión nuevamente.",
+    );
+  }
+
   if (!response.ok) {
     throw new Error(result.detail || "Ocurrió un error");
   }
@@ -74,6 +103,8 @@ function App() {
       loadDashboard();
     }
   }, [user]);
+
+  
 
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
