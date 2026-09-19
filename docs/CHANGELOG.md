@@ -506,3 +506,82 @@ ni mezclarlos con el dashboard operacional.
 - Timeline histórico disponible.
 - Los episodios cerrados no aparecen en el dashboard activo.
 - Los formularios clínicos quedan deshabilitados al estar cerrado.
+
+---
+
+## Etapa 13 — Historial visual de alertas
+
+### Implementado
+
+- Historial de cambios incluido dentro de cada alerta.
+- Visualización separada de alertas activas y resueltas.
+- Contador de alertas activas.
+- Contador de alertas resueltas.
+- Sección plegable para consultar las alertas resueltas.
+- Sección plegable para consultar el historial de cada alerta.
+- Visualización del estado anterior y el estado nuevo.
+- Visualización del usuario responsable de cada transición.
+- Visualización de la fecha y hora de cada transición.
+- Las alertas resueltas permanecen disponibles para consulta.
+- Las alertas resueltas no muestran botones de acción.
+
+### Flujo validado
+
+```text
+ACTIVE → ACKNOWLEDGED → RESOLVED
+```
+
+El reconocimiento y la resolución quedan registrados como transiciones
+independientes dentro del historial de la alerta.
+
+Ejemplo:
+
+```text
+ACTIVE → ACKNOWLEDGED
+medico · fecha y hora
+
+ACKNOWLEDGED → RESOLVED
+medico · fecha y hora
+```
+
+### Comportamiento de las acciones
+
+- El botón `Reconocer` solamente aparece cuando la alerta está en estado
+  `ACTIVE`.
+- El botón `Escalar` aparece cuando la alerta está en estado `ACTIVE` o
+  `ACKNOWLEDGED`.
+- El botón `Resolver` solamente está disponible para médico o supervisor.
+- Las alertas con estado `RESOLVED` se muestran en una sección separada y no
+  permiten nuevas acciones desde la interfaz.
+
+### Compatibilidad de fechas
+
+La interfaz acepta las propiedades temporales:
+
+```text
+created_at
+at
+```
+
+Esto permite mostrar el historial aunque el nombre de la columna temporal
+difiera entre versiones de la base de datos.
+
+### Diseño responsive
+
+- Las transiciones se muestran como elementos separados.
+- El usuario y la fecha aparecen debajo de cada cambio de estado.
+- En pantallas pequeñas, los botones ocupan todo el ancho disponible.
+- Los historiales pueden abrirse y cerrarse mediante elementos `details`.
+
+### Verificación manual
+
+Se confirmó que:
+
+1. una alerta activa puede ser reconocida;
+2. el historial muestra `ACTIVE → ACKNOWLEDGED`;
+3. médico puede resolver la alerta;
+4. el historial muestra `ACKNOWLEDGED → RESOLVED`;
+5. la alerta resuelta se mueve a la sección `Alertas resueltas`;
+6. el historial conserva el usuario y la fecha;
+7. las secciones plegables pueden abrirse y cerrarse;
+8. el frontend compila correctamente.

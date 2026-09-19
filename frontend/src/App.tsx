@@ -1403,68 +1403,217 @@ async function createClinicalOrder(
     </form>
   </section>
 )}
-        <section className="panel alerts">
-          <h2>Alertas activas</h2>
+       <section className="panel alerts">
+  <h2>
+    Alertas activas{" "}
+    <mark>
+      {
+        episode.alerts.filter(
+          (alert) => alert.status !== "RESOLVED",
+        ).length
+      }
+    </mark>
+  </h2>
 
-          {episode.alerts.filter(
-            (alert) => alert.status !== "RESOLVED",
-          ).length === 0 && <p>Sin alertas activas ✓</p>}
+  {episode.alerts.filter(
+    (alert) => alert.status !== "RESOLVED",
+  ).length === 0 && <p>Sin alertas activas ✓</p>}
 
-          {episode.alerts
-            .filter((alert) => alert.status !== "RESOLVED")
-            .map((alert) => (
-              <article key={alert.id}>
-                <strong>
-                  {alert.severity} · {alert.reason}
-                </strong>
-                <span>{alert.status}</span>
+  {episode.alerts
+    .filter((alert) => alert.status !== "RESOLVED")
+    .map((alert) => (
+      <article key={alert.id}>
+        <strong>
+          {alert.severity} · {alert.reason}
+        </strong>
 
-                <div>
-                  <button
-                    onClick={() =>
-                      call(`/alerts/${alert.id}`, {
-                        method: "PATCH",
-                        body: JSON.stringify({
-                          status: "ACKNOWLEDGED",
-                        }),
-                      })
-                    }
-                  >
-                    Reconocer
-                  </button>
+        <span>{alert.status}</span>
 
-                  <button
-                    onClick={() =>
-                      call(`/alerts/${alert.id}`, {
-                        method: "PATCH",
-                        body: JSON.stringify({
-                          status: "ESCALATED",
-                        }),
-                      })
-                    }
-                  >
-                    Escalar
-                  </button>
+        <div>
+          {alert.status === "ACTIVE" &&
+            (user.role === "NURSE" ||
+              user.role === "DOCTOR" ||
+              user.role === "SUPERVISOR") && (
+              <button
+                onClick={() =>
+                  call(`/alerts/${alert.id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                      status: "ACKNOWLEDGED",
+                    }),
+                  })
+                }
+              >
+                Reconocer
+              </button>
+            )}
 
-                  {(user.role === "DOCTOR" ||
-                    user.role === "SUPERVISOR") && (
-                    <button
-                      onClick={() =>
-                        call(`/alerts/${alert.id}`, {
-                          method: "PATCH",
-                          body: JSON.stringify({
-                            status: "RESOLVED",
-                          }),
-                        })
+          {(alert.status === "ACTIVE" ||
+            alert.status === "ACKNOWLEDGED") &&
+            (user.role === "NURSE" ||
+              user.role === "DOCTOR" ||
+              user.role === "SUPERVISOR") && (
+              <button
+                onClick={() =>
+                  call(`/alerts/${alert.id}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                      status: "ESCALATED",
+                    }),
+                  })
+                }
+              >
+                Escalar
+              </button>
+            )}
+
+          {(user.role === "DOCTOR" ||
+            user.role === "SUPERVISOR") && (
+            <button
+              onClick={() =>
+                call(`/alerts/${alert.id}`, {
+                  method: "PATCH",
+                  body: JSON.stringify({
+                    status: "RESOLVED",
+                  }),
+                })
+              }
+            >
+              Resolver
+            </button>
+          )}
+        </div>
+
+        <details className="alert-history">
+          <summary>
+            Ver historial ({(alert.history ?? []).length})
+          </summary>
+
+          {(alert.history ?? []).length === 0 ? (
+            <p>Esta alerta todavía no tiene cambios de estado.</p>
+          ) : (
+            <ol>
+              {(alert.history ?? []).map(
+                (
+                  transition: Record<string, any>,
+                  index: number,
+                ) => {
+                  const transitionDate =
+                    transition.created_at ?? transition.at;
+
+                  return (
+                    <li
+                      key={
+                        transition.id ??
+                        `${alert.id}-${index}`
                       }
                     >
-                      Resolver
-                    </button>
+                      <strong>
+                        {transition.old_status ?? "CREATED"} →{" "}
+                        {transition.new_status}
+                      </strong>
+
+                      <small>
+                        {transition.username}
+                        {" · "}
+                        {transitionDate
+                          ? new Date(
+                              transitionDate,
+                            ).toLocaleString()
+                          : "Fecha no disponible"}
+                      </small>
+                    </li>
+                  );
+                },
+              )}
+            </ol>
+          )}
+        </details>
+      </article>
+    ))}
+
+  {episode.alerts.some(
+    (alert) => alert.status === "RESOLVED",
+  ) && (
+    <details className="resolved-alerts">
+      <summary>
+        Alertas resueltas (
+        {
+          episode.alerts.filter(
+            (alert) => alert.status === "RESOLVED",
+          ).length
+        }
+        )
+      </summary>
+
+      {episode.alerts
+        .filter((alert) => alert.status === "RESOLVED")
+        .map((alert) => (
+          <article
+            key={alert.id}
+            className="resolved-alert"
+          >
+            <strong>
+              {alert.severity} · {alert.reason}
+            </strong>
+
+            <span>{alert.status}</span>
+
+            <details className="alert-history">
+              <summary>
+                Ver historial (
+                {(alert.history ?? []).length})
+              </summary>
+
+              {(alert.history ?? []).length === 0 ? (
+                <p>
+                  Esta alerta no tiene cambios registrados.
+                </p>
+              ) : (
+                <ol>
+                  {(alert.history ?? []).map(
+                    (
+                      transition: Record<string, any>,
+                      index: number,
+                    ) => {
+                      const transitionDate =
+                        transition.created_at ??
+                        transition.at;
+
+                      return (
+                        <li
+                          key={
+                            transition.id ??
+                            `${alert.id}-${index}`
+                          }
+                        >
+                          <strong>
+                            {transition.old_status ??
+                              "CREATED"}{" "}
+                            → {transition.new_status}
+                          </strong>
+
+                          <small>
+                            {transition.username}
+                            {" · "}
+                            {transitionDate
+                              ? new Date(
+                                  transitionDate,
+                                ).toLocaleString()
+                              : "Fecha no disponible"}
+                          </small>
+                        </li>
+                      );
+                    },
                   )}
-                </div>
-              </article>
-            ))}
-        </section>
+                </ol>
+              )}
+            </details>
+          </article>
+        ))}
+    </details>
+  )}
+</section>
 
         <section className="panel">
           <h2>Tareas pendientes</h2>
