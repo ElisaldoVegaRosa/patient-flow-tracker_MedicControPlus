@@ -507,6 +507,7 @@ ni mezclarlos con el dashboard operacional.
 - Los episodios cerrados no aparecen en el dashboard activo.
 - Los formularios clínicos quedan deshabilitados al estar cerrado.
 
+
 ---
 
 ## Etapa 13 — Historial visual de alertas
@@ -585,3 +586,21 @@ Se confirmó que:
 6. el historial conserva el usuario y la fecha;
 7. las secciones plegables pueden abrirse y cerrarse;
 8. el frontend compila correctamente.
+
+---
+
+## Etapa 14 — Máquina de estados de alertas
+
+### Implementado
+
+Se agregó una máquina de estados para controlar las transiciones permitidas
+de las alertas clínicas y operacionales.
+
+### Transiciones permitidas
+
+```text
+ACTIVE → ACKNOWLEDGED
+ACTIVE → ESCALATED
+ACKNOWLEDGED → ESCALATED
+ACKNOWLEDGED → RESOLVED
+ESCALATED → RESOLVED

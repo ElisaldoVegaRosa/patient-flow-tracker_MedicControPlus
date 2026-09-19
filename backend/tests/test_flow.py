@@ -246,6 +246,53 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
             resolved_alert["history"][1]["username"]
             == "medico"
         )
+        
+        history_count_before_invalid_transition = len(
+            resolved_alert["history"]
+        )
+        events_count_before_invalid_transition = len(
+            resolve_response.json()["events"]
+        )
+
+        invalid_transition_response = client.patch(
+            f"/alerts/{alert_id}",
+            headers=doctor_headers,
+            json={
+                "status": "ESCALATED",
+            },
+        )
+
+        assert invalid_transition_response.status_code == 409
+        assert invalid_transition_response.json()["detail"] == (
+            "Transición de alerta no permitida: "
+            "RESOLVED → ESCALATED"
+        )
+
+        state_after_invalid_transition = client.get(
+            f"/episodes/{episode['id']}",
+            headers=doctor_headers,
+        )
+
+        assert state_after_invalid_transition.status_code == 200
+
+        alert_after_invalid_transition = next(
+            alert
+            for alert in state_after_invalid_transition.json()[
+                "alerts"
+            ]
+            if alert["id"] == alert_id
+        )
+
+        assert (
+            alert_after_invalid_transition["status"]
+            == "RESOLVED"
+        )
+        assert len(
+            alert_after_invalid_transition["history"]
+        ) == history_count_before_invalid_transition
+        assert len(
+            state_after_invalid_transition.json()["events"]
+        ) == events_count_before_invalid_transition
 
         discharge_response = client.post(
             f"/episodes/{episode['id']}/discharge",
@@ -702,3 +749,21 @@ def test_closed_episode_history_and_permissions(
         )
 
         assert forbidden_response.status_code == 403
+        
+def test_alert_status_transition_matrix() -> None:
+    """Documenta las transiciones de alerta permitidas."""
+
+assert main.ALLOWED_ALERT_TRANSITIONS == {
+"ACTIVE": {
+    "ACKNOWLEDGED",
+    "ESCALATED",
+},
+"ACKNOWLEDGED": {
+    "ESCALATED",
+    "RESOLVED",
+},
+"ESCALATED": {
+    "RESOLVED",
+},
+"RESOLVED": set(),
+}

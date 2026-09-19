@@ -1416,6 +1416,20 @@ def register_vitals(
 
     return result
 
+ALLOWED_ALERT_TRANSITIONS: dict[str, set[str]] = {
+    "ACTIVE": {
+        "ACKNOWLEDGED",
+        "ESCALATED",
+    },
+    "ACKNOWLEDGED": {
+        "ESCALATED",
+        "RESOLVED",
+    },
+    "ESCALATED": {
+        "RESOLVED",
+    },
+    "RESOLVED": set(),
+}
 
 @app.patch("/alerts/{alert_id}")
 def change_alert_status(
@@ -1447,7 +1461,28 @@ def change_alert_status(
 
     if alert is None:
         connection.close()
-        raise HTTPException(status_code=404, detail="Alerta no encontrada")
+        raise HTTPException(
+            status_code=404,
+            detail="Alerta no encontrada",
+        )
+
+    current_status = alert["status"]
+
+    allowed_statuses = ALLOWED_ALERT_TRANSITIONS.get(
+        current_status,
+        set(),
+    )
+
+    if data.status not in allowed_statuses:
+        connection.close()
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Transición de alerta no permitida: "
+                f"{current_status} → {data.status}"
+            ),
+        )
+
 
     connection.execute(
         """

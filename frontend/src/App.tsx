@@ -1467,21 +1467,23 @@ async function createClinicalOrder(
               </button>
             )}
 
-          {(user.role === "DOCTOR" ||
-            user.role === "SUPERVISOR") && (
-            <button
-              onClick={() =>
-                call(`/alerts/${alert.id}`, {
-                  method: "PATCH",
-                  body: JSON.stringify({
-                    status: "RESOLVED",
-                  }),
-                })
-              }
-            >
-              Resolver
-            </button>
-          )}
+{(alert.status === "ACKNOWLEDGED" ||
+  alert.status === "ESCALATED") &&
+  (user.role === "DOCTOR" ||
+    user.role === "SUPERVISOR") && (
+    <button
+      onClick={() =>
+        call(`/alerts/${alert.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            status: "RESOLVED",
+          }),
+        })
+      }
+    >
+      Resolver
+    </button>
+  )}
         </div>
 
         <details className="alert-history">
