@@ -767,3 +767,44 @@ assert main.ALLOWED_ALERT_TRANSITIONS == {
 },
 "RESOLVED": set(),
 }
+
+def test_session_restore_and_logout(tmp_path: Path) -> None:
+    """Valida restauración, cierre e invalidación de la sesión."""
+
+    main.DATABASE_PATH = tmp_path / "session-test.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        headers = login(client, "medico")
+
+        session_response = client.get(
+            "/auth/me",
+            headers=headers,
+        )
+
+        assert session_response.status_code == 200
+        assert session_response.json() == {
+            "username": "medico",
+            "role": "DOCTOR",
+        }
+
+        logout_response = client.post(
+            "/auth/logout",
+            headers=headers,
+        )
+
+        assert logout_response.status_code == 200
+        assert logout_response.json() == {
+            "message": "Sesión cerrada correctamente",
+            "username": "medico",
+        }
+
+        expired_session_response = client.get(
+            "/auth/me",
+            headers=headers,
+        )
+
+        assert expired_session_response.status_code == 401
+        assert expired_session_response.json()["detail"] == (
+            "Sesión requerida"
+        )

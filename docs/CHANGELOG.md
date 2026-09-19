@@ -604,3 +604,26 @@ ACTIVE → ESCALATED
 ACKNOWLEDGED → ESCALATED
 ACKNOWLEDGED → RESOLVED
 ESCALATED → RESOLVED
+
+---
+
+## Etapa 15 — Restauración y cierre de sesión
+
+### Implementado
+
+- Endpoint `GET /auth/me`.
+- Endpoint `POST /auth/logout`.
+- Validación del token almacenado al abrir la aplicación.
+- Restauración automática del usuario y su rol.
+- Pantalla temporal `Restaurando sesión`.
+- Cierre de sesión en backend y frontend.
+- Eliminación local del token al cerrar sesión.
+- Limpieza de datos clínicos cargados al cerrar sesión.
+- Retorno automático al login cuando el token deja de ser válido.
+
+### Restauración
+
+Cuando existe un token almacenado, el frontend consulta:
+
+```text
+GET /auth/me

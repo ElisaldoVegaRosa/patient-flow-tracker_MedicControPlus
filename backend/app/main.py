@@ -575,7 +575,29 @@ def login(data: LoginRequest) -> dict[str, str]:
         "username": data.username,
         "role": demo_user["role"],
     }
+    
+@app.get("/auth/me")
+def authenticated_session(
+    user: dict[str, str] = Depends(authenticated_user),
+) -> dict[str, str]:
+    return {
+        "username": user["username"],
+        "role": user["role"],
+    }
 
+
+@app.post("/auth/logout")
+def logout(
+    authorization: str | None = Header(default=None),
+    user: dict[str, str] = Depends(authenticated_user),
+) -> dict[str, str]:
+    token = (authorization or "").removeprefix("Bearer ")
+    ACTIVE_TOKENS.pop(token, None)
+
+    return {
+        "message": "Sesión cerrada correctamente",
+        "username": user["username"],
+    }
 
 @app.get("/dashboard")
 def dashboard(
@@ -1763,9 +1785,9 @@ def discharge_episode(
         """
         UPDATE episodes
         SET status = 'CLOSED',
-            closed_at = ?
+        closed_at = ?
         WHERE id = ?
-          AND status = 'ACTIVE'
+        AND status = 'ACTIVE'
         """,
         (
             utc_now(),

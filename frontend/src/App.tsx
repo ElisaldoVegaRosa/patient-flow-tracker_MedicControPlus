@@ -90,6 +90,8 @@ function App() {
   const [supervisorFilter, setSupervisorFilter] = useState("ALL");
   const [historyData, setHistoryData] = useState<any>(null);
   const [error, setError] = useState("");
+  const [restoringSession, setRestoringSession] =
+  useState(true);
 
   async function loadDashboard() {
     try {
@@ -105,7 +107,32 @@ function App() {
     }
   }, [user]);
 
-  
+  useEffect(() => {
+  const storedToken = localStorage.getItem("token");
+
+  if (!storedToken) {
+    setRestoringSession(false);
+    return;
+  }
+
+  api("/auth/me")
+    .then((session) => {
+      setUser({
+        username: session.username,
+        role: session.role,
+        access_token: storedToken,
+      });
+    })
+    .catch(() => {
+      localStorage.removeItem("token");
+      setUser(null);
+    })
+    .finally(() => {
+      setRestoringSession(false);
+    });
+}, []);
+
+
 
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -281,13 +308,40 @@ async function completeLaboratoryOrder(
   }
 }
 
-  function logout() {
+async function logout() {
+  try {
+    await api("/auth/logout", {
+      method: "POST",
+    });
+  } catch (exception) {
+    console.warn(
+      "No fue posible cerrar la sesión en el servidor.",
+      exception,
+    );
+  } finally {
     localStorage.removeItem("token");
     setUser(null);
     setEpisode(null);
     setDashboard(null);
+    setLaboratoryQueue(null);
+    setSupervisorData(null);
     setHistoryData(null);
+    setPage("dashboard");
+    setError("");
   }
+}
+
+if (restoringSession) {
+  return (
+    <main className="login-page">
+      <section className="login-card">
+        <div className="logo">✚ MedicControl+</div>
+        <h1>Restaurando sesión</h1>
+        <p>Validando el acceso guardado...</p>
+      </section>
+    </main>
+  );
+}
 
   if (!user) {
     return (
