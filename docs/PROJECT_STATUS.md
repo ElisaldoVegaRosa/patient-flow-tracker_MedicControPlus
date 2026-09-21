@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 18 — Integridad de episodios clínicos.
+Etapa 19 — Ciclo de vida moderno de FastAPI.
 
 
 
@@ -10,6 +10,8 @@ Etapa 18 — Integridad de episodios clínicos.
 
 - Backend: 12 pruebas aprobadas.
 - Frontend: compilación aprobada.
+- Warnings propios de FastAPI: eliminados.
+- Warning restante: dependencia Starlette/AnyIO.
 - GitHub Actions: debe verificarse después de cada publicación.
 
 ## Capacidades principales
@@ -50,12 +52,12 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 19 — Refactorización técnica controlada.
+Etapa 20 — Refactorización modular del backend.
 
 Objetivos:
 
-- migrar el evento de inicio de FastAPI a `lifespan`;
-- eliminar los warnings deprecados controlables;
-- separar progresivamente autenticación y base de datos;
-- conservar comportamiento y pruebas;
-- evitar ampliar el archivo monolítico.
+- extraer configuración y conexión SQLite;
+- separar autenticación y sesiones;
+- mantener los endpoints existentes;
+- conservar las doce pruebas;
+- reducir progresivamente el tamaño de `main.py`.

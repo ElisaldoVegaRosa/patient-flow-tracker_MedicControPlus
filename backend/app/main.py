@@ -7,6 +7,7 @@ import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Literal
+from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -237,7 +238,13 @@ def initialize_database() -> None:
 
     connection.commit()
     connection.close()
+    
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Inicializa la base de datos al comenzar FastAPI."""
 
+    initialize_database()
+    yield
 
 class LoginRequest(BaseModel):
     username: str
@@ -744,6 +751,7 @@ def episode_detail(
 app = FastAPI(
     title="MedicControl+ API",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -753,12 +761,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-def startup() -> None:
-    initialize_database()
-
 
 @app.get("/health")
 def health() -> dict[str, str]:

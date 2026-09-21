@@ -729,3 +729,24 @@ Estas operaciones responden:
 
 ```text
 409 El episodio está cerrado
+
+---
+
+## Etapa 19 — Ciclo de vida moderno de FastAPI
+
+### Implementado
+
+- Migración de `@app.on_event("startup")` a `lifespan`.
+- Inicialización de SQLite durante el ciclo de vida de FastAPI.
+- Compatibilidad con `TestClient`.
+- Eliminación de advertencias deprecadas generadas por la aplicación.
+- Conservación del comportamiento existente.
+
+### Cambio técnico
+
+El inicio anterior:
+
+```python
+@app.on_event("startup")
+def startup() -> None:
+    initialize_database()
