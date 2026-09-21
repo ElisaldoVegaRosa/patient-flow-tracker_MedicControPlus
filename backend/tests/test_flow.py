@@ -881,3 +881,116 @@ def test_demo_users_are_stored_with_password_hashes(
     verification_connection.close()
 
     assert final_user_count == 5
+    
+def test_persistent_session_storage_and_expiration(
+    tmp_path: Path,
+) -> None:
+    """Valida almacenamiento, persistencia y expiración de sesiones."""
+
+    main.DATABASE_PATH = tmp_path / "persistent-session.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        headers = login(client, "supervisor")
+
+        raw_token = headers["Authorization"].removeprefix(
+            "Bearer "
+        )
+
+        connection = main.get_connection()
+
+        stored_session = connection.execute(
+            """
+            SELECT
+                token_hash,
+                created_at,
+                expires_at,
+                revoked_at
+            FROM sessions
+            ORDER BY id DESC
+            LIMIT 1
+            """
+        ).fetchone()
+
+        connection.close()
+
+        assert stored_session is not None
+        assert stored_session["token_hash"] != raw_token
+        assert stored_session["token_hash"] == (
+            main.hash_session_token(raw_token)
+        )
+        assert stored_session["revoked_at"] is None
+
+        created_at = datetime.fromisoformat(
+            stored_session["created_at"]
+        )
+        expires_at = datetime.fromisoformat(
+            stored_session["expires_at"]
+        )
+
+        assert expires_at > created_at
+        assert expires_at - created_at == timedelta(
+            hours=main.SESSION_DURATION_HOURS
+        )
+
+        # Simula una nueva inicialización del backend.
+        main.initialize_database()
+
+        restored_response = client.get(
+            "/auth/me",
+            headers=headers,
+        )
+
+        assert restored_response.status_code == 200
+        assert restored_response.json() == {
+            "username": "supervisor",
+            "role": "SUPERVISOR",
+        }
+
+        # Fuerza la expiración de la sesión.
+        expired_at = (
+            datetime.now(timezone.utc) - timedelta(minutes=1)
+        ).isoformat()
+
+        expiration_connection = main.get_connection()
+
+        expiration_connection.execute(
+            """
+            UPDATE sessions
+            SET expires_at = ?
+            WHERE token_hash = ?
+            """,
+            (
+                expired_at,
+                main.hash_session_token(raw_token),
+            ),
+        )
+
+        expiration_connection.commit()
+        expiration_connection.close()
+
+        expired_response = client.get(
+            "/auth/me",
+            headers=headers,
+        )
+
+        assert expired_response.status_code == 401
+        assert expired_response.json()["detail"] == (
+            "Sesión expirada"
+        )
+
+        verification_connection = main.get_connection()
+
+        revoked_session = verification_connection.execute(
+            """
+            SELECT revoked_at
+            FROM sessions
+            WHERE token_hash = ?
+            """,
+            (main.hash_session_token(raw_token),),
+        ).fetchone()
+
+        verification_connection.close()
+
+        assert revoked_session is not None
+        assert revoked_session["revoked_at"] is not None

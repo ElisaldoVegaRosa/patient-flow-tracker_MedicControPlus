@@ -4,7 +4,7 @@ import hashlib
 import json
 import secrets
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Literal
 
@@ -40,6 +40,15 @@ DEMO_USERS = {
 
 PASSWORD_HASH_ITERATIONS = 210_000
 
+SESSION_DURATION_HOURS = 8
+
+
+def hash_session_token(token: str) -> str:
+    """Genera una representación irreversible del token de sesión."""
+
+    return hashlib.sha256(
+        token.encode("utf-8")
+    ).hexdigest()
 
 def hash_password(password: str) -> tuple[str, str]:
     """Genera una sal y un hash PBKDF2 para una contraseña."""
@@ -74,8 +83,6 @@ def verify_password(
         expected_hash,
     )
 
-ACTIVE_TOKENS: dict[str, dict[str, str]] = {}
-
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -102,6 +109,21 @@ def initialize_database() -> None:
             active INTEGER NOT NULL DEFAULT 1,
             created_at TEXT NOT NULL
         );
+        
+        CREATE TABLE IF NOT EXISTS sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            token_hash TEXT UNIQUE NOT NULL,
+            created_at TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            revoked_at TEXT
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_sessions_token_hash
+        ON sessions (token_hash);
+
+        CREATE INDEX IF NOT EXISTS idx_sessions_user_active
+        ON sessions (user_id, revoked_at, expires_at);
 
         CREATE TABLE IF NOT EXISTS patients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -273,12 +295,80 @@ class DischargeRequest(BaseModel):
 def authenticated_user(
     authorization: str | None = Header(default=None),
 ) -> dict[str, str]:
+    """Valida una sesión persistente y comprueba su expiración."""
+
     token = (authorization or "").removeprefix("Bearer ")
 
-    if token not in ACTIVE_TOKENS:
-        raise HTTPException(status_code=401, detail="Sesión requerida")
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Sesión requerida",
+        )
 
-    return ACTIVE_TOKENS[token]
+    connection = get_connection()
+
+    session = connection.execute(
+        """
+        SELECT
+            sessions.id AS session_id,
+            sessions.expires_at,
+            users.username,
+            users.role,
+            users.active
+        FROM sessions
+        JOIN users ON users.id = sessions.user_id
+        WHERE sessions.token_hash = ?
+        AND sessions.revoked_at IS NULL
+        """,
+        (hash_session_token(token),),
+    ).fetchone()
+
+    if session is None:
+        connection.close()
+        raise HTTPException(
+            status_code=401,
+            detail="Sesión requerida",
+        )
+
+    expires_at = datetime.fromisoformat(
+        session["expires_at"]
+    )
+
+    if expires_at <= datetime.now(timezone.utc):
+        connection.execute(
+            """
+            UPDATE sessions
+            SET revoked_at = ?
+            WHERE id = ?
+            """,
+            (
+                utc_now(),
+                session["session_id"],
+            ),
+        )
+        connection.commit()
+        connection.close()
+
+        raise HTTPException(
+            status_code=401,
+            detail="Sesión expirada",
+        )
+
+    if session["active"] != 1:
+        connection.close()
+        raise HTTPException(
+            status_code=401,
+            detail="Usuario inactivo",
+        )
+
+    user = {
+        "username": session["username"],
+        "role": session["role"],
+    }
+
+    connection.close()
+
+    return user
 
 
 def require_roles(*allowed_roles: str):
@@ -639,13 +729,14 @@ def health() -> dict[str, str]:
 
 @app.post("/auth/login")
 def login(data: LoginRequest) -> dict[str, str]:
-    """Autentica un usuario activo almacenado en SQLite."""
+    """Autentica al usuario y crea una sesión persistente."""
 
     connection = get_connection()
 
     user = connection.execute(
         """
         SELECT
+            id,
             username,
             password_hash,
             password_salt,
@@ -656,8 +747,6 @@ def login(data: LoginRequest) -> dict[str, str]:
         """,
         (data.username,),
     ).fetchone()
-
-    connection.close()
 
     credentials_are_valid = (
         user is not None
@@ -670,17 +759,39 @@ def login(data: LoginRequest) -> dict[str, str]:
     )
 
     if not credentials_are_valid:
+        connection.close()
         raise HTTPException(
             status_code=401,
             detail="Credenciales inválidas",
         )
 
-    token = secrets.token_urlsafe(24)
+    token = secrets.token_urlsafe(32)
+    created_at = datetime.now(timezone.utc)
+    expires_at = created_at + timedelta(
+        hours=SESSION_DURATION_HOURS
+    )
 
-    ACTIVE_TOKENS[token] = {
-        "username": user["username"],
-        "role": user["role"],
-    }
+    connection.execute(
+        """
+        INSERT INTO sessions (
+            user_id,
+            token_hash,
+            created_at,
+            expires_at,
+            revoked_at
+        )
+        VALUES (?, ?, ?, ?, NULL)
+        """,
+        (
+            user["id"],
+            hash_session_token(token),
+            created_at.isoformat(),
+            expires_at.isoformat(),
+        ),
+    )
+
+    connection.commit()
+    connection.close()
 
     return {
         "access_token": token,
@@ -703,8 +814,26 @@ def logout(
     authorization: str | None = Header(default=None),
     user: dict[str, str] = Depends(authenticated_user),
 ) -> dict[str, str]:
+    """Revoca la sesión persistente utilizada por la petición."""
+
     token = (authorization or "").removeprefix("Bearer ")
-    ACTIVE_TOKENS.pop(token, None)
+    connection = get_connection()
+
+    connection.execute(
+        """
+        UPDATE sessions
+        SET revoked_at = ?
+        WHERE token_hash = ?
+        AND revoked_at IS NULL
+        """,
+        (
+            utc_now(),
+            hash_session_token(token),
+        ),
+    )
+
+    connection.commit()
+    connection.close()
 
     return {
         "message": "Sesión cerrada correctamente",

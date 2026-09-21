@@ -2,13 +2,13 @@
 
 ## Última etapa
 
-Etapa 16 — Usuarios persistentes y contraseñas protegidas.
+Etapa 17 — Sesiones persistentes con expiración.
 
 
 
 ## Estado de validación
 
-- Backend: 9 pruebas aprobadas.
+- Backend: 11 pruebas aprobadas.
 - Frontend: compilación aprobada.
 - GitHub Actions: debe verificarse después de cada publicación.
 
@@ -47,3 +47,15 @@ ACTIVE → ESCALATED
 ACKNOWLEDGED → ESCALATED
 ACKNOWLEDGED → RESOLVED
 ESCALATED → RESOLVED
+
+## Próximo paso recomendado
+
+Etapa 18 — Validaciones de integridad del episodio.
+
+Objetivos:
+
+- rechazar cambios clínicos sobre episodios cerrados;
+- impedir altas repetidas;
+- validar rangos plausibles de signos vitales;
+- impedir completar dos veces una tarea;
+- comprobar cada restricción mediante pruebas automáticas.

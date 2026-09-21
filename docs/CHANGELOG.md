@@ -664,3 +664,38 @@ El sistema utiliza:
 
 ```text
 PBKDF2-HMAC-SHA256
+
+---
+
+## Etapa 17 — Sesiones persistentes con expiración
+
+### Implementado
+
+- Sesiones almacenadas en SQLite.
+- Duración predeterminada de ocho horas.
+- Token aleatorio entregado al navegador.
+- Hash SHA-256 del token almacenado en la base de datos.
+- Restauración de sesión después de reiniciar FastAPI.
+- Revocación persistente al cerrar sesión.
+- Invalidación automática de sesiones vencidas.
+- Migración `backend/migrations/002_sessions.sql`.
+
+### Seguridad
+
+El token original no se almacena en SQLite. El servidor conserva:
+
+- usuario asociado;
+- hash del token;
+- fecha de creación;
+- fecha de expiración;
+- fecha de revocación.
+
+### Flujo
+
+```text
+Login
+→ creación del token
+→ almacenamiento de su hash
+→ validación en cada petición
+→ expiración o logout
+→ revocación
