@@ -2,7 +2,9 @@
 
 ## Última etapa
 
-Etapa 15 — Restauración y cierre de sesión.
+Etapa 16 — Usuarios persistentes y contraseñas protegidas.
+
+
 
 ## Estado de validación
 

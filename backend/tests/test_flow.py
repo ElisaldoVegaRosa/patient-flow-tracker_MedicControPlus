@@ -808,3 +808,76 @@ def test_session_restore_and_logout(tmp_path: Path) -> None:
         assert expired_session_response.json()["detail"] == (
             "Sesión requerida"
         )
+        
+def test_demo_users_are_stored_with_password_hashes(
+    tmp_path: Path,
+) -> None:
+    """Valida el almacenamiento protegido de los usuarios demo."""
+
+    main.DATABASE_PATH = tmp_path / "users-test.db"
+    main.initialize_database()
+
+    connection = main.get_connection()
+
+    users = connection.execute(
+        """
+        SELECT
+            username,
+            password_hash,
+            password_salt,
+            role,
+            active
+        FROM users
+        ORDER BY username
+        """
+    ).fetchall()
+
+    connection.close()
+
+    assert len(users) == 5
+
+    expected_usernames = {
+        "recepcion",
+        "enfermeria",
+        "medico",
+        "laboratorio",
+        "supervisor",
+    }
+
+    assert {
+        user["username"]
+        for user in users
+    } == expected_usernames
+
+    for user in users:
+        assert user["password_hash"] != "demo123"
+        assert user["password_salt"]
+        assert user["active"] == 1
+
+        assert main.verify_password(
+            "demo123",
+            user["password_salt"],
+            user["password_hash"],
+        )
+
+        assert not main.verify_password(
+            "contraseña-incorrecta",
+            user["password_salt"],
+            user["password_hash"],
+        )
+
+    # Ejecutar nuevamente la inicialización no debe duplicar usuarios.
+    main.initialize_database()
+
+    verification_connection = main.get_connection()
+
+    final_user_count = verification_connection.execute(
+        """
+        SELECT COUNT(*) AS total
+        FROM users
+        """
+    ).fetchone()["total"]
+
+    verification_connection.close()
+
+    assert final_user_count == 5

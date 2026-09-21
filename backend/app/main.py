@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import secrets
 import sqlite3
@@ -37,6 +38,42 @@ DEMO_USERS = {
     },
 }
 
+PASSWORD_HASH_ITERATIONS = 210_000
+
+
+def hash_password(password: str) -> tuple[str, str]:
+    """Genera una sal y un hash PBKDF2 para una contraseña."""
+
+    salt = secrets.token_bytes(16)
+    password_hash = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        salt,
+        PASSWORD_HASH_ITERATIONS,
+    )
+
+    return salt.hex(), password_hash.hex()
+
+
+def verify_password(
+    password: str,
+    password_salt: str,
+    expected_hash: str,
+) -> bool:
+    """Compara una contraseña con su hash almacenado."""
+
+    candidate_hash = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        bytes.fromhex(password_salt),
+        PASSWORD_HASH_ITERATIONS,
+    ).hex()
+
+    return secrets.compare_digest(
+        candidate_hash,
+        expected_hash,
+    )
+
 ACTIVE_TOKENS: dict[str, dict[str, str]] = {}
 
 
@@ -56,6 +93,16 @@ def initialize_database() -> None:
 
     connection.executescript(
         """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            password_salt TEXT NOT NULL,
+            role TEXT NOT NULL,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS patients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -127,6 +174,44 @@ def initialize_database() -> None:
         );
         """
     )
+
+    for username, demo_user in DEMO_USERS.items():
+        existing_user = connection.execute(
+            """
+            SELECT id
+            FROM users
+            WHERE username = ?
+            """,
+            (username,),
+        ).fetchone()
+
+        if existing_user is not None:
+            continue
+
+        password_salt, password_hash = hash_password(
+            demo_user["password"]
+        )
+
+        connection.execute(
+            """
+            INSERT INTO users (
+                username,
+                password_hash,
+                password_salt,
+                role,
+                active,
+                created_at
+            )
+            VALUES (?, ?, ?, ?, 1, ?)
+            """,
+            (
+                username,
+                password_hash,
+                password_salt,
+                demo_user["role"],
+                utc_now(),
+            ),
+        )
 
     connection.commit()
     connection.close()
@@ -552,12 +637,39 @@ def startup() -> None:
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-
 @app.post("/auth/login")
 def login(data: LoginRequest) -> dict[str, str]:
-    demo_user = DEMO_USERS.get(data.username)
+    """Autentica un usuario activo almacenado en SQLite."""
 
-    if demo_user is None or demo_user["password"] != data.password:
+    connection = get_connection()
+
+    user = connection.execute(
+        """
+        SELECT
+            username,
+            password_hash,
+            password_salt,
+            role,
+            active
+        FROM users
+        WHERE username = ?
+        """,
+        (data.username,),
+    ).fetchone()
+
+    connection.close()
+
+    credentials_are_valid = (
+        user is not None
+        and user["active"] == 1
+        and verify_password(
+            data.password,
+            user["password_salt"],
+            user["password_hash"],
+        )
+    )
+
+    if not credentials_are_valid:
         raise HTTPException(
             status_code=401,
             detail="Credenciales inválidas",
@@ -566,16 +678,16 @@ def login(data: LoginRequest) -> dict[str, str]:
     token = secrets.token_urlsafe(24)
 
     ACTIVE_TOKENS[token] = {
-        "username": data.username,
-        "role": demo_user["role"],
+        "username": user["username"],
+        "role": user["role"],
     }
 
     return {
         "access_token": token,
-        "username": data.username,
-        "role": demo_user["role"],
+        "username": user["username"],
+        "role": user["role"],
     }
-    
+
 @app.get("/auth/me")
 def authenticated_session(
     user: dict[str, str] = Depends(authenticated_user),

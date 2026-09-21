@@ -627,3 +627,40 @@ Cuando existe un token almacenado, el frontend consulta:
 
 ```text
 GET /auth/me
+
+---
+
+## Etapa 16 — Usuarios persistentes y contraseñas protegidas
+
+### Implementado
+
+- Tabla `users` almacenada en SQLite.
+- Nombre de usuario único.
+- Rol persistente por usuario.
+- Estado activo o inactivo.
+- Contraseñas almacenadas mediante hash PBKDF2-SHA256.
+- Sal aleatoria independiente para cada usuario.
+- Comparación segura mediante `secrets.compare_digest`.
+- Login conectado a la tabla `users`.
+- Carga idempotente de los cinco usuarios de demostración.
+- Migración SQL documentada en `backend/migrations/001_users.sql`.
+
+### Estructura de usuario
+
+Cada usuario almacena:
+
+- `username`;
+- `password_hash`;
+- `password_salt`;
+- `role`;
+- `active`;
+- `created_at`.
+
+La contraseña original no se guarda en la tabla.
+
+### Protección de contraseñas
+
+El sistema utiliza:
+
+```text
+PBKDF2-HMAC-SHA256
