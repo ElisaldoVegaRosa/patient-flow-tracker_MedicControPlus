@@ -259,12 +259,14 @@ class TriageRequest(BaseModel):
 
 
 class VitalSignsRequest(BaseModel):
-    temperature: float
-    heart_rate: int
-    systolic: int
-    diastolic: int
-    spo2: int
-    respiratory_rate: int
+    """Signos vitales con límites plausibles para el demo."""
+
+    temperature: float = Field(ge=25, le=45)
+    heart_rate: int = Field(ge=20, le=250)
+    systolic: int = Field(ge=40, le=300)
+    diastolic: int = Field(ge=20, le=200)
+    spo2: int = Field(ge=50, le=100)
+    respiratory_rate: int = Field(ge=4, le=80)
 
 
 class AlertActionRequest(BaseModel):
@@ -412,6 +414,41 @@ def add_event(
             note,
         ),
     )
+    
+    
+def require_active_episode(
+    connection: sqlite3.Connection,
+    episode_id: int,
+) -> sqlite3.Row:
+    """
+    Obtiene un episodio y rechaza operaciones sobre episodios cerrados.
+
+    Debe ejecutarse antes de registrar cualquier modificación clínica
+    u operacional.
+    """
+
+    episode = connection.execute(
+        """
+        SELECT *
+        FROM episodes
+        WHERE id = ?
+        """,
+        (episode_id,),
+    ).fetchone()
+
+    if episode is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Episodio no encontrado",
+        )
+
+    if episode["status"] != "ACTIVE":
+        raise HTTPException(
+            status_code=409,
+            detail="El episodio está cerrado",
+        )
+
+    return episode
 
 def create_alert_if_missing(
     connection: sqlite3.Connection,
@@ -1534,6 +1571,7 @@ def register_triage(
     ),
 ) -> dict:
     connection = get_connection()
+    require_active_episode(connection, episode_id)
 
     connection.execute(
         """
@@ -1576,6 +1614,7 @@ def register_vitals(
     ),
 ) -> dict:
     connection = get_connection()
+    require_active_episode(connection, episode_id)
 
     connection.execute(
         """
@@ -1728,6 +1767,11 @@ def change_alert_status(
             status_code=404,
             detail="Alerta no encontrada",
         )
+        
+    require_active_episode(
+        connection,
+        alert["episode_id"],
+    )
 
     current_status = alert["status"]
 
@@ -1863,6 +1907,7 @@ def create_task(
     user: dict[str, str] = Depends(require_roles("DOCTOR")),
 ) -> dict:
     connection = get_connection()
+    require_active_episode(connection, episode_id)
 
     connection.execute(
         """
@@ -1978,6 +2023,18 @@ def complete_task(
     if task is None:
         connection.close()
         raise HTTPException(status_code=404, detail="Tarea no encontrada")
+    
+        require_active_episode(
+        connection,
+        task["episode_id"],
+    )
+
+    if task["status"] == "COMPLETED":
+        connection.close()
+        raise HTTPException(
+            status_code=409,
+            detail="La tarea ya está completada",
+        )
 
     if task["service"] == "LAB" and user["role"] != "LAB":
         connection.close()
@@ -2021,6 +2078,7 @@ def discharge_episode(
     user: dict[str, str] = Depends(require_roles("DOCTOR")),
 ) -> dict:
     connection = get_connection()
+    require_active_episode(connection, episode_id)
 
     connection.execute(
         """

@@ -699,3 +699,33 @@ Login
 → validación en cada petición
 → expiración o logout
 → revocación
+
+---
+
+## Etapa 18 — Integridad de episodios clínicos
+
+### Implementado
+
+- Función central para validar episodios activos.
+- Rechazo de modificaciones sobre episodios cerrados.
+- Prevención de altas repetidas.
+- Prevención de tareas completadas más de una vez.
+- Validación de rangos plausibles de signos vitales.
+- Protección de triaje, signos, alertas, evaluaciones y órdenes.
+
+### Operaciones bloqueadas después del alta
+
+Un episodio con estado `CLOSED` no acepta:
+
+- nuevo triaje;
+- nuevos signos vitales;
+- nuevas evaluaciones médicas;
+- nuevas órdenes o tareas;
+- finalización de tareas;
+- cambios en alertas;
+- una segunda alta.
+
+Estas operaciones responden:
+
+```text
+409 El episodio está cerrado

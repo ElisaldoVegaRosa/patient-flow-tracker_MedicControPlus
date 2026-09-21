@@ -2,13 +2,13 @@
 
 ## Última etapa
 
-Etapa 17 — Sesiones persistentes con expiración.
+Etapa 18 — Integridad de episodios clínicos.
 
 
 
 ## Estado de validación
 
-- Backend: 11 pruebas aprobadas.
+- Backend: 12 pruebas aprobadas.
 - Frontend: compilación aprobada.
 - GitHub Actions: debe verificarse después de cada publicación.
 
@@ -50,12 +50,12 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 18 — Validaciones de integridad del episodio.
+Etapa 19 — Refactorización técnica controlada.
 
 Objetivos:
 
-- rechazar cambios clínicos sobre episodios cerrados;
-- impedir altas repetidas;
-- validar rangos plausibles de signos vitales;
-- impedir completar dos veces una tarea;
-- comprobar cada restricción mediante pruebas automáticas.
+- migrar el evento de inicio de FastAPI a `lifespan`;
+- eliminar los warnings deprecados controlables;
+- separar progresivamente autenticación y base de datos;
+- conservar comportamiento y pruebas;
+- evitar ampliar el archivo monolítico.

@@ -994,3 +994,178 @@ def test_persistent_session_storage_and_expiration(
 
         assert revoked_session is not None
         assert revoked_session["revoked_at"] is not None
+        
+def test_episode_integrity_and_vital_ranges(
+    tmp_path: Path,
+) -> None:
+    """
+    Valida rangos clínicos básicos y bloquea cambios posteriores al alta.
+    """
+
+    main.DATABASE_PATH = tmp_path / "episode-integrity.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+        nurse_headers = login(client, "enfermeria")
+        doctor_headers = login(client, "medico")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente Integridad",
+                "birth_date": "1984-04-18",
+                "document": "INTEGRITY-001",
+                "priority": 3,
+                "location": "Recepción",
+            },
+        )
+
+        assert create_response.status_code == 201
+
+        episode_id = create_response.json()["id"]
+
+        # Un valor imposible debe ser rechazado antes de llegar al endpoint.
+        invalid_vitals_response = client.post(
+            f"/episodes/{episode_id}/vitals",
+            headers=nurse_headers,
+            json={
+                "temperature": 70,
+                "heart_rate": 80,
+                "systolic": 120,
+                "diastolic": 80,
+                "spo2": 98,
+                "respiratory_rate": 16,
+            },
+        )
+
+        assert invalid_vitals_response.status_code == 422
+
+        # El médico crea una tarea que se completa una sola vez.
+        task_response = client.post(
+            f"/episodes/{episode_id}/tasks",
+            headers=doctor_headers,
+            json={
+                "title": "Reevaluación médica",
+                "service": "MEDICAL",
+            },
+        )
+
+        assert task_response.status_code == 201
+
+        task_id = task_response.json()["tasks"][0]["id"]
+
+        completion_response = client.patch(
+            f"/tasks/{task_id}/complete",
+            headers=doctor_headers,
+            json={
+                "result": "Reevaluación completada",
+            },
+        )
+
+        assert completion_response.status_code == 200
+
+        duplicate_completion_response = client.patch(
+            f"/tasks/{task_id}/complete",
+            headers=doctor_headers,
+            json={
+                "result": "Resultado duplicado",
+            },
+        )
+
+        assert duplicate_completion_response.status_code == 409
+        assert duplicate_completion_response.json()["detail"] == (
+            "La tarea ya está completada"
+        )
+
+        discharge_response = client.post(
+            f"/episodes/{episode_id}/discharge",
+            headers=doctor_headers,
+            json={
+                "note": "Alta de prueba de integridad",
+            },
+        )
+
+        assert discharge_response.status_code == 200
+        assert discharge_response.json()["status"] == "CLOSED"
+
+        # Un episodio cerrado no acepta un segundo alta.
+        duplicate_discharge_response = client.post(
+            f"/episodes/{episode_id}/discharge",
+            headers=doctor_headers,
+            json={
+                "note": "Alta repetida",
+            },
+        )
+
+        assert duplicate_discharge_response.status_code == 409
+
+        # Enfermería no puede modificar el triaje después del alta.
+        closed_triage_response = client.post(
+            f"/episodes/{episode_id}/triage",
+            headers=nurse_headers,
+            json={
+                "priority": 1,
+                "location": "Área de choque",
+                "assigned_to": "Enfermería A",
+            },
+        )
+
+        assert closed_triage_response.status_code == 409
+
+        # No se pueden registrar signos después del alta.
+        closed_vitals_response = client.post(
+            f"/episodes/{episode_id}/vitals",
+            headers=nurse_headers,
+            json={
+                "temperature": 37,
+                "heart_rate": 80,
+                "systolic": 120,
+                "diastolic": 80,
+                "spo2": 98,
+                "respiratory_rate": 16,
+            },
+        )
+
+        assert closed_vitals_response.status_code == 409
+
+        # El médico no puede crear órdenes sobre episodios cerrados.
+        closed_task_response = client.post(
+            f"/episodes/{episode_id}/tasks",
+            headers=doctor_headers,
+            json={
+                "title": "Orden posterior al alta",
+                "service": "LAB",
+            },
+        )
+
+        assert closed_task_response.status_code == 409
+
+        # Tampoco puede registrar otra evaluación médica.
+        closed_evaluation_response = client.post(
+            f"/episodes/{episode_id}/medical-evaluation",
+            headers=doctor_headers,
+            json={
+                "clinical_note": "Evaluación posterior al alta",
+                "diagnosis": "No corresponde",
+                "disposition": "CONTINUE_OBSERVATION",
+            },
+        )
+
+        assert closed_evaluation_response.status_code == 409
+
+        final_response = client.get(
+            f"/episodes/{episode_id}",
+            headers=doctor_headers,
+        )
+
+        assert final_response.status_code == 200
+
+        discharge_events = [
+            event
+            for event in final_response.json()["events"]
+            if event["type"] == "DISCHARGE"
+        ]
+
+        assert len(discharge_events) == 1
