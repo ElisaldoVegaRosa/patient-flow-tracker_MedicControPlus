@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 20 — Pruebas automatizadas del frontend.
+Etapa 21 — Tipado y saneamiento de ESLint.
 
 
 
@@ -10,9 +10,9 @@ Etapa 20 — Pruebas automatizadas del frontend.
 
 - Backend: 12 pruebas aprobadas.
 - Frontend: 2 pruebas aprobadas.
+- ESLint: cero errores.
 - Frontend: compilación aprobada.
-- ESLint: 17 observaciones pendientes en `App.tsx`.
-- GitHub Actions: prueba backend, frontend y build.
+- GitHub Actions: backend, frontend, lint y build.
 
 ## Capacidades principales
 
@@ -52,11 +52,12 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 21 — Tipado y saneamiento de ESLint.
+Etapa 22 — Separación del cliente API y tipos frontend.
 
 Objetivos:
 
-- reemplazar tipos `any` por modelos explícitos;
-- corregir los efectos señalados por React Hooks;
-- conservar pruebas y compilación;
-- incorporar ESLint a GitHub Actions al llegar a cero errores.
+- mover los tipos fuera de `App.tsx`;
+- mover el cliente HTTP a un módulo independiente;
+- reducir el tamaño del componente principal;
+- conservar pruebas, lint y build;
+- preparar la separación posterior de páginas y componentes.

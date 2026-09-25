@@ -48,5 +48,8 @@ jobs:
       - name: Probar frontend
         run: npm run test --prefix frontend
 
+      - name: Analizar frontend
+        run: npm run lint --prefix frontend
+
       - name: Compilar frontend
         run: npm run build --prefix frontend

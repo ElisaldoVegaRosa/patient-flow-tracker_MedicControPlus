@@ -11,6 +11,67 @@ type User = {
   access_token: string;
 };
 
+type SessionUser = {
+  username: string;
+  role: string;
+};
+
+type VitalSigns = {
+  id: number;
+  episode_id: number;
+  temperature: number;
+  heart_rate: number;
+  systolic: number;
+  diastolic: number;
+  spo2: number;
+  respiratory_rate: number;
+  created_at?: string;
+  at?: string;
+};
+
+type AlertHistoryEntry = {
+  id: number;
+  alert_id: number;
+  old_status: string | null;
+  new_status: string;
+  username: string;
+  created_at?: string;
+  at?: string;
+};
+
+type ClinicalAlert = {
+  id: number;
+  episode_id: number;
+  reason: string;
+  severity: string;
+  status: string;
+  responsible: string | null;
+  created_at: string;
+  updated_at: string;
+  history?: AlertHistoryEntry[];
+};
+
+type ClinicalTask = {
+  id: number;
+  episode_id: number;
+  title: string;
+  service: string;
+  status: string;
+  result: string | null;
+  created_at?: string;
+  due_at?: string | null;
+};
+
+type TimelineEvent = {
+  id: number;
+  episode_id: number;
+  type: string;
+  username: string;
+  note: string | null;
+  created_at: string;
+  at?: string;
+};
+
 type Episode = {
   id: number;
   name: string;
@@ -20,17 +81,104 @@ type Episode = {
   status: string;
   priority: number;
   location: string;
-  assigned_to?: string;
-  vitals: Record<string, any>[];
-  alerts: Record<string, any>[];
-  tasks: Record<string, any>[];
-  events: Record<string, any>[];
+  assigned_to?: string | null;
+  started_at: string;
+  closed_at?: string | null;
+  vitals: VitalSigns[];
+  alerts: ClinicalAlert[];
+  tasks: ClinicalTask[];
+  events: TimelineEvent[];
 };
 
-async function api(
+type DashboardData = {
+  active: number;
+  open_alerts: number;
+  patients: Episode[];
+  requested_by: string;
+};
+
+type DemoSeedResponse = {
+  created: number;
+  existing: number;
+  message: string;
+  requested_by: string;
+};
+
+type ClosedEpisode = {
+  id: number;
+  name: string;
+  document: string;
+  status: string;
+  priority: number;
+  location: string;
+  assigned_to: string | null;
+  started_at: string;
+  closed_at: string | null;
+  event_count: number;
+  alert_count: number;
+  task_count: number;
+};
+
+type HistoryData = {
+  total: number;
+  episodes: ClosedEpisode[];
+  requested_by: string;
+};
+
+type SupervisorPatient = Episode & {
+  waiting_minutes: number;
+  open_alert_count: number;
+  pending_task_count: number;
+  at_risk: boolean;
+};
+
+type SupervisorData = {
+  metrics: {
+    active_patients: number;
+    high_priority_patients: number;
+    patients_at_risk: number;
+    open_alerts: number;
+    pending_tasks: number;
+  };
+  rules: {
+    evaluated_episodes: number;
+    generated_alerts: number;
+  };
+  patients: SupervisorPatient[];
+  generated_at: string;
+  requested_by: string;
+};
+
+type LaboratoryOrder = {
+  id: number;
+  episode_id: number;
+  title: string;
+  service: string;
+  status: string;
+  result: string | null;
+  created_at: string;
+  patient_name: string;
+  priority: number;
+  location: string;
+  episode_status: string;
+};
+
+type LaboratoryQueue = {
+  status_filter: string;
+  total: number;
+  orders: LaboratoryOrder[];
+  requested_by: string;
+};
+
+type LogoutResponse = {
+  message: string;
+  username: string;
+};
+
+async function api<T>(
   path: string,
   options: RequestInit = {},
-): Promise<any> {
+): Promise<T> {
   const token = localStorage.getItem("token");
 
   const response = await fetch(`${API}${path}`, {
@@ -42,8 +190,9 @@ async function api(
     },
   });
 
-  const result = await response.json();
-
+  const result = (await response.json()) as T & {
+    detail?: string;
+};
   /*
    * Si el backend rechaza un token que existía previamente,
    * la sesión expiró o el servidor fue reiniciado.
@@ -83,56 +232,92 @@ async function api(
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [page, setPage] = useState("dashboard");
-  const [dashboard, setDashboard] = useState<any>(null);
+  const [dashboard, setDashboard] =
+    useState<DashboardData | null>(null);  
   const [episode, setEpisode] = useState<Episode | null>(null);
-  const [laboratoryQueue, setLaboratoryQueue] = useState<any>(null);
-  const [supervisorData, setSupervisorData] = useState<any>(null);
+  const [laboratoryQueue, setLaboratoryQueue] =
+    useState<LaboratoryQueue | null>(null);
+  const [supervisorData, setSupervisorData] =
+    useState<SupervisorData | null>(null);
   const [supervisorFilter, setSupervisorFilter] = useState("ALL");
-  const [historyData, setHistoryData] = useState<any>(null);
+  const [historyData, setHistoryData] =
+    useState<HistoryData | null>(null);
   const [error, setError] = useState("");
   const [restoringSession, setRestoringSession] =
-  useState(true);
+    useState(() => Boolean(localStorage.getItem("token")));
 
   async function loadDashboard() {
     try {
-      setDashboard(await api("/dashboard"));
+      setDashboard(await api<DashboardData>("/dashboard"));
     } catch (exception) {
       setError((exception as Error).message);
     }
   }
 
-  useEffect(() => {
-    if (user) {
-      loadDashboard();
-    }
-  }, [user]);
-
-  useEffect(() => {
-  const storedToken = localStorage.getItem("token");
-
-  if (!storedToken) {
-    setRestoringSession(false);
+useEffect(() => {
+  if (!user) {
     return;
   }
 
-  api("/auth/me")
+  let cancelled = false;
+
+  api<DashboardData>("/dashboard")
+    .then((result) => {
+      if (!cancelled) {
+        setDashboard(result);
+      }
+    })
+    .catch((exception: unknown) => {
+      if (!cancelled) {
+        setError(
+          exception instanceof Error
+            ? exception.message
+            : "No fue posible cargar el dashboard",
+        );
+      }
+    });
+
+  return () => {
+    cancelled = true;
+  };
+}, [user]);
+
+useEffect(() => {
+  const storedToken = localStorage.getItem("token");
+
+  if (!storedToken) {
+    return;
+  }
+
+  let cancelled = false;
+
+  api<SessionUser>("/auth/me")
     .then((session) => {
-      setUser({
-        username: session.username,
-        role: session.role,
-        access_token: storedToken,
-      });
+      if (!cancelled) {
+        setUser({
+          username: session.username,
+          role: session.role,
+          access_token: storedToken,
+        });
+      }
     })
     .catch(() => {
       localStorage.removeItem("token");
-      setUser(null);
+
+      if (!cancelled) {
+        setUser(null);
+      }
     })
     .finally(() => {
-      setRestoringSession(false);
+      if (!cancelled) {
+        setRestoringSession(false);
+      }
     });
+
+  return () => {
+    cancelled = true;
+  };
 }, []);
-
-
 
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -141,7 +326,7 @@ function App() {
     const form = new FormData(event.currentTarget);
 
     try {
-      const result = await api("/auth/login", {
+      const result = await api<User>("/auth/login", {
         method: "POST",
         body: JSON.stringify({
           username: form.get("username"),
@@ -162,7 +347,7 @@ function App() {
     const form = new FormData(event.currentTarget);
 
     try {
-      const result = await api("/episodes", {
+      const result = await api<Episode>("/episodes", {
         method: "POST",
         body: JSON.stringify({
           name: form.get("name"),
@@ -183,7 +368,7 @@ function App() {
 
   async function openEpisode(id: number) {
     try {
-      setEpisode(await api(`/episodes/${id}`));
+      setEpisode(await api<Episode>(`/episodes/${id}`));
       setPage("episode");
     } catch (exception) {
       setError((exception as Error).message);
@@ -195,7 +380,7 @@ function App() {
     const token = new FormData(event.currentTarget).get("token");
 
     try {
-      setEpisode(await api(`/scan/${token}`));
+      setEpisode(await api<Episode>(`/scan/${token}`));
       setPage("episode");
     } catch (exception) {
       setError((exception as Error).message);
@@ -221,7 +406,7 @@ async function loadDemoData() {
   }
 
   try {
-    const result = await api("/demo/seed", {
+    const result = await api<DemoSeedResponse>("/demo/seed", {
       method: "POST",
     });
 
@@ -241,7 +426,7 @@ async function loadDemoData() {
  */
 async function openEpisodeHistory() {
   try {
-    const result = await api("/episodes/history");
+    const result = await api<HistoryData>("/episodes/history");
 
     setHistoryData(result);
     setPage("history");
@@ -258,7 +443,7 @@ async function openEpisodeHistory() {
  */
 async function openSupervisorDashboard() {
   try {
-    const result = await api("/supervisor/dashboard");
+    const result = await api<SupervisorData>("/supervisor/dashboard");
 
     setSupervisorData(result);
     setSupervisorFilter("ALL");
@@ -273,7 +458,7 @@ async function openSupervisorDashboard() {
  */
 async function openLaboratoryQueue() {
   try {
-    const result = await api("/lab/orders?status=PENDING");
+    const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING");
 
     setLaboratoryQueue(result);
     setPage("laboratory");
@@ -295,7 +480,7 @@ async function completeLaboratoryOrder(
   const form = new FormData(event.currentTarget);
 
   try {
-    await api(`/tasks/${taskId}/complete`, {
+    await api<Episode>(`/tasks/${taskId}/complete`, {
       method: "PATCH",
       body: JSON.stringify({
         result: form.get("result"),
@@ -310,7 +495,7 @@ async function completeLaboratoryOrder(
 
 async function logout() {
   try {
-    await api("/auth/logout", {
+    await api<LogoutResponse>("/auth/logout", {
       method: "POST",
     });
   } catch (exception) {
@@ -653,7 +838,7 @@ if (restoringSession) {
           </thead>
 
           <tbody>
-            {historyData.episodes.map((closedEpisode: any) => (
+            {historyData.episodes.map((closedEpisode) => (
               <tr key={closedEpisode.id}>
                 <td>
                   <strong>{closedEpisode.name}</strong>
@@ -861,7 +1046,7 @@ if (restoringSession) {
 
         <tbody>
           {supervisorData.patients
-            .filter((patient: any) => {
+            .filter((patient) => {
               if (supervisorFilter === "RISK") {
                 return patient.at_risk;
               }
@@ -876,7 +1061,7 @@ if (restoringSession) {
 
               return true;
             })
-            .map((patient: any) => (
+            .map((patient) => (
               <tr key={patient.id}>
                 <td>
                   <strong>{patient.name}</strong>
@@ -967,7 +1152,7 @@ if (restoringSession) {
       </section>
     ) : (
       <section className="lab-grid">
-        {laboratoryQueue.orders.map((order: any) => (
+        {laboratoryQueue.orders.map((order) => (
           <article className="panel lab-order" key={order.id}>
             <div className="lab-order-header">
               <div>
@@ -1066,7 +1251,7 @@ function EpisodePage({
 
   async function call(path: string, options: RequestInit) {
     try {
-      updateEpisode(await api(path, options));
+      updateEpisode(await api<Episode>(path, options));
     } catch (exception) {
       showError((exception as Error).message);
     }
@@ -1551,7 +1736,7 @@ async function createClinicalOrder(
             <ol>
               {(alert.history ?? []).map(
                 (
-                  transition: Record<string, any>,
+                  transition: AlertHistoryEntry,
                   index: number,
                 ) => {
                   const transitionDate =
@@ -1629,7 +1814,7 @@ async function createClinicalOrder(
                 <ol>
                   {(alert.history ?? []).map(
                     (
-                      transition: Record<string, any>,
+                      transition: AlertHistoryEntry,
                       index: number,
                     ) => {
                       const transitionDate =

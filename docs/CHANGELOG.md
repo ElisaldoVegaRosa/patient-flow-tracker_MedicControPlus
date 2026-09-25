@@ -781,3 +781,51 @@ Se verifica que:
 ```text
 Test Files: 1 passed
 Tests: 2 passed
+
+---
+
+## Etapa 21 — Tipado y saneamiento de ESLint
+
+### Implementado
+
+- Modelos TypeScript explícitos para datos clínicos y operacionales.
+- Eliminación de todos los usos explícitos de `any`.
+- Cliente API genérico con respuestas tipadas.
+- Tipado del dashboard.
+- Tipado de episodios, signos vitales, alertas y transiciones.
+- Tipado de tareas y eventos.
+- Tipado del panel de supervisor.
+- Tipado de la bandeja de laboratorio.
+- Tipado del historial de episodios.
+- Reorganización de efectos de React.
+- Integración de ESLint en GitHub Actions.
+
+### Modelos añadidos
+
+- `VitalSigns`;
+- `ClinicalAlert`;
+- `AlertHistoryEntry`;
+- `ClinicalTask`;
+- `TimelineEvent`;
+- `Episode`;
+- `DashboardData`;
+- `SupervisorData`;
+- `LaboratoryQueue`;
+- `HistoryData`.
+
+### Efectos de React
+
+Los efectos de restauración y carga del dashboard ahora:
+
+- realizan actualizaciones dentro de operaciones asíncronas;
+- evitan actualizaciones después del desmontaje;
+- utilizan una bandera `cancelled`;
+- limpian correctamente sus operaciones.
+
+### Resultado
+
+```text
+ESLint: 0 errores
+Frontend: 2 pruebas aprobadas
+Backend: 12 pruebas aprobadas
+Build: aprobado
