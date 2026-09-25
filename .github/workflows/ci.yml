@@ -45,5 +45,8 @@ jobs:
       - name: Instalar frontend
         run: npm ci --prefix frontend
 
+      - name: Probar frontend
+        run: npm run test --prefix frontend
+
       - name: Compilar frontend
         run: npm run build --prefix frontend

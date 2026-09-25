@@ -2,17 +2,17 @@
 
 ## Última etapa
 
-Etapa 19 — Ciclo de vida moderno de FastAPI.
+Etapa 20 — Pruebas automatizadas del frontend.
 
 
 
 ## Estado de validación
 
 - Backend: 12 pruebas aprobadas.
+- Frontend: 2 pruebas aprobadas.
 - Frontend: compilación aprobada.
-- Warnings propios de FastAPI: eliminados.
-- Warning restante: dependencia Starlette/AnyIO.
-- GitHub Actions: debe verificarse después de cada publicación.
+- ESLint: 17 observaciones pendientes en `App.tsx`.
+- GitHub Actions: prueba backend, frontend y build.
 
 ## Capacidades principales
 
@@ -52,12 +52,11 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 20 — Refactorización modular del backend.
+Etapa 21 — Tipado y saneamiento de ESLint.
 
 Objetivos:
 
-- extraer configuración y conexión SQLite;
-- separar autenticación y sesiones;
-- mantener los endpoints existentes;
-- conservar las doce pruebas;
-- reducir progresivamente el tamaño de `main.py`.
+- reemplazar tipos `any` por modelos explícitos;
+- corregir los efectos señalados por React Hooks;
+- conservar pruebas y compilación;
+- incorporar ESLint a GitHub Actions al llegar a cero errores.

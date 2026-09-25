@@ -750,3 +750,34 @@ El inicio anterior:
 @app.on_event("startup")
 def startup() -> None:
     initialize_database()
+
+    ---
+
+## Etapa 20 — Pruebas automatizadas del frontend
+
+### Implementado
+
+- Vitest como ejecutor de pruebas.
+- Entorno jsdom.
+- React Testing Library.
+- Extensiones de jest-dom.
+- Simulación de interacción mediante user-event.
+- Limpieza automática después de cada prueba.
+- Comandos `npm run test` y `npm run test:watch`.
+- Ejecución de pruebas frontend en GitHub Actions.
+
+### Pruebas iniciales
+
+Se verifica que:
+
+- aparece la pantalla de inicio de sesión;
+- aparecen los cinco roles;
+- aparece el botón `Entrar`;
+- los errores del backend se presentan al usuario;
+- el formulario utiliza `/auth/login`.
+
+### Resultado
+
+```text
+Test Files: 1 passed
+Tests: 2 passed
