@@ -829,3 +829,28 @@ ESLint: 0 errores
 Frontend: 2 pruebas aprobadas
 Backend: 12 pruebas aprobadas
 Build: aprobado
+
+---
+
+## Etapa 22 — Separación del cliente API y tipos frontend
+
+### Implementado
+
+- Cliente HTTP extraído desde `App.tsx` hacia `frontend/src/api/client.ts`.
+- Contratos de dominio, API y datos clínicos extraídos hacia
+  `frontend/src/types/clinical.ts`.
+- Importación de modelos mediante `import type`.
+- Conservación de `EpisodePageProps` en `App.tsx` por ser un tipo local de
+  presentación del componente `EpisodePage`.
+- Confirmación de que `client.ts` está correctamente codificado en UTF-8.
+- Reducción de responsabilidades y tamaño de `App.tsx`.
+- Conservación del comportamiento funcional existente.
+
+### Resultado
+
+```text
+ESLint: 0 errores
+Frontend: 2 pruebas aprobadas
+Backend: 12 pruebas aprobadas
+Build: aprobado
+Advertencias backend: se mantienen únicamente las ya conocidas

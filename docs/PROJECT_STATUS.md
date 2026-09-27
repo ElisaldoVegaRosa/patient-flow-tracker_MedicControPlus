@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 21 — Tipado y saneamiento de ESLint.
+Etapa 22 — Separación del cliente API y tipos frontend.
 
 
 
@@ -12,6 +12,7 @@ Etapa 21 — Tipado y saneamiento de ESLint.
 - Frontend: 2 pruebas aprobadas.
 - ESLint: cero errores.
 - Frontend: compilación aprobada.
+- Advertencias backend: se mantienen únicamente las ya conocidas.
 - GitHub Actions: backend, frontend, lint y build.
 
 ## Capacidades principales
@@ -30,6 +31,8 @@ Etapa 21 — Tipado y saneamiento de ESLint.
 - Historial visual de alertas.
 - Máquina de estados de alertas.
 - Restauración y cierre de sesión.
+- Cliente HTTP frontend separado.
+- Tipos de dominio, API y datos clínicos separados.
 
 ## Sesiones
 
@@ -52,12 +55,11 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 22 — Separación del cliente API y tipos frontend.
+Etapa 23 — Separación posterior de páginas y componentes.
 
 Objetivos:
 
-- mover los tipos fuera de `App.tsx`;
-- mover el cliente HTTP a un módulo independiente;
-- reducir el tamaño del componente principal;
-- conservar pruebas, lint y build;
-- preparar la separación posterior de páginas y componentes.
+- dividir `App.tsx` en páginas y componentes;
+- conservar los contratos TypeScript existentes;
+- mantener el cliente HTTP centralizado;
+- conservar pruebas, lint y build.
