@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 25 - Modernización de setup-node.
+Etapa 26 - Baseline seguro minimo de Codex.
 
 
 
@@ -21,6 +21,8 @@ Etapa 25 - Modernización de setup-node.
 - Runtime de `actions/setup-node` modernizado mediante `actions/setup-node@v7`.
 - Eliminación esperada de las advertencias internas `DEP0040` y `DEP0169` de
   `setup-node@v5`.
+- Baseline Codex versionado con aprobacion bajo demanda, escritura limitada al
+  workspace y red desactivada dentro del sandbox.
 
 ## Capacidades principales
 
@@ -44,6 +46,7 @@ Etapa 25 - Modernización de setup-node.
 - Tareas de VS Code para validación, pruebas, lint, build y ejecución local.
 - CI con acciones oficiales compatibles con runtime Node 24.
 - CI con `actions/setup-node@v7`, Node.js 22, cache npm y Ubuntu 24.04.
+- Baseline de seguridad Codex compartido en `.codex/config.toml`.
 
 ## Sesiones
 
@@ -70,13 +73,17 @@ ESCALATED → RESOLVED
 - Pytest usa `.tmp/pytest` como base temporal local controlada.
 - Las tareas de VS Code usan rutas relativas al workspace.
 - Estas mejoras no cambian el comportamiento clínico de la aplicación.
+- El baseline Codex no cambia el comportamiento funcional de la aplicacion; solo
+  fija permisos locales esperados para sesiones futuras.
 
 ## Próximo paso recomendado
 
-Etapa 26 - Evaluar Dependabot para GitHub Actions.
+Etapa 27 - Evaluar Dependabot para GitHub Actions.
 
 Objetivos:
 
 - evaluar configuración exclusiva para `github-actions`;
 - mantener PRs pequeños y auditables para acciones oficiales;
 - no cambiar dependencias de aplicación como parte de esa evaluación.
+- comprobar `/status` en un hilo nuevo de Codex para confirmar la carga
+  efectiva de la configuracion versionada.

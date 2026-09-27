@@ -924,3 +924,22 @@ Actions. No cambia dependencias de aplicación ni comportamiento funcional.
 
 Mantenimiento de CI sin cambios funcionales en la aplicación. No se modifican
 dependencias de frontend, dependencias de backend ni código de aplicación.
+
+---
+
+## Etapa 26 - Baseline seguro minimo de Codex
+
+### Implementado
+
+- Configuracion Codex minima versionada en `.codex/config.toml`.
+- Aprobacion bajo demanda mediante `approval_policy = "on-request"`.
+- Escritura limitada al workspace mediante `sandbox_mode = "workspace-write"`.
+- Red desactivada dentro del sandbox mediante
+  `sandbox_workspace_write.network_access = false`.
+- Sin fijar opciones adicionales.
+
+### Alcance
+
+Baseline compartido de seguridad para Codex a nivel de proyecto. No cambia el
+comportamiento funcional de la aplicacion ni modifica codigo, dependencias,
+workflow o tareas de VS Code.
