@@ -905,3 +905,22 @@ Build: aprobado
 
 Mantenimiento preventivo de CI ante la deprecación de Node 20 en GitHub
 Actions. No cambia dependencias de aplicación ni comportamiento funcional.
+
+---
+
+## Etapa 25 - Modernización de setup-node
+
+### Implementado
+
+- `actions/setup-node` actualizado de `v5` a `v7`.
+- Eliminación esperada de las advertencias internas `DEP0040` y `DEP0169`
+  generadas por dependencias empaquetadas de la acción.
+- Node.js 22 conservado para frontend.
+- Cache npm conservada con `frontend/package-lock.json` como ruta de
+  dependencia.
+- Runner de CI conservado en `ubuntu-24.04`.
+
+### Alcance
+
+Mantenimiento de CI sin cambios funcionales en la aplicación. No se modifican
+dependencias de frontend, dependencias de backend ni código de aplicación.

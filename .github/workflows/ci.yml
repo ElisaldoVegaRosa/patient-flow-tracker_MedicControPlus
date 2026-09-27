@@ -36,7 +36,7 @@ jobs:
         run: python -m pytest -q backend/tests
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm

@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 24 - Mantenimiento preventivo de GitHub Actions.
+Etapa 25 - Modernización de setup-node.
 
 
 
@@ -18,6 +18,9 @@ Etapa 24 - Mantenimiento preventivo de GitHub Actions.
 - CI preparada ante la deprecación de Node 20 en GitHub Actions.
 - Runner de CI fijado en `ubuntu-24.04` antes de la migración de
   `ubuntu-latest` a Ubuntu 26.
+- Runtime de `actions/setup-node` modernizado mediante `actions/setup-node@v7`.
+- Eliminación esperada de las advertencias internas `DEP0040` y `DEP0169` de
+  `setup-node@v5`.
 
 ## Capacidades principales
 
@@ -40,6 +43,7 @@ Etapa 24 - Mantenimiento preventivo de GitHub Actions.
 - Validación local reproducible en Windows.
 - Tareas de VS Code para validación, pruebas, lint, build y ejecución local.
 - CI con acciones oficiales compatibles con runtime Node 24.
+- CI con `actions/setup-node@v7`, Node.js 22, cache npm y Ubuntu 24.04.
 
 ## Sesiones
 
@@ -69,11 +73,10 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 25 - Separación posterior de páginas y componentes.
+Etapa 26 - Evaluar Dependabot para GitHub Actions.
 
 Objetivos:
 
-- dividir `App.tsx` en páginas y componentes;
-- conservar los contratos TypeScript existentes;
-- mantener el cliente HTTP centralizado;
-- conservar pruebas, lint y build.
+- evaluar configuración exclusiva para `github-actions`;
+- mantener PRs pequeños y auditables para acciones oficiales;
+- no cambiar dependencias de aplicación como parte de esa evaluación.
