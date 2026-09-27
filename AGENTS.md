@@ -40,7 +40,7 @@ python -m pip install -r backend/requirements.txt
 Frontend:
 
 ```powershell
-npm ci --prefix frontend
+npm.cmd ci --prefix frontend
 ```
 
 ## Comandos De Ejecucion Local
@@ -49,13 +49,13 @@ Backend desde la raiz del repositorio en Windows PowerShell:
 
 ```powershell
 $env:PYTHONPATH = "backend"
-python -m uvicorn app.main:app --reload
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload
 ```
 
 Frontend:
 
 ```powershell
-npm run dev --prefix frontend
+npm.cmd run dev --prefix frontend
 ```
 
 La API permite CORS desde `http://localhost:5173`.
@@ -66,6 +66,19 @@ El cliente frontend usa `VITE_API_URL` si esta definido; si no, usa
 
 Antes de entregar cambios, ejecutar los comandos aplicables y reportar el
 resultado.
+
+Validacion local preferida en Windows PowerShell:
+
+```powershell
+.\scripts\validate.ps1
+```
+
+Este script usa `.\.venv\Scripts\python.exe`, `npm.cmd`, `PYTHONPATH` apuntando
+a `backend` y `--basetemp .tmp\pytest` para que pytest no dependa de temporales
+de AppData. Si la politica local de PowerShell bloquea archivos `.ps1`, usar la
+tarea de VS Code `MedicControl+: Validate all` o ejecutar el script con
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\validate.ps1`
+sin cambiar la politica global del usuario.
 
 Backend local en Windows CMD, desde la raiz del repositorio:
 
@@ -90,9 +103,9 @@ PYTHONPATH=backend python -m pytest -q backend/tests
 Frontend:
 
 ```powershell
-npm run test --prefix frontend
-npm run lint --prefix frontend
-npm run build --prefix frontend
+npm.cmd run test --prefix frontend
+npm.cmd run lint --prefix frontend
+npm.cmd run build --prefix frontend
 ```
 
 Estos comandos reflejan la validacion cubierta por GitHub Actions:
@@ -114,11 +127,12 @@ PowerShell desde la raiz del repositorio:
 
 ```powershell
 $env:PYTHONPATH = "backend"
-.\.venv\Scripts\python.exe -m pytest -q --disable-warnings -x backend\tests
+.\.venv\Scripts\python.exe -m pytest -q --disable-warnings -x backend\tests --basetemp .tmp\pytest
 ```
 
 No depender de sintaxis de entorno de Unix como `PYTHONPATH=backend ...` en
-PowerShell o CMD.
+PowerShell o CMD. En PowerShell usar `npm.cmd` en lugar de `npm` para evitar
+bloqueos por politicas de ejecucion de scripts.
 
 ## Git Y Cambios Locales
 

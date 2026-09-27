@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 22 — Separación del cliente API y tipos frontend.
+Etapa 23 - Validación local reproducible y tareas de VS Code.
 
 
 
@@ -13,6 +13,7 @@ Etapa 22 — Separación del cliente API y tipos frontend.
 - ESLint: cero errores.
 - Frontend: compilación aprobada.
 - Advertencias backend: se mantienen únicamente las ya conocidas.
+- Validación local: `scripts/validate.ps1`.
 - GitHub Actions: backend, frontend, lint y build.
 
 ## Capacidades principales
@@ -33,6 +34,8 @@ Etapa 22 — Separación del cliente API y tipos frontend.
 - Restauración y cierre de sesión.
 - Cliente HTTP frontend separado.
 - Tipos de dominio, API y datos clínicos separados.
+- Validación local reproducible en Windows.
+- Tareas de VS Code para validación, pruebas, lint, build y ejecución local.
 
 ## Sesiones
 
@@ -53,9 +56,16 @@ ACKNOWLEDGED → ESCALATED
 ACKNOWLEDGED → RESOLVED
 ESCALATED → RESOLVED
 
+## Experiencia de desarrollo
+
+- `scripts/validate.ps1` refleja la validación de CI desde Windows.
+- Pytest usa `.tmp/pytest` como base temporal local controlada.
+- Las tareas de VS Code usan rutas relativas al workspace.
+- Estas mejoras no cambian el comportamiento clínico de la aplicación.
+
 ## Próximo paso recomendado
 
-Etapa 23 — Separación posterior de páginas y componentes.
+Etapa 24 - Separación posterior de páginas y componentes.
 
 Objetivos:
 

@@ -854,3 +854,34 @@ Frontend: 2 pruebas aprobadas
 Backend: 12 pruebas aprobadas
 Build: aprobado
 Advertencias backend: se mantienen únicamente las ya conocidas
+
+---
+
+## Etapa 23 - Validación local reproducible y tareas de VS Code
+
+### Implementado
+
+- Script `scripts/validate.ps1` para ejecutar la validación local completa en
+  Windows.
+- Resolución de la raíz del repositorio desde la ubicación del script.
+- Uso del Python local `.\.venv\Scripts\python.exe`.
+- Uso de `npm.cmd` para evitar bloqueos de PowerShell con `npm.ps1`.
+- `PYTHONPATH` apuntando a `backend`.
+- Directorio temporal controlado `.tmp\pytest` mediante `--basetemp`.
+- Tareas de VS Code para validación completa, pruebas, lint, build e inicio
+  local de backend y frontend.
+- Exclusión de `.tmp/` en Git.
+
+### Alcance
+
+La etapa mejora la experiencia de desarrollo y la reproducibilidad local.
+No cambia el comportamiento clínico ni operacional de la aplicación.
+
+### Resultado
+
+```text
+Backend: 12 pruebas aprobadas
+Frontend: 2 pruebas aprobadas
+ESLint: 0 errores
+Build: aprobado
+```
