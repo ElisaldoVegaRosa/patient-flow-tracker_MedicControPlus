@@ -943,3 +943,24 @@ dependencias de frontend, dependencias de backend ni código de aplicación.
 Baseline compartido de seguridad para Codex a nivel de proyecto. No cambia el
 comportamiento funcional de la aplicacion ni modifica codigo, dependencias,
 workflow o tareas de VS Code.
+
+---
+
+## Etapa 27 - Dependabot limitado a GitHub Actions
+
+### Implementado
+
+- Configuracion `.github/dependabot.yml` exclusiva para `github-actions`.
+- Revision semanal de actualizaciones de acciones.
+- Rama objetivo `main`.
+- Limite de cinco pull requests abiertos para actualizaciones de version.
+- Sin auto-merge.
+- Sin ecosistemas `npm` ni `pip`.
+- Sin configuracion de credenciales, registries privados, reviewers,
+  assignees, labels o agrupaciones.
+
+### Alcance
+
+Mantenimiento automatizado y revisable de acciones oficiales de GitHub Actions.
+No cambia el comportamiento funcional de la aplicacion, no actualiza acciones
+existentes y no modifica dependencias de frontend o backend.

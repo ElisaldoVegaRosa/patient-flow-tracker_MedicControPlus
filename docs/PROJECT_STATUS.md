@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 26 - Baseline seguro minimo de Codex.
+Etapa 27 - Dependabot limitado a GitHub Actions.
 
 
 
@@ -23,6 +23,8 @@ Etapa 26 - Baseline seguro minimo de Codex.
   `setup-node@v5`.
 - Baseline Codex versionado con aprobacion bajo demanda, escritura limitada al
   workspace y red desactivada dentro del sandbox.
+- Dependabot configurado para mantenimiento semanal y revisable de GitHub
+  Actions en la rama `main`, con maximo de cinco PRs abiertos.
 
 ## Capacidades principales
 
@@ -47,6 +49,8 @@ Etapa 26 - Baseline seguro minimo de Codex.
 - CI con acciones oficiales compatibles con runtime Node 24.
 - CI con `actions/setup-node@v7`, Node.js 22, cache npm y Ubuntu 24.04.
 - Baseline de seguridad Codex compartido en `.codex/config.toml`.
+- Mantenimiento automatizado y revisable de acciones mediante Dependabot,
+  limitado exclusivamente a `github-actions`.
 
 ## Sesiones
 
@@ -78,12 +82,11 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 27 - Evaluar Dependabot para GitHub Actions.
+Etapa 28 - Revisar el primer PR generado por Dependabot.
 
 Objetivos:
 
-- evaluar configuración exclusiva para `github-actions`;
-- mantener PRs pequeños y auditables para acciones oficiales;
-- no cambiar dependencias de aplicación como parte de esa evaluación.
-- comprobar `/status` en un hilo nuevo de Codex para confirmar la carga
-  efectiva de la configuracion versionada.
+- validar que Dependabot solo proponga cambios sobre `.github/workflows`;
+- revisar diffs de acciones antes de aprobar cualquier actualizacion;
+- mantener PRs pequenos y auditables;
+- no habilitar auto-merge sin una decision explicita.
