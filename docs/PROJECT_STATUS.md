@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 23 - Validación local reproducible y tareas de VS Code.
+Etapa 24 - Mantenimiento preventivo de GitHub Actions.
 
 
 
@@ -15,6 +15,9 @@ Etapa 23 - Validación local reproducible y tareas de VS Code.
 - Advertencias backend: se mantienen únicamente las ya conocidas.
 - Validación local: `scripts/validate.ps1`.
 - GitHub Actions: backend, frontend, lint y build.
+- CI preparada ante la deprecación de Node 20 en GitHub Actions.
+- Runner de CI fijado en `ubuntu-24.04` antes de la migración de
+  `ubuntu-latest` a Ubuntu 26.
 
 ## Capacidades principales
 
@@ -36,6 +39,7 @@ Etapa 23 - Validación local reproducible y tareas de VS Code.
 - Tipos de dominio, API y datos clínicos separados.
 - Validación local reproducible en Windows.
 - Tareas de VS Code para validación, pruebas, lint, build y ejecución local.
+- CI con acciones oficiales compatibles con runtime Node 24.
 
 ## Sesiones
 
@@ -65,7 +69,7 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 24 - Separación posterior de páginas y componentes.
+Etapa 25 - Separación posterior de páginas y componentes.
 
 Objetivos:
 

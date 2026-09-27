@@ -885,3 +885,23 @@ Frontend: 2 pruebas aprobadas
 ESLint: 0 errores
 Build: aprobado
 ```
+
+---
+
+## Etapa 24 - Mantenimiento preventivo de GitHub Actions
+
+### Implementado
+
+- Runner de CI fijado en `ubuntu-24.04` para evitar cambios implícitos durante
+  la migración de `ubuntu-latest`.
+- `actions/checkout` actualizado a `v5`, compatible con runtime Node 24.
+- `actions/setup-python` actualizado a `v6`, compatible con runtime Node 24.
+- `actions/setup-node` actualizado a `v5`, compatible con runtime Node 24.
+- Python 3.12 conservado para backend.
+- Node.js 22 conservado para frontend.
+- Cachés, rutas de lockfiles y comandos de validación conservados.
+
+### Alcance
+
+Mantenimiento preventivo de CI ante la deprecación de Node 20 en GitHub
+Actions. No cambia dependencias de aplicación ni comportamiento funcional.
