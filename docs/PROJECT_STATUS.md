@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 28 - Reglas temporales explicitas del supervisor.
+Etapa 28B - Correccion de integridad en complete_task.
 
 
 
@@ -10,6 +10,8 @@ Etapa 28 - Reglas temporales explicitas del supervisor.
 
 - Backend: pruebas ampliadas con regresion de dashboard supervisor sin efectos
   secundarios.
+- Backend: prueba de regresion para impedir completar tareas pendientes de
+  episodios cerrados sin mutar tarea, episodio ni auditoria.
 - Frontend: pruebas ampliadas para evaluacion temporal explicita.
 - ESLint: cero errores.
 - Frontend: compilación aprobada.
@@ -36,6 +38,7 @@ Etapa 28 - Reglas temporales explicitas del supervisor.
 - Tareas de enfermería.
 - Órdenes y resultados de laboratorio.
 - Panel de supervisor.
+- Finalizacion de tareas protegida por episodio activo.
 - Dashboard supervisor de solo lectura.
 - Motor de reglas temporales mediante accion explicita
   `POST /rules/evaluate`.
@@ -85,13 +88,14 @@ ESCALATED → RESOLVED
   fija permisos locales esperados para sesiones futuras.
 - `GET /supervisor/dashboard` no debe crear alertas ni eventos.
 - `POST /rules/evaluate` conserva la idempotencia de alertas temporales.
-- `complete_task` mantiene un defecto pendiente separado: la verificacion de
-  episodio activo esta inalcanzable por indentacion.
+- `complete_task` rechaza tareas de episodios cerrados con `409 El episodio
+  está cerrado`, sin modificar resultado ni registrar `TASK_COMPLETED`.
+- La correccion de `complete_task` queda separada del dashboard supervisor y de
+  las reglas temporales explicitas.
 
 ## Próximo paso recomendado
 
-Etapa 28C - Continuar la prueba funcional local completa despues de validar la
-accion explicita de reglas temporales.
+Etapa 28C - Reanudar pruebas funcionales de Etapa 28.
 
 Objetivos:
 
@@ -99,4 +103,5 @@ Objetivos:
 - verificar manualmente que el dashboard supervisor no modifica estado al
   actualizar indicadores;
 - ejecutar la evaluacion temporal solo mediante el boton explicito;
-- dejar `complete_task` para una correccion posterior enfocada.
+- confirmar que la correccion enfocada de `complete_task` no altera los flujos
+  funcionales activos.

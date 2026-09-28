@@ -2028,11 +2028,15 @@ def complete_task(
     if task is None:
         connection.close()
         raise HTTPException(status_code=404, detail="Tarea no encontrada")
-    
+
+    try:
         require_active_episode(
-        connection,
-        task["episode_id"],
-    )
+            connection,
+            task["episode_id"],
+        )
+    except HTTPException:
+        connection.close()
+        raise
 
     if task["status"] == "COMPLETED":
         connection.close()

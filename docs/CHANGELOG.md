@@ -5,6 +5,33 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 28B - Integridad al completar tareas
+
+### Implementado
+
+- `complete_task` ahora valida que el episodio asociado siga activo antes de
+  modificar la tarea o registrar auditoria de finalizacion.
+- Las tareas pendientes de episodios cerrados devuelven el rechazo de
+  integridad existente: `409 El episodio está cerrado`.
+- Al rechazar por episodio cerrado no se modifica la tarea, no se registra
+  `TASK_COMPLETED` y no cambian los datos de cierre del episodio.
+- Completar tareas de episodios activos conserva el comportamiento existente.
+- Se mantiene separado del cambio del dashboard supervisor y de las reglas
+  temporales explicitas.
+
+### Verificacion
+
+- Prueba backend de regresion para una tarea pendiente creada en un episodio
+  activo y rechazada despues del alta.
+- Se conservan contratos de `complete_task` para tarea inexistente, tarea ya
+  completada y rol no autorizado.
+
+### Proxima accion
+
+- Reanudar las pruebas funcionales de Etapa 28.
+
+---
+
 ## Etapa 28 - Reglas temporales explicitas
 
 ### Implementado

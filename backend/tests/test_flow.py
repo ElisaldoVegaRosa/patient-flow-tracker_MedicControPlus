@@ -1283,6 +1283,32 @@ def test_episode_integrity_and_vital_ranges(
             "La tarea ya está completada"
         )
 
+        missing_task_response = client.patch(
+            "/tasks/999999/complete",
+            headers=doctor_headers,
+            json={
+                "result": "Resultado inexistente",
+            },
+        )
+
+        assert missing_task_response.status_code == 404
+        assert missing_task_response.json()["detail"] == (
+            "Tarea no encontrada"
+        )
+
+        unauthorized_completion_response = client.patch(
+            f"/tasks/{task_id}/complete",
+            headers=reception_headers,
+            json={
+                "result": "Resultado no autorizado",
+            },
+        )
+
+        assert unauthorized_completion_response.status_code == 403
+        assert unauthorized_completion_response.json()["detail"] == (
+            "Su rol no tiene permiso para esta acción"
+        )
+
         discharge_response = client.post(
             f"/episodes/{episode_id}/discharge",
             headers=doctor_headers,
@@ -1373,3 +1399,122 @@ def test_episode_integrity_and_vital_ranges(
         ]
 
         assert len(discharge_events) == 1
+
+
+def test_complete_task_rejects_closed_episode_without_mutation(
+    tmp_path: Path,
+) -> None:
+    """
+    Una tarea pendiente no puede completarse si su episodio ya fue cerrado.
+    """
+
+    main.DATABASE_PATH = tmp_path / "task-closed-episode.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+        doctor_headers = login(client, "medico")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente Tarea Cerrada",
+                "birth_date": "1991-09-09",
+                "document": "TASK-CLOSED-001",
+                "priority": 3,
+                "location": "Recepcion",
+            },
+        )
+
+        assert create_response.status_code == 201
+
+        episode_id = create_response.json()["id"]
+
+        task_response = client.post(
+            f"/episodes/{episode_id}/tasks",
+            headers=doctor_headers,
+            json={
+                "title": "Seguimiento posterior",
+                "service": "MEDICAL",
+            },
+        )
+
+        assert task_response.status_code == 201
+
+        task_id = task_response.json()["tasks"][0]["id"]
+
+        discharge_response = client.post(
+            f"/episodes/{episode_id}/discharge",
+            headers=doctor_headers,
+            json={
+                "note": "Alta previa a completar tarea",
+            },
+        )
+
+        assert discharge_response.status_code == 200
+
+        closed_episode = discharge_response.json()
+        closed_at = closed_episode["closed_at"]
+        initial_event_count = len(closed_episode["events"])
+
+        completion_response = client.patch(
+            f"/tasks/{task_id}/complete",
+            headers=doctor_headers,
+            json={
+                "result": "Resultado no permitido",
+            },
+        )
+
+        assert completion_response.status_code == 409
+        assert completion_response.json()["detail"] == (
+            "El episodio está cerrado"
+        )
+
+        connection = main.get_connection()
+
+        task = connection.execute(
+            """
+            SELECT status, result
+            FROM tasks
+            WHERE id = ?
+            """,
+            (task_id,),
+        ).fetchone()
+
+        episode = connection.execute(
+            """
+            SELECT status, closed_at
+            FROM episodes
+            WHERE id = ?
+            """,
+            (episode_id,),
+        ).fetchone()
+
+        completed_event_count = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM events
+            WHERE episode_id = ?
+            AND type = 'TASK_COMPLETED'
+            """,
+            (episode_id,),
+        ).fetchone()["total"]
+
+        total_event_count = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM events
+            WHERE episode_id = ?
+            """,
+            (episode_id,),
+        ).fetchone()["total"]
+
+        connection.close()
+
+        assert task["status"] == "PENDING"
+        assert task["result"] is None
+        assert episode["status"] == "CLOSED"
+        assert episode["closed_at"] == closed_at
+        assert completed_event_count == 0
+        assert total_event_count == initial_event_count
