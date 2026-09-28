@@ -5,6 +5,34 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 28 - Reglas temporales explicitas
+
+### Implementado
+
+- El dashboard de supervisor queda como consulta de solo lectura.
+- La evaluacion temporal se mantiene en `POST /rules/evaluate` como
+  accion explicita para los roles medico y supervisor.
+- El panel de supervisor incorpora el boton **Evaluar reglas temporales**.
+- El boton **Actualizar indicadores** conserva solamente la consulta del
+  dashboard.
+- La idempotencia de alertas temporales se preserva: una segunda evaluacion
+  no duplica alertas abiertas ni eventos `ALERT_CREATED`.
+- No se modificaron reglas clinicas, umbrales, razones ni severidades.
+- El defecto detectado en `complete_task` queda pendiente como correccion
+  separada.
+
+### Verificacion
+
+- Prueba backend de regresion para confirmar que `GET /supervisor/dashboard`
+  no modifica `alerts` ni `events`.
+- Prueba backend para confirmar que `POST /rules/evaluate` conserva la
+  evaluacion explicita y no duplica alertas.
+- Pruebas frontend para los botones de supervisor, la llamada explicita a
+  `POST /rules/evaluate`, la consulta posterior del dashboard y el manejo de
+  errores visible.
+
+---
+
 ## Etapa 1 — Base funcional
 
 ### Implementado

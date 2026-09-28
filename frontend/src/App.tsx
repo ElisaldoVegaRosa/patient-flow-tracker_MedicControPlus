@@ -13,6 +13,7 @@ import type {
   LogoutResponse,
   SessionUser,
   SupervisorData,
+  TimeRulesEvaluationResponse,
   User,
 } from "./types/clinical";
 
@@ -29,6 +30,8 @@ function App() {
   const [supervisorFilter, setSupervisorFilter] = useState("ALL");
   const [historyData, setHistoryData] =
     useState<HistoryData | null>(null);
+  const [rulesMessage, setRulesMessage] = useState("");
+  const [evaluatingRules, setEvaluatingRules] = useState(false);
   const [error, setError] = useState("");
   const [restoringSession, setRestoringSession] =
     useState(() => Boolean(localStorage.getItem("token")));
@@ -243,6 +246,32 @@ async function openSupervisorDashboard() {
   /**
  * Abre la bandeja de laboratorio y carga las órdenes pendientes.
  */
+async function evaluateTemporalRules() {
+  setError("");
+  setRulesMessage("");
+  setEvaluatingRules(true);
+
+  try {
+    const result = await api<TimeRulesEvaluationResponse>(
+      "/rules/evaluate",
+      {
+        method: "POST",
+      },
+    );
+
+    setRulesMessage(
+      `${result.generated_alerts} alertas generadas tras evaluar ${result.evaluated_episodes} episodios.`,
+    );
+
+    await openSupervisorDashboard();
+    await loadDashboard();
+  } catch (exception) {
+    setError((exception as Error).message);
+  } finally {
+    setEvaluatingRules(false);
+  }
+}
+
 async function openLaboratoryQueue() {
   try {
     const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING");
@@ -707,6 +736,16 @@ if (restoringSession) {
     Cargar datos de demostración
   </button>
 
+  <button
+    className="secondary-button"
+    disabled={evaluatingRules}
+    onClick={evaluateTemporalRules}
+  >
+    {evaluatingRules
+      ? "Evaluando reglas temporales"
+      : "Evaluar reglas temporales"}
+  </button>
+
   <button onClick={openSupervisorDashboard}>
     Actualizar indicadores
   </button>
@@ -731,6 +770,12 @@ if (restoringSession) {
     <span>Nuevas alertas generadas</span>
   </div>
 </section>
+
+{rulesMessage && (
+  <div className="success-banner">
+    {rulesMessage}
+  </div>
+)}
 
     <section className="supervisor-stats">
       <article>

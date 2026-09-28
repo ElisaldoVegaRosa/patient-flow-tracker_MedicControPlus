@@ -2,14 +2,15 @@
 
 ## Última etapa
 
-Etapa 27 - Dependabot limitado a GitHub Actions.
+Etapa 28 - Reglas temporales explicitas del supervisor.
 
 
 
 ## Estado de validación
 
-- Backend: 12 pruebas aprobadas.
-- Frontend: 2 pruebas aprobadas.
+- Backend: pruebas ampliadas con regresion de dashboard supervisor sin efectos
+  secundarios.
+- Frontend: pruebas ampliadas para evaluacion temporal explicita.
 - ESLint: cero errores.
 - Frontend: compilación aprobada.
 - Advertencias backend: se mantienen únicamente las ya conocidas.
@@ -35,7 +36,10 @@ Etapa 27 - Dependabot limitado a GitHub Actions.
 - Tareas de enfermería.
 - Órdenes y resultados de laboratorio.
 - Panel de supervisor.
-- Motor de reglas temporales.
+- Dashboard supervisor de solo lectura.
+- Motor de reglas temporales mediante accion explicita
+  `POST /rules/evaluate`.
+- Boton supervisor **Evaluar reglas temporales**.
 - Datos de demostración.
 - Historial de episodios cerrados.
 - Manejo de sesión expirada.
@@ -79,14 +83,20 @@ ESCALATED → RESOLVED
 - Estas mejoras no cambian el comportamiento clínico de la aplicación.
 - El baseline Codex no cambia el comportamiento funcional de la aplicacion; solo
   fija permisos locales esperados para sesiones futuras.
+- `GET /supervisor/dashboard` no debe crear alertas ni eventos.
+- `POST /rules/evaluate` conserva la idempotencia de alertas temporales.
+- `complete_task` mantiene un defecto pendiente separado: la verificacion de
+  episodio activo esta inalcanzable por indentacion.
 
 ## Próximo paso recomendado
 
-Etapa 28 - Revisar el primer PR generado por Dependabot.
+Etapa 28C - Continuar la prueba funcional local completa despues de validar la
+accion explicita de reglas temporales.
 
 Objetivos:
 
-- validar que Dependabot solo proponga cambios sobre `.github/workflows`;
-- revisar diffs de acciones antes de aprobar cualquier actualizacion;
-- mantener PRs pequenos y auditables;
-- no habilitar auto-merge sin una decision explicita.
+- retomar la matriz funcional sin usar datos reales;
+- verificar manualmente que el dashboard supervisor no modifica estado al
+  actualizar indicadores;
+- ejecutar la evaluacion temporal solo mediante el boton explicito;
+- dejar `complete_task` para una correccion posterior enfocada.

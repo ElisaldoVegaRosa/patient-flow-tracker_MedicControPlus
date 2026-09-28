@@ -1309,8 +1309,6 @@ def supervisor_dashboard(
 ) -> dict:
     connection = get_connection()
     # El panel siempre presenta la evaluación temporal más reciente.
-    rules_result = evaluate_time_rules(connection)
-
     episode_rows = connection.execute(
         """
         SELECT id
@@ -1376,6 +1374,11 @@ def supervisor_dashboard(
             patient["pending_task_count"]
             for patient in patients
         ),
+    }
+
+    rules_result = {
+        "evaluated_episodes": len(patients),
+        "generated_alerts": 0,
     }
 
     connection.close()
