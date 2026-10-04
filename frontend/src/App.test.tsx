@@ -324,3 +324,121 @@
         ).toBeInTheDocument();
     });
     });
+
+
+describe("EpisodePage: solo lectura y permisos por rol", () => {
+  const roles = ["RECEPTION", "NURSE", "DOCTOR", "LAB", "SUPERVISOR"];
+  const writeButtons = [
+    "Guardar triaje y asignación", "Guardar y evaluar reglas",
+    "Guardar evaluación médica", "Crear y asignar orden", "Completar",
+    "Reconocer", "Escalar", "Resolver", "Cerrar episodio · Alta médica",
+  ];
+
+  beforeEach(() => localStorage.setItem("token", "token-de-prueba"));
+  afterEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  async function openEpisode(role: string, status: string) {
+    const date = "2026-10-03T12:00:00Z";
+    const episode: import("./types/clinical").Episode = {
+      id: 42, name: "Paciente ficticio", document: "QA-READONLY",
+      birth_date: "1990-01-01", qr_token: "qr-ficticio", status,
+      priority: 2, location: "Observación", started_at: date,
+      closed_at: status === "CLOSED" ? date : null,
+      vitals: [{ id: 1, episode_id: 42, temperature: 38.2,
+        heart_rate: 104, systolic: 120, diastolic: 80, spo2: 96,
+        respiratory_rate: 18, created_at: date }],
+      alerts: ["ACTIVE", "ACKNOWLEDGED", "ESCALATED", "RESOLVED"].map(
+        (alertStatus, index) => ({
+          id: index + 1, episode_id: 42, reason: `Alerta ${alertStatus}`,
+          severity: "HIGH", status: alertStatus, responsible: "medico",
+          created_at: date, updated_at: date,
+          history: [{ id: index + 1, alert_id: index + 1,
+            old_status: "ACTIVE", new_status: alertStatus,
+            username: "auditor-ficticio", created_at: date }],
+        }),
+      ),
+      tasks: [
+        { id: 1, episode_id: 42, title: "Tarea pendiente ficticia",
+          service: "NURSING", status: "PENDING", result: null },
+        { id: 2, episode_id: 42, title: "Hemograma ficticio",
+          service: "LAB", status: "COMPLETED", result: "Resultado simulado" },
+      ],
+      events: [
+        { id: 1, episode_id: 42, type: "TASK_COMPLETED", username: "laboratorio",
+          note: "Hemograma ficticio: Resultado simulado", created_at: date },
+        { id: 2, episode_id: 42, type: "VITALS_RECORDED", username: "enfermeria",
+          note: "Vitales históricos ficticios", created_at: date },
+      ],
+    };
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      if (init?.method && init.method !== "GET") throw new Error("Mutación inesperada");
+      const responses: Record<string, unknown> = {
+        "/auth/me": { username: "usuario-ficticio", role },
+        "/dashboard": { active: 0, open_alerts: 0, patients: [], requested_by: role },
+        "/scan/qr-ficticio": episode,
+      };
+      if (!(path in responses)) throw new Error(`Petición inesperada: ${path}`);
+      return { ok: true, status: 200, json: async () => responses[path] } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(await screen.findByRole("button", { name: "Escanear pulsera" }));
+    await user.type(screen.getByRole("textbox"), "qr-ficticio");
+    await user.click(screen.getByRole("button", { name: "Identificar paciente" }));
+    await screen.findByRole("heading", { name: episode.name });
+    return { user, fetchMock };
+  }
+
+  it.each(roles)("CLOSED es solo lectura para %s y conserva la auditoría", async (role) => {
+    const { user, fetchMock } = await openEpisode(role, "CLOSED");
+    // Incluye controles dentro de details cerrados: tampoco deben existir en el DOM.
+    expect.soft(screen.queryByText("Registrar nuevos signos")).not.toBeInTheDocument();
+    for (const name of writeButtons) {
+      expect.soft(screen.queryAllByRole("button", { name, hidden: true })).toHaveLength(0);
+    }
+    expect.soft(document.querySelectorAll("main form, main input, main select, main textarea")).toHaveLength(0);
+    expect.soft(screen.queryByRole("status")).toHaveTextContent("Episodio cerrado — solo lectura");
+    expect(screen.getByText("Episodio EP-42 · CLOSED")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Línea de tiempo auditable" })).toBeVisible();
+    expect(screen.getByText("38.2 °C")).toBeVisible();
+    expect(screen.getByText("104 lpm")).toBeVisible();
+    expect(screen.getByText("Vitales históricos ficticios")).toBeVisible();
+    expect(screen.getByText("Tarea pendiente ficticia")).toBeVisible();
+    expect(screen.getByText("Hemograma ficticio: Resultado simulado")).toBeVisible();
+    await user.click(screen.getByText(/Alertas resueltas/));
+    for (const status of ["ACTIVE", "ACKNOWLEDGED", "ESCALATED", "RESOLVED"]) {
+      expect(screen.getByText(`HIGH · Alerta ${status}`)).toBeVisible();
+    }
+    for (const summary of screen.getAllByText(/Ver historial/)) await user.click(summary);
+    for (const entry of screen.getAllByText(/auditor-ficticio/)) expect(entry).toBeVisible();
+    expect(fetchMock.mock.calls.map(([url]) => new URL(String(url)).pathname)).toEqual([
+      "/auth/me", "/dashboard", "/scan/qr-ficticio",
+    ]);
+  });
+
+  it.each(roles)("ACTIVE conserva los controles existentes para %s", async (role) => {
+    const { user } = await openEpisode(role, "ACTIVE");
+    const nurseOrDoctor = role === "NURSE" || role === "DOCTOR";
+    if (nurseOrDoctor) await user.click(screen.getByText("Registrar nuevos signos"));
+    else expect(screen.queryByText("Registrar nuevos signos")).not.toBeInTheDocument();
+    const allowed = [
+      role === "NURSE" || role === "SUPERVISOR", nurseOrDoctor,
+      role === "DOCTOR", role === "DOCTOR", true,
+      nurseOrDoctor || role === "SUPERVISOR", nurseOrDoctor || role === "SUPERVISOR",
+      role === "DOCTOR" || role === "SUPERVISOR", role === "DOCTOR",
+    ];
+    writeButtons.forEach((name, index) => {
+      const buttons = screen.queryAllByRole("button", { name });
+      if (allowed[index]) {
+        expect(buttons.length).toBeGreaterThan(0);
+        buttons.forEach((button) => expect(button).toBeEnabled());
+      } else expect(buttons).toHaveLength(0);
+    });
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+});

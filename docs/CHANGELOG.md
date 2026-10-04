@@ -5,6 +5,51 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 28 - Validación funcional completada y episodios de solo lectura
+
+### Corrección mediante TDD
+
+- `EpisodePage` deriva `isClosed` y muestra el aviso accesible «Episodio
+  cerrado — solo lectura» para episodios CLOSED.
+- Oculta triaje, registro de vitales, transiciones de alertas y completar
+  tareas cuando el episodio está cerrado. Evaluación médica, creación de
+  órdenes y alta ya exigían ACTIVE; conservan sus permisos actuales.
+- Mantiene identidad, vitales históricos, alertas e historial de transiciones,
+  tareas pendientes y timeline, incluidos tareas completadas y resultados.
+- No agrega llamadas HTTP ni modifica backend, endpoints, reglas clínicas,
+  dependencias o workflows. El backend continúa bloqueando las mutaciones.
+- Cinco casos parametrizados CLOSED fallaron primero por controles de escritura
+  presentes y aviso ausente. Los mismos casos pasan tras la corrección; otros
+  cinco verifican que ACTIVE conserva los controles existentes por rol.
+
+### Protocolo y resultados
+
+- Evidencias previas 28A–28E: smoke, autenticación y restauración de sesión,
+  recepción, QR, triaje, vitales y alertas; evaluación médica, orden y resultado
+  de laboratorio; supervisor de consulta y evaluación temporal explícita;
+  resolución de alertas, alta, historial y rechazos posteriores al cierre.
+- QA final EP-15: CLOSED, P2, tres alertas RESOLVED, una evaluación médica,
+  una tarea LAB completada con resultado simulado y 17 eventos auditables.
+- Los seis intentos de modificación posteriores al cierre de 28E devolvieron
+  HTTP 409 sin cambios clínicos. Esa evidencia previa se conserva; no se
+  repitieron mutaciones para esta corrección visual.
+- Frontend: 14 pruebas aprobadas (antes 4). Backend: 14 aprobadas, con tres
+  advertencias conocidas. Suite frontend, lint y build aprobados; una ejecución
+  de `scripts/validate.ps1` aprobada.
+- Captura desde historial con Chrome temporal y el snapshot QA cerrado:
+  `.tmp/stage28-evidence/e28-closed-readonly-fixed.png`. Aviso visible,
+  cero formularios/campos/botones de escritura en el detalle, datos históricos
+  visibles. El verificador de red confundió OPTIONS con escritura después de
+  guardar la captura; revisión del log confirmó solo GET, OPTIONS y login/logout.
+- Perfil y servidores cerrados por PIDs exactos. DB original restaurada desde
+  `clinical.before-stage28.db`, SHA-256
+  `4EE9CF8ADE09D813715B750444DA8870E6E2CDB6FF6935FEC428C0A1F0756049`.
+  Puertos 8000, 5173 y 9444 libres.
+- Etapa 28 funcional completada. Limitación aceptada pendiente: la nota de alta
+  sigue fija en UI («Alta médica; paciente estable»).
+
+---
+
 ## Etapa 28B - Integridad al completar tareas
 
 ### Implementado

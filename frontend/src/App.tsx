@@ -1079,6 +1079,7 @@ function EpisodePage({
   updateEpisode,
   showError,
 }: EpisodePageProps) {
+  const isClosed = episode.status === "CLOSED";
   const latestVitals = episode.vitals[0];
 
   async function call(path: string, options: RequestInit) {
@@ -1186,6 +1187,12 @@ async function createClinicalOrder(
         </span>
       </div>
 
+      {isClosed && (
+        <p role="status" className="panel">
+          Episodio cerrado — solo lectura
+        </p>
+      )}
+
       <div className="clinical-grid">
         <section className="panel">
           <h2>Identidad y ubicación</h2>
@@ -1206,7 +1213,7 @@ async function createClinicalOrder(
           </details>
         </section>
 
-        {(user.role === "NURSE" || user.role === "SUPERVISOR") && (
+        {!isClosed && (user.role === "NURSE" || user.role === "SUPERVISOR") && (
   <section className="panel triage-panel">
     <h2>Triaje y asignación</h2>
 
@@ -1279,7 +1286,7 @@ async function createClinicalOrder(
             <p>No hay signos registrados.</p>
           )}
 
-          {(user.role === "NURSE" || user.role === "DOCTOR") && (
+          {!isClosed && (user.role === "NURSE" || user.role === "DOCTOR") && (
             <details>
               <summary className="large-button">
                 Registrar nuevos signos
@@ -1501,7 +1508,7 @@ async function createClinicalOrder(
         <span>{alert.status}</span>
 
         <div>
-          {alert.status === "ACTIVE" &&
+          {!isClosed && alert.status === "ACTIVE" &&
             (user.role === "NURSE" ||
               user.role === "DOCTOR" ||
               user.role === "SUPERVISOR") && (
@@ -1519,7 +1526,7 @@ async function createClinicalOrder(
               </button>
             )}
 
-          {(alert.status === "ACTIVE" ||
+          {!isClosed && (alert.status === "ACTIVE" ||
             alert.status === "ACKNOWLEDGED") &&
             (user.role === "NURSE" ||
               user.role === "DOCTOR" ||
@@ -1538,7 +1545,7 @@ async function createClinicalOrder(
               </button>
             )}
 
-{(alert.status === "ACKNOWLEDGED" ||
+{!isClosed && (alert.status === "ACKNOWLEDGED" ||
   alert.status === "ESCALATED") &&
   (user.role === "DOCTOR" ||
     user.role === "SUPERVISOR") && (
@@ -1700,6 +1707,7 @@ async function createClinicalOrder(
                   <small>{task.service}</small>
                 </div>
 
+                {!isClosed && (
                 <button
                   onClick={() =>
                     call(`/tasks/${task.id}/complete`, {
@@ -1712,6 +1720,7 @@ async function createClinicalOrder(
                 >
                   Completar
                 </button>
+                )}
               </article>
             ))}
         </section>
