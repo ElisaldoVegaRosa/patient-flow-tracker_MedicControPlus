@@ -3,6 +3,8 @@
 ## Última etapa
 
 Etapa 29 - Nota de alta editable para médicos en episodios ACTIVE.
+Cerrada y publicada en el commit
+`f35770638a7482a363c38e253ba33c86e5abb28c`.
 
 
 
@@ -25,7 +27,9 @@ Etapa 29 - Nota de alta editable para médicos en episodios ACTIVE.
 - Frontend: compilación aprobada.
 - Advertencias backend: se mantienen únicamente las ya conocidas.
 - Validación local: `scripts/validate.ps1`.
-- GitHub Actions: backend, frontend, lint y build.
+- GitHub Actions: CI aprobada en la ejecución `37244485263` para el commit
+  de cierre de la Etapa 29; backend (14 pruebas), frontend (18 pruebas), lint
+  y build aprobados.
 - CI preparada ante la deprecación de Node 20 en GitHub Actions.
 - Runner de CI fijado en `ubuntu-24.04` antes de la migración de
   `ubuntu-latest` a Ubuntu 26.
@@ -135,13 +139,14 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la Etapa 29 antes de autorizar commit o publicación. Hallazgo HTTP 401
-cerrado como limitación aceptada: se mantiene el flujo existente de expiración
-de sesión y recarga, que pierde el borrador. El borrador solo se mantiene en
-memoria en el formulario y tampoco persiste al navegar o recargar; no se
+Definir el alcance de la Etapa 30.
+
+Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
+navegación o recarga. Solo se mantiene en memoria en el formulario; no se
 almacenan notas clínicas en localStorage/sessionStorage.
 
-Recuperar borradores durante reautenticación queda pendiente para una etapa
-independiente. El contrato backend existente no cambia: la exigencia de texto
+Recuperar borradores durante reautenticación sigue pendiente para una etapa
+independiente y no constituye una tarea autorizada. El contrato backend
+existente no cambia: la exigencia de texto
 no vacío se aplica en esta UI. Las PRs Dependabot #1 y #2 quedan fuera de este
 trabajo.
