@@ -294,11 +294,12 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
             state_after_invalid_transition.json()["events"]
         ) == events_count_before_invalid_transition
 
+        discharge_note = "Seguimiento en consulta.\nIndicaciones entregadas al paciente."
         discharge_response = client.post(
             f"/episodes/{episode['id']}/discharge",
             headers=doctor_headers,
             json={
-                "note": "Paciente estable",
+                "note": discharge_note,
             },
         )
 
@@ -323,6 +324,20 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
         assert "TASK_CREATED" in event_types
         assert "TASK_COMPLETED" in event_types
         assert "DISCHARGE" in event_types
+
+        # La nota enviada se conserva en auditoría y en consultas posteriores.
+        detail_response = client.get(
+            f"/episodes/{episode['id']}", headers=doctor_headers,
+        )
+        assert detail_response.status_code == 200
+        for detail in (closed_episode, detail_response.json()):
+            discharge_events = [
+                event for event in detail["events"]
+                if event["type"] == "DISCHARGE"
+            ]
+            assert len(discharge_events) == 1
+            assert discharge_events[0]["note"] == discharge_note
+            assert discharge_events[0]["username"] == "medico"
 
 
 def test_reception_cannot_register_vitals(tmp_path: Path) -> None:

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import "./App.css";
@@ -1081,6 +1081,34 @@ function EpisodePage({
 }: EpisodePageProps) {
   const isClosed = episode.status === "CLOSED";
   const latestVitals = episode.vitals[0];
+  const [dischargeNote, setDischargeNote] = useState("");
+  const [dischargeError, setDischargeError] = useState("");
+  const [discharging, setDischarging] = useState(false);
+  const dischargeInFlight = useRef(false);
+
+  async function dischargeEpisode(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (dischargeInFlight.current || user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
+    const note = dischargeNote.trim();
+    if (!note) {
+      setDischargeError("Escribe una nota de alta antes de cerrar el episodio.");
+      return;
+    }
+    dischargeInFlight.current = true;
+    setDischarging(true);
+    setDischargeError("");
+    try {
+      updateEpisode(await api<Episode>(`/episodes/${episode.id}/discharge`, {
+        method: "POST",
+        body: JSON.stringify({ note }),
+      }));
+    } catch (exception) {
+      setDischargeError((exception as Error).message);
+    } finally {
+      dischargeInFlight.current = false;
+      setDischarging(false);
+    }
+  }
 
   async function call(path: string, options: RequestInit) {
     try {
@@ -1742,19 +1770,22 @@ async function createClinicalOrder(
       </div>
 
       {user.role === "DOCTOR" && episode.status === "ACTIVE" && (
-        <button
-          className="discharge"
-          onClick={() =>
-            call(`/episodes/${episode.id}/discharge`, {
-              method: "POST",
-              body: JSON.stringify({
-                note: "Alta médica; paciente estable",
-              }),
-            })
-          }
-        >
-          Cerrar episodio · Alta médica
-        </button>
+        <form className="panel medical-form" onSubmit={dischargeEpisode} noValidate>
+          <label htmlFor="discharge-note">Nota de alta</label>
+          <textarea
+            id="discharge-note"
+            value={dischargeNote}
+            onChange={(event) => setDischargeNote(event.target.value)}
+            required
+            rows={4}
+            disabled={discharging}
+            aria-describedby={dischargeError ? "discharge-error" : undefined}
+          />
+          {dischargeError && <p id="discharge-error" role="alert">{dischargeError}</p>}
+          <button type="submit" className="discharge" disabled={discharging}>
+            {discharging ? "Cerrando episodio…" : "Cerrar episodio · Alta médica"}
+          </button>
+        </form>
       )}
     </main>
   );

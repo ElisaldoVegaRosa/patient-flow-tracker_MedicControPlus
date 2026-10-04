@@ -5,6 +5,38 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 29 - Nota de alta editable
+
+- El médico dispone de un campo accesible «Nota de alta» únicamente en
+  episodios ACTIVE. Empieza vacío y sustituye la afirmación fija de estabilidad.
+- La UI exige contenido después de `trim` y envía la nota sin espacios en
+  los extremos mediante el contrato existente `POST /episodes/{id}/discharge`.
+- Durante la solicitud se bloquean campo y envío; una guarda evita solicitudes
+  duplicadas. Ante errores de red y rechazos de la API se muestra el mensaje
+  y se conserva el borrador para corregirlo o reintentar, mientras la sesión
+  siga vigente y la pantalla permanezca abierta.
+- Limitación aceptada de Etapa 29: HTTP 401 activa el flujo existente de
+  expiración de sesión y recarga; el borrador se pierde. Tampoco persiste al
+  navegar o recargar. El hallazgo se cierra como limitación aceptada, sin
+  modificar la autenticación ni almacenar notas en localStorage/sessionStorage.
+  Recuperar borradores durante reautenticación queda pendiente para una etapa
+  independiente.
+- La nota continúa almacenada en el evento DISCHARGE y puede consultarse en
+  el timeline después del cierre y desde el historial. CLOSED sigue siendo
+  de solo lectura; no cambian permisos, reglas clínicas ni contratos backend.
+- Pruebas frontend de permisos/estado, nota vacía o con espacios, envío,
+  auditoría posterior, error HTTP/de red, reintento y prevención de duplicados.
+- Prueba backend existente ampliada para verificar que una nota personalizada
+  con salto de línea se conserva exactamente en DISCHARGE y al consultar el
+  episodio cerrado. Usa SQLite temporal; no se usa la DB clínica original.
+- Validación: `scripts/validate.ps1` aprobado; backend 14 pruebas (tres
+  advertencias conocidas), frontend 18 pruebas, lint y build aprobados.
+  `git diff --check` sin errores y hash original de `clinical.db` conservado.
+- Estas validaciones permanecen vigentes: el cierre del hallazgo HTTP 401
+  modifica exclusivamente documentación, sin cambios de código ni pruebas.
+
+---
+
 ## Etapa 28 - Validación funcional completada y episodios de solo lectura
 
 ### Corrección mediante TDD

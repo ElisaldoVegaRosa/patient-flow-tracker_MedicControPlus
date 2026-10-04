@@ -1,4 +1,4 @@
-    import { render, screen } from "@testing-library/react";
+    import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
     import userEvent from "@testing-library/user-event";
     import {
     afterEach,
@@ -391,13 +391,14 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
     await user.type(screen.getByRole("textbox"), "qr-ficticio");
     await user.click(screen.getByRole("button", { name: "Identificar paciente" }));
     await screen.findByRole("heading", { name: episode.name });
-    return { user, fetchMock };
+    return { user, fetchMock, episode };
   }
 
   it.each(roles)("CLOSED es solo lectura para %s y conserva la auditoría", async (role) => {
     const { user, fetchMock } = await openEpisode(role, "CLOSED");
     // Incluye controles dentro de details cerrados: tampoco deben existir en el DOM.
     expect.soft(screen.queryByText("Registrar nuevos signos")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Nota de alta")).not.toBeInTheDocument();
     for (const name of writeButtons) {
       expect.soft(screen.queryAllByRole("button", { name, hidden: true })).toHaveLength(0);
     }
@@ -423,6 +424,10 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
 
   it.each(roles)("ACTIVE conserva los controles existentes para %s", async (role) => {
     const { user } = await openEpisode(role, "ACTIVE");
+    if (role === "DOCTOR") {
+      expect(screen.getByLabelText("Nota de alta")).toBeVisible();
+      expect(screen.getByLabelText("Nota de alta")).toHaveValue("");
+    } else expect(screen.queryByLabelText("Nota de alta")).not.toBeInTheDocument();
     const nurseOrDoctor = role === "NURSE" || role === "DOCTOR";
     if (nurseOrDoctor) await user.click(screen.getByText("Registrar nuevos signos"));
     else expect(screen.queryByText("Registrar nuevos signos")).not.toBeInTheDocument();
@@ -440,5 +445,65 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
       } else expect(buttons).toHaveLength(0);
     });
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it.each(["", "   \n  "])("rechaza nota de alta vacía tras trim: %j", async (note) => {
+    const { user, fetchMock } = await openEpisode("DOCTOR", "ACTIVE");
+    fireEvent.change(screen.getByLabelText("Nota de alta"), { target: { value: note } });
+    await user.click(screen.getByRole("button", { name: "Cerrar episodio · Alta médica" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Escribe una nota de alta");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(screen.getByLabelText("Nota de alta")).toHaveValue(note);
+  });
+
+  it("envía la nota escrita y permite consultarla en el historial tras el alta", async () => {
+    const { user, fetchMock, episode } = await openEpisode("DOCTOR", "ACTIVE");
+    const note = "Seguimiento ambulatorio indicado.\nControl en consulta.";
+    const closed = { ...episode, status: "CLOSED", closed_at: "2026-10-04T12:00:00Z",
+      events: [...episode.events, { id: 3, episode_id: 42, type: "DISCHARGE",
+        username: "medico", note, created_at: "2026-10-04T12:00:00Z" }] };
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => closed } as Response);
+    await user.type(screen.getByLabelText("Nota de alta"), `  ${note}  `);
+    await user.click(screen.getByRole("button", { name: "Cerrar episodio · Alta médica" }));
+    expect(fetchMock).toHaveBeenLastCalledWith("http://localhost:8000/episodes/42/discharge",
+      expect.objectContaining({ method: "POST", body: JSON.stringify({ note }) }));
+    expect(await screen.findByRole("status")).toHaveTextContent("solo lectura");
+    expect(screen.getByText("DISCHARGE")).toBeVisible();
+    expect(screen.getByText(/Seguimiento ambulatorio indicado/)).toHaveTextContent("Control en consulta.");
+    expect(screen.queryByLabelText("Nota de alta")).not.toBeInTheDocument();
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200,
+      json: async () => ({ total: 1, episodes: [closed], requested_by: "medico" }) } as Response);
+    await user.click(screen.getByRole("button", { name: "Historial de episodios" }));
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => closed } as Response);
+    await user.click(await screen.findByRole("button", { name: "Ver timeline" }));
+    expect(await screen.findByText(/Seguimiento ambulatorio indicado/)).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Cerrar episodio · Alta médica" })).not.toBeInTheDocument();
+  });
+
+  it("evita envíos duplicados y conserva la nota ante un error para reintentar", async () => {
+    const { user, fetchMock } = await openEpisode("DOCTOR", "ACTIVE");
+    let finish!: (response: Response) => void;
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => { finish = resolve; }));
+    const field = screen.getByLabelText("Nota de alta");
+    const note = "  Indicaciones de seguimiento pendientes de revisión.  ";
+    await user.type(field, note);
+    const button = screen.getByRole("button", { name: "Cerrar episodio · Alta médica" });
+    const form = field.closest("form")!;
+    await user.dblClick(button);
+    expect(button).toBeDisabled();
+    expect(field).toBeDisabled();
+    fireEvent.submit(form);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    await act(async () => finish({ ok: false, status: 409,
+      json: async () => ({ detail: "No fue posible cerrar el episodio" }) } as Response));
+    expect(await screen.findByRole("alert")).toHaveTextContent("No fue posible cerrar el episodio");
+    expect(field).toHaveValue(note);
+    expect(button).toBeEnabled();
+    fetchMock.mockRejectedValueOnce(new Error("Error de red"));
+    await user.click(button);
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Error de red"));
+    expect(fetchMock).toHaveBeenCalledTimes(5);
+    expect(field).toHaveValue(note);
+    expect(button).toBeEnabled();
   });
 });

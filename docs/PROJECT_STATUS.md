@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 28 funcional completada - Episodios CLOSED en modo solo lectura.
+Etapa 29 - Nota de alta editable para médicos en episodios ACTIVE.
 
 
 
@@ -12,13 +12,15 @@ Etapa 28 funcional completada - Episodios CLOSED en modo solo lectura.
   secundarios.
 - Backend: prueba de regresion para impedir completar tareas pendientes de
   episodios cerrados sin mutar tarea, episodio ni auditoria.
-- Frontend: 14 pruebas aprobadas (antes 4), con cinco casos CLOSED y cinco
-  ACTIVE parametrizados por rol, además de las pruebas existentes.
-- TDD: primero fallaron los casos CLOSED por controles de escritura presentes
-  y aviso ausente; las mismas pruebas pasan con la corrección.
+- Frontend: 18 pruebas aprobadas; cobertura de CLOSED/ACTIVE para los cinco roles, nota de alta
+  obligatoria tras trim, envío, consulta posterior, errores y doble envío.
+- Backend: prueba de flujo ampliada para comprobar la persistencia exacta de
+  la nota en auditoría y consulta posterior, exclusivamente con SQLite temporal.
 - Backend: 14 pruebas aprobadas, con tres advertencias conocidas.
 - Suite frontend, lint y build aprobados; `scripts/validate.ps1` ejecutado una
   sola vez y aprobado para esta corrección.
+- Validaciones anteriores vigentes: el cierre del hallazgo HTTP 401 como
+  limitación aceptada es exclusivamente documental; no cambia código ni pruebas.
 - ESLint: cero errores.
 - Frontend: compilación aprobada.
 - Advertencias backend: se mantienen únicamente las ya conocidas.
@@ -53,8 +55,13 @@ Etapa 28 funcional completada - Episodios CLOSED en modo solo lectura.
 - Historial de episodios cerrados.
 - Detalle CLOSED con aviso accesible de solo lectura y sin controles de
   escritura; conserva vitales, alertas, tareas, resultados y auditoría.
-- Controles de episodios activos sin cambios; backend como última barrera
+- Permisos de episodios activos conservados; backend como última barrera
   contra mutaciones posteriores al cierre.
+- Nota de alta editable, inicialmente vacía, solo para DOCTOR en ACTIVE.
+  Envío bloqueado durante la solicitud. El borrador se conserva ante errores
+  de red y rechazos de la API mientras la sesión siga vigente y la pantalla
+  permanezca abierta.
+  Persistencia y consulta por el evento DISCHARGE existente.
 - Manejo de sesión expirada.
 - Historial visual de alertas.
 - Máquina de estados de alertas.
@@ -108,7 +115,8 @@ ESCALATED → RESOLVED
 - Perfil temporal eliminado y servidores cerrados por PIDs exactos. Puertos
   8000, 5173 y 9444 libres. DB restaurada desde `clinical.before-stage28.db`:
   SHA-256 `4EE9CF8ADE09D813715B750444DA8870E6E2CDB6FF6935FEC428C0A1F0756049`.
-- Limitación pendiente: nota de alta fija en UI, «Alta médica; paciente estable».
+- Limitación detectada en Etapa 28: nota de alta fija en UI. Resuelta en
+  Etapa 29 mediante el campo editable; las evidencias 28A–28E se conservan.
 
 ## Experiencia de desarrollo
 
@@ -127,6 +135,13 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la corrección de solo lectura y definir una etapa separada para la
-nota de alta editable, con validación y pruebas propias. Las PRs Dependabot
-#1 y #2 quedan fuera de este trabajo.
+Revisar la Etapa 29 antes de autorizar commit o publicación. Hallazgo HTTP 401
+cerrado como limitación aceptada: se mantiene el flujo existente de expiración
+de sesión y recarga, que pierde el borrador. El borrador solo se mantiene en
+memoria en el formulario y tampoco persiste al navegar o recargar; no se
+almacenan notas clínicas en localStorage/sessionStorage.
+
+Recuperar borradores durante reautenticación queda pendiente para una etapa
+independiente. El contrato backend existente no cambia: la exigencia de texto
+no vacío se aplica en esta UI. Las PRs Dependabot #1 y #2 quedan fuera de este
+trabajo.
