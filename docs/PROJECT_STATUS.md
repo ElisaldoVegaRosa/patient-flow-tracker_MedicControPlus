@@ -2,7 +2,8 @@
 
 ## Última etapa
 
-Etapa 30F - SupervisorPage extraído; entrega local sin publicar.
+Etapa 30F - SupervisorPage extraído; cerrada y publicada en el commit
+`d700a5aa0e7acb0a398eadc11b7a9efc54086ebf`.
 Indicadores, filtros y acciones conservados; estado, API, permisos, errores
 y navegación permanecen en `App.tsx`. La Etapa 30 continúa abierta.
 
@@ -41,6 +42,8 @@ Cerrada y publicada en el commit
 ## Estado de validación
 
 - Etapa 30F: 38 pruebas frontend, lint y build aprobados.
+- Etapa 30F: CI `37723480808` aprobada. Diff revisado y
+  `git diff --check` sin errores, incluidos los archivos nuevos.
 - Seis casos nuevos cubren indicadores, filtros, apertura, actualización
   con reinicio del filtro y ausencia de acceso para los otros cuatro roles.
 - Conservadas las pruebas de evaluación explícita de reglas y errores.
@@ -225,8 +228,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega local 30F antes de autorizar su commit y publicación.
-La Etapa 30 continúa abierta; las siguientes entregas requieren alcance y aprobación.
+Definir y aprobar el alcance de la siguiente extracción de la Etapa 30.
+La entrega 30F está publicada y su CI aprobada; la Etapa 30 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

@@ -16,7 +16,9 @@ las verificaciones realizadas y el estado de cada etapa.
 - Conservadas las pruebas de evaluación explícita de reglas y errores.
 - Validación: 38 pruebas frontend, lint y build aprobados.
 - Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
-- Entrega local sin publicar. La Etapa 30 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `d700a5aa0e7acb0a398eadc11b7a9efc54086ebf`; CI `37723480808` aprobada.
+  La Etapa 30 continúa abierta.
 
 ---
 
