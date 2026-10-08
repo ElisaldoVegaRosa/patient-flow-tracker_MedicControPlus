@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30G - Traslado de EpisodePage
+
+- Componente existente movido de `App.tsx` a `frontend/src/pages/EpisodePage.tsx`.
+- Props, estado local, llamadas API, permisos, formularios y presentación
+  conservados. Sesión, navegación y episodio seleccionado siguen en `App.tsx`.
+- Imports ajustados; cuerpo y props comparados con el original.
+- Validación: 38 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluido el archivo nuevo.
+- Conservadas las pruebas ACTIVE/CLOSED por rol y de alta médica;
+  sin comportamiento nuevo ni pruebas nuevas para este traslado.
+- Sin cambios de backend, cliente API, tipos compartidos, CSS ni dependencias.
+- Entrega local sin publicar. La Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 30F - Extracción de SupervisorPage
 
 - Centro de control del supervisor extraído a `frontend/src/pages/SupervisorPage.tsx`,
