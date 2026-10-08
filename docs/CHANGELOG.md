@@ -5,6 +5,24 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30D - Extracción de DashboardPage
+
+- Centro de control general extraído a `frontend/src/pages/DashboardPage.tsx`.
+  Recibe `dashboard`, `onRefresh` y `onOpenEpisode`, sin estado propio.
+- Indicadores, cálculos, tabla, estado vacío, textos y CSS conservados.
+  API, carga, errores, permisos y navegación permanecen en `App.tsx`.
+- Dos pruebas de integración en `App.dashboard.test.tsx` cubren indicadores,
+  exclusión de alertas resueltas y tareas completadas de sus conteos, apertura
+  del episodio seleccionado y actualización desde el estado vacío.
+- Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
+- Validación: 25 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores. Pruebas fuera del sandbox tras un fallo de
+  acceso a un temporal; corregida una opción no admitida en la prueba nueva.
+- Sin pruebas backend locales nuevas: extracción limitada al frontend.
+- Entrega local; la Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 30C - Extracción de NewEpisodePage
 
 - Pantalla «Registrar llegada» extraída a `frontend/src/pages/NewEpisodePage.tsx`,
@@ -16,7 +34,9 @@ las verificaciones realizadas y el estado de cada etapa.
 - Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
 - Validación: 23 pruebas frontend, lint y build aprobados; diff revisado y
   `git diff --check` sin errores. Sin pruebas backend nuevas: cambio de frontend.
-- Entrega local; la Etapa 30 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `466cc5efc592106e576db305747593a3ec726df5`; CI `37718612913` aprobada.
+  La Etapa 30 continúa abierta.
 
 ---
 

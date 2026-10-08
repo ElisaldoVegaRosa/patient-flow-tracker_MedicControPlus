@@ -48,12 +48,24 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 30C
 
-- Alcance aprobado e implementado localmente: extracción de «Registrar llegada»
+- Entrega cerrada y publicada: extracción de «Registrar llegada»
   a `NewEpisodePage`, sin estado propio y con callback `onSubmit`.
 - Campos, textos, valores iniciales y estilos conservados. Creación del episodio,
   API, errores, permisos y navegación permanecen en `App.tsx`.
 - Pruebas añadidas de ingreso correcto y rechazo de la API.
 - Validaciones: 23 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores.
+- Commit `466cc5efc592106e576db305747593a3ec726df5`; CI `37718612913`
+  aprobada. No completa la Etapa 30; las siguientes entregas requieren aprobación.
+
+## Entrega 30D
+
+- Alcance aprobado e implementado localmente: extracción del centro de control
+  general a `DashboardPage`, con datos y callbacks; sin estado propio.
+- Indicadores, cálculos, tabla, estado vacío y acciones conservados. Carga, API,
+  errores, permisos y navegación permanecen en `App.tsx`.
+- Pruebas de integración para indicadores, apertura del paciente y actualización.
+- Validaciones locales: 25 pruebas frontend, lint y build aprobados;
   `git diff --check` sin errores.
 - No completa la Etapa 30; publicación y siguientes entregas requieren aprobación.
 
@@ -141,7 +153,7 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega 30C y definir el alcance de la siguiente entrega de la
+Revisar la entrega 30D y definir el alcance de la siguiente entrega de la
 Etapa 30 antes de implementarla.
 
 ## Fuentes

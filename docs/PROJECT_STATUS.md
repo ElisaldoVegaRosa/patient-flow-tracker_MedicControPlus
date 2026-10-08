@@ -2,7 +2,12 @@
 
 ## Última etapa
 
-Etapa 30C - NewEpisodePage extraído; entrega local sin publicar.
+Etapa 30D - DashboardPage extraído; entrega local sin publicar.
+Centro de control general conservado; API, carga, errores, permisos y navegación
+permanecen en `App.tsx`. La Etapa 30 continúa abierta.
+
+Etapa 30C - NewEpisodePage extraído; cerrada y publicada en el commit
+`466cc5efc592106e576db305747593a3ec726df5`.
 Formulario de llegada conservado; creación, errores, permisos y navegación
 permanecen en `App.tsx`. La Etapa 30 continúa abierta.
 
@@ -25,8 +30,16 @@ Cerrada y publicada en el commit
 
 ## Estado de validación
 
+- Etapa 30D: 25 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluidos los dos archivos nuevos.
+- Pruebas ejecutadas fuera del sandbox tras un fallo de acceso a un temporal.
+  Se corrigió una opción no admitida en la prueba nueva, sin modificar la UI.
+- Sin pruebas backend locales nuevas: extracción limitada al frontend.
+
 - Etapa 30C: 23 pruebas frontend, lint y build aprobados; diff revisado y
   `git diff --check` sin errores, incluido el componente nuevo.
+- Etapa 30C: CI aprobada en la ejecución `37718612913`, con pruebas backend,
+  frontend, lint y build aprobados.
 - Sin pruebas backend nuevas: extracción limitada al frontend.
 
 - Etapa 30B: 21 pruebas frontend, lint y build aprobados; diff revisado y
@@ -187,7 +200,7 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega 30C y definir el alcance de la siguiente entrega de la
+Revisar la entrega 30D y definir el alcance de la siguiente entrega de la
 Etapa 30 antes de implementarla.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
