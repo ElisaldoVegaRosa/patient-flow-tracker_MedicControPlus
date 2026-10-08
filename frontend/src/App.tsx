@@ -10,6 +10,7 @@ import LaboratoryPage from "./pages/LaboratoryPage";
 import SupervisorPage from "./pages/SupervisorPage";
 import EpisodePage from "./pages/EpisodePage";
 import LoginPage from "./pages/LoginPage";
+import AppHeader from "./components/AppHeader";
 import type {
   DashboardData,
   DemoSeedResponse,
@@ -350,58 +351,19 @@ async function logout() {
 
   return (
     <>
-      <header className="header">
-        <div className="logo">✚ MedicControl+</div>
-
-        <nav>
-          <button
-            onClick={() => {
-              setPage("dashboard");
-              loadDashboard();
-            }}
-          >
-            Centro de control
-          </button>
-
-          {user.role === "SUPERVISOR" && (
-        <button onClick={openSupervisorDashboard}>
-          Panel de supervisor
-        </button>
-          )}
-
-          <button onClick={() => setPage("scan")}>
-            Escanear pulsera
-          </button>
-
-          {(
-  user.role === "RECEPTION" ||
-  user.role === "DOCTOR" ||
-  user.role === "SUPERVISOR"
-) && (
-  <button onClick={openEpisodeHistory}>
-    Historial de episodios
-  </button>
-)}
-
-          {(user.role === "LAB" || user.role === "SUPERVISOR") && (
-          <button onClick={openLaboratoryQueue}>
-          Bandeja de laboratorio
-        </button>
-          )}
-
-          {user.role === "RECEPTION" && (
-            <button onClick={() => setPage("new")}>
-              Nuevo ingreso
-            </button>
-          )}
-        </nav>
-
-        <div className="user">
-          <strong>{user.username}</strong>
-          <span>{user.role}</span>
-          <button onClick={logout}>Salir</button>
-        </div>
-      </header>
+      <AppHeader
+        user={user}
+        onDashboard={() => {
+          setPage("dashboard");
+          loadDashboard();
+        }}
+        onSupervisor={openSupervisorDashboard}
+        onScan={() => setPage("scan")}
+        onHistory={openEpisodeHistory}
+        onLaboratory={openLaboratoryQueue}
+        onNewEpisode={() => setPage("new")}
+        onLogout={logout}
+      />
 
       {error && (
         <div className="error-banner" onClick={() => setError("")}>

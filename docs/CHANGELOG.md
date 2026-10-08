@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30I - Extracción de AppHeader
+
+- Cabecera extraída a `frontend/src/components/AppHeader.tsx`, con usuario
+  y callbacks de navegación y logout; sin estado propio.
+- Botones, identidad, visibilidad por rol, textos y CSS conservados.
+  Navegación, sesión y API permanecen en `App.tsx`.
+- Cinco casos nuevos cubren botones visibles y callbacks por rol.
+- Validación: 46 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios de backend, cliente API, tipos compartidos, CSS ni dependencias.
+- Entrega local sin publicar. La Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 30H - Extracción de LoginPage
 
 - Formulario de acceso y vista de restauración extraídos a

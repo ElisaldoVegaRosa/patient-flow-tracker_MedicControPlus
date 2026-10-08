@@ -2,6 +2,11 @@
 
 ## Última etapa
 
+Etapa 30I - AppHeader extraído; entrega local sin publicar.
+Botones, identidad, visibilidad por rol, textos y CSS conservados.
+Navegación, sesión y API permanecen en `App.tsx`.
+La Etapa 30 continúa abierta.
+
 Etapa 30H - LoginPage extraído, incluida la vista de restauración;
 cerrada y publicada en el commit `18841e97464e3aa38ab91a0b98d88a6661abb93f`.
 Formulario, textos y CSS conservados.
@@ -52,6 +57,11 @@ Cerrada y publicada en el commit
 
 
 ## Estado de validación
+
+- Etapa 30I: 46 pruebas frontend, lint y build aprobados.
+- Cinco casos nuevos comprueban botones, identidad y callbacks por rol.
+- Diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin nuevas pruebas backend locales: extracción limitada al frontend.
 
 - Etapa 30H: 41 pruebas frontend, lint y build aprobados.
 - Etapa 30H: CI `37724737074` aprobada.
@@ -256,8 +266,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir y aprobar el alcance de la siguiente entrega de la Etapa 30.
-La entrega 30H está publicada y su CI aprobada; la Etapa 30 continúa abierta.
+Revisar la entrega local 30I antes de autorizar su commit y publicación.
+Después, revisar los criterios de cierre de la Etapa 30 antes de proponer otra extracción.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
