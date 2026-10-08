@@ -2,7 +2,8 @@
 
 ## Última etapa
 
-Etapa 31C - Inicialización SQLite extraída; entrega local sin publicar.
+Etapa 31C - Inicialización SQLite extraída; cerrada y publicada en el commit
+`1838e5716892106d30ea6b40000c9e8c5a551b24`.
 SQL y carga inicial de usuarios en `database.py`; wrapper en `main.py`
 conserva conexión, usuarios demo y funciones de hash y fecha. Arranque intacto.
 La Etapa 31 continúa abierta.
@@ -85,6 +86,7 @@ Cerrada y publicada en el commit
 ## Estado de validación
 
 - Etapa 31C: 19 pruebas backend aprobadas, una advertencia observada.
+- Etapa 31C: CI `37857021915` aprobada.
 - Prueba nueva de reinicialización: conserva esquema, usuarios, sesiones
   y episodios; verifica contraseñas demo persistidas.
 - Validación fuera del sandbox con `--basetemp .tmp/pytest-31c-verified`
@@ -326,8 +328,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega local 31C antes de autorizar su commit y publicación.
-Después, revisar los criterios de cierre de la Etapa 31.
+Revisar los criterios de cierre de la Etapa 31.
+31C está publicada y su CI aprobada; la Etapa 31 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

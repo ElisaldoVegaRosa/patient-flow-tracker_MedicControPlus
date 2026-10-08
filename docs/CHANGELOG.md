@@ -18,7 +18,9 @@ las verificaciones realizadas y el estado de cada etapa.
   temporal habitual rechazado por permisos y ejecución anterior interrumpida.
 - Diff revisado y `git diff --check` sin errores, incluido el archivo nuevo.
 - Sin cambios frontend, endpoints, esquema ni datos demo locales.
-- Entrega local sin publicar. La Etapa 31 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `1838e5716892106d30ea6b40000c9e8c5a551b24`; CI `37857021915` aprobada.
+  La Etapa 31 continúa abierta.
 
 ---
 
