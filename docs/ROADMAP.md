@@ -120,7 +120,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 30H: LoginPage
 
-- Alcance autorizado e implementado localmente: extracción del formulario
+- Entrega cerrada y publicada: extracción del formulario
   de acceso y de la vista «Restaurando sesión» a `frontend/src/pages/LoginPage.tsx`.
 - Props `restoringSession`, `error` y `onSubmit`; sin estado propio.
 - Conserva formulario, cinco usuarios demo, valores iniciales, textos y CSS.
@@ -128,7 +128,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Tres casos nuevos de integración: ingreso correcto, restauración correcta
   y fallo de restauración; se conserva la cobertura de credenciales rechazadas.
 - Validación local: 41 pruebas frontend, lint y build aprobados.
-- Entrega local sin publicar; commit y push pendientes de autorización.
+- Commit `18841e97464e3aa38ab91a0b98d88a6661abb93f`; CI `37724737074` aprobada.
   La Etapa 30 continúa abierta.
 
 ## Etapas propuestas
@@ -215,8 +215,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega local 30H antes de autorizar su commit y publicación.
-La Etapa 30 continúa abierta; las siguientes entregas requieren alcance y aprobación.
+Definir y aprobar el alcance de la siguiente entrega de la Etapa 30.
+La entrega 30H está publicada y su CI aprobada; la Etapa 30 continúa abierta.
 
 ## Fuentes
 

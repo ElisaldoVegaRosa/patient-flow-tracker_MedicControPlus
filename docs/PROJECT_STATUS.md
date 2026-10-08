@@ -3,7 +3,8 @@
 ## Última etapa
 
 Etapa 30H - LoginPage extraído, incluida la vista de restauración;
-entrega local sin publicar. Formulario, textos y CSS conservados.
+cerrada y publicada en el commit `18841e97464e3aa38ab91a0b98d88a6661abb93f`.
+Formulario, textos y CSS conservados.
 Autenticación, restauración, token y errores permanecen en `App.tsx`.
 La Etapa 30 continúa abierta.
 
@@ -53,6 +54,7 @@ Cerrada y publicada en el commit
 ## Estado de validación
 
 - Etapa 30H: 41 pruebas frontend, lint y build aprobados.
+- Etapa 30H: CI `37724737074` aprobada.
 - Tres casos nuevos cubren ingreso correcto, restauración correcta y fallo
   de restauración; conservadas las pruebas de formulario y credenciales rechazadas.
 - Diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
@@ -254,8 +256,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega local 30H antes de autorizar su commit y publicación.
-La Etapa 30 continúa abierta; las siguientes entregas requieren alcance y aprobación.
+Definir y aprobar el alcance de la siguiente entrega de la Etapa 30.
+La entrega 30H está publicada y su CI aprobada; la Etapa 30 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
