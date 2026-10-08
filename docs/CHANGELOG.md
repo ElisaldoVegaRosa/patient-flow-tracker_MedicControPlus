@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre documental de Etapa 30
+
+- Revisión de criterios tras 30A–30I: ocho páginas y `AppHeader` separados;
+  `App.tsx` mantiene composición, sesión, navegación y datos.
+- Cliente HTTP y tipos compartidos conservados; `EpisodePage` mantiene
+  su lógica propia según el alcance aprobado.
+- Evidencia vigente: 46 pruebas frontend, lint y build aprobados;
+  CI `37725349264` y CI documental `37725456535` aprobadas.
+- Criterios de cierre cumplidos; cierre documental local pendiente de publicación.
+  Las entregas anteriores conservan su estado histórico.
+- Sin cambios de código ni nuevas ejecuciones de pruebas.
+  Propuesta 31A documentada, pendiente de autorización.
+
+---
+
 ## Etapa 30I - Extracción de AppHeader
 
 - Cabecera extraída a `frontend/src/components/AppHeader.tsx`, con usuario

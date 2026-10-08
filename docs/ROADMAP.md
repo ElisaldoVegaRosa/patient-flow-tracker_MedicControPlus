@@ -15,8 +15,11 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Las etapas 30–33 son refactorizaciones que deben conservar el comportamiento.
   Las nuevas funcionalidades y los cambios de comportamiento se tratarán en
   tareas separadas, con alcance y aprobación propios.
-- Los criterios de cierre siguientes son requisitos futuros. Este documento
-  no afirma que se hayan ejecutado nuevas pruebas ni cerrado estas etapas.
+- Etapa 30: criterios de cierre cumplidos tras 30A–30I; cierre documental
+  local pendiente de publicación. Validación vigente: 46 pruebas frontend,
+  lint y build aprobados; CI `37725349264` y `37725456535` aprobadas.
+- Los criterios de las etapas 31–37 son requisitos futuros; esta revisión
+  no ejecuta pruebas nuevas ni autoriza su implementación.
 
 ## Entrega 30A
 
@@ -144,6 +147,30 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Commit `a80d42c5394930579f43491ff47bfd57b11cc2f9`; CI `37725349264` aprobada.
   La Etapa 30 continúa abierta; revisar sus criterios de cierre.
 
+## Revisión de cierre de Etapa 30
+
+- Ocho páginas extraídas y cabecera compartida separada.
+- `App.tsx` conserva la composición general, sesión, navegación y datos.
+- Comportamiento, permisos y pruebas conservados según las entregas aprobadas.
+- Cliente HTTP en `frontend/src/api/client.ts` y tipos en
+  `frontend/src/types/clinical.ts`. `EpisodePage` conserva su lógica existente.
+- No se requiere otra extracción para cumplir este alcance. Cierre documental
+  local pendiente de publicación; las referencias anteriores a Etapa 30
+  abierta describen el estado histórico de cada entrega.
+
+## Propuesta 31A: configuración del backend
+
+- Crear `backend/app/config.py` con las constantes existentes
+  `DATABASE_PATH`, `DEMO_USERS`, `PASSWORD_HASH_ITERATIONS` y
+  `SESSION_DURATION_HOURS`, conservando valores y ruta efectiva de SQLite.
+- Importarlas en `main.py`; conservar `main.DATABASE_PATH` como punto
+  de sustitución usado por las pruebas con SQLite temporal.
+- Mantener conexiones, inicialización, autenticación, CORS y rutas en
+  `main.py`; sin cambios de endpoints, esquema ni datos.
+- Validación prevista: suite backend con el Python local y SQLite temporal;
+  comprobar ruta efectiva y constantes, sin abrir ni modificar la base demo.
+- Propuesta pendiente de autorización; no implementada.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -228,8 +255,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar los criterios de cierre de la Etapa 30 antes de proponer otra extracción.
-La entrega 30I está publicada y su CI aprobada; la Etapa 30 continúa abierta.
+Revisar y autorizar la propuesta 31A: extraer la configuración existente del
+backend. Su implementación permanece pendiente; el cierre documental de la
+Etapa 30 aún no está publicado.
 
 ## Fuentes
 

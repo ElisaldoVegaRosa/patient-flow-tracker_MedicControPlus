@@ -2,6 +2,12 @@
 
 ## Última etapa
 
+Etapa 30 - Criterios de cierre cumplidos tras las entregas 30A–30I.
+Cierre documental registrado localmente; pendiente de publicación.
+Ocho páginas y `AppHeader` separados; `App.tsx` conserva composición,
+sesión, navegación y datos. Cliente HTTP y tipos compartidos centralizados.
+`EpisodePage` conserva su lógica propia según el alcance aprobado de 30G.
+
 Etapa 30I - AppHeader extraído; cerrada y publicada en el commit
 `a80d42c5394930579f43491ff47bfd57b11cc2f9`.
 Botones, identidad, visibilidad por rol, textos y CSS conservados.
@@ -58,6 +64,11 @@ Cerrada y publicada en el commit
 
 
 ## Estado de validación
+
+- Cierre de Etapa 30 basado en inspección estática y validaciones aprobadas
+  de 30I: 46 pruebas frontend, lint y build; CI `37725349264` aprobada.
+- Cierre documental de 30I publicado en `e5d7ec2`; CI `37725456535` aprobada.
+- Esta revisión no ejecuta pruebas nuevas ni cambia código.
 
 - Etapa 30I: 46 pruebas frontend, lint y build aprobados.
 - Etapa 30I: CI `37725349264` aprobada.
@@ -268,8 +279,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar los criterios de cierre de la Etapa 30 antes de proponer otra extracción.
-La entrega 30I está publicada y su CI aprobada; la Etapa 30 continúa abierta.
+Revisar y autorizar la propuesta 31A: extraer la configuración existente del
+backend. Su implementación permanece pendiente; el cierre documental de la
+Etapa 30 aún no está publicado.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
