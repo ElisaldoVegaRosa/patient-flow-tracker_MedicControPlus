@@ -5,6 +5,23 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30A - Extracción de EpisodeHistoryPage
+
+- Pantalla de historial extraída a `frontend/src/pages/EpisodeHistoryPage.tsx`.
+  Recibe `historyData`, `onRefresh` y `onOpenEpisode`; reutiliza `HistoryData`
+  y las clases CSS existentes.
+- Estado, carga, errores, permisos, navegación y llamadas API permanecen en
+  `App.tsx`. Se conservan textos, tabla, fechas, valores alternativos y acciones.
+- Se conserva la prueba de consulta del historial después del alta y se añaden
+  dos casos: historial vacío y actualización mediante una nueva consulta.
+- Validación: 20 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores. Se conserva el build anterior al reinicio del
+  equipo, sin cambios posteriores de código; pruebas y lint completados al
+  retomar. No se ejecutaron pruebas backend para esta extracción de frontend.
+- Entrega local sin publicar; la Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 29 - Nota de alta editable
 
 - El médico dispone de un campo accesible «Nota de alta» únicamente en

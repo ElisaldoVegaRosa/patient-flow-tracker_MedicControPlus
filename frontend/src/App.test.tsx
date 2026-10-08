@@ -11,6 +11,82 @@
 
     import App from "./App";
 
+describe("Historial de episodios", () => {
+  beforeEach(() => localStorage.setItem("token", "token-de-prueba"));
+  afterEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  async function openHistory() {
+    const historyResponse = vi.fn().mockResolvedValue({
+      total: 0, episodes: [], requested_by: "medico",
+    });
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      if (init?.method && init.method !== "GET") throw new Error("Mutación inesperada");
+      const responses: Record<string, unknown> = {
+        "/auth/me": { username: "medico", role: "DOCTOR" },
+        "/dashboard": { active: 0, open_alerts: 0, patients: [], requested_by: "medico" },
+      };
+      if (path === "/episodes/history") {
+        const data = await historyResponse();
+        return { ok: true, status: 200, json: async () => data } as Response;
+      }
+      if (!(path in responses)) throw new Error(`Petición inesperada: ${path}`);
+      return { ok: true, status: 200, json: async () => responses[path] } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(await screen.findByRole("button", { name: "Historial de episodios" }));
+    await screen.findByRole("heading", { name: "Episodios cerrados" });
+    return { user, fetchMock, historyResponse };
+  }
+
+  it("muestra el estado vacío del historial", async () => {
+    const { historyResponse } = await openHistory();
+    expect(screen.getByRole("heading", { name: "No existen episodios cerrados" })).toBeVisible();
+    expect(screen.getByText("Los pacientes dados de alta aparecerán aquí.")).toBeVisible();
+    expect(screen.getByText("0", { selector: "strong" })).toBeVisible();
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Ver timeline" })).not.toBeInTheDocument();
+    expect(historyResponse).toHaveBeenCalledTimes(1);
+  });
+
+  it("Actualizar historial consulta de nuevo y muestra los datos actualizados", async () => {
+    const { user, fetchMock, historyResponse } = await openHistory();
+    const updated: import("./types/clinical").HistoryData = {
+      total: 1, requested_by: "medico", episodes: [{
+        id: 73, name: "Paciente actualizado", document: "QA-HISTORY",
+        status: "CLOSED", priority: 2, location: "Observación",
+        assigned_to: null, started_at: "2026-10-03T12:00:00Z", closed_at: null,
+        event_count: 3, alert_count: 1, task_count: 2,
+      }],
+    };
+    historyResponse.mockResolvedValueOnce(updated);
+    const callsBeforeRefresh = fetchMock.mock.calls.length;
+    await user.click(screen.getByRole("button", { name: "Actualizar historial" }));
+    expect(await screen.findByText("Paciente actualizado")).toBeVisible();
+    expect(fetchMock.mock.calls.slice(callsBeforeRefresh)).toEqual([
+      ["http://localhost:8000/episodes/history", expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer token-de-prueba" }),
+      })],
+    ]);
+    expect(historyResponse).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole("heading", { name: "No existen episodios cerrados" })).not.toBeInTheDocument();
+    expect(screen.getByRole("table")).toBeVisible();
+    expect(screen.getByText("1", { selector: "strong" })).toBeVisible();
+    expect(screen.getByText("QA-HISTORY")).toBeVisible();
+    expect(screen.getByText("Sin asignar")).toBeVisible();
+    expect(screen.getByText("Sin fecha")).toBeVisible();
+    expect(screen.getByText("3 eventos")).toBeVisible();
+    expect(screen.getByText("1 alertas")).toBeVisible();
+    expect(screen.getByText("2 tareas")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Ver timeline" })).toBeVisible();
+  });
+});
+
     describe("Inicio de sesión de MedicControl+", () => {
     beforeEach(() => {
         localStorage.clear();

@@ -2,6 +2,11 @@
 
 ## Última etapa
 
+Etapa 30A - EpisodeHistoryPage extraído; entrega local sin publicar.
+La Etapa 30 continúa abierta. Estado, carga, errores, permisos, navegación y
+llamadas API permanecen en `App.tsx`; el componente reutiliza `HistoryData`
+y las clases CSS existentes sin cambios funcionales.
+
 Etapa 29 - Nota de alta editable para médicos en episodios ACTIVE.
 Cerrada y publicada en el commit
 `f35770638a7482a363c38e253ba33c86e5abb28c`.
@@ -9,6 +14,16 @@ Cerrada y publicada en el commit
 
 
 ## Estado de validación
+
+- Etapa 30A: 20 pruebas frontend aprobadas; lint y build aprobados.
+  Pruebas y lint completados tras el reinicio del equipo; se conserva el build
+  aprobado antes del reinicio, sin cambios posteriores de código.
+- Etapa 30A: diff revisado y `git diff --check` sin errores, incluidos los
+  archivos nuevos. Sin pruebas backend nuevas: entrega limitada al frontend.
+- Etapa 30A pendiente de commit y publicación; la CI citada abajo corresponde
+  al cierre anterior y no valida esta entrega local.
+
+### Antecedentes de validación anteriores a 30A
 
 - Backend: pruebas ampliadas con regresion de dashboard supervisor sin efectos
   secundarios.
@@ -82,11 +97,23 @@ Cerrada y publicada en el commit
 
 ## Sesiones
 
-- `POST /auth/login`: inicia sesión.
-- `GET /auth/me`: valida y restaura sesión.
-- `POST /auth/logout`: invalida el token.
-- Los tokens de demostración están almacenados en memoria.
-- Reiniciar el backend invalida las sesiones existentes.
+Descripción basada en inspección estática de `backend/app/main.py`.
+
+- `POST /auth/login`: crea una sesión persistente en la tabla `sessions` de
+  SQLite (`backend/clinical.db`) y devuelve el token al cliente. En la base
+  de datos se almacena su hash SHA-256, no el token en texto plano.
+- Las sesiones expiran a las ocho horas de su creación. La autenticación
+  comprueba `expires_at`; si detecta expiración, registra `revoked_at` y
+  devuelve HTTP 401.
+- `GET /auth/me`: valida la sesión y devuelve el usuario y su rol. La
+  autenticación requiere una sesión no revocada, no expirada y un usuario
+  activo.
+- `POST /auth/logout`: revoca la sesión utilizada por la petición mediante
+  `revoked_at`.
+- El inicio del backend inicializa las tablas si no existen y no elimina ni
+  revoca las sesiones guardadas. Reiniciar conserva las sesiones si se mantiene
+  la misma base SQLite; su validez sigue sujeta a expiración, revocación y
+  estado activo del usuario.
 
 ## Alertas
 
@@ -139,7 +166,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir el alcance de la Etapa 30.
+Revisar la entrega 30A y definir el alcance de la siguiente entrega de la
+Etapa 30 antes de autorizar su implementación.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
