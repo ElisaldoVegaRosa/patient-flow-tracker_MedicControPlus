@@ -212,7 +212,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 32A: hash y verificación
 
-- Alcance autorizado e implementado localmente: `hash_session_token`, `hash_password` y `verify_password`
+- Entrega cerrada y publicada: `hash_session_token`, `hash_password` y `verify_password`
   a `backend/app/security.py`, conservando SHA-256, PBKDF2, sal aleatoria,
   iteraciones, comparación y formatos de retorno actuales.
 - Usa la constante existente de `config.py`; mantiene las funciones
@@ -222,7 +222,7 @@ Plan reconstruido propuesto; no recuperado del chat original
   compatibilidad con hashes existentes y acceso desde `main.py`.
 - Validación: 22 pruebas backend aprobadas fuera del sandbox, una advertencia;
   SQLite temporal en `.tmp/pytest-32a-verified`.
-- Entrega local sin publicar; commit y push pendientes de autorización.
+- Commit `4c85e9c8e2abefdbc3b9e3adef9d98e8e22f8af9`; CI `37858667828` aprobada.
   La Etapa 32 continúa abierta.
 
 ## Etapas propuestas
@@ -309,8 +309,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega local 32A antes de autorizar su commit y publicación.
-La Etapa 32 continúa abierta; 32B requiere alcance y autorización.
+Definir y aprobar el alcance de 32B: validación de sesiones y permisos por rol.
+32A está publicada y su CI aprobada; la Etapa 32 continúa abierta.
 
 ## Fuentes
 

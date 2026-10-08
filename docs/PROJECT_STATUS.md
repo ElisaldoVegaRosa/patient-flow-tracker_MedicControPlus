@@ -2,7 +2,8 @@
 
 ## Última etapa
 
-Etapa 32A - Hash y verificación extraídos a `security.py`; entrega local sin publicar.
+Etapa 32A - Hash y verificación extraídos a `security.py`; cerrada y publicada
+en el commit `4c85e9c8e2abefdbc3b9e3adef9d98e8e22f8af9`.
 Algoritmos, sal, iteraciones, comparación y formatos conservados; funciones
 accesibles desde `main.py`. La Etapa 32 continúa abierta.
 
@@ -95,6 +96,7 @@ Cerrada y publicada en el commit
 ## Estado de validación
 
 - Etapa 32A: 22 pruebas backend aprobadas, una advertencia observada.
+- Etapa 32A: CI `37858667828` aprobada.
 - Tres pruebas nuevas cubren SHA-256, formato y sal PBKDF2, verificación
   correcta/incorrecta, compatibilidad existente y acceso desde `main.py`.
 - Validación fuera del sandbox con `--basetemp .tmp/pytest-32a-verified`
@@ -353,8 +355,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega local 32A antes de autorizar su commit y publicación.
-La Etapa 32 continúa abierta; 32B requiere alcance y autorización.
+Definir y aprobar el alcance de 32B: validación de sesiones y permisos por rol.
+32A está publicada y su CI aprobada; la Etapa 32 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

@@ -16,7 +16,9 @@ las verificaciones realizadas y el estado de cada etapa.
   de asyncio en la ejecución dentro del sandbox, que fue interrumpida.
 - Diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
 - Sin cambios frontend, endpoints, validación de sesiones, roles ni datos demo.
-- Entrega local sin publicar. La Etapa 32 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `4c85e9c8e2abefdbc3b9e3adef9d98e8e22f8af9`; CI `37858667828` aprobada.
+  La Etapa 32 continúa abierta.
 
 ---
 
