@@ -16,7 +16,9 @@ las verificaciones realizadas y el estado de cada etapa.
 - Conservadas las pruebas ACTIVE/CLOSED por rol y de alta médica;
   sin comportamiento nuevo ni pruebas nuevas para este traslado.
 - Sin cambios de backend, cliente API, tipos compartidos, CSS ni dependencias.
-- Entrega local sin publicar. La Etapa 30 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `7cf60c706131da9f9f0e9207639e609989010ec7`; CI `37724043270` aprobada.
+  La Etapa 30 continúa abierta.
 
 ---
 

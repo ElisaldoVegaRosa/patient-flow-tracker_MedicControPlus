@@ -2,7 +2,8 @@
 
 ## Última etapa
 
-Etapa 30G - EpisodePage movido a su propio archivo; entrega local sin publicar.
+Etapa 30G - EpisodePage movido a su propio archivo; cerrada y publicada
+en el commit `7cf60c706131da9f9f0e9207639e609989010ec7`.
 Props, estado local, API, permisos y formularios conservados dentro de
 `EpisodePage`; sesión, navegación y episodio seleccionado siguen en `App.tsx`.
 La Etapa 30 continúa abierta.
@@ -47,6 +48,7 @@ Cerrada y publicada en el commit
 ## Estado de validación
 
 - Etapa 30G: 38 pruebas frontend, lint y build aprobados.
+- Etapa 30G: CI `37724043270` aprobada.
 - Conservadas las pruebas ACTIVE/CLOSED por rol, nota de alta, errores,
   doble envío y consulta posterior desde historial.
 - Sin comportamiento nuevo ni pruebas nuevas: traslado del componente existente.
@@ -241,8 +243,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega local 30G antes de autorizar su commit y publicación.
-La Etapa 30 continúa abierta; las siguientes entregas requieren alcance y aprobación.
+Definir y aprobar el alcance de la siguiente entrega de la Etapa 30.
+La entrega 30G está publicada y su CI aprobada; la Etapa 30 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

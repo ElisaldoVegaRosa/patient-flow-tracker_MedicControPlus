@@ -106,7 +106,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 30G: EpisodePage
 
-- Alcance autorizado e implementado localmente: traslado del componente
+- Entrega cerrada y publicada: traslado del componente
   existente a `frontend/src/pages/EpisodePage.tsx`.
 - Conserva sus props `episode`, `user`, `updateEpisode` y `showError`,
   estado local, llamadas API, permisos, formularios y presentación.
@@ -115,7 +115,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 - `App.tsx` mantiene sesión, navegación y episodio seleccionado; importa la página.
 - Validación local: 38 pruebas frontend, lint y build aprobados.
   Conservadas las pruebas ACTIVE/CLOSED por rol y de alta médica.
-- Entrega local sin publicar; commit y push pendientes de autorización.
+- Commit `7cf60c706131da9f9f0e9207639e609989010ec7`; CI `37724043270` aprobada.
   La Etapa 30 continúa abierta.
 
 ## Etapas propuestas
@@ -202,8 +202,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega local 30G antes de autorizar su commit y publicación.
-La Etapa 30 continúa abierta; las siguientes entregas requieren alcance y aprobación.
+Definir y aprobar el alcance de la siguiente entrega de la Etapa 30.
+La entrega 30G está publicada y su CI aprobada; la Etapa 30 continúa abierta.
 
 ## Fuentes
 
