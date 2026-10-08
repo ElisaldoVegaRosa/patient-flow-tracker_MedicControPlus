@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from .security import hash_session_token, hash_password, verify_password
-from . import database
+from . import auth, database
 from .config import (
     DATABASE_PATH,
     DEMO_USERS,
@@ -99,92 +99,14 @@ def authenticated_user(
     authorization: str | None = Header(default=None),
 ) -> dict[str, str]:
     """Valida una sesión persistente y comprueba su expiración."""
-
-    token = (authorization or "").removeprefix("Bearer ")
-
-    if not token:
-        raise HTTPException(
-            status_code=401,
-            detail="Sesión requerida",
-        )
-
-    connection = get_connection()
-
-    session = connection.execute(
-        """
-        SELECT
-            sessions.id AS session_id,
-            sessions.expires_at,
-            users.username,
-            users.role,
-            users.active
-        FROM sessions
-        JOIN users ON users.id = sessions.user_id
-        WHERE sessions.token_hash = ?
-        AND sessions.revoked_at IS NULL
-        """,
-        (hash_session_token(token),),
-    ).fetchone()
-
-    if session is None:
-        connection.close()
-        raise HTTPException(
-            status_code=401,
-            detail="Sesión requerida",
-        )
-
-    expires_at = datetime.fromisoformat(
-        session["expires_at"]
-    )
-
-    if expires_at <= datetime.now(timezone.utc):
-        connection.execute(
-            """
-            UPDATE sessions
-            SET revoked_at = ?
-            WHERE id = ?
-            """,
-            (
-                utc_now(),
-                session["session_id"],
-            ),
-        )
-        connection.commit()
-        connection.close()
-
-        raise HTTPException(
-            status_code=401,
-            detail="Sesión expirada",
-        )
-
-    if session["active"] != 1:
-        connection.close()
-        raise HTTPException(
-            status_code=401,
-            detail="Usuario inactivo",
-        )
-
-    user = {
-        "username": session["username"],
-        "role": session["role"],
-    }
-
-    connection.close()
-
-    return user
+    return auth.validate_session(authorization, get_connection, utc_now)
 
 
 def require_roles(*allowed_roles: str):
     def dependency(
         user: dict[str, str] = Depends(authenticated_user),
     ) -> dict[str, str]:
-        if user["role"] not in allowed_roles:
-            raise HTTPException(
-                status_code=403,
-                detail="Su rol no tiene permiso para esta acción",
-            )
-
-        return user
+        return auth.authorize_role(user, allowed_roles)
 
     return dependency
 

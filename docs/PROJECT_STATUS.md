@@ -2,6 +2,10 @@
 
 ## Última etapa
 
+Etapa 32B - Validación de sesiones y autorización por rol separadas en
+`auth.py`; entrega local sin publicar. Dependencias FastAPI, conexión
+y fecha conservadas en `main.py`. La Etapa 32 continúa abierta.
+
 Etapa 32A - Hash y verificación extraídos a `security.py`; cerrada y publicada
 en el commit `4c85e9c8e2abefdbc3b9e3adef9d98e8e22f8af9`.
 Algoritmos, sal, iteraciones, comparación y formatos conservados; funciones
@@ -94,6 +98,15 @@ Cerrada y publicada en el commit
 
 
 ## Estado de validación
+
+- Etapa 32B: 33 pruebas backend aprobadas, una advertencia observada.
+- Once casos nuevos cubren sesiones válidas, expiradas, revocadas, usuario
+  inactivo, token desconocido/ausente y autorización de los cinco roles.
+- Validación fuera del sandbox con `--basetemp .tmp/pytest-32b-verified`
+  y diagnóstico de bloqueo activado por el antecedente de socketpair en TestClient.
+- Lógica de sesión comparada con el original; diff revisado y
+  `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios ni nueva validación frontend.
 
 - Etapa 32A: 22 pruebas backend aprobadas, una advertencia observada.
 - Etapa 32A: CI `37858667828` aprobada.
@@ -355,8 +368,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir y aprobar el alcance de 32B: validación de sesiones y permisos por rol.
-32A está publicada y su CI aprobada; la Etapa 32 continúa abierta.
+Revisar la entrega local 32B antes de autorizar su commit y publicación.
+La Etapa 32 continúa abierta; 32C (login, logout y consulta de usuario)
+requiere alcance y autorización.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

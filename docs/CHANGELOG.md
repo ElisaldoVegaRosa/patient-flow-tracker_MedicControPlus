@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 32B - Separación de sesiones y autorización por rol
+
+- Validación de sesión y autorización movidas a `backend/app/auth.py`.
+- Dependencias FastAPI en `main.py` conservadas; conexión y fecha recibidas
+  como parámetros. Expiración, revocación, usuario activo y 401/403 conservados.
+- Once casos nuevos cubren estados de sesión, ausencia de token y los cinco roles.
+- Validación: 33 pruebas backend aprobadas fuera del sandbox, una advertencia;
+  temporal `.tmp/pytest-32b-verified` y diagnóstico de bloqueo activado.
+- Lógica comparada con el original; diff revisado y `git diff --check`
+  sin errores, incluidos los archivos nuevos.
+- Sin cambios frontend, endpoints de autenticación, esquema ni datos demo.
+- Entrega local sin publicar. La Etapa 32 continúa abierta.
+
+---
+
 ## Etapa 32A - Extracción de hash y verificación
 
 - Tres funciones movidas a `backend/app/security.py`, importadas en `main.py`.
