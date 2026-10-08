@@ -160,7 +160,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 31A: configuración del backend
 
-- Alcance autorizado e implementado localmente: `backend/app/config.py` con
+- Entrega cerrada y publicada: `backend/app/config.py` con
   `DATABASE_PATH`, `DEMO_USERS`, `PASSWORD_HASH_ITERATIONS` y
   `SESSION_DURATION_HOURS`, conservando valores y ruta efectiva de SQLite.
 - Importadas en `main.py`; se conserva `main.DATABASE_PATH` como punto
@@ -170,7 +170,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Validación: 16 pruebas backend aprobadas, con tres advertencias conocidas,
   usando Python local y SQLite temporal. Dos pruebas nuevas de ruta y sustitución.
 - Constantes y funciones conservadas; sin acceso a la base demo durante la validación.
-- Entrega local sin publicar; commit y push pendientes de autorización.
+- Commit `26a6567758c4ad324d642307e86524e6f760b5e9`; CI `37727047490` aprobada.
   La Etapa 31 continúa abierta.
 
 ## Etapas propuestas
@@ -257,9 +257,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega local 31A antes de autorizar su commit y publicación.
-La Etapa 31 continúa abierta; 31B (conexiones SQLite) requiere alcance
-y aprobación antes de implementarse.
+Definir y aprobar el alcance de 31B: extracción de conexiones SQLite.
+31A está publicada y su CI aprobada; la Etapa 31 continúa abierta.
 
 ## Fuentes
 

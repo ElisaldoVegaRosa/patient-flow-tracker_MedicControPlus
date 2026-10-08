@@ -15,7 +15,9 @@ las verificaciones realizadas y el estado de cada etapa.
 - Validación: 16 pruebas backend aprobadas, tres advertencias conocidas;
   diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
 - Sin cambios frontend, endpoints, esquema ni datos demo.
-- Entrega local sin publicar. La Etapa 31 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `26a6567758c4ad324d642307e86524e6f760b5e9`; CI `37727047490` aprobada.
+  La Etapa 31 continúa abierta.
 
 ---
 

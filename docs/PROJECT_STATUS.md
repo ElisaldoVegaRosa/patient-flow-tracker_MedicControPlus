@@ -2,7 +2,8 @@
 
 ## Última etapa
 
-Etapa 31A - Configuración backend extraída; entrega local sin publicar.
+Etapa 31A - Configuración backend extraída; cerrada y publicada en el commit
+`26a6567758c4ad324d642307e86524e6f760b5e9`.
 `DATABASE_PATH`, `DEMO_USERS`, `PASSWORD_HASH_ITERATIONS` y
 `SESSION_DURATION_HOURS` en `backend/app/config.py`, con valores conservados.
 `main.DATABASE_PATH` sigue permitiendo SQLite temporal en pruebas.
@@ -73,6 +74,7 @@ Cerrada y publicada en el commit
 ## Estado de validación
 
 - Etapa 31A: 16 pruebas backend aprobadas, con tres advertencias conocidas.
+- Etapa 31A: CI `37727047490` aprobada.
 - Dos pruebas nuevas comprueban ruta por defecto y conexión a la ruta temporal
   sustituida en `main.DATABASE_PATH`, con claves foráneas activadas.
 - Constantes, funciones y clases comparadas con el original; diff revisado y
@@ -294,9 +296,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega local 31A antes de autorizar su commit y publicación.
-La Etapa 31 continúa abierta; 31B (conexiones SQLite) requiere alcance
-y aprobación antes de implementarse.
+Definir y aprobar el alcance de 31B: extracción de conexiones SQLite.
+31A está publicada y su CI aprobada; la Etapa 31 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
