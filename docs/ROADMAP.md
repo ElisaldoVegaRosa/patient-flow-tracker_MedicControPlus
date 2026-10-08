@@ -15,8 +15,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Las etapas 30–33 son refactorizaciones que deben conservar el comportamiento.
   Las nuevas funcionalidades y los cambios de comportamiento se tratarán en
   tareas separadas, con alcance y aprobación propios.
-- Etapa 30: criterios de cierre cumplidos tras 30A–30I; cierre documental
-  local pendiente de publicación. Validación vigente: 46 pruebas frontend,
+- Etapa 30 cerrada tras 30A–30I; cierre documental publicado en `9ed4dbf`,
+  CI `37726240159` aprobada. Validación vigente: 46 pruebas frontend,
   lint y build aprobados; CI `37725349264` y `37725456535` aprobadas.
 - Los criterios de las etapas 31–37 son requisitos futuros; esta revisión
   no ejecuta pruebas nuevas ni autoriza su implementación.
@@ -155,7 +155,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Cliente HTTP en `frontend/src/api/client.ts` y tipos en
   `frontend/src/types/clinical.ts`. `EpisodePage` conserva su lógica existente.
 - No se requiere otra extracción para cumplir este alcance. Cierre documental
-  local pendiente de publicación; las referencias anteriores a Etapa 30
+  publicado en `9ed4dbf`, CI `37726240159` aprobada; las referencias anteriores a Etapa 30
   abierta describen el estado histórico de cada entrega.
 
 ## Propuesta 31A: configuración del backend
@@ -256,8 +256,8 @@ debe validarse antes de continuar con la siguiente entrega.
 ## Próximo paso
 
 Revisar y autorizar la propuesta 31A: extraer la configuración existente del
-backend. Su implementación permanece pendiente; el cierre documental de la
-Etapa 30 aún no está publicado.
+backend. Su implementación permanece pendiente. La Etapa 30 está cerrada
+y su cierre documental publicado.
 
 ## Fuentes
 

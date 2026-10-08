@@ -13,7 +13,8 @@ las verificaciones realizadas y el estado de cada etapa.
   su lógica propia según el alcance aprobado.
 - Evidencia vigente: 46 pruebas frontend, lint y build aprobados;
   CI `37725349264` y CI documental `37725456535` aprobadas.
-- Criterios de cierre cumplidos; cierre documental local pendiente de publicación.
+- Etapa 30 cerrada; cierre documental publicado en
+  `9ed4dbfa4b23b2351f6eaa4958b0ca7eefca7f7d`, CI `37726240159` aprobada.
   Las entregas anteriores conservan su estado histórico.
 - Sin cambios de código ni nuevas ejecuciones de pruebas.
   Propuesta 31A documentada, pendiente de autorización.

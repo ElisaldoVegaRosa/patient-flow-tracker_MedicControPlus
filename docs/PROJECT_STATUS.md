@@ -2,8 +2,9 @@
 
 ## Última etapa
 
-Etapa 30 - Criterios de cierre cumplidos tras las entregas 30A–30I.
-Cierre documental registrado localmente; pendiente de publicación.
+Etapa 30 - Cerrada tras las entregas 30A–30I.
+Cierre documental publicado en `9ed4dbfa4b23b2351f6eaa4958b0ca7eefca7f7d`;
+CI `37726240159` aprobada.
 Ocho páginas y `AppHeader` separados; `App.tsx` conserva composición,
 sesión, navegación y datos. Cliente HTTP y tipos compartidos centralizados.
 `EpisodePage` conserva su lógica propia según el alcance aprobado de 30G.
@@ -280,8 +281,8 @@ ESCALATED → RESOLVED
 ## Próximo paso recomendado
 
 Revisar y autorizar la propuesta 31A: extraer la configuración existente del
-backend. Su implementación permanece pendiente; el cierre documental de la
-Etapa 30 aún no está publicado.
+backend. Su implementación permanece pendiente. La Etapa 30 está cerrada
+y su cierre documental publicado.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
