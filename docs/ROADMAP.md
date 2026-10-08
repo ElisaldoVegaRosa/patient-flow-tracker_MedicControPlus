@@ -73,20 +73,21 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 30E: LaboratoryPage
 
-- Alcance autorizado e implementado localmente: bandeja «Órdenes pendientes» extraída a
+- Entrega cerrada y publicada: bandeja «Órdenes pendientes» extraída a
   `frontend/src/pages/LaboratoryPage.tsx`, sin estado propio.
 - Props: `laboratoryQueue`, `onRefresh` y `onCompleteOrder`
   (evento del formulario e identificador de orden). Reutiliza `LaboratoryQueue`
   existente en `frontend/src/types/clinical.ts`.
-- Conservar contador, estado vacío, tarjetas, textos, CSS y validación
+- Conserva contador, estado vacío, tarjetas, textos, CSS y validación
   del resultado (`required` y `minLength`).
-- Mantener carga, API, errores, permisos, navegación y publicación en
+- Mantiene carga, API, errores, permisos, navegación y publicación en
   `App.tsx`, mediante los callbacks existentes.
 - Siete casos nuevos de integración: bandeja vacía y actualización, presentación de órdenes,
   envío correcto, rechazo de publicación y acceso por los roles permitidos.
 - Validación local: 32 pruebas frontend, lint y build aprobados.
-  La Etapa 30 permanece abierta. Commit y push autorizados; publicación y CI
-  pendientes de confirmar.
+- Commit `e0cc198ff117d118aee39bc2a9afe46b658412cb`; CI `37721355298`
+  aprobada con pruebas backend, frontend, lint y build.
+  La Etapa 30 permanece abierta; las siguientes entregas requieren aprobación.
 
 ## Etapas propuestas
 
@@ -172,8 +173,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Completar la publicación autorizada de 30E y comprobar GitHub Actions.
-La siguiente extracción de la Etapa 30 requiere alcance y autorización.
+Definir y aprobar el alcance de la siguiente extracción de la Etapa 30.
+La entrega 30E está publicada y su CI aprobada; la Etapa 30 continúa abierta.
 
 ## Fuentes
 

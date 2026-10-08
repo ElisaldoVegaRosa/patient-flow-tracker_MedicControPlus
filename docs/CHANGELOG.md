@@ -15,7 +15,9 @@ las verificaciones realizadas y el estado de cada etapa.
   publicación correcta y rechazo conservando formulario y resultado.
 - Validación: 32 pruebas frontend, lint y build aprobados.
 - Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
-- Commit y push autorizados; publicación y CI pendientes de confirmar.
+- Entrega cerrada y publicada en el commit
+  `e0cc198ff117d118aee39bc2a9afe46b658412cb`; CI `37721355298` aprobada
+  con pruebas backend, frontend, lint y build.
   La Etapa 30 continúa abierta.
 
 ---
