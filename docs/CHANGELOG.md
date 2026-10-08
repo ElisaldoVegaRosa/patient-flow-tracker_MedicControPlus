@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30H - Extracción de LoginPage
+
+- Formulario de acceso y vista de restauración extraídos a
+  `frontend/src/pages/LoginPage.tsx`, sin estado propio.
+- Formulario, cinco usuarios demo, valores iniciales, textos y CSS conservados.
+  Autenticación, restauración, token y errores permanecen en `App.tsx`.
+- Tres casos nuevos cubren ingreso correcto y restauración correcta o fallida;
+  se conservan las pruebas de formulario y credenciales rechazadas.
+- Validación: 41 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios de backend, cliente API, tipos compartidos, CSS ni dependencias.
+- Entrega local sin publicar. La Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 30G - Traslado de EpisodePage
 
 - Componente existente movido de `App.tsx` a `frontend/src/pages/EpisodePage.tsx`.
