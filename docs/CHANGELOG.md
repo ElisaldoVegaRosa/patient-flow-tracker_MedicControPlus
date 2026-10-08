@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 32C - Separación de endpoints de autenticación
+
+- Implementada y validada localmente; pendiente de publicación y CI.
+- Lógica en `backend/app/auth.py`; rutas, modelos y dependencias en `main.py`.
+- Token aleatorio, hash persistido, duración de ocho horas, respuestas y
+  revocación conservados. Exportaciones de compatibilidad mantenidas.
+- Cuatro casos nuevos cubren contraseña incorrecta, usuario desconocido,
+  usuario inactivo y cierre de una sesión sin afectar otra.
+- Validación: 37 pruebas backend aprobadas fuera del sandbox, una advertencia;
+  temporal `.tmp/pytest-32c-final`. Diff revisado sin errores de whitespace.
+- La Etapa 32 continúa abierta.
+
+---
+
 ## Etapa 32B - Separación de sesiones y autorización por rol
 
 - Validación de sesión y autorización movidas a `backend/app/auth.py`.

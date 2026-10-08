@@ -239,6 +239,18 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Commit `e754f09f4c6b4e9d7dbab21aedaef9323579f418`; CI `37860358716` aprobada.
   La Etapa 32 continúa abierta.
 
+## Entrega 32C: login, logout y consulta de usuario
+
+- Implementada y validada localmente; pendiente de publicación y CI.
+- Lógica en `backend/app/auth.py`; rutas, modelos y dependencias en `main.py`.
+- Token aleatorio, hash persistido, duración de ocho horas, respuestas y
+  revocación conservados. Exportaciones de compatibilidad mantenidas.
+- Cuatro casos nuevos cubren contraseña incorrecta, usuario desconocido,
+  usuario inactivo y cierre de una sesión sin afectar otra.
+- Validación: 37 pruebas backend aprobadas fuera del sandbox, una advertencia;
+  temporal `.tmp/pytest-32c-final`. Diff revisado sin errores de whitespace.
+- La Etapa 32 continúa abierta.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -323,8 +335,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de 32C: login, logout y consulta de usuario.
-32B está publicada y su CI aprobada; la Etapa 32 continúa abierta.
+Revisar y autorizar la publicación de 32C y comprobar su CI.
+Después, revisar los criterios de cierre de la Etapa 32.
 
 ## Fuentes
 

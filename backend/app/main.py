@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import secrets
 import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Literal
 from contextlib import asynccontextmanager
 
@@ -485,83 +485,14 @@ def health() -> dict[str, str]:
 @app.post("/auth/login")
 def login(data: LoginRequest) -> dict[str, str]:
     """Autentica al usuario y crea una sesión persistente."""
+    return auth.login(data.username, data.password, get_connection)
 
-    connection = get_connection()
-
-    user = connection.execute(
-        """
-        SELECT
-            id,
-            username,
-            password_hash,
-            password_salt,
-            role,
-            active
-        FROM users
-        WHERE username = ?
-        """,
-        (data.username,),
-    ).fetchone()
-
-    credentials_are_valid = (
-        user is not None
-        and user["active"] == 1
-        and verify_password(
-            data.password,
-            user["password_salt"],
-            user["password_hash"],
-        )
-    )
-
-    if not credentials_are_valid:
-        connection.close()
-        raise HTTPException(
-            status_code=401,
-            detail="Credenciales inválidas",
-        )
-
-    token = secrets.token_urlsafe(32)
-    created_at = datetime.now(timezone.utc)
-    expires_at = created_at + timedelta(
-        hours=SESSION_DURATION_HOURS
-    )
-
-    connection.execute(
-        """
-        INSERT INTO sessions (
-            user_id,
-            token_hash,
-            created_at,
-            expires_at,
-            revoked_at
-        )
-        VALUES (?, ?, ?, ?, NULL)
-        """,
-        (
-            user["id"],
-            hash_session_token(token),
-            created_at.isoformat(),
-            expires_at.isoformat(),
-        ),
-    )
-
-    connection.commit()
-    connection.close()
-
-    return {
-        "access_token": token,
-        "username": user["username"],
-        "role": user["role"],
-    }
 
 @app.get("/auth/me")
 def authenticated_session(
     user: dict[str, str] = Depends(authenticated_user),
 ) -> dict[str, str]:
-    return {
-        "username": user["username"],
-        "role": user["role"],
-    }
+    return auth.session_user(user)
 
 
 @app.post("/auth/logout")
@@ -570,30 +501,8 @@ def logout(
     user: dict[str, str] = Depends(authenticated_user),
 ) -> dict[str, str]:
     """Revoca la sesión persistente utilizada por la petición."""
+    return auth.logout(authorization, user, get_connection, utc_now)
 
-    token = (authorization or "").removeprefix("Bearer ")
-    connection = get_connection()
-
-    connection.execute(
-        """
-        UPDATE sessions
-        SET revoked_at = ?
-        WHERE token_hash = ?
-        AND revoked_at IS NULL
-        """,
-        (
-            utc_now(),
-            hash_session_token(token),
-        ),
-    )
-
-    connection.commit()
-    connection.close()
-
-    return {
-        "message": "Sesión cerrada correctamente",
-        "username": user["username"],
-    }
 
 @app.get("/dashboard")
 def dashboard(
