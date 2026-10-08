@@ -210,17 +210,20 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Criterios cumplidos con las validaciones de 31C; sin nueva ejecución de pruebas.
 - Referencias anteriores a Etapa 31 abierta conservadas como estado histórico.
 
-## Propuesta 32A: hash y verificación
+## Entrega 32A: hash y verificación
 
-- Extraer `hash_session_token`, `hash_password` y `verify_password`
+- Alcance autorizado e implementado localmente: `hash_session_token`, `hash_password` y `verify_password`
   a `backend/app/security.py`, conservando SHA-256, PBKDF2, sal aleatoria,
   iteraciones, comparación y formatos de retorno actuales.
-- Usar la constante existente de `config.py`; mantener las funciones
+- Usa la constante existente de `config.py`; mantiene las funciones
   accesibles desde `main.py` para consumidores y pruebas actuales.
-- No mover todavía validación de sesiones, dependencias de roles ni endpoints.
-- Añadir cobertura de formatos, verificación correcta/incorrecta y compatibilidad
-  con hashes persistidos; validar backend con SQLite temporal.
-- Propuesta pendiente de autorización; no implementada.
+- Validación de sesiones, dependencias de roles y endpoints permanecen en `main.py`.
+- Tres pruebas nuevas de formatos, verificación correcta/incorrecta, sal aleatoria,
+  compatibilidad con hashes existentes y acceso desde `main.py`.
+- Validación: 22 pruebas backend aprobadas fuera del sandbox, una advertencia;
+  SQLite temporal en `.tmp/pytest-32a-verified`.
+- Entrega local sin publicar; commit y push pendientes de autorización.
+  La Etapa 32 continúa abierta.
 
 ## Etapas propuestas
 
@@ -306,8 +309,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar y autorizar 32A: extracción de funciones de hash y verificación.
-La Etapa 31 cumple sus criterios de cierre; 32A no está implementada.
+Revisar la entrega local 32A antes de autorizar su commit y publicación.
+La Etapa 32 continúa abierta; 32B requiere alcance y autorización.
 
 ## Fuentes
 

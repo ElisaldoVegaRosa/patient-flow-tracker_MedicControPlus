@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 32A - Extracción de hash y verificación
+
+- Tres funciones movidas a `backend/app/security.py`, importadas en `main.py`.
+- SHA-256, PBKDF2, sal aleatoria, iteraciones, comparación y formatos conservados.
+- Tres pruebas nuevas de formato, verificación, sal, compatibilidad y acceso
+  desde `main.py`; las funciones coinciden con las originales.
+- Validación: 22 pruebas backend aprobadas fuera del sandbox, una advertencia.
+  Temporal `.tmp/pytest-32a-verified`; diagnóstico de bloqueo de socketpair
+  de asyncio en la ejecución dentro del sandbox, que fue interrumpida.
+- Diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios frontend, endpoints, validación de sesiones, roles ni datos demo.
+- Entrega local sin publicar. La Etapa 32 continúa abierta.
+
+---
+
 ## Cierre documental de Etapa 31
 
 - Criterios cumplidos tras 31A–31C: configuración, conexiones e inicialización

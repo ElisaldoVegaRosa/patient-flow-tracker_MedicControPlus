@@ -2,6 +2,10 @@
 
 ## Última etapa
 
+Etapa 32A - Hash y verificación extraídos a `security.py`; entrega local sin publicar.
+Algoritmos, sal, iteraciones, comparación y formatos conservados; funciones
+accesibles desde `main.py`. La Etapa 32 continúa abierta.
+
 Etapa 31 - Cerrada tras 31A–31C: configuración, conexiones e inicialización
 separadas, conservando endpoints, esquema, datos y arranque.
 Revisión basada en el código de `138eb02` y validaciones aprobadas de 31C.
@@ -89,6 +93,16 @@ Cerrada y publicada en el commit
 
 
 ## Estado de validación
+
+- Etapa 32A: 22 pruebas backend aprobadas, una advertencia observada.
+- Tres pruebas nuevas cubren SHA-256, formato y sal PBKDF2, verificación
+  correcta/incorrecta, compatibilidad existente y acceso desde `main.py`.
+- Validación fuera del sandbox con `--basetemp .tmp/pytest-32a-verified`
+  y `-o faulthandler_timeout=60`; ejecución dentro del sandbox interrumpida
+  tras diagnóstico de bloqueo en socketpair de asyncio al iniciar TestClient.
+- Funciones comparadas con el original; diff revisado y
+  `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin nuevas validaciones frontend: sin cambios frontend.
 
 - Cierre de Etapa 31: 19 pruebas backend aprobadas en 31C;
   CI `37857021915` y CI documental `37857173485` aprobadas.
@@ -339,8 +353,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar 32A: extracción de funciones de hash y verificación.
-La Etapa 31 cumple sus criterios de cierre; 32A no está implementada.
+Revisar la entrega local 32A antes de autorizar su commit y publicación.
+La Etapa 32 continúa abierta; 32B requiere alcance y autorización.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
