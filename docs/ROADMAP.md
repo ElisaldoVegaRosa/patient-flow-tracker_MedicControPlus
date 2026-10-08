@@ -89,6 +89,21 @@ Plan reconstruido propuesto; no recuperado del chat original
   aprobada con pruebas backend, frontend, lint y build.
   La Etapa 30 permanece abierta; las siguientes entregas requieren aprobación.
 
+## Entrega 30F: SupervisorPage
+
+- Alcance autorizado e implementado localmente: extracción del centro de
+  control del supervisor a `frontend/src/pages/SupervisorPage.tsx`.
+- Sin estado propio. Recibe `supervisorData`, `supervisorFilter`,
+  `rulesMessage`, `evaluatingRules` y callbacks `onLoadDemo`,
+  `onEvaluateRules`, `onRefresh`, `onFilterChange` y `onOpenEpisode`.
+- Conserva indicadores, tabla, filtros, textos, acciones y CSS. Reutiliza
+  `SupervisorData`; estado, API, errores, permisos y navegación siguen en `App.tsx`.
+- Seis casos nuevos cubren filtros, indicadores, apertura, actualización
+  y acceso por rol; conservadas las pruebas de reglas temporales.
+- Validación local: 38 pruebas frontend, lint y build aprobados.
+- Entrega local sin publicar; commit y push pendientes de autorización.
+  La Etapa 30 continúa abierta.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -173,8 +188,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de la siguiente extracción de la Etapa 30.
-La entrega 30E está publicada y su CI aprobada; la Etapa 30 continúa abierta.
+Revisar la entrega local 30F antes de autorizar su commit y publicación.
+La Etapa 30 continúa abierta; las siguientes entregas requieren alcance y aprobación.
 
 ## Fuentes
 

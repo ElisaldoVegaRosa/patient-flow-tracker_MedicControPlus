@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30F - Extracción de SupervisorPage
+
+- Centro de control del supervisor extraído a `frontend/src/pages/SupervisorPage.tsx`,
+  con datos, filtro, mensaje, estado de evaluación y callbacks; sin estado propio.
+- Indicadores, tabla, filtros, textos, acciones y CSS conservados.
+  Estado, API, carga, errores, permisos y navegación permanecen en `App.tsx`.
+- Seis casos nuevos cubren filtros, indicadores, apertura del episodio,
+  actualización que restablece Todos y ausencia de acceso para otros roles.
+- Conservadas las pruebas de evaluación explícita de reglas y errores.
+- Validación: 38 pruebas frontend, lint y build aprobados.
+- Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
+- Entrega local sin publicar. La Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 30E - Extracción de LaboratoryPage
 
 - Bandeja «Órdenes pendientes» extraída a `frontend/src/pages/LaboratoryPage.tsx`,
