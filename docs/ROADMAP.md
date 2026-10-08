@@ -227,7 +227,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 32B: sesiones y autorización por rol
 
-- Alcance autorizado e implementado localmente: `auth.validate_session`
+- Entrega cerrada y publicada: `auth.validate_session`
   y `auth.authorize_role` en `backend/app/auth.py`.
 - Validación recibe cabecera, fábrica de conexiones y función de fecha.
   Conserva consulta, expiración, revocación, usuario activo y respuestas 401.
@@ -236,7 +236,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Login, logout y `/auth/me` permanecen en `main.py`.
 - Once casos nuevos cubren estados de sesión y autorización por rol.
 - Validación: 33 pruebas backend aprobadas fuera del sandbox, una advertencia.
-- Entrega local sin publicar; commit y push pendientes de autorización.
+- Commit `e754f09f4c6b4e9d7dbab21aedaef9323579f418`; CI `37860358716` aprobada.
   La Etapa 32 continúa abierta.
 
 ## Etapas propuestas
@@ -323,9 +323,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega local 32B antes de autorizar su commit y publicación.
-La Etapa 32 continúa abierta; 32C (login, logout y consulta de usuario)
-requiere alcance y autorización.
+Definir y aprobar el alcance de 32C: login, logout y consulta de usuario.
+32B está publicada y su CI aprobada; la Etapa 32 continúa abierta.
 
 ## Fuentes
 

@@ -16,7 +16,9 @@ las verificaciones realizadas y el estado de cada etapa.
 - Lógica comparada con el original; diff revisado y `git diff --check`
   sin errores, incluidos los archivos nuevos.
 - Sin cambios frontend, endpoints de autenticación, esquema ni datos demo.
-- Entrega local sin publicar. La Etapa 32 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `e754f09f4c6b4e9d7dbab21aedaef9323579f418`; CI `37860358716` aprobada.
+  La Etapa 32 continúa abierta.
 
 ---
 
