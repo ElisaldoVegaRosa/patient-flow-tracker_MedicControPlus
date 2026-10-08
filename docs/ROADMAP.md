@@ -241,7 +241,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 32C: login, logout y consulta de usuario
 
-- Implementada y validada localmente; pendiente de publicación y CI.
+- Entrega cerrada y publicada en
+  `65e2b3cd21999971f1f96405ff282d085d7177e4`; CI `37862024711` aprobada.
 - Lógica en `backend/app/auth.py`; rutas, modelos y dependencias en `main.py`.
 - Token aleatorio, hash persistido, duración de ocho horas, respuestas y
   revocación conservados. Exportaciones de compatibilidad mantenidas.
@@ -335,8 +336,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar y autorizar la publicación de 32C y comprobar su CI.
-Después, revisar los criterios de cierre de la Etapa 32.
+Revisar los criterios de cierre de la Etapa 32 tras 32A–32C.
+32C está publicada y su CI aprobada; la Etapa 32 continúa abierta.
 
 ## Fuentes
 

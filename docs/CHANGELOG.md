@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Etapa 32C - Separación de endpoints de autenticación
 
-- Implementada y validada localmente; pendiente de publicación y CI.
+- Entrega cerrada y publicada en
+  `65e2b3cd21999971f1f96405ff282d085d7177e4`; CI `37862024711` aprobada.
 - Lógica en `backend/app/auth.py`; rutas, modelos y dependencias en `main.py`.
 - Token aleatorio, hash persistido, duración de ocho horas, respuestas y
   revocación conservados. Exportaciones de compatibilidad mantenidas.
