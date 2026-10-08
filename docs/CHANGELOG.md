@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 31A - Extracción de configuración backend
+
+- Constantes `DATABASE_PATH`, `DEMO_USERS`, `PASSWORD_HASH_ITERATIONS` y
+  `SESSION_DURATION_HOURS` movidas a `backend/app/config.py`.
+- Valores y ruta SQLite conservados; `main.DATABASE_PATH` mantiene la sustitución
+  utilizada por las pruebas. Funciones y clases de `main.py` conservadas.
+- Dos pruebas nuevas de ruta por defecto y conexión con sustitución temporal.
+- Validación: 16 pruebas backend aprobadas, tres advertencias conocidas;
+  diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios frontend, endpoints, esquema ni datos demo.
+- Entrega local sin publicar. La Etapa 31 continúa abierta.
+
+---
+
 ## Cierre documental de Etapa 30
 
 - Revisión de criterios tras 30A–30I: ocho páginas y `AppHeader` separados;

@@ -5,7 +5,6 @@ import json
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from typing import Literal
 from contextlib import asynccontextmanager
 
@@ -13,35 +12,12 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-
-DATABASE_PATH = Path(__file__).parents[1] / "clinical.db"
-
-DEMO_USERS = {
-    "recepcion": {
-        "password": "demo123",
-        "role": "RECEPTION",
-    },
-    "enfermeria": {
-        "password": "demo123",
-        "role": "NURSE",
-    },
-    "medico": {
-        "password": "demo123",
-        "role": "DOCTOR",
-    },
-    "laboratorio": {
-        "password": "demo123",
-        "role": "LAB",
-    },
-    "supervisor": {
-        "password": "demo123",
-        "role": "SUPERVISOR",
-    },
-}
-
-PASSWORD_HASH_ITERATIONS = 210_000
-
-SESSION_DURATION_HOURS = 8
+from .config import (
+    DATABASE_PATH,
+    DEMO_USERS,
+    PASSWORD_HASH_ITERATIONS,
+    SESSION_DURATION_HOURS,
+)
 
 
 def hash_session_token(token: str) -> str:

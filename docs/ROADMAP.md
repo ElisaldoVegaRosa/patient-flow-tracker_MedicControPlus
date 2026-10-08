@@ -158,18 +158,20 @@ Plan reconstruido propuesto; no recuperado del chat original
   publicado en `9ed4dbf`, CI `37726240159` aprobada; las referencias anteriores a Etapa 30
   abierta describen el estado histórico de cada entrega.
 
-## Propuesta 31A: configuración del backend
+## Entrega 31A: configuración del backend
 
-- Crear `backend/app/config.py` con las constantes existentes
+- Alcance autorizado e implementado localmente: `backend/app/config.py` con
   `DATABASE_PATH`, `DEMO_USERS`, `PASSWORD_HASH_ITERATIONS` y
   `SESSION_DURATION_HOURS`, conservando valores y ruta efectiva de SQLite.
-- Importarlas en `main.py`; conservar `main.DATABASE_PATH` como punto
+- Importadas en `main.py`; se conserva `main.DATABASE_PATH` como punto
   de sustitución usado por las pruebas con SQLite temporal.
-- Mantener conexiones, inicialización, autenticación, CORS y rutas en
+- Conexiones, inicialización, autenticación, CORS y rutas permanecen en
   `main.py`; sin cambios de endpoints, esquema ni datos.
-- Validación prevista: suite backend con el Python local y SQLite temporal;
-  comprobar ruta efectiva y constantes, sin abrir ni modificar la base demo.
-- Propuesta pendiente de autorización; no implementada.
+- Validación: 16 pruebas backend aprobadas, con tres advertencias conocidas,
+  usando Python local y SQLite temporal. Dos pruebas nuevas de ruta y sustitución.
+- Constantes y funciones conservadas; sin acceso a la base demo durante la validación.
+- Entrega local sin publicar; commit y push pendientes de autorización.
+  La Etapa 31 continúa abierta.
 
 ## Etapas propuestas
 
@@ -255,9 +257,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar y autorizar la propuesta 31A: extraer la configuración existente del
-backend. Su implementación permanece pendiente. La Etapa 30 está cerrada
-y su cierre documental publicado.
+Revisar la entrega local 31A antes de autorizar su commit y publicación.
+La Etapa 31 continúa abierta; 31B (conexiones SQLite) requiere alcance
+y aprobación antes de implementarse.
 
 ## Fuentes
 
