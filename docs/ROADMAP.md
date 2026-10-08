@@ -133,7 +133,7 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 30I: AppHeader
 
-- Alcance autorizado e implementado localmente: extracción de la cabecera
+- Entrega cerrada y publicada: extracción de la cabecera
   a `frontend/src/components/AppHeader.tsx`, sin estado propio.
 - Recibe `user` y callbacks `onDashboard`, `onSupervisor`, `onScan`,
   `onHistory`, `onLaboratory`, `onNewEpisode` y `onLogout`.
@@ -141,8 +141,8 @@ Plan reconstruido propuesto; no recuperado del chat original
   Navegación, sesión y API permanecen en `App.tsx`.
 - Cinco casos nuevos cubren botones visibles y acciones de los cinco roles.
 - Validación local: 46 pruebas frontend, lint y build aprobados.
-- Entrega local sin publicar; commit y push pendientes de autorización.
-  La Etapa 30 continúa abierta; revisar sus criterios de cierre tras publicar.
+- Commit `a80d42c5394930579f43491ff47bfd57b11cc2f9`; CI `37725349264` aprobada.
+  La Etapa 30 continúa abierta; revisar sus criterios de cierre.
 
 ## Etapas propuestas
 
@@ -228,8 +228,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega local 30I antes de autorizar su commit y publicación.
-Después, revisar los criterios de cierre de la Etapa 30 antes de proponer otra extracción.
+Revisar los criterios de cierre de la Etapa 30 antes de proponer otra extracción.
+La entrega 30I está publicada y su CI aprobada; la Etapa 30 continúa abierta.
 
 ## Fuentes
 
