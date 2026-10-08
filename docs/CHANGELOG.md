@@ -5,6 +5,23 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 31C - Extracción de inicialización SQLite
+
+- Esquema y carga inicial de usuarios demo movidos a `database.py`;
+  wrapper y arranque en `main.py` conservados.
+- Conexión, usuarios y funciones de hash y fecha recibidos como parámetros.
+  SQL, commit y cierre conservados; solo se elimina espacio final en una línea SQL vacía.
+- Prueba nueva de reinicialización que conserva esquema, usuarios, sesiones
+  y episodios y verifica contraseñas demo.
+- Validación: 19 pruebas backend aprobadas fuera del sandbox, una advertencia.
+  Temporal `.tmp/pytest-31c-verified`, con diagnóstico de bloqueo activado;
+  temporal habitual rechazado por permisos y ejecución anterior interrumpida.
+- Diff revisado y `git diff --check` sin errores, incluido el archivo nuevo.
+- Sin cambios frontend, endpoints, esquema ni datos demo locales.
+- Entrega local sin publicar. La Etapa 31 continúa abierta.
+
+---
+
 ## Etapa 31B - Extracción de conexiones SQLite
 
 - Creación de conexiones movida a `backend/app/database.py`, con ruta explícita.

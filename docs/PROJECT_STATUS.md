@@ -2,6 +2,11 @@
 
 ## Última etapa
 
+Etapa 31C - Inicialización SQLite extraída; entrega local sin publicar.
+SQL y carga inicial de usuarios en `database.py`; wrapper en `main.py`
+conserva conexión, usuarios demo y funciones de hash y fecha. Arranque intacto.
+La Etapa 31 continúa abierta.
+
 Etapa 31B - Creación de conexiones SQLite extraída; cerrada y publicada
 en el commit `376d59d85143371af407139f8ec459ced3e6dec5`.
 `backend/app/database.py` recibe la ruta explícita y conserva `sqlite3.Row`
@@ -78,6 +83,17 @@ Cerrada y publicada en el commit
 
 
 ## Estado de validación
+
+- Etapa 31C: 19 pruebas backend aprobadas, una advertencia observada.
+- Prueba nueva de reinicialización: conserva esquema, usuarios, sesiones
+  y episodios; verifica contraseñas demo persistidas.
+- Validación fuera del sandbox con `--basetemp .tmp/pytest-31c-verified`
+  y `-o faulthandler_timeout=60`. El temporal habitual falló por permisos;
+  una ejecución en otro temporal dentro del sandbox dejó de avanzar y se interrumpió.
+- El conteo de advertencias difiere de ejecuciones anteriores; no se atribuye
+  al refactor. Sin cambios frontend ni nueva validación frontend.
+- SQL y lógica comparados con el original; diff revisado y
+  `git diff --check` sin errores, incluido el archivo nuevo.
 
 - Etapa 31B: 18 pruebas backend aprobadas, con tres advertencias conocidas.
 - Etapa 31B: CI `37727737285` aprobada.
@@ -310,8 +326,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir y aprobar el alcance de 31C: extracción de inicialización SQLite.
-31B está publicada y su CI aprobada; la Etapa 31 continúa abierta.
+Revisar la entrega local 31C antes de autorizar su commit y publicación.
+Después, revisar los criterios de cierre de la Etapa 31.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

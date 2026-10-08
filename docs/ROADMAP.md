@@ -186,6 +186,20 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Commit `376d59d85143371af407139f8ec459ced3e6dec5`; CI `37727737285` aprobada.
   La Etapa 31 continúa abierta.
 
+## Entrega 31C: inicialización SQLite
+
+- Alcance autorizado e implementado localmente: inicialización del esquema
+  y usuarios demo en `database.initialize_database`.
+- Recibe conexión, usuarios demo, función de hash y función de fecha;
+  sin dependencias circulares. SQL, commit y cierre de conexión conservados.
+- Wrapper `main.initialize_database()` y arranque FastAPI conservados.
+- Prueba nueva de reinicialización sin duplicados ni pérdida de esquema,
+  usuarios, sesiones o episodios.
+- Validación: 19 pruebas backend aprobadas fuera del sandbox, una advertencia
+  observada; temporal `.tmp/pytest-31c-verified` por problemas del temporal habitual.
+- Entrega local sin publicar; commit y push pendientes de autorización.
+  La Etapa 31 continúa abierta; revisar sus criterios de cierre tras publicar.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -270,8 +284,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de 31C: extracción de inicialización SQLite.
-31B está publicada y su CI aprobada; la Etapa 31 continúa abierta.
+Revisar la entrega local 31C antes de autorizar su commit y publicación.
+Después, revisar los criterios de cierre de la Etapa 31.
 
 ## Fuentes
 
