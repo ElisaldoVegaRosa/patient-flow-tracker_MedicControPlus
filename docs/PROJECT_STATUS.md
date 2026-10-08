@@ -2,6 +2,11 @@
 
 ## Última etapa
 
+Etapa 31B - Creación de conexiones SQLite extraída; entrega local sin publicar.
+`backend/app/database.py` recibe la ruta explícita y conserva `sqlite3.Row`
+y claves foráneas. Wrapper en `main.py` mantiene `main.DATABASE_PATH`.
+Inicialización, consultas y rutas conservadas; la Etapa 31 continúa abierta.
+
 Etapa 31A - Configuración backend extraída; cerrada y publicada en el commit
 `26a6567758c4ad324d642307e86524e6f760b5e9`.
 `DATABASE_PATH`, `DEMO_USERS`, `PASSWORD_HASH_ITERATIONS` y
@@ -72,6 +77,13 @@ Cerrada y publicada en el commit
 
 
 ## Estado de validación
+
+- Etapa 31B: 18 pruebas backend aprobadas, con tres advertencias conocidas.
+- Dos pruebas nuevas comprueban filas por nombre, rechazo de referencias
+  inexistentes y separación entre bases temporales.
+- Se conserva la prueba de sustitución de `main.DATABASE_PATH`.
+- Diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin nuevas validaciones frontend: sin cambios frontend.
 
 - Etapa 31A: 16 pruebas backend aprobadas, con tres advertencias conocidas.
 - Etapa 31A: CI `37727047490` aprobada.
@@ -296,8 +308,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir y aprobar el alcance de 31B: extracción de conexiones SQLite.
-31A está publicada y su CI aprobada; la Etapa 31 continúa abierta.
+Revisar la entrega local 31B antes de autorizar su commit y publicación.
+La Etapa 31 continúa abierta; 31C (inicialización SQLite) requiere alcance
+y aprobación antes de implementarse.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

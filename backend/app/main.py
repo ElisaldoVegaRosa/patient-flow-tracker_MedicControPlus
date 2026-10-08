@@ -12,6 +12,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from . import database
 from .config import (
     DATABASE_PATH,
     DEMO_USERS,
@@ -66,10 +67,7 @@ def utc_now() -> str:
 
 
 def get_connection() -> sqlite3.Connection:
-    connection = sqlite3.connect(DATABASE_PATH)
-    connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA foreign_keys = ON")
-    return connection
+    return database.get_connection(DATABASE_PATH)
 
 
 def initialize_database() -> None:

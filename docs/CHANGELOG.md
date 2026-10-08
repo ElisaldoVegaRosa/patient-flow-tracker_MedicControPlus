@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 31B - Extracción de conexiones SQLite
+
+- Creación de conexiones movida a `backend/app/database.py`, con ruta explícita.
+- `sqlite3.Row` y claves foráneas conservados. Wrapper en `main.py` mantiene
+  la sustitución de `main.DATABASE_PATH` usada por las pruebas.
+- Dos pruebas nuevas de filas por nombre, integridad referencial y separación
+  de bases; conservada la cobertura del wrapper con ruta temporal.
+- Validación: 18 pruebas backend aprobadas, tres advertencias conocidas;
+  diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios frontend, inicialización, consultas, endpoints, esquema ni datos demo.
+- Entrega local sin publicar. La Etapa 31 continúa abierta.
+
+---
+
 ## Etapa 31A - Extracción de configuración backend
 
 - Constantes `DATABASE_PATH`, `DEMO_USERS`, `PASSWORD_HASH_ITERATIONS` y

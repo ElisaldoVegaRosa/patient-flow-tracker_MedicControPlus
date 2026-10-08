@@ -173,6 +173,19 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Commit `26a6567758c4ad324d642307e86524e6f760b5e9`; CI `37727047490` aprobada.
   La Etapa 31 continúa abierta.
 
+## Entrega 31B: conexiones SQLite
+
+- Alcance autorizado e implementado localmente: creación de conexiones en
+  `backend/app/database.py`, mediante `get_connection(database_path)`.
+- Conserva `sqlite3.Row` y `PRAGMA foreign_keys = ON`.
+- Wrapper `main.get_connection()` pasa `main.DATABASE_PATH`, conservando
+  la sustitución existente en pruebas; inicialización, consultas y rutas intactas.
+- Dos pruebas nuevas de filas por nombre, integridad referencial y aislamiento
+  entre bases. Conservada la cobertura del wrapper con ruta temporal.
+- Validación: 18 pruebas backend aprobadas, tres advertencias conocidas.
+- Entrega local sin publicar; commit y push pendientes de autorización.
+  La Etapa 31 continúa abierta.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -257,8 +270,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de 31B: extracción de conexiones SQLite.
-31A está publicada y su CI aprobada; la Etapa 31 continúa abierta.
+Revisar la entrega local 31B antes de autorizar su commit y publicación.
+La Etapa 31 continúa abierta; 31C (inicialización SQLite) requiere alcance
+y aprobación antes de implementarse.
 
 ## Fuentes
 
