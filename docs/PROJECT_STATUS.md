@@ -2,7 +2,12 @@
 
 ## Última etapa
 
-Etapa 30B - ScanPage extraído; entrega local sin publicar.
+Etapa 30C - NewEpisodePage extraído; entrega local sin publicar.
+Formulario de llegada conservado; creación, errores, permisos y navegación
+permanecen en `App.tsx`. La Etapa 30 continúa abierta.
+
+Etapa 30B - ScanPage extraído; cerrada y publicada en el commit
+`37864c1a4dfd027c0796bb7aaaee846451c70b40`.
 El formulario conserva textos, campo obligatorio y estilos. La consulta API,
 el estado, los errores y la navegación permanecen en `App.tsx`.
 
@@ -20,12 +25,17 @@ Cerrada y publicada en el commit
 
 ## Estado de validación
 
+- Etapa 30C: 23 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluido el componente nuevo.
+- Sin pruebas backend nuevas: extracción limitada al frontend.
+
 - Etapa 30B: 21 pruebas frontend, lint y build aprobados; diff revisado y
   `git diff --check` sin errores, incluido `ScanPage.tsx`.
 - La prueba nueva se ajustó para comprobar el mensaje visible del aviso de
   error existente, sin cambiar la UI ni ampliar tiempos de espera.
-- Sin pruebas backend nuevas: extracción limitada al frontend. 30B queda
-  pendiente de commit, publicación y CI propia.
+- Sin pruebas backend locales nuevas: extracción limitada al frontend.
+- Etapa 30B: CI aprobada en la ejecución `37717881092`, incluyendo pruebas
+  backend, pruebas frontend, lint y build.
 
 - Etapa 30A: 20 pruebas frontend aprobadas; lint y build aprobados.
   Pruebas y lint completados tras el reinicio del equipo; se conserva el build
@@ -177,8 +187,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega 30B y definir el alcance de la siguiente entrega de la
-Etapa 30 antes de autorizar su implementación.
+Revisar la entrega 30C y definir el alcance de la siguiente entrega de la
+Etapa 30 antes de implementarla.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

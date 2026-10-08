@@ -36,14 +36,26 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 - Alcance aprobado: extraer la pantalla «Escanear pulsera» a `ScanPage`, sin
   estado propio; conservar formulario, textos, estilos y campo obligatorio.
-- Implementada localmente. Consulta API, errores, permisos y navegación
+- Cerrada y publicada. Consulta API, errores, permisos y navegación
   permanecen en `App.tsx`; sin cambios de comportamiento.
 - Prueba añadida para el rechazo de la consulta, manteniendo el formulario;
   se conservan los casos existentes de apertura de episodios por token.
 - Validaciones locales: 21 pruebas frontend, lint y build aprobados;
   `git diff --check` sin errores.
-- Pendiente de commit y publicación. No completa la Etapa 30 ni autoriza
-  la implementación de las siguientes entregas.
+- Commit `37864c1a4dfd027c0796bb7aaaee846451c70b40`; CI `37717881092`
+  aprobada. No completa la Etapa 30 ni autoriza la implementación de las
+  siguientes entregas.
+
+## Entrega 30C
+
+- Alcance aprobado e implementado localmente: extracción de «Registrar llegada»
+  a `NewEpisodePage`, sin estado propio y con callback `onSubmit`.
+- Campos, textos, valores iniciales y estilos conservados. Creación del episodio,
+  API, errores, permisos y navegación permanecen en `App.tsx`.
+- Pruebas añadidas de ingreso correcto y rechazo de la API.
+- Validaciones: 23 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores.
+- No completa la Etapa 30; publicación y siguientes entregas requieren aprobación.
 
 ## Etapas propuestas
 
@@ -129,8 +141,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega 30B y definir el alcance de la siguiente entrega de la
-Etapa 30 antes de autorizar su implementación.
+Revisar la entrega 30C y definir el alcance de la siguiente entrega de la
+Etapa 30 antes de implementarla.
 
 ## Fuentes
 

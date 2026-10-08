@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30C - Extracción de NewEpisodePage
+
+- Pantalla «Registrar llegada» extraída a `frontend/src/pages/NewEpisodePage.tsx`,
+  sin estado propio y con un callback `onSubmit` tipado para el formulario.
+- Campos, textos, valores iniciales y estilos conservados. Creación del episodio,
+  consulta API, errores, permisos y navegación permanecen en `App.tsx`.
+- Dos pruebas de integración añadidas: ingreso correcto con apertura del episodio
+  y actualización del dashboard; rechazo de la API conservando el formulario.
+- Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
+- Validación: 23 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores. Sin pruebas backend nuevas: cambio de frontend.
+- Entrega local; la Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 30B - Extracción de ScanPage
 
 - Pantalla «Escanear pulsera» extraída a `frontend/src/pages/ScanPage.tsx`,
@@ -17,7 +32,9 @@ las verificaciones realizadas y el estado de cada etapa.
   y `git diff --check` sin errores. La prueba nueva se corrigió para comprobar
   el mensaje visible del aviso existente, sin modificar la UI ni sus tiempos.
 - Sin pruebas backend nuevas: extracción limitada al frontend.
-- Entrega local sin commit ni publicación; la Etapa 30 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `37864c1a4dfd027c0796bb7aaaee846451c70b40`; CI `37717881092` aprobada.
+  La Etapa 30 continúa abierta.
 
 ---
 

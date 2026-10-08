@@ -11,6 +11,80 @@
 
     import App from "./App";
 
+describe("Nuevo ingreso", () => {
+  beforeEach(() => localStorage.setItem("token", "token-de-prueba"));
+  afterEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  async function prepareAdmission(rejected = false) {
+    const episode: import("./types/clinical").Episode = {
+      id: 74, name: "Paciente de prueba", birth_date: "1990-01-15",
+      document: "QA-INGRESO", qr_token: "qr-ingreso", status: "ACTIVE",
+      priority: 3, location: "Recepción", started_at: "2026-10-07T12:00:00Z",
+      vitals: [], alerts: [], tasks: [], events: [],
+    };
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      if (path === "/episodes" && init?.method === "POST") {
+        return { ok: !rejected, status: rejected ? 409 : 201,
+          json: async () => rejected ? { detail: "Ingreso rechazado" } : episode } as Response;
+      }
+      if (init?.method && init.method !== "GET") throw new Error("Mutación inesperada");
+      const responses: Record<string, unknown> = {
+        "/auth/me": { username: "recepcion", role: "RECEPTION" },
+        "/dashboard": { active: 0, open_alerts: 0, patients: [], requested_by: "recepcion" },
+      };
+      if (!(path in responses)) throw new Error(`Petición inesperada: ${path}`);
+      return { ok: true, status: 200, json: async () => responses[path] } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(await screen.findByRole("button", { name: "Nuevo ingreso" }));
+    for (const label of ["Nombre completo", "Fecha de nacimiento", "Documento"]) {
+      expect(screen.getByLabelText(label)).toBeRequired();
+    }
+    expect(screen.getByLabelText("Prioridad inicial")).toHaveValue("3");
+    expect(screen.getByLabelText("Ubicación")).toHaveValue("Recepción");
+    fireEvent.change(screen.getByLabelText("Nombre completo"), { target: { value: episode.name } });
+    fireEvent.change(screen.getByLabelText("Fecha de nacimiento"), { target: { value: episode.birth_date } });
+    fireEvent.change(screen.getByLabelText("Documento"), { target: { value: episode.document } });
+    return { user, fetchMock, episode };
+  }
+
+  it("envía el ingreso con sus valores iniciales y abre el episodio creado", async () => {
+    const { user, fetchMock, episode } = await prepareAdmission();
+    const beforeSubmit = fetchMock.mock.calls.length;
+    await user.click(screen.getByRole("button", { name: "Crear episodio y pulsera" }));
+    expect(await screen.findByRole("heading", { name: episode.name })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Registrar llegada" })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.slice(beforeSubmit)).toEqual([
+      ["http://localhost:8000/episodes", expect.objectContaining({
+        method: "POST", body: JSON.stringify({ name: episode.name,
+          birth_date: episode.birth_date, document: episode.document,
+          priority: 3, location: "Recepción" }),
+      })],
+      ["http://localhost:8000/dashboard", expect.any(Object)],
+    ]);
+  });
+
+  it("muestra el rechazo de la API y conserva los datos del ingreso", async () => {
+    const { user, fetchMock, episode } = await prepareAdmission(true);
+    const beforeSubmit = fetchMock.mock.calls.length;
+    await user.click(screen.getByRole("button", { name: "Crear episodio y pulsera" }));
+    expect(await screen.findByText(/Ingreso rechazado/)).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Registrar llegada" })).toBeVisible();
+    expect(screen.getByLabelText("Nombre completo")).toHaveValue(episode.name);
+    expect(screen.getByLabelText("Fecha de nacimiento")).toHaveValue(episode.birth_date);
+    expect(screen.getByLabelText("Documento")).toHaveValue(episode.document);
+    expect(fetchMock.mock.calls.slice(beforeSubmit)).toEqual([
+      ["http://localhost:8000/episodes", expect.objectContaining({ method: "POST" })],
+    ]);
+  });
+});
+
 describe("Escaneo de pulsera", () => {
   beforeEach(() => localStorage.setItem("token", "token-de-prueba"));
   afterEach(() => {
