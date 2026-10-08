@@ -11,6 +11,48 @@
 
     import App from "./App";
 
+describe("Escaneo de pulsera", () => {
+  beforeEach(() => localStorage.setItem("token", "token-de-prueba"));
+  afterEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  it("muestra el rechazo de la consulta y conserva el formulario de escaneo", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = new URL(String(input)).pathname;
+      if (init?.method && init.method !== "GET") throw new Error("Mutación inesperada");
+      if (path === "/scan/qr-inexistente") {
+        return { ok: false, status: 404,
+          json: async () => ({ detail: "Pulsera no encontrada" }) } as Response;
+      }
+      const responses: Record<string, unknown> = {
+        "/auth/me": { username: "recepcion", role: "RECEPTION" },
+        "/dashboard": { active: 0, open_alerts: 0, patients: [], requested_by: "recepcion" },
+      };
+      if (!(path in responses)) throw new Error(`Petición inesperada: ${path}`);
+      return { ok: true, status: 200, json: async () => responses[path] } as Response;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(await screen.findByRole("button", { name: "Escanear pulsera" }));
+    const input = screen.getByPlaceholderText("Token de la pulsera");
+    expect(input).toBeRequired();
+    await user.type(input, "qr-inexistente");
+    const callsBeforeSubmit = fetchMock.mock.calls.length;
+    await user.click(screen.getByRole("button", { name: "Identificar paciente" }));
+    expect(await screen.findByText(/Pulsera no encontrada/)).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Escanear pulsera" })).toBeVisible();
+    expect(input).toHaveValue("qr-inexistente");
+    expect(fetchMock.mock.calls.slice(callsBeforeSubmit)).toEqual([
+      ["http://localhost:8000/scan/qr-inexistente", expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer token-de-prueba" }),
+      })],
+    ]);
+  });
+});
+
 describe("Historial de episodios", () => {
   beforeEach(() => localStorage.setItem("token", "token-de-prueba"));
   afterEach(() => {

@@ -20,16 +20,30 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 30A
 
-- Implementada localmente, sin publicar: extracción de `EpisodeHistoryPage`
+- Cerrada y publicada: extracción de `EpisodeHistoryPage`
   con `historyData`, `onRefresh` y `onOpenEpisode` como props.
 - Conserva `HistoryData`, CSS y presentación; la lógica y las llamadas API
   permanecen en `App.tsx`.
 - Cobertura añadida para historial vacío y actualización del historial;
   se conserva la prueba de consulta posterior al alta.
 - Validaciones locales: 20 pruebas frontend, lint y build aprobados;
-  `git diff --check` sin errores. Pendiente de commit y publicación.
+  `git diff --check` sin errores. Commit
+  `a77970cfa653af7b72254573063f2d5445ed9ee3`; CI `37716248936` aprobada.
 - Esta entrega no completa la Etapa 30. La siguiente entrega requiere definir
   su alcance y aprobar la tarea antes de implementarla.
+
+## Entrega 30B
+
+- Alcance aprobado: extraer la pantalla «Escanear pulsera» a `ScanPage`, sin
+  estado propio; conservar formulario, textos, estilos y campo obligatorio.
+- Implementada localmente. Consulta API, errores, permisos y navegación
+  permanecen en `App.tsx`; sin cambios de comportamiento.
+- Prueba añadida para el rechazo de la consulta, manteniendo el formulario;
+  se conservan los casos existentes de apertura de episodios por token.
+- Validaciones locales: 21 pruebas frontend, lint y build aprobados;
+  `git diff --check` sin errores.
+- Pendiente de commit y publicación. No completa la Etapa 30 ni autoriza
+  la implementación de las siguientes entregas.
 
 ## Etapas propuestas
 
@@ -115,7 +129,7 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega 30A y definir el alcance de la siguiente entrega de la
+Revisar la entrega 30B y definir el alcance de la siguiente entrega de la
 Etapa 30 antes de autorizar su implementación.
 
 ## Fuentes

@@ -2,7 +2,12 @@
 
 ## Última etapa
 
-Etapa 30A - EpisodeHistoryPage extraído; entrega local sin publicar.
+Etapa 30B - ScanPage extraído; entrega local sin publicar.
+El formulario conserva textos, campo obligatorio y estilos. La consulta API,
+el estado, los errores y la navegación permanecen en `App.tsx`.
+
+Etapa 30A - EpisodeHistoryPage extraído; cerrada y publicada en el commit
+`a77970cfa653af7b72254573063f2d5445ed9ee3`.
 La Etapa 30 continúa abierta. Estado, carga, errores, permisos, navegación y
 llamadas API permanecen en `App.tsx`; el componente reutiliza `HistoryData`
 y las clases CSS existentes sin cambios funcionales.
@@ -15,13 +20,19 @@ Cerrada y publicada en el commit
 
 ## Estado de validación
 
+- Etapa 30B: 21 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluido `ScanPage.tsx`.
+- La prueba nueva se ajustó para comprobar el mensaje visible del aviso de
+  error existente, sin cambiar la UI ni ampliar tiempos de espera.
+- Sin pruebas backend nuevas: extracción limitada al frontend. 30B queda
+  pendiente de commit, publicación y CI propia.
+
 - Etapa 30A: 20 pruebas frontend aprobadas; lint y build aprobados.
   Pruebas y lint completados tras el reinicio del equipo; se conserva el build
   aprobado antes del reinicio, sin cambios posteriores de código.
 - Etapa 30A: diff revisado y `git diff --check` sin errores, incluidos los
   archivos nuevos. Sin pruebas backend nuevas: entrega limitada al frontend.
-- Etapa 30A pendiente de commit y publicación; la CI citada abajo corresponde
-  al cierre anterior y no valida esta entrega local.
+- Etapa 30A: CI aprobada en la ejecución `37716248936`.
 
 ### Antecedentes de validación anteriores a 30A
 
@@ -166,7 +177,7 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega 30A y definir el alcance de la siguiente entrega de la
+Revisar la entrega 30B y definir el alcance de la siguiente entrega de la
 Etapa 30 antes de autorizar su implementación.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,

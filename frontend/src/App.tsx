@@ -4,6 +4,7 @@ import { QRCodeSVG } from "qrcode.react";
 import "./App.css";
 import { api } from "./api/client";
 import EpisodeHistoryPage from "./pages/EpisodeHistoryPage";
+import ScanPage from "./pages/ScanPage";
 import type {
   AlertHistoryEntry,
   DashboardData,
@@ -589,23 +590,7 @@ if (restoringSession) {
         </main>
       )}
 
-      {page === "scan" && (
-        <main className="container narrow">
-          <section className="panel scan-panel">
-            <h1>Escanear pulsera</h1>
-            <p>Pega el token seguro impreso bajo el QR.</p>
-
-            <form onSubmit={scanEpisode}>
-              <input
-                name="token"
-                placeholder="Token de la pulsera"
-                required
-              />
-              <button type="submit">Identificar paciente</button>
-            </form>
-          </section>
-        </main>
-      )}
+      {page === "scan" && <ScanPage onSubmit={scanEpisode} />}
 
       {page === "history" && historyData && (
         <EpisodeHistoryPage

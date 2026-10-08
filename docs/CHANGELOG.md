@@ -5,6 +5,22 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30B - Extracción de ScanPage
+
+- Pantalla «Escanear pulsera» extraída a `frontend/src/pages/ScanPage.tsx`,
+  sin estado propio y con un callback `onSubmit` tipado para el formulario.
+- Textos, campo obligatorio y clases CSS conservados. Consulta API, errores,
+  permisos y navegación permanecen en `App.tsx`; sin cambios funcionales.
+- Se conservan los casos existentes de apertura por token para los cinco roles
+  y se añade una prueba del rechazo de la consulta que conserva el formulario.
+- Validación final: 21 pruebas frontend, lint y build aprobados; diff revisado
+  y `git diff --check` sin errores. La prueba nueva se corrigió para comprobar
+  el mensaje visible del aviso existente, sin modificar la UI ni sus tiempos.
+- Sin pruebas backend nuevas: extracción limitada al frontend.
+- Entrega local sin commit ni publicación; la Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 30A - Extracción de EpisodeHistoryPage
 
 - Pantalla de historial extraída a `frontend/src/pages/EpisodeHistoryPage.tsx`.
@@ -18,7 +34,9 @@ las verificaciones realizadas y el estado de cada etapa.
   `git diff --check` sin errores. Se conserva el build anterior al reinicio del
   equipo, sin cambios posteriores de código; pruebas y lint completados al
   retomar. No se ejecutaron pruebas backend para esta extracción de frontend.
-- Entrega local sin publicar; la Etapa 30 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `a77970cfa653af7b72254573063f2d5445ed9ee3`; CI `37716248936` aprobada.
+  La Etapa 30 continúa abierta.
 
 ---
 
