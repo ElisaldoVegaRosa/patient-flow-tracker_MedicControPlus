@@ -60,14 +60,33 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 30D
 
-- Alcance aprobado e implementado localmente: extracción del centro de control
+- Entrega cerrada y publicada: extracción del centro de control
   general a `DashboardPage`, con datos y callbacks; sin estado propio.
 - Indicadores, cálculos, tabla, estado vacío y acciones conservados. Carga, API,
   errores, permisos y navegación permanecen en `App.tsx`.
 - Pruebas de integración para indicadores, apertura del paciente y actualización.
 - Validaciones locales: 25 pruebas frontend, lint y build aprobados;
   `git diff --check` sin errores.
-- No completa la Etapa 30; publicación y siguientes entregas requieren aprobación.
+- Commit `3a4616125d3733168b60a8bafc1aacaf41b8b41d`; CI `37719496231`
+  aprobada, según el resumen de continuidad.
+- No completa la Etapa 30; las siguientes entregas requieren aprobación.
+
+## Entrega 30E: LaboratoryPage
+
+- Alcance autorizado e implementado localmente: bandeja «Órdenes pendientes» extraída a
+  `frontend/src/pages/LaboratoryPage.tsx`, sin estado propio.
+- Props: `laboratoryQueue`, `onRefresh` y `onCompleteOrder`
+  (evento del formulario e identificador de orden). Reutiliza `LaboratoryQueue`
+  existente en `frontend/src/types/clinical.ts`.
+- Conservar contador, estado vacío, tarjetas, textos, CSS y validación
+  del resultado (`required` y `minLength`).
+- Mantener carga, API, errores, permisos, navegación y publicación en
+  `App.tsx`, mediante los callbacks existentes.
+- Siete casos nuevos de integración: bandeja vacía y actualización, presentación de órdenes,
+  envío correcto, rechazo de publicación y acceso por los roles permitidos.
+- Validación local: 32 pruebas frontend, lint y build aprobados.
+  La Etapa 30 permanece abierta. Commit y push autorizados; publicación y CI
+  pendientes de confirmar.
 
 ## Etapas propuestas
 
@@ -153,8 +172,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la entrega 30D y definir el alcance de la siguiente entrega de la
-Etapa 30 antes de implementarla.
+Completar la publicación autorizada de 30E y comprobar GitHub Actions.
+La siguiente extracción de la Etapa 30 requiere alcance y autorización.
 
 ## Fuentes
 

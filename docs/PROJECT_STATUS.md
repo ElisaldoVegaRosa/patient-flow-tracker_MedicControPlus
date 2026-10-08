@@ -2,7 +2,13 @@
 
 ## Última etapa
 
-Etapa 30D - DashboardPage extraído; entrega local sin publicar.
+Etapa 30E - LaboratoryPage extraído; validación local aprobada.
+Commit y push autorizados; publicación y CI pendientes de confirmar.
+Bandeja, formulario y validación conservados; API, carga, errores, permisos
+y navegación permanecen en `App.tsx`. La Etapa 30 continúa abierta.
+
+Etapa 30D - DashboardPage extraído; cerrada y publicada en el commit
+`3a4616125d3733168b60a8bafc1aacaf41b8b41d`.
 Centro de control general conservado; API, carga, errores, permisos y navegación
 permanecen en `App.tsx`. La Etapa 30 continúa abierta.
 
@@ -30,10 +36,16 @@ Cerrada y publicada en el commit
 
 ## Estado de validación
 
+- Etapa 30E: 32 pruebas frontend, lint y build aprobados.
+- Siete casos nuevos cubren actualización y acceso LAB/SUPERVISOR, ausencia
+  de acceso para los otros tres roles, publicación y rechazo de la API.
+- Sin nuevas pruebas backend: extracción limitada al frontend.
+
 - Etapa 30D: 25 pruebas frontend, lint y build aprobados; diff revisado y
   `git diff --check` sin errores, incluidos los dos archivos nuevos.
 - Pruebas ejecutadas fuera del sandbox tras un fallo de acceso a un temporal.
   Se corrigió una opción no admitida en la prueba nueva, sin modificar la UI.
+- Etapa 30D: CI `37719496231` aprobada, según el resumen de continuidad.
 - Sin pruebas backend locales nuevas: extracción limitada al frontend.
 
 - Etapa 30C: 23 pruebas frontend, lint y build aprobados; diff revisado y
@@ -200,8 +212,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la entrega 30D y definir el alcance de la siguiente entrega de la
-Etapa 30 antes de implementarla.
+Completar la publicación autorizada de 30E y comprobar GitHub Actions.
+La siguiente extracción de la Etapa 30 requiere alcance y autorización.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

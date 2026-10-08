@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 30E - Extracción de LaboratoryPage
+
+- Bandeja «Órdenes pendientes» extraída a `frontend/src/pages/LaboratoryPage.tsx`,
+  con `laboratoryQueue`, `onRefresh` y `onCompleteOrder`; sin estado propio.
+- Contador, estado vacío, tarjetas, textos, CSS y validación conservados.
+  API, carga, errores, permisos y navegación permanecen en `App.tsx`.
+- Siete casos nuevos de integración cubren actualización, acceso por rol,
+  publicación correcta y rechazo conservando formulario y resultado.
+- Validación: 32 pruebas frontend, lint y build aprobados.
+- Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
+- Commit y push autorizados; publicación y CI pendientes de confirmar.
+  La Etapa 30 continúa abierta.
+
+---
+
 ## Etapa 30D - Extracción de DashboardPage
 
 - Centro de control general extraído a `frontend/src/pages/DashboardPage.tsx`.
@@ -19,7 +34,9 @@ las verificaciones realizadas y el estado de cada etapa.
   `git diff --check` sin errores. Pruebas fuera del sandbox tras un fallo de
   acceso a un temporal; corregida una opción no admitida en la prueba nueva.
 - Sin pruebas backend locales nuevas: extracción limitada al frontend.
-- Entrega local; la Etapa 30 continúa abierta.
+- Entrega cerrada y publicada en el commit
+  `3a4616125d3733168b60a8bafc1aacaf41b8b41d`; CI `37719496231` aprobada,
+  según el resumen de continuidad. La Etapa 30 continúa abierta.
 
 ---
 
