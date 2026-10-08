@@ -18,7 +18,9 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Etapa 30 cerrada tras 30A–30I; cierre documental publicado en `9ed4dbf`,
   CI `37726240159` aprobada. Validación vigente: 46 pruebas frontend,
   lint y build aprobados; CI `37725349264` y `37725456535` aprobadas.
-- Los criterios de las etapas 31–37 son requisitos futuros; esta revisión
+- Etapa 31 cerrada tras 31A–31C: 19 pruebas backend aprobadas;
+  CI `37857021915` y `37857173485` aprobadas.
+- Los criterios de las etapas 32–37 son requisitos futuros; esta revisión
   no ejecuta pruebas nuevas ni autoriza su implementación.
 
 ## Entrega 30A
@@ -200,6 +202,26 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Commit `1838e5716892106d30ea6b40000c9e8c5a551b24`; CI `37857021915` aprobada.
   La Etapa 31 continúa abierta; revisar sus criterios de cierre.
 
+## Revisión de cierre de Etapa 31
+
+- Configuración en `config.py`; conexiones e inicialización en `database.py`.
+- Wrappers y arranque en `main.py` conservados; ruta SQLite, esquema,
+  datos y endpoints preservados según los alcances aprobados.
+- Criterios cumplidos con las validaciones de 31C; sin nueva ejecución de pruebas.
+- Referencias anteriores a Etapa 31 abierta conservadas como estado histórico.
+
+## Propuesta 32A: hash y verificación
+
+- Extraer `hash_session_token`, `hash_password` y `verify_password`
+  a `backend/app/security.py`, conservando SHA-256, PBKDF2, sal aleatoria,
+  iteraciones, comparación y formatos de retorno actuales.
+- Usar la constante existente de `config.py`; mantener las funciones
+  accesibles desde `main.py` para consumidores y pruebas actuales.
+- No mover todavía validación de sesiones, dependencias de roles ni endpoints.
+- Añadir cobertura de formatos, verificación correcta/incorrecta y compatibilidad
+  con hashes persistidos; validar backend con SQLite temporal.
+- Propuesta pendiente de autorización; no implementada.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -284,8 +306,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar los criterios de cierre de la Etapa 31.
-31C está publicada y su CI aprobada; la Etapa 31 continúa abierta.
+Revisar y autorizar 32A: extracción de funciones de hash y verificación.
+La Etapa 31 cumple sus criterios de cierre; 32A no está implementada.
 
 ## Fuentes
 

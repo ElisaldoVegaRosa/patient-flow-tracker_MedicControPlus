@@ -5,6 +5,18 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre documental de Etapa 31
+
+- Criterios cumplidos tras 31A–31C: configuración, conexiones e inicialización
+  separadas, manteniendo ruta SQLite, esquema, datos, endpoints y arranque.
+- Evidencia vigente: 19 pruebas backend aprobadas; CI `37857021915`
+  y CI documental `37857173485` aprobadas.
+- Revisión documental sin cambios de código ni nuevas pruebas.
+  Las referencias anteriores a Etapa 31 abierta son históricas.
+- Propuesta 32A documentada, pendiente de autorización.
+
+---
+
 ## Etapa 31C - Extracción de inicialización SQLite
 
 - Esquema y carga inicial de usuarios demo movidos a `database.py`;

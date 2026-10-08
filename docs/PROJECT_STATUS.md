@@ -2,6 +2,11 @@
 
 ## Última etapa
 
+Etapa 31 - Cerrada tras 31A–31C: configuración, conexiones e inicialización
+separadas, conservando endpoints, esquema, datos y arranque.
+Revisión basada en el código de `138eb02` y validaciones aprobadas de 31C.
+Las referencias a Etapa 31 abierta en entregas anteriores son históricas.
+
 Etapa 31C - Inicialización SQLite extraída; cerrada y publicada en el commit
 `1838e5716892106d30ea6b40000c9e8c5a551b24`.
 SQL y carga inicial de usuarios en `database.py`; wrapper en `main.py`
@@ -84,6 +89,12 @@ Cerrada y publicada en el commit
 
 
 ## Estado de validación
+
+- Cierre de Etapa 31: 19 pruebas backend aprobadas en 31C;
+  CI `37857021915` y CI documental `37857173485` aprobadas.
+- Cinco pruebas añadidas en 31A–31C cubren ruta SQLite, sustitución temporal,
+  filas por nombre, claves foráneas, aislamiento y reinicialización persistente.
+- Revisión de cierre documental: sin cambios de código ni nuevas pruebas.
 
 - Etapa 31C: 19 pruebas backend aprobadas, una advertencia observada.
 - Etapa 31C: CI `37857021915` aprobada.
@@ -328,8 +339,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar los criterios de cierre de la Etapa 31.
-31C está publicada y su CI aprobada; la Etapa 31 continúa abierta.
+Revisar y autorizar 32A: extracción de funciones de hash y verificación.
+La Etapa 31 cumple sus criterios de cierre; 32A no está implementada.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
