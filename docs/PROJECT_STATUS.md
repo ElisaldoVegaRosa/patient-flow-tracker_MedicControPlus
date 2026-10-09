@@ -2,6 +2,23 @@
 
 ## Última etapa
 
+### Entrega 33B: router de paneles
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- `GET /dashboard` y `GET /supervisor/dashboard` en
+  `backend/app/routes/dashboard.py`, mediante APIRouter.
+- Conexión, detalle de episodio, fecha, autenticación y permisos recibidos
+  explícitamente; composición conservada en `main.py`.
+- Consultas, métricas, respuestas y permisos conservados; cuerpos comparados
+  con el original y OpenAPI completo idéntico antes y después.
+- Seis casos nuevos cubren registro único, métodos, acceso de los cinco roles
+  y paneles vacíos. Pruebas existentes conservan métricas y consulta supervisor
+  sin generación de alertas ni eventos.
+- Validación: 45 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33b-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
 ### Entrega 33A: router de autenticación
 
 - Entrega cerrada y publicada en
@@ -409,8 +426,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir y aprobar el alcance de 33B, siguiente bloque de rutas backend.
-33A está publicada y su CI aprobada; la Etapa 33 continúa abierta.
+Revisar y autorizar la publicación de 33B y comprobar su CI.
+La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

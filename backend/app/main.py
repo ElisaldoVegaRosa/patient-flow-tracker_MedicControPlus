@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from .security import hash_session_token, hash_password, verify_password
 from . import auth, database
 from .routes.auth import create_router
+from .routes.dashboard import create_router as create_dashboard_router
 from .config import (
     DATABASE_PATH,
     DEMO_USERS,
@@ -479,44 +480,11 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 app.include_router(create_router(get_connection, utc_now, authenticated_user))
+app.include_router(create_dashboard_router(
+    get_connection, utc_now, episode_detail, authenticated_user, require_roles,
+))
 
 
-@app.get("/dashboard")
-def dashboard(
-    user: dict[str, str] = Depends(authenticated_user),
-) -> dict:
-    connection = get_connection()
-
-    episode_rows = connection.execute(
-        """
-        SELECT id
-        FROM episodes
-        WHERE status = 'ACTIVE'
-        ORDER BY priority, started_at
-        """
-    ).fetchall()
-
-    patients = [
-        episode_detail(connection, row["id"])
-        for row in episode_rows
-    ]
-
-    open_alerts = sum(
-        1
-        for patient in patients
-        for alert in patient["alerts"]
-        if alert["status"] != "RESOLVED"
-    )
-
-    connection.close()
-
-    return {
-        "active": len(patients),
-        "open_alerts": open_alerts,
-        "patients": patients,
-        "requested_by": user["username"],
-    }
-    
     # ---------------------------------------------------------------------------
 # DATOS FICTICIOS PARA DEMOSTRACIÓN
 # ---------------------------------------------------------------------------
@@ -903,97 +871,6 @@ def evaluate_rules(
 # y tiempos desde el ingreso. La información se calcula en el servidor para
 # ofrecer una única lectura operacional y auditable de la situación actual.
 # ---------------------------------------------------------------------------
-@app.get("/supervisor/dashboard")
-def supervisor_dashboard(
-    user: dict[str, str] = Depends(
-        require_roles("SUPERVISOR")
-    ),
-) -> dict:
-    connection = get_connection()
-    # El panel siempre presenta la evaluación temporal más reciente.
-    episode_rows = connection.execute(
-        """
-        SELECT id
-        FROM episodes
-        WHERE status = 'ACTIVE'
-        ORDER BY priority, started_at
-        """
-    ).fetchall()
-
-    patients: list[dict] = []
-
-    for row in episode_rows:
-        patient = episode_detail(connection, row["id"])
-
-        started_at = datetime.fromisoformat(patient["started_at"])
-        waiting_minutes = int(
-            (
-                datetime.now(timezone.utc) - started_at
-            ).total_seconds()
-            / 60
-        )
-
-        open_alerts = [
-            alert
-            for alert in patient["alerts"]
-            if alert["status"] != "RESOLVED"
-        ]
-
-        pending_tasks = [
-            task
-            for task in patient["tasks"]
-            if task["status"] == "PENDING"
-        ]
-
-        patient["waiting_minutes"] = waiting_minutes
-        patient["open_alert_count"] = len(open_alerts)
-        patient["pending_task_count"] = len(pending_tasks)
-
-        patient["at_risk"] = (
-            patient["priority"] <= 2
-            or len(open_alerts) > 0
-        )
-
-        patients.append(patient)
-
-    metrics = {
-        "active_patients": len(patients),
-        "high_priority_patients": sum(
-            1
-            for patient in patients
-            if patient["priority"] <= 2
-        ),
-        "patients_at_risk": sum(
-            1
-            for patient in patients
-            if patient["at_risk"]
-        ),
-        "open_alerts": sum(
-            patient["open_alert_count"]
-            for patient in patients
-        ),
-        "pending_tasks": sum(
-            patient["pending_task_count"]
-            for patient in patients
-        ),
-    }
-
-    rules_result = {
-        "evaluated_episodes": len(patients),
-        "generated_alerts": 0,
-    }
-
-    connection.close()
-
-    return {
-        "metrics": metrics,
-        "rules": rules_result,
-        "patients": patients,
-        "generated_at": utc_now(),
-        "requested_by": user["username"],
-    }
-    
-
 @app.post("/episodes", status_code=201)
 def create_episode(
     data: EpisodeCreate,
