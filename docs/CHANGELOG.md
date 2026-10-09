@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 33G: evaluación médica y alta
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `ef92feff8054feab540cf9803776136eb19c0931`; CI `37873651116` aprobada.
 - Rutas de evaluación médica y alta, junto a sus modelos, extraídas a
   `backend/app/routes/medical.py`, mediante APIRouter.
 - Dependencias de conexión, fecha, detalle, eventos, episodio activo y permisos

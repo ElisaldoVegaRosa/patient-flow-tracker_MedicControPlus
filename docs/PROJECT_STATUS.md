@@ -4,7 +4,8 @@
 
 ### Entrega 33G: evaluación médica y alta
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `ef92feff8054feab540cf9803776136eb19c0931`; CI `37873651116` aprobada.
 - Rutas de evaluación médica y alta, junto a sus modelos, extraídas a
   `backend/app/routes/medical.py`, mediante APIRouter.
 - Dependencias de conexión, fecha, detalle, eventos, episodio activo y permisos
@@ -513,8 +514,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar la publicación de 33G y comprobar su CI.
-La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
+Definir y aprobar el alcance de 33H, siguiente bloque de rutas backend.
+33G está publicada y su CI aprobada; la Etapa 33 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
