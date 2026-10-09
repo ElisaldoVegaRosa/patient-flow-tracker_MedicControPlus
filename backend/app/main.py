@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import secrets
 import sqlite3
 from datetime import datetime, timezone
@@ -17,6 +16,7 @@ from .routes.auth import create_router
 from .routes.dashboard import create_router as create_dashboard_router
 from .routes.episode_queries import create_router as create_episode_queries_router
 from .routes.tasks import create_router as create_tasks_router
+from .routes.nursing import create_router as create_nursing_router
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
     DATABASE_PATH,
@@ -51,23 +51,6 @@ class EpisodeCreate(BaseModel):
     document: str
     priority: int = Field(default=3, ge=1, le=5)
     location: str = "Recepción"
-
-
-class TriageRequest(BaseModel):
-    priority: int = Field(ge=1, le=5)
-    location: str
-    assigned_to: str = "Enfermería"
-
-
-class VitalSignsRequest(BaseModel):
-    """Signos vitales con límites plausibles para el demo."""
-
-    temperature: float = Field(ge=25, le=45)
-    heart_rate: int = Field(ge=20, le=250)
-    systolic: int = Field(ge=40, le=300)
-    diastolic: int = Field(ge=20, le=200)
-    spo2: int = Field(ge=50, le=100)
-    respiratory_rate: int = Field(ge=4, le=80)
 
 
 class MedicalEvaluationRequest(BaseModel):
@@ -937,161 +920,9 @@ app.include_router(create_episode_queries_router(
 ))
 
 
-@app.post("/episodes/{episode_id}/triage")
-def register_triage(
-    episode_id: int,
-    data: TriageRequest,
-    user: dict[str, str] = Depends(
-        require_roles("NURSE", "SUPERVISOR")
-    ),
-) -> dict:
-    connection = get_connection()
-    require_active_episode(connection, episode_id)
-
-    connection.execute(
-        """
-        UPDATE episodes
-        SET priority = ?,
-        location = ?,
-        assigned_to = ?
-        WHERE id = ?
-        AND status = 'ACTIVE'
-        """,
-        (
-            data.priority,
-            data.location,
-            data.assigned_to,
-            episode_id,
-        ),
-    )
-
-    add_event(
-        connection,
-        episode_id,
-        "TRIAGE",
-        user["username"],
-        f"Prioridad {data.priority}; ubicación {data.location}",
-    )
-
-    connection.commit()
-    result = episode_detail(connection, episode_id)
-    connection.close()
-
-    return result
-
-
-@app.post("/episodes/{episode_id}/vitals", status_code=201)
-def register_vitals(
-    episode_id: int,
-    data: VitalSignsRequest,
-    user: dict[str, str] = Depends(
-        require_roles("NURSE", "DOCTOR")
-    ),
-) -> dict:
-    connection = get_connection()
-    require_active_episode(connection, episode_id)
-
-    connection.execute(
-        """
-        INSERT INTO vitals (
-            episode_id,
-            temperature,
-            heart_rate,
-            systolic,
-            diastolic,
-            spo2,
-            respiratory_rate,
-            created_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            episode_id,
-            data.temperature,
-            data.heart_rate,
-            data.systolic,
-            data.diastolic,
-            data.spo2,
-            data.respiratory_rate,
-            utc_now(),
-        ),
-    )
-
-    add_event(
-        connection,
-        episode_id,
-        "VITALS_RECORDED",
-        user["username"],
-        json.dumps(data.model_dump()),
-    )
-
-    generated_alerts: list[tuple[str, str]] = []
-
-    if data.spo2 < 92:
-        generated_alerts.append(
-            ("Saturación de oxígeno baja", "CRITICAL")
-        )
-
-    if data.heart_rate > 120:
-        generated_alerts.append(
-            ("Frecuencia cardíaca alta", "HIGH")
-        )
-
-    if data.temperature >= 39:
-        generated_alerts.append(
-            ("Fiebre alta", "HIGH")
-        )
-
-    for reason, severity in generated_alerts:
-        existing_alert = connection.execute(
-            """
-            SELECT id
-            FROM alerts
-            WHERE episode_id = ?
-            AND reason = ?
-            AND status != 'RESOLVED'
-            """,
-            (
-                episode_id,
-                reason,
-            ),
-        ).fetchone()
-
-        if existing_alert is None:
-            connection.execute(
-                """
-                INSERT INTO alerts (
-                    episode_id,
-                    reason,
-                    severity,
-                    status,
-                    created_at,
-                    updated_at
-                )
-                VALUES (?, ?, ?, 'ACTIVE', ?, ?)
-                """,
-                (
-                    episode_id,
-                    reason,
-                    severity,
-                    utc_now(),
-                    utc_now(),
-                ),
-            )
-
-            add_event(
-                connection,
-                episode_id,
-                "ALERT_CREATED",
-                "rules-engine",
-                reason,
-            )
-
-    connection.commit()
-    result = episode_detail(connection, episode_id)
-    connection.close()
-
-    return result
+app.include_router(create_nursing_router(
+    get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
+))
 
 app.include_router(create_alerts_router(
     get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,

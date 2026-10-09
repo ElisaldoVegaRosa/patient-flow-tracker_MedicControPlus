@@ -353,6 +353,22 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Diff revisado sin errores de whitespace. Frontend sin cambios.
 - La Etapa 33 continúa abierta.
 
+## Entrega 33F: triaje y signos vitales
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- Rutas de triaje y signos vitales, junto a sus modelos, extraídas a
+  `backend/app/routes/nursing.py`, mediante APIRouter.
+- Dependencias de conexión, fecha, detalle, eventos, episodio activo y permisos
+  recibidas explícitamente; composición en `main.py`.
+- Cuerpos comparados con el original y OpenAPI completo idéntico.
+- Siete casos nuevos verifican registro, métodos, código 201, permisos distintos
+  para los cinco roles, umbrales de alertas y ausencia de duplicados.
+- Se conservan pruebas existentes de rangos inválidos y episodios cerrados.
+- Validación: 70 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33f-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -437,8 +453,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de 33F, siguiente bloque de rutas backend.
-33E está publicada y su CI aprobada; la Etapa 33 continúa abierta.
+Revisar y autorizar la publicación de 33F y comprobar su CI.
+La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
 
 ## Fuentes
 
