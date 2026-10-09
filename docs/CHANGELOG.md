@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 33D: tareas y laboratorio
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `4d485ebd9d6790e5ebd447b888a05c62c6cec0c0`; CI `37867451079` aprobada.
 - Creación de tareas, bandeja de laboratorio y finalización de tareas en
   `backend/app/routes/tasks.py`, junto a sus dos modelos de petición.
 - Router con conexión, fecha, detalle, eventos, protección de episodio activo

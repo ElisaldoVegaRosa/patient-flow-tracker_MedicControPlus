@@ -4,7 +4,8 @@
 
 ### Entrega 33D: tareas y laboratorio
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `4d485ebd9d6790e5ebd447b888a05c62c6cec0c0`; CI `37867451079` aprobada.
 - Creación de tareas, bandeja de laboratorio y finalización de tareas en
   `backend/app/routes/tasks.py`, junto a sus dos modelos de petición.
 - Router con conexión, fecha, detalle, eventos, protección de episodio activo
@@ -462,8 +463,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar la publicación de 33D y comprobar su CI.
-La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
+Definir y aprobar el alcance de 33E, siguiente bloque de rutas backend.
+33D está publicada y su CI aprobada; la Etapa 33 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
