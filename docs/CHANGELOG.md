@@ -5,6 +5,24 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 33E: actualización de alertas
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- `PATCH /alerts/{alert_id}`, modelo y matriz de transiciones en
+  `backend/app/routes/alerts.py`; matriz importada en `main.py` por compatibilidad.
+- Router recibe conexión, fecha, detalle, eventos, protección de episodio activo
+  y permisos; composición conservada en `main.py`.
+- Lógica comparada con el original y OpenAPI completo idéntico.
+- Siete casos nuevos cubren registro único, compatibilidad de matriz, cinco roles,
+  historial y eventos, y rechazo en episodio cerrado sin mutación.
+  Se conservan pruebas existentes de transiciones y flujo clínico.
+- Validación: 63 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33e-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
 ## Entrega 33D: tareas y laboratorio
 
 - Entrega cerrada y publicada en

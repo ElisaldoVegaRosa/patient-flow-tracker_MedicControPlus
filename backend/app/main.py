@@ -17,6 +17,7 @@ from .routes.auth import create_router
 from .routes.dashboard import create_router as create_dashboard_router
 from .routes.episode_queries import create_router as create_episode_queries_router
 from .routes.tasks import create_router as create_tasks_router
+from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
     DATABASE_PATH,
     DEMO_USERS,
@@ -68,9 +69,6 @@ class VitalSignsRequest(BaseModel):
     spo2: int = Field(ge=50, le=100)
     respiratory_rate: int = Field(ge=4, le=80)
 
-
-class AlertActionRequest(BaseModel):
-    status: Literal["ACKNOWLEDGED", "ESCALATED", "RESOLVED"]
 
 class MedicalEvaluationRequest(BaseModel):
     clinical_note: str = Field(min_length=3, max_length=2000)
@@ -1095,128 +1093,9 @@ def register_vitals(
 
     return result
 
-ALLOWED_ALERT_TRANSITIONS: dict[str, set[str]] = {
-    "ACTIVE": {
-        "ACKNOWLEDGED",
-        "ESCALATED",
-    },
-    "ACKNOWLEDGED": {
-        "ESCALATED",
-        "RESOLVED",
-    },
-    "ESCALATED": {
-        "RESOLVED",
-    },
-    "RESOLVED": set(),
-}
-
-@app.patch("/alerts/{alert_id}")
-def change_alert_status(
-    alert_id: int,
-    data: AlertActionRequest,
-    user: dict[str, str] = Depends(
-        require_roles("NURSE", "DOCTOR", "SUPERVISOR")
-    ),
-) -> dict:
-    if (
-        data.status == "RESOLVED"
-        and user["role"] not in {"DOCTOR", "SUPERVISOR"}
-    ):
-        raise HTTPException(
-            status_code=403,
-            detail="Solo médico o supervisor puede resolver alertas",
-        )
-
-    connection = get_connection()
-
-    alert = connection.execute(
-        """
-        SELECT *
-        FROM alerts
-        WHERE id = ?
-        """,
-        (alert_id,),
-    ).fetchone()
-
-    if alert is None:
-        connection.close()
-        raise HTTPException(
-            status_code=404,
-            detail="Alerta no encontrada",
-        )
-        
-    require_active_episode(
-        connection,
-        alert["episode_id"],
-    )
-
-    current_status = alert["status"]
-
-    allowed_statuses = ALLOWED_ALERT_TRANSITIONS.get(
-        current_status,
-        set(),
-    )
-
-    if data.status not in allowed_statuses:
-        connection.close()
-        raise HTTPException(
-            status_code=409,
-            detail=(
-                "Transición de alerta no permitida: "
-                f"{current_status} → {data.status}"
-            ),
-        )
-
-
-    connection.execute(
-        """
-        UPDATE alerts
-        SET status = ?,
-            responsible = ?,
-            updated_at = ?
-        WHERE id = ?
-        """,
-        (
-            data.status,
-            user["username"],
-            utc_now(),
-            alert_id,
-        ),
-    )
-
-    connection.execute(
-        """
-        INSERT INTO alert_history (
-            alert_id,
-            old_status,
-            new_status,
-            username,
-            created_at
-        )
-        VALUES (?, ?, ?, ?, ?)
-        """,
-        (
-            alert_id,
-            alert["status"],
-            data.status,
-            user["username"],
-            utc_now(),
-        ),
-    )
-
-    add_event(
-        connection,
-        alert["episode_id"],
-        f"ALERT_{data.status}",
-        user["username"],
-        alert["reason"],
-    )
-
-    connection.commit()
-    result = episode_detail(connection, alert["episode_id"])
-    connection.close()
-
-    return result
+app.include_router(create_alerts_router(
+    get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
+))
 
 # ---------------------------------------------------------------------------
 # EVALUACIÓN MÉDICA
