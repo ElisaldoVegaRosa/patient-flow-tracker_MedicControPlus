@@ -15,6 +15,7 @@ from .security import hash_session_token, hash_password, verify_password
 from . import auth, database
 from .routes.auth import create_router
 from .routes.dashboard import create_router as create_dashboard_router
+from .routes.episode_queries import create_router as create_episode_queries_router
 from .config import (
     DATABASE_PATH,
     DEMO_USERS,
@@ -941,109 +942,9 @@ def create_episode(
 # médicos y supervisores.
 # ---------------------------------------------------------------------------
 
-@app.get("/episodes/history")
-def episode_history(
-    user: dict[str, str] = Depends(
-        require_roles(
-            "RECEPTION",
-            "DOCTOR",
-            "SUPERVISOR",
-        )
-    ),
-) -> dict:
-    connection = get_connection()
-
-    rows = connection.execute(
-        """
-        SELECT
-            episodes.id,
-            episodes.status,
-            episodes.priority,
-            episodes.location,
-            episodes.assigned_to,
-            episodes.started_at,
-            episodes.closed_at,
-            patients.name,
-            patients.birth_date,
-            patients.document,
-            (
-                SELECT COUNT(*)
-                FROM events
-                WHERE events.episode_id = episodes.id
-            ) AS event_count,
-            (
-                SELECT COUNT(*)
-                FROM alerts
-                WHERE alerts.episode_id = episodes.id
-            ) AS alert_count,
-            (
-                SELECT COUNT(*)
-                FROM tasks
-                WHERE tasks.episode_id = episodes.id
-            ) AS task_count
-        FROM episodes
-        JOIN patients ON patients.id = episodes.patient_id
-        WHERE episodes.status = 'CLOSED'
-        ORDER BY episodes.closed_at DESC, episodes.id DESC
-        """
-    ).fetchall()
-
-    episodes = [dict(row) for row in rows]
-    connection.close()
-
-    return {
-        "total": len(episodes),
-        "episodes": episodes,
-        "requested_by": user["username"],
-    }
-
-@app.get("/episodes/{episode_id}")
-def get_episode(
-    episode_id: int,
-    user: dict[str, str] = Depends(authenticated_user),
-) -> dict:
-    connection = get_connection()
-    result = episode_detail(connection, episode_id)
-    connection.close()
-    return result
-
-
-@app.get("/scan/{qr_token}")
-def scan_qr(
-    qr_token: str,
-    user: dict[str, str] = Depends(authenticated_user),
-) -> dict:
-    connection = get_connection()
-
-    episode = connection.execute(
-        """
-        SELECT id
-        FROM episodes
-        WHERE qr_token = ?
-        AND status = 'ACTIVE'
-        """,
-        (qr_token,),
-    ).fetchone()
-
-    if episode is None:
-        connection.close()
-        raise HTTPException(
-            status_code=404,
-            detail="Pulsera inválida o episodio cerrado",
-        )
-
-    add_event(
-        connection,
-        episode["id"],
-        "QR_SCANNED",
-        user["username"],
-    )
-
-    connection.commit()
-    result = episode_detail(connection, episode["id"])
-    connection.close()
-
-    return result
+app.include_router(create_episode_queries_router(
+    get_connection, episode_detail, add_event, authenticated_user, require_roles,
+))
 
 
 @app.post("/episodes/{episode_id}/triage")

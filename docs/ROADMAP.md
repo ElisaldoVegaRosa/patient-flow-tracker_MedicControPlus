@@ -300,6 +300,23 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Diff revisado sin errores de whitespace. Frontend sin cambios.
 - La Etapa 33 continúa abierta.
 
+## Entrega 33C: historial, detalle y escaneo
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- `GET /episodes/history`, `GET /episodes/{episode_id}` y `GET /scan/{qr_token}`
+  en `backend/app/routes/episode_queries.py`, mediante APIRouter.
+- Conexión, detalle, registro de eventos y dependencias de autenticación y rol
+  recibidos explícitamente; el router no importa `main.py`.
+- Consultas, respuestas, permisos, orden de rutas y evento `QR_SCANNED`
+  conservados. Cuerpos comparados y OpenAPI completo idéntico antes y después.
+- Siete casos nuevos cubren registro y orden, cinco roles, episodios inexistentes,
+  evento único del escaneo y rechazo de pulsera desconocida o episodio cerrado
+  sin nuevos eventos. Se conserva la prueba existente de historial cerrado.
+- Validación: 52 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33c-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -384,8 +401,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de 33C, siguiente bloque de rutas backend.
-33B está publicada y su CI aprobada; la Etapa 33 continúa abierta.
+Revisar y autorizar la publicación de 33C y comprobar su CI.
+La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
 
 ## Fuentes
 
