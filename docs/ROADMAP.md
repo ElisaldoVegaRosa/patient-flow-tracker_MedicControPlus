@@ -406,7 +406,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 33I: evaluación de reglas temporales
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `e31529084eee07f7a819772621be0d65a18f659a`; CI `37876308581` aprobada.
 - `POST /rules/evaluate` extraído a `backend/app/routes/rules.py`, mediante
   APIRouter; motor compartido `evaluate_time_rules` conservado en `main.py`.
 - Conexión, fecha, motor y permisos recibidos explícitamente.
@@ -503,8 +504,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar y autorizar la publicación de 33I y comprobar su CI.
-La Etapa 33 continúa abierta; resta la ruta demo y revisión de composición.
+Definir y aprobar el alcance de 33J: extracción de la ruta demo.
+33I está publicada y su CI aprobada; después resta revisar la composición.
 
 ## Fuentes
 

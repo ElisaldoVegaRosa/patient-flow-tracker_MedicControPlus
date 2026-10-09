@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 33I: evaluación de reglas temporales
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `e31529084eee07f7a819772621be0d65a18f659a`; CI `37876308581` aprobada.
 - `POST /rules/evaluate` extraído a `backend/app/routes/rules.py`, mediante
   APIRouter; motor compartido `evaluate_time_rules` conservado en `main.py`.
 - Conexión, fecha, motor y permisos recibidos explícitamente.
