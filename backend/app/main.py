@@ -3,7 +3,6 @@ from __future__ import annotations
 import secrets
 import sqlite3
 from datetime import datetime, timezone
-from typing import Literal
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -17,6 +16,7 @@ from .routes.dashboard import create_router as create_dashboard_router
 from .routes.episode_queries import create_router as create_episode_queries_router
 from .routes.tasks import create_router as create_tasks_router
 from .routes.nursing import create_router as create_nursing_router
+from .routes.medical import create_router as create_medical_router
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
     DATABASE_PATH,
@@ -51,19 +51,6 @@ class EpisodeCreate(BaseModel):
     document: str
     priority: int = Field(default=3, ge=1, le=5)
     location: str = "Recepción"
-
-
-class MedicalEvaluationRequest(BaseModel):
-    clinical_note: str = Field(min_length=3, max_length=2000)
-    diagnosis: str = Field(min_length=2, max_length=500)
-    disposition: Literal[
-        "CONTINUE_OBSERVATION",
-        "ORDER_TESTS",
-        "READY_FOR_DISCHARGE",
-    ] = "CONTINUE_OBSERVATION"
-
-class DischargeRequest(BaseModel):
-    note: str = "Alta médica"
 
 
 def authenticated_user(
@@ -936,95 +923,11 @@ app.include_router(create_alerts_router(
 # histórico: crea un evento auditable que conserva médico, fecha y contenido.
 # ---------------------------------------------------------------------------
 
-@app.post("/episodes/{episode_id}/medical-evaluation")
-def register_medical_evaluation(
-    episode_id: int,
-    data: MedicalEvaluationRequest,
-    user: dict[str, str] = Depends(require_roles("DOCTOR")),
-) -> dict:
-    connection = get_connection()
-
-    episode = connection.execute(
-        """
-        SELECT id, status
-        FROM episodes
-        WHERE id = ?
-        """,
-        (episode_id,),
-    ).fetchone()
-
-    if episode is None:
-        connection.close()
-        raise HTTPException(
-            status_code=404,
-            detail="Episodio no encontrado",
-        )
-
-    if episode["status"] != "ACTIVE":
-        connection.close()
-        raise HTTPException(
-            status_code=409,
-            detail="No se puede evaluar un episodio cerrado",
-        )
-
-    note = (
-        f"Diagnóstico: {data.diagnosis}. "
-        f"Evaluación: {data.clinical_note}. "
-        f"Decisión: {data.disposition}"
-    )
-
-    add_event(
-        connection,
-        episode_id,
-        "MEDICAL_EVALUATION",
-        user["username"],
-        note,
-    )
-
-    connection.commit()
-    result = episode_detail(connection, episode_id)
-    connection.close()
-
-    return result
-
 app.include_router(create_tasks_router(
     get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
 ))
 
 
-@app.post("/episodes/{episode_id}/discharge")
-def discharge_episode(
-    episode_id: int,
-    data: DischargeRequest,
-    user: dict[str, str] = Depends(require_roles("DOCTOR")),
-) -> dict:
-    connection = get_connection()
-    require_active_episode(connection, episode_id)
-
-    connection.execute(
-        """
-        UPDATE episodes
-        SET status = 'CLOSED',
-        closed_at = ?
-        WHERE id = ?
-        AND status = 'ACTIVE'
-        """,
-        (
-            utc_now(),
-            episode_id,
-        ),
-    )
-
-    add_event(
-        connection,
-        episode_id,
-        "DISCHARGE",
-        user["username"],
-        data.note,
-    )
-
-    connection.commit()
-    result = episode_detail(connection, episode_id)
-    connection.close()
-
-    return result
+app.include_router(create_medical_router(
+    get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
+))

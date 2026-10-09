@@ -2,6 +2,22 @@
 
 ## Última etapa
 
+### Entrega 33G: evaluación médica y alta
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- Rutas de evaluación médica y alta, junto a sus modelos, extraídas a
+  `backend/app/routes/medical.py`, mediante APIRouter.
+- Dependencias de conexión, fecha, detalle, eventos, episodio activo y permisos
+  recibidas explícitamente; composición en `main.py`.
+- Cuerpos comparados con el original y OpenAPI completo idéntico.
+- Siete casos nuevos verifican registro, métodos, acceso exclusivo de médico,
+  notas y eventos, cierre, rechazo posterior al cierre y validaciones de petición.
+- Se conservan pruebas existentes de flujo clínico, historial y nota de alta.
+- Validación: 77 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33g-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
 ### Entrega 33F: triaje y signos vitales
 
 - Entrega cerrada y publicada en
@@ -497,8 +513,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir y aprobar el alcance de 33G, siguiente bloque de rutas backend.
-33F está publicada y su CI aprobada; la Etapa 33 continúa abierta.
+Revisar y autorizar la publicación de 33G y comprobar su CI.
+La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
