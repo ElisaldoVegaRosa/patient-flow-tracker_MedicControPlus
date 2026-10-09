@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 
 from .security import hash_session_token, hash_password, verify_password
 from . import auth, database
+from .routes.auth import create_router
 from .config import (
     DATABASE_PATH,
     DEMO_USERS,
@@ -39,11 +40,6 @@ async def lifespan(app: FastAPI):
 
     initialize_database()
     yield
-
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
 
 class EpisodeCreate(BaseModel):
     name: str
@@ -482,26 +478,7 @@ app.add_middleware(
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-@app.post("/auth/login")
-def login(data: LoginRequest) -> dict[str, str]:
-    """Autentica al usuario y crea una sesión persistente."""
-    return auth.login(data.username, data.password, get_connection)
-
-
-@app.get("/auth/me")
-def authenticated_session(
-    user: dict[str, str] = Depends(authenticated_user),
-) -> dict[str, str]:
-    return auth.session_user(user)
-
-
-@app.post("/auth/logout")
-def logout(
-    authorization: str | None = Header(default=None),
-    user: dict[str, str] = Depends(authenticated_user),
-) -> dict[str, str]:
-    """Revoca la sesión persistente utilizada por la petición."""
-    return auth.logout(authorization, user, get_connection, utc_now)
+app.include_router(create_router(get_connection, utc_now, authenticated_user))
 
 
 @app.get("/dashboard")

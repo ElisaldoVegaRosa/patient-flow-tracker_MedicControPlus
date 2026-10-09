@@ -265,6 +265,22 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Etapa 32 cerrada. Las referencias anteriores a etapa abierta son históricas.
 - Próximo paso: definir y aprobar 33A; este cierre no autoriza implementarla.
 
+## Entrega 33A: router de autenticación
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- `/auth/login`, `/auth/me`, `/auth/logout` y `LoginRequest` en
+  `backend/app/routes/auth.py`, con APIRouter y dependencias explícitas.
+- Composición, conexión, fecha y autenticación conservadas en `main.py`.
+  El router no importa `main.py`.
+- Métodos, respuestas, permisos y sesiones conservados; OpenAPI completo
+  idéntico antes y después.
+- Dos pruebas nuevas verifican registro único, métodos y uso de la
+  dependencia de autenticación suministrada.
+- Validación: 39 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33a-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -349,8 +365,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de 33A: primer bloque de rutas backend.
-La Etapa 32 está cerrada; la Etapa 33 aún no está implementada.
+Revisar y autorizar la publicación de 33A y comprobar su CI.
+La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
 
 ## Fuentes
 
