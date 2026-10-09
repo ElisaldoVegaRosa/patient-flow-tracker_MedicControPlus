@@ -404,6 +404,21 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Diff revisado sin errores de whitespace. Frontend sin cambios.
 - La Etapa 33 continúa abierta.
 
+## Entrega 33I: evaluación de reglas temporales
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- `POST /rules/evaluate` extraído a `backend/app/routes/rules.py`, mediante
+  APIRouter; motor compartido `evaluate_time_rules` conservado en `main.py`.
+- Conexión, fecha, motor y permisos recibidos explícitamente.
+- Cuerpo comparado con el original y OpenAPI completo idéntico.
+- Seis casos nuevos verifican registro único, método POST, cinco roles,
+  evaluación vacía, identidad solicitante y fecha UTC.
+- Se conservan pruebas existentes de generación temporal y ausencia de duplicados.
+- Validación: 90 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33i-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend y datos locales conservados.
+- La Etapa 33 continúa abierta.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -488,8 +503,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de 33I, siguiente bloque de rutas backend.
-33H está publicada y su CI aprobada; la Etapa 33 continúa abierta.
+Revisar y autorizar la publicación de 33I y comprobar su CI.
+La Etapa 33 continúa abierta; resta la ruta demo y revisión de composición.
 
 ## Fuentes
 

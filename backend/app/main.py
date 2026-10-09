@@ -16,6 +16,7 @@ from .routes.episode_queries import create_router as create_episode_queries_rout
 from .routes.tasks import create_router as create_tasks_router
 from .routes.nursing import create_router as create_nursing_router
 from .routes.medical import create_router as create_medical_router
+from .routes.rules import create_router as create_rules_router
 from .routes.episode_registration import create_router as create_episode_registration_router
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
@@ -800,23 +801,10 @@ def seed_demo_data(
 # programado sin cambiar las reglas clínicas.
 # ---------------------------------------------------------------------------
 
-@app.post("/rules/evaluate")
-def evaluate_rules(
-    user: dict[str, str] = Depends(
-        require_roles("SUPERVISOR", "DOCTOR")
-    ),
-) -> dict:
-    connection = get_connection()
+app.include_router(create_rules_router(
+    get_connection, utc_now, evaluate_time_rules, require_roles,
+))
 
-    result = evaluate_time_rules(connection)
-    connection.close()
-
-    return {
-        **result,
-        "evaluated_at": utc_now(),
-        "requested_by": user["username"],
-    }
-    
     # ---------------------------------------------------------------------------
 # CENTRO DE CONTROL DEL SUPERVISOR
 # ---------------------------------------------------------------------------
