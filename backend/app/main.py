@@ -7,7 +7,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
 
 from .security import hash_session_token, hash_password, verify_password
 from . import auth, database
@@ -17,6 +16,7 @@ from .routes.episode_queries import create_router as create_episode_queries_rout
 from .routes.tasks import create_router as create_tasks_router
 from .routes.nursing import create_router as create_nursing_router
 from .routes.medical import create_router as create_medical_router
+from .routes.episode_registration import create_router as create_episode_registration_router
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
     DATABASE_PATH,
@@ -44,14 +44,6 @@ async def lifespan(app: FastAPI):
 
     initialize_database()
     yield
-
-class EpisodeCreate(BaseModel):
-    name: str
-    birth_date: str
-    document: str
-    priority: int = Field(default=3, ge=1, le=5)
-    location: str = "Recepción"
-
 
 def authenticated_user(
     authorization: str | None = Header(default=None),
@@ -832,67 +824,9 @@ def evaluate_rules(
 # y tiempos desde el ingreso. La información se calcula en el servidor para
 # ofrecer una única lectura operacional y auditable de la situación actual.
 # ---------------------------------------------------------------------------
-@app.post("/episodes", status_code=201)
-def create_episode(
-    data: EpisodeCreate,
-    user: dict[str, str] = Depends(
-        require_roles("RECEPTION", "SUPERVISOR")
-    ),
-) -> dict:
-    connection = get_connection()
-
-    patient_cursor = connection.execute(
-        """
-        INSERT INTO patients (
-            name,
-            birth_date,
-            document
-        )
-        VALUES (?, ?, ?)
-        """,
-        (
-            data.name,
-            data.birth_date,
-            data.document,
-        ),
-    )
-
-    episode_cursor = connection.execute(
-        """
-        INSERT INTO episodes (
-            patient_id,
-            qr_token,
-            status,
-            priority,
-            location,
-            started_at
-        )
-        VALUES (?, ?, 'ACTIVE', ?, ?, ?)
-        """,
-        (
-            patient_cursor.lastrowid,
-            secrets.token_urlsafe(24),
-            data.priority,
-            data.location,
-            utc_now(),
-        ),
-    )
-
-    episode_id = episode_cursor.lastrowid
-
-    add_event(
-        connection,
-        episode_id,
-        "EPISODE_CREATED",
-        user["username"],
-        "Ingreso registrado",
-    )
-
-    connection.commit()
-    result = episode_detail(connection, episode_id)
-    connection.close()
-
-    return result
+app.include_router(create_episode_registration_router(
+    get_connection, utc_now, episode_detail, add_event, require_roles,
+))
 
 # ---------------------------------------------------------------------------
 # HISTORIAL DE EPISODIOS CERRADOS

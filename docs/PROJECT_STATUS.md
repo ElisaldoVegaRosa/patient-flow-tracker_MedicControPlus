@@ -2,6 +2,22 @@
 
 ## Última etapa
 
+### Entrega 33H: registro de episodios
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- `POST /episodes` y `EpisodeCreate` extraídos a
+  `backend/app/routes/episode_registration.py`, mediante APIRouter.
+- Conexión, fecha, detalle, eventos y permisos recibidos explícitamente;
+  composición en `main.py`. Creación de paciente, episodio activo y QR conservada.
+- Cuerpo comparado con el original y OpenAPI completo idéntico.
+- Siete casos nuevos verifican registro único, código 201, cinco roles, valores
+  iniciales, persistencia y vínculo paciente/episodio, evento, QR distintos y
+  prioridades inválidas sin registros. Se conserva el flujo clínico existente.
+- Validación: 84 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33h-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
 ### Entrega 33G: evaluación médica y alta
 
 - Entrega cerrada y publicada en
@@ -514,8 +530,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir y aprobar el alcance de 33H, siguiente bloque de rutas backend.
-33G está publicada y su CI aprobada; la Etapa 33 continúa abierta.
+Revisar y autorizar la publicación de 33H y comprobar su CI.
+La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
