@@ -267,7 +267,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 33A: router de autenticación
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `f73e2c2261112464d7a77918f537c328bc756dbd`; CI `37864729924` aprobada.
 - `/auth/login`, `/auth/me`, `/auth/logout` y `LoginRequest` en
   `backend/app/routes/auth.py`, con APIRouter y dependencias explícitas.
 - Composición, conexión, fecha y autenticación conservadas en `main.py`.
@@ -365,8 +366,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar y autorizar la publicación de 33A y comprobar su CI.
-La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
+Definir y aprobar el alcance de 33B, siguiente bloque de rutas backend.
+33A está publicada y su CI aprobada; la Etapa 33 continúa abierta.
 
 ## Fuentes
 

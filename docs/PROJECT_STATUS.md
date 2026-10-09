@@ -2,9 +2,10 @@
 
 ## Última etapa
 
-## Entrega 33A: router de autenticación
+### Entrega 33A: router de autenticación
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `f73e2c2261112464d7a77918f537c328bc756dbd`; CI `37864729924` aprobada.
 - `/auth/login`, `/auth/me`, `/auth/logout` y `LoginRequest` en
   `backend/app/routes/auth.py`, con APIRouter y dependencias explícitas.
 - Composición, conexión, fecha y autenticación conservadas en `main.py`.
@@ -408,8 +409,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar la publicación de 33A y comprobar su CI.
-La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
+Definir y aprobar el alcance de 33B, siguiente bloque de rutas backend.
+33A está publicada y su CI aprobada; la Etapa 33 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
