@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 33F: triaje y signos vitales
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `3ad17074b1d8cfeb3021c7293f88609ea6fd4dc7`; CI `37872644967` aprobada.
 - Rutas de triaje y signos vitales, junto a sus modelos, extraídas a
   `backend/app/routes/nursing.py`, mediante APIRouter.
 - Dependencias de conexión, fecha, detalle, eventos, episodio activo y permisos
