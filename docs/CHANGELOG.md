@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 33E: actualización de alertas
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `6af0bacfbc94a4f8e4c37e5a40416b719ad29f7c`; CI `37868893764` aprobada.
 - `PATCH /alerts/{alert_id}`, modelo y matriz de transiciones en
   `backend/app/routes/alerts.py`; matriz importada en `main.py` por compatibilidad.
 - Router recibe conexión, fecha, detalle, eventos, protección de episodio activo
