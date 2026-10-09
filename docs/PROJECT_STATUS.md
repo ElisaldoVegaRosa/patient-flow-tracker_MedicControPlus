@@ -4,7 +4,8 @@
 
 ### Entrega 33C: historial, detalle y escaneo
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `ca41eb80512763b421d9e29b526b6439c3109440`; CI `37866233307` aprobada.
 - `GET /episodes/history`, `GET /episodes/{episode_id}` y `GET /scan/{qr_token}`
   en `backend/app/routes/episode_queries.py`, mediante APIRouter.
 - Conexión, detalle, registro de eventos y dependencias de autenticación y rol
@@ -444,8 +445,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar la publicación de 33C y comprobar su CI.
-La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
+Definir y aprobar el alcance de 33D, siguiente bloque de rutas backend.
+33C está publicada y su CI aprobada; la Etapa 33 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
