@@ -2,6 +2,13 @@
 
 ## Última etapa
 
+Etapa 32 - Cerrada tras 32A–32C: hashes, validación de sesiones,
+autorización por rol y lógica de login, logout y usuario actual separados.
+Revisión basada en el código de `5278fd7`, 37 pruebas backend y CI
+`37862024711` y `37862184127` aprobadas. No se repiten validaciones.
+Rutas y dependencias FastAPI permanecen en `main.py` según el alcance.
+Las referencias a Etapa 32 abierta en entregas anteriores son históricas.
+
 Etapa 32C - Login, logout y consulta de usuario separados en `auth.py`.
 Cerrada y publicada en `65e2b3cd21999971f1f96405ff282d085d7177e4`;
 CI `37862024711` aprobada.
@@ -385,8 +392,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar los criterios de cierre de la Etapa 32 tras 32A–32C.
-32C está publicada y su CI aprobada; la Etapa 32 continúa abierta.
+Definir y aprobar el alcance de 33A: primer bloque de rutas backend.
+La Etapa 32 está cerrada; la Etapa 33 aún no está implementada.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

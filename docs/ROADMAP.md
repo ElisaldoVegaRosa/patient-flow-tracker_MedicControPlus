@@ -252,6 +252,19 @@ Plan reconstruido propuesto; no recuperado del chat original
   temporal `.tmp/pytest-32c-final`. Diff revisado sin errores de whitespace.
 - La Etapa 32 continúa abierta.
 
+## Cierre de la Etapa 32
+
+- 32A–32C completan las tres entregas previstas: hashes, validación y
+  autorización, y lógica de inicio/cierre de sesión y usuario actual.
+- Criterios cumplidos: hashes y formatos conservados, duración de ocho horas,
+  persistencia y revocación independientes, permisos y contratos HTTP.
+- Evidencia: `security.py`, `auth.py`, wrappers FastAPI en `main.py` y
+  pruebas de seguridad, sesiones y roles. Exportaciones compatibles conservadas.
+- Revisión del código de `5278fd7`; 37 pruebas backend y CI `37862024711`
+  y `37862184127` ya aprobadas. Sin nuevas pruebas ni cambios funcionales.
+- Etapa 32 cerrada. Las referencias anteriores a etapa abierta son históricas.
+- Próximo paso: definir y aprobar 33A; este cierre no autoriza implementarla.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -336,8 +349,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar los criterios de cierre de la Etapa 32 tras 32A–32C.
-32C está publicada y su CI aprobada; la Etapa 32 continúa abierta.
+Definir y aprobar el alcance de 33A: primer bloque de rutas backend.
+La Etapa 32 está cerrada; la Etapa 33 aún no está implementada.
 
 ## Fuentes
 

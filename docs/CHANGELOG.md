@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre de la Etapa 32
+
+- 32A–32C completan las tres entregas previstas: hashes, validación y
+  autorización, y lógica de inicio/cierre de sesión y usuario actual.
+- Criterios cumplidos: hashes y formatos conservados, duración de ocho horas,
+  persistencia y revocación independientes, permisos y contratos HTTP.
+- Evidencia: `security.py`, `auth.py`, wrappers FastAPI en `main.py` y
+  pruebas de seguridad, sesiones y roles. Exportaciones compatibles conservadas.
+- Revisión del código de `5278fd7`; 37 pruebas backend y CI `37862024711`
+  y `37862184127` ya aprobadas. Sin nuevas pruebas ni cambios funcionales.
+- Etapa 32 cerrada. Las referencias anteriores a etapa abierta son históricas.
+- Próximo paso: definir y aprobar 33A; este cierre no autoriza implementarla.
+
+---
+
 ## Etapa 32C - Separación de endpoints de autenticación
 
 - Entrega cerrada y publicada en
