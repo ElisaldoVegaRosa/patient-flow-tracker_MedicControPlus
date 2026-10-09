@@ -2,6 +2,23 @@
 
 ## Última etapa
 
+### Entrega 33D: tareas y laboratorio
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- Creación de tareas, bandeja de laboratorio y finalización de tareas en
+  `backend/app/routes/tasks.py`, junto a sus dos modelos de petición.
+- Router con conexión, fecha, detalle, eventos, protección de episodio activo
+  y permisos recibidos explícitamente; composición en `main.py`.
+- Cuerpos comparados con el original y OpenAPI completo idéntico.
+- Cuatro casos nuevos verifican registro y métodos, código 201, filtros
+  PENDING/COMPLETED/ALL, servicio LAB, orden y ausencia de datos QR;
+  filtro inválido devuelve 422. Pruebas existentes cubren permisos, resultados,
+  duplicados y finalización rechazada en episodio cerrado sin mutación.
+- Validación: 56 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33d-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
 ### Entrega 33C: historial, detalle y escaneo
 
 - Entrega cerrada y publicada en
@@ -445,8 +462,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Definir y aprobar el alcance de 33D, siguiente bloque de rutas backend.
-33C está publicada y su CI aprobada; la Etapa 33 continúa abierta.
+Revisar y autorizar la publicación de 33D y comprobar su CI.
+La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
