@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 33H: registro de episodios
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `be42aed69e4229a1962aaf49dda26deaecccedde`; CI `37874720158` aprobada.
 - `POST /episodes` y `EpisodeCreate` extraídos a
   `backend/app/routes/episode_registration.py`, mediante APIRouter.
 - Conexión, fecha, detalle, eventos y permisos recibidos explícitamente;

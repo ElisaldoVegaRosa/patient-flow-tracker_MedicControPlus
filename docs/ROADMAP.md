@@ -389,7 +389,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 33H: registro de episodios
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `be42aed69e4229a1962aaf49dda26deaecccedde`; CI `37874720158` aprobada.
 - `POST /episodes` y `EpisodeCreate` extraídos a
   `backend/app/routes/episode_registration.py`, mediante APIRouter.
 - Conexión, fecha, detalle, eventos y permisos recibidos explícitamente;
@@ -487,8 +488,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar y autorizar la publicación de 33H y comprobar su CI.
-La Etapa 33 continúa abierta; la siguiente extracción requiere alcance aprobado.
+Definir y aprobar el alcance de 33I, siguiente bloque de rutas backend.
+33H está publicada y su CI aprobada; la Etapa 33 continúa abierta.
 
 ## Fuentes
 
