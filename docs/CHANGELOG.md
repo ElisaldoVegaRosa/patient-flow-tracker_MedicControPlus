@@ -5,6 +5,34 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 37A: recuperación de nota de alta
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- Mejora elegida y autorizada para la Etapa 37: recuperación de nota de alta
+  tras HTTP 401 según el diseño de 36A.
+- Login sin recarga; borrador solo en memoria durante 30 minutos desde el
+  primer 401, con eliminación automática y sin renovar el plazo.
+- Misma identidad y rol DOCTOR; episodio ACTIVE consultado antes de ofertar
+  y al confirmar. Restauración explícita o descarte, sin reenviar el alta.
+- Consulta fallida admite reintento dentro del plazo. Logout, otra identidad,
+  rol distinto, CLOSED, inexistencia, vencimiento y navegación eliminan la nota.
+- Respuestas de sesiones anteriores rechazadas; 401 concurrentes agrupados.
+  No se exponen texto ni datos del episodio durante el login.
+- Estado local separado en `frontend/src/session/`; cliente HTTP centralizado.
+  Formularios médicos detienen su continuación al interrumpirse la sesión.
+- 32 casos nuevos cubren recuperación, controles de identidad y vigencia,
+  eliminación, respuestas tardías y ausencia de persistencia del texto.
+- Validación: 78 pruebas frontend, lint y build aprobados. Pruebas locales con
+  `npm.cmd run test --prefix frontend -- --maxWorkers=2`, fuera del sandbox
+  por timeout de inicio de workers; dos workers evitan los timeouts locales
+  observados en la ejecución paralela inicial. CI conserva su comando habitual.
+- Backend, esquema y base local sin cambios; se conservan sus 106 pruebas
+  aprobadas, sin repetirlas para este cambio frontend.
+- Navegación, recarga, cierre de pestaña y otros formularios siguen fuera del
+  alcance de recuperación. Diff revisado sin errores de whitespace.
+
+---
+
 ## Etapa 36A: diseño de recuperación de nota de alta
 
 - Diseño acordado y documentado en `docs/DRAFT_RECOVERY_DESIGN.md`.

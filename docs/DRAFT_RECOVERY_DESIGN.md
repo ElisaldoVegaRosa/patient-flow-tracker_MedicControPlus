@@ -87,5 +87,7 @@ Debe incluir pruebas de:
 - 401 concurrentes y respuestas tardías de una sesión anterior.
 - Conservación de la recuperación de sesión y formularios existentes.
 
-Este documento cierra la decisión de diseño acordada. La aplicación conserva
-su comportamiento actual hasta una autorización independiente de implementación.
+Este documento cierra la decisión de diseño acordada. La implementación de
+37A fue autorizada posteriormente y está validada localmente; publicación
+pendiente. Su estado se registra en PROJECT_STATUS.md. La aprobación del
+diseño no autoriza extensiones del alcance ni publicaciones futuras.

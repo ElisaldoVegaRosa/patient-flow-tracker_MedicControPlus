@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
-import { api } from "./api/client";
+import {
+  api, establishSession, getSessionRevision, invalidateSession,
+  isSessionInterruption, SESSION_EXPIRED_EVENT,
+} from "./api/client";
+import { useDischargeRecovery } from "./session/useDischargeRecovery";
 import EpisodeHistoryPage from "./pages/EpisodeHistoryPage";
 import ScanPage from "./pages/ScanPage";
 import NewEpisodePage from "./pages/NewEpisodePage";
@@ -42,11 +46,60 @@ function App() {
   const [error, setError] = useState("");
   const [restoringSession, setRestoringSession] =
     useState(() => Boolean(localStorage.getItem("token")));
+  const recovery = useDischargeRecovery();
+  const { clear: clearRecovery, suspend: suspendRecovery } = recovery;
+  const [recoveredNote, setRecoveredNote] = useState("");
+
+  function navigate(nextPage: string) {
+    clearRecovery();
+    setRecoveredNote("");
+    setPage(nextPage);
+  }
+
+  function updateEpisode(updated: Episode) {
+    if (updated.status === "CLOSED") {
+      clearRecovery();
+      setRecoveredNote("");
+    }
+    setEpisode(updated);
+  }
+
+  useEffect(() => {
+    function sessionExpired() {
+      suspendRecovery();
+      setRecoveredNote("");
+      setUser(null);
+      setEpisode(null);
+      setDashboard(null);
+      setLaboratoryQueue(null);
+      setSupervisorData(null);
+      setHistoryData(null);
+      setPage("dashboard");
+      setRestoringSession(false);
+      setEvaluatingRules(false);
+      setRulesMessage("");
+      setError("Tu sesión expiró. Inicia sesión nuevamente.");
+    }
+    window.addEventListener(SESSION_EXPIRED_EVENT, sessionExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, sessionExpired);
+  }, [suspendRecovery]);
+
+  async function restoreNote() {
+    if (!user) return;
+    const result = await recovery.check(user, true);
+    if (result) {
+      setEpisode(result.episode);
+      setRecoveredNote(result.note);
+      recovery.track(user.username, result.episode.id, result.note);
+      setPage("episode");
+    }
+  }
 
   async function loadDashboard() {
     try {
       setDashboard(await api<DashboardData>("/dashboard"));
     } catch (exception) {
+      if (isSessionInterruption(exception)) return;
       setError((exception as Error).message);
     }
   }
@@ -65,6 +118,7 @@ useEffect(() => {
       }
     })
     .catch((exception: unknown) => {
+      if (isSessionInterruption(exception)) return;
       if (!cancelled) {
         setError(
           exception instanceof Error
@@ -98,8 +152,9 @@ useEffect(() => {
         });
       }
     })
-    .catch(() => {
-      localStorage.removeItem("token");
+    .catch((exception: unknown) => {
+      if (isSessionInterruption(exception)) return;
+      invalidateSession();
 
       if (!cancelled) {
         setUser(null);
@@ -131,14 +186,18 @@ useEffect(() => {
         }),
       });
 
-      localStorage.setItem("token", result.access_token);
+      establishSession(result.access_token);
       setUser(result);
+      await recovery.check(result);
     } catch (exception) {
+      if (isSessionInterruption(exception)) return;
       setError((exception as Error).message);
     }
   }
 
   async function createEpisode(event: FormEvent<HTMLFormElement>) {
+    clearRecovery();
+    setRecoveredNote("");
     event.preventDefault();
 
     const form = new FormData(event.currentTarget);
@@ -159,20 +218,26 @@ useEffect(() => {
       setPage("episode");
       loadDashboard();
     } catch (exception) {
+      if (isSessionInterruption(exception)) return;
       setError((exception as Error).message);
     }
   }
 
   async function openEpisode(id: number) {
+    clearRecovery();
+    setRecoveredNote("");
     try {
       setEpisode(await api<Episode>(`/episodes/${id}`));
       setPage("episode");
     } catch (exception) {
+      if (isSessionInterruption(exception)) return;
       setError((exception as Error).message);
     }
   }
 
   async function scanEpisode(event: FormEvent<HTMLFormElement>) {
+    clearRecovery();
+    setRecoveredNote("");
     event.preventDefault();
     const token = new FormData(event.currentTarget).get("token");
 
@@ -180,6 +245,7 @@ useEffect(() => {
       setEpisode(await api<Episode>(`/scan/${token}`));
       setPage("episode");
     } catch (exception) {
+      if (isSessionInterruption(exception)) return;
       setError((exception as Error).message);
     }
   }
@@ -193,6 +259,7 @@ useEffect(() => {
  * - no duplica datos en ejecuciones posteriores.
  */
 async function loadDemoData() {
+  const revision = getSessionRevision();
   const confirmed = window.confirm(
     "Se agregarán 12 pacientes ficticios sin borrar los datos actuales. " +
       "¿Deseas continuar?",
@@ -210,8 +277,10 @@ async function loadDemoData() {
     window.alert(result.message);
 
     await openSupervisorDashboard();
+    if (revision !== getSessionRevision()) return;
     await loadDashboard();
   } catch (exception) {
+    if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
   }
 }
@@ -222,12 +291,15 @@ async function loadDemoData() {
  * El historial es de consulta y no reactiva episodios dados de alta.
  */
 async function openEpisodeHistory() {
+    clearRecovery();
+    setRecoveredNote("");
   try {
     const result = await api<HistoryData>("/episodes/history");
 
     setHistoryData(result);
     setPage("history");
   } catch (exception) {
+    if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
   }
 }
@@ -239,6 +311,8 @@ async function openEpisodeHistory() {
  * operacional consistente de pacientes, riesgos, alertas y tareas.
  */
 async function openSupervisorDashboard() {
+    clearRecovery();
+    setRecoveredNote("");
   try {
     const result = await api<SupervisorData>("/supervisor/dashboard");
 
@@ -246,6 +320,7 @@ async function openSupervisorDashboard() {
     setSupervisorFilter("ALL");
     setPage("supervisor");
   } catch (exception) {
+    if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
   }
 }
@@ -254,6 +329,7 @@ async function openSupervisorDashboard() {
  * Abre la bandeja de laboratorio y carga las órdenes pendientes.
  */
 async function evaluateTemporalRules() {
+  const revision = getSessionRevision();
   setError("");
   setRulesMessage("");
   setEvaluatingRules(true);
@@ -271,21 +347,26 @@ async function evaluateTemporalRules() {
     );
 
     await openSupervisorDashboard();
+    if (revision !== getSessionRevision()) return;
     await loadDashboard();
   } catch (exception) {
+    if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
   } finally {
-    setEvaluatingRules(false);
+    if (revision === getSessionRevision()) setEvaluatingRules(false);
   }
 }
 
 async function openLaboratoryQueue() {
+    clearRecovery();
+    setRecoveredNote("");
   try {
     const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING");
 
     setLaboratoryQueue(result);
     setPage("laboratory");
   } catch (exception) {
+    if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
   }
 }
@@ -312,30 +393,32 @@ async function completeLaboratoryOrder(
 
     await openLaboratoryQueue();
   } catch (exception) {
+    if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
   }
 }
 
 async function logout() {
+  const request = api<LogoutResponse>("/auth/logout", { method: "POST" });
+  invalidateSession();
+  clearRecovery();
+  setRecoveredNote("");
+  setUser(null);
+  setEpisode(null);
+  setDashboard(null);
+  setLaboratoryQueue(null);
+  setSupervisorData(null);
+  setHistoryData(null);
+  setPage("dashboard");
+  setError("");
+  setRulesMessage("");
+  setEvaluatingRules(false);
   try {
-    await api<LogoutResponse>("/auth/logout", {
-      method: "POST",
-    });
+    await request;
   } catch (exception) {
-    console.warn(
-      "No fue posible cerrar la sesión en el servidor.",
-      exception,
-    );
-  } finally {
-    localStorage.removeItem("token");
-    setUser(null);
-    setEpisode(null);
-    setDashboard(null);
-    setLaboratoryQueue(null);
-    setSupervisorData(null);
-    setHistoryData(null);
-    setPage("dashboard");
-    setError("");
+    if (!isSessionInterruption(exception)) {
+      console.warn("No fue posible cerrar la sesión en el servidor.", exception);
+    }
   }
 }
 
@@ -354,16 +437,34 @@ async function logout() {
       <AppHeader
         user={user}
         onDashboard={() => {
-          setPage("dashboard");
+          navigate("dashboard");
           loadDashboard();
         }}
         onSupervisor={openSupervisorDashboard}
-        onScan={() => setPage("scan")}
+        onScan={() => navigate("scan")}
         onHistory={openEpisodeHistory}
         onLaboratory={openLaboratoryQueue}
-        onNewEpisode={() => setPage("new")}
+        onNewEpisode={() => navigate("new")}
         onLogout={logout}
       />
+
+      {recovery.status !== "idle" && recovery.status !== "waiting" && (
+        <section className="panel" aria-label="Recuperación de nota de alta">
+          {recovery.status === "checking" ? (
+            <p role="status">Comprobando el episodio para recuperar la nota…</p>
+          ) : (
+            <>
+              <p>{recovery.error || "Hay una nota de alta pendiente de recuperar tras expirar la sesión."}</p>
+              {recovery.status === "offer" ? (
+                <button type="button" onClick={restoreNote}>Restaurar nota de alta</button>
+              ) : (
+                <button type="button" onClick={() => recovery.check(user)}>Reintentar recuperación</button>
+              )}
+            </>
+          )}
+          <button type="button" onClick={clearRecovery}>Descartar</button>
+        </section>
+      )}
 
       {error && (
         <div className="error-banner" onClick={() => setError("")}>
@@ -415,10 +516,13 @@ async function logout() {
 
       {page === "episode" && episode && (
         <EpisodePage
+          key={`${user.username}:${episode.id}`}
           episode={episode}
           user={user}
-          updateEpisode={setEpisode}
+          updateEpisode={updateEpisode}
           showError={setError}
+          initialDischargeNote={recoveredNote}
+          onDischargeNoteChange={(note) => recovery.track(user.username, episode.id, note)}
         />
       )}
     </>

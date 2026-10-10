@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { api } from "../api/client";
+import { api, isSessionInterruption } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
 
 type EpisodePageProps = {
@@ -9,6 +9,8 @@ type EpisodePageProps = {
   user: User;
   updateEpisode: (episode: Episode) => void;
   showError: (message: string) => void;
+  initialDischargeNote?: string;
+  onDischargeNoteChange?: (note: string) => void;
 };
 
 export default function EpisodePage({
@@ -16,10 +18,12 @@ export default function EpisodePage({
   user,
   updateEpisode,
   showError,
+  initialDischargeNote = "",
+  onDischargeNoteChange,
 }: EpisodePageProps) {
   const isClosed = episode.status === "CLOSED";
   const latestVitals = episode.vitals[0];
-  const [dischargeNote, setDischargeNote] = useState("");
+  const [dischargeNote, setDischargeNote] = useState(initialDischargeNote);
   const [dischargeError, setDischargeError] = useState("");
   const [discharging, setDischarging] = useState(false);
   const dischargeInFlight = useRef(false);
@@ -41,6 +45,7 @@ export default function EpisodePage({
         body: JSON.stringify({ note }),
       }));
     } catch (exception) {
+      if (isSessionInterruption(exception)) return;
       setDischargeError((exception as Error).message);
     } finally {
       dischargeInFlight.current = false;
@@ -52,8 +57,10 @@ export default function EpisodePage({
     try {
       updateEpisode(await api<Episode>(path, options));
     } catch (exception) {
+      if (isSessionInterruption(exception)) return false;
       showError((exception as Error).message);
     }
+    return true;
   }
 
   async function registerTriage(event: FormEvent<HTMLFormElement>) {
@@ -82,9 +89,10 @@ export default function EpisodePage({
   ) {
     event.preventDefault();
 
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
 
-    await call(`/episodes/${episode.id}/medical-evaluation`, {
+    const completed = await call(`/episodes/${episode.id}/medical-evaluation`, {
       method: "POST",
       body: JSON.stringify({
         clinical_note: form.get("clinical_note"),
@@ -93,7 +101,7 @@ export default function EpisodePage({
       }),
     });
 
-    event.currentTarget.reset();
+    if (completed) formElement.reset();
   }
 
   /**
@@ -108,9 +116,10 @@ async function createClinicalOrder(
 ) {
   event.preventDefault();
 
-  const form = new FormData(event.currentTarget);
+  const formElement = event.currentTarget;
+  const form = new FormData(formElement);
 
-  await call(`/episodes/${episode.id}/tasks`, {
+  const completed = await call(`/episodes/${episode.id}/tasks`, {
     method: "POST",
     body: JSON.stringify({
       title: form.get("title"),
@@ -118,7 +127,7 @@ async function createClinicalOrder(
     }),
   });
 
-  event.currentTarget.reset();
+  if (completed) formElement.reset();
 }
 
   async function registerVitals(event: FormEvent<HTMLFormElement>) {
@@ -713,7 +722,10 @@ async function createClinicalOrder(
           <textarea
             id="discharge-note"
             value={dischargeNote}
-            onChange={(event) => setDischargeNote(event.target.value)}
+            onChange={(event) => {
+              setDischargeNote(event.target.value);
+              onDischargeNoteChange?.(event.target.value);
+            }}
             required
             rows={4}
             disabled={discharging}
