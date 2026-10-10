@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 35B: rechazos en episodios cerrados
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `e08f2a74bdbf7c47c02a04166354dd26126910b9`; CI `38016930642` aprobada.
 - Cinco casos nuevos recorren todos los roles en episodios cerrados para triaje,
   signos, evaluación médica, alta repetida, acciones de alerta y escaneo.
 - Tras cada rechazo se comparan siete tablas clínicas; se comprueban 401, 403,
@@ -17,7 +18,7 @@ las verificaciones realizadas y el estado de cada etapa.
   `.tmp/pytest-35b-final`, fuera del sandbox por el bloqueo conocido de socketpair.
 - Sin discrepancias en el alcance probado; política y código de aplicación
   conservados. Frontend y base local sin cambios. Diff sin errores de whitespace.
-- Etapa 35 abierta: pendiente de publicación y revisión final de cierre.
+- Etapa 35 abierta: pendiente de revisión final de cierre.
 
 ---
 
