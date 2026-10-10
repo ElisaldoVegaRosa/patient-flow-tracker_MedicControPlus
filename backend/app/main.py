@@ -433,59 +433,27 @@ app.add_middleware(
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
+# Composición de rutas por área; el orden de registro se conserva.
 app.include_router(create_router(get_connection, utc_now, authenticated_user))
 app.include_router(create_dashboard_router(
     get_connection, utc_now, episode_detail, authenticated_user, require_roles,
 ))
 
-
-    # ---------------------------------------------------------------------------
-# DATOS FICTICIOS PARA DEMOSTRACIÓN
-# ---------------------------------------------------------------------------
-# Este endpoint agrega pacientes de ejemplo sin eliminar datos existentes.
-# Utiliza documentos con prefijo DEMO-SEED para impedir duplicados.
-# Solo el supervisor puede ejecutar esta operación.
-# ---------------------------------------------------------------------------
-
 app.include_router(create_demo_router(
     get_connection, utc_now, add_event, require_roles,
 ))
-
-    # ---------------------------------------------------------------------------
-# EJECUCIÓN DEL MOTOR TEMPORAL
-# ---------------------------------------------------------------------------
-# En el demo, supervisor y médico pueden solicitar una evaluación inmediata.
-# Posteriormente este mismo servicio podrá ejecutarse mediante un proceso
-# programado sin cambiar las reglas clínicas.
-# ---------------------------------------------------------------------------
 
 app.include_router(create_rules_router(
     get_connection, utc_now, evaluate_time_rules, require_roles,
 ))
 
-    # ---------------------------------------------------------------------------
-# CENTRO DE CONTROL DEL SUPERVISOR
-# ---------------------------------------------------------------------------
-# Consolida indicadores de pacientes activos, prioridades, alertas, tareas
-# y tiempos desde el ingreso. La información se calcula en el servidor para
-# ofrecer una única lectura operacional y auditable de la situación actual.
-# ---------------------------------------------------------------------------
 app.include_router(create_episode_registration_router(
     get_connection, utc_now, episode_detail, add_event, require_roles,
 ))
 
-# ---------------------------------------------------------------------------
-# HISTORIAL DE EPISODIOS CERRADOS
-# ---------------------------------------------------------------------------
-# Permite consultar episodios que ya finalizaron sin mezclarlos con la
-# operación clínica activa. El historial es accesible para recepción,
-# médicos y supervisores.
-# ---------------------------------------------------------------------------
-
 app.include_router(create_episode_queries_router(
     get_connection, episode_detail, add_event, authenticated_user, require_roles,
 ))
-
 
 app.include_router(create_nursing_router(
     get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
@@ -495,18 +463,9 @@ app.include_router(create_alerts_router(
     get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
 ))
 
-# ---------------------------------------------------------------------------
-# EVALUACIÓN MÉDICA
-# ---------------------------------------------------------------------------
-# Este endpoint permite que un usuario con rol DOCTOR registre una evaluación
-# clínica sobre un episodio activo. La evaluación no modifica el expediente
-# histórico: crea un evento auditable que conserva médico, fecha y contenido.
-# ---------------------------------------------------------------------------
-
 app.include_router(create_tasks_router(
     get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
 ))
-
 
 app.include_router(create_medical_router(
     get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,

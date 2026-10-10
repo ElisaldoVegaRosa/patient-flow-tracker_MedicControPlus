@@ -2,6 +2,22 @@
 
 ## Última etapa
 
+### Entrega 33K: composición final y revisión de cierre
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- Composición de los diez routers reunida en `backend/app/main.py`;
+  retirados comentarios desubicados y espacios entre bloques.
+- AST completo y OpenAPI idénticos: código ejecutable, orden de registro,
+  dependencias, métodos, respuestas y permisos conservados.
+- Validación: 96 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33k-final` por el bloqueo conocido de socketpair.
+- Sin comportamiento nuevo; no se requieren pruebas adicionales.
+- Frontend y base local conservados. Diff revisado sin errores de whitespace.
+- Revisión de cierre: rutas por área separadas, sin importaciones de main
+  desde los routers. Servicios compartidos conservados en main, fuera del alcance.
+- Criterios técnicos de la Etapa 33 cumplidos; cierre pendiente de publicación
+  de 33K y aprobación de su CI.
+
 ### Entrega 33J: carga de datos demo
 
 - Entrega cerrada y publicada en
@@ -563,8 +579,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar la composición final y los criterios de cierre de la Etapa 33.
-33J está publicada y su CI aprobada; la Etapa 33 continúa abierta.
+Revisar y autorizar la publicación de 33K y comprobar su CI para cerrar
+la Etapa 33. Después corresponde revisar las PRs de Dependabot de la Etapa 34,
+con alcance y autorización propios.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
