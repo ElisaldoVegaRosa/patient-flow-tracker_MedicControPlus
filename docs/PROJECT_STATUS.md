@@ -4,7 +4,8 @@
 
 ### Entrega 33K: composición final y revisión de cierre
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `c7ddff2736eb25257f855a14cf81749dccc09b9d`; CI `38013558171` aprobada.
 - Composición de los diez routers reunida en `backend/app/main.py`;
   retirados comentarios desubicados y espacios entre bloques.
 - AST completo y OpenAPI idénticos: código ejecutable, orden de registro,
@@ -15,8 +16,9 @@
 - Frontend y base local conservados. Diff revisado sin errores de whitespace.
 - Revisión de cierre: rutas por área separadas, sin importaciones de main
   desde los routers. Servicios compartidos conservados en main, fuera del alcance.
-- Criterios técnicos de la Etapa 33 cumplidos; cierre pendiente de publicación
-  de 33K y aprobación de su CI.
+- Etapa 33 cerrada tras 33A–33K: rutas separadas por área y composición
+  revisada, con contratos y comportamiento conservados. Las referencias
+  anteriores a etapa abierta describen el estado histórico de cada entrega.
 
 ### Entrega 33J: carga de datos demo
 
@@ -579,9 +581,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar la publicación de 33K y comprobar su CI para cerrar
-la Etapa 33. Después corresponde revisar las PRs de Dependabot de la Etapa 34,
-con alcance y autorización propios.
+Etapa 33 cerrada. Revisar el estado y el alcance de las PRs pendientes de
+Dependabot para la Etapa 34; cada actualización requiere evaluación y
+autorización propias antes de publicarse.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
