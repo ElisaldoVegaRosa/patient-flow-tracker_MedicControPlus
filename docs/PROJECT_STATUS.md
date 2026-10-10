@@ -4,7 +4,8 @@
 
 ### Entrega 35A: matriz de permisos y tareas
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `919e5f85001cc612b035a1fc9d04d805e5cf88f2`; CI `38016047782` aprobada.
 - Matriz de acciones por rol y estado documentada en `docs/PERMISSIONS_MATRIX.md`.
 - Cinco casos nuevos recorren los cinco roles y los tres servicios de tareas:
   creación, finalización, sesión ausente, repetición y rechazo tras alta.
@@ -627,9 +628,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar la publicación de 35A y comprobar su CI. Después
-revisar cobertura de rechazos relevantes y criterios de cierre de la Etapa 35;
-cualquier defecto requiere una corrección independiente autorizada.
+35A publicada y CI aprobada. Revisar cobertura de rechazos relevantes y
+criterios de cierre de la Etapa 35; cualquier defecto requiere una corrección
+independiente autorizada.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

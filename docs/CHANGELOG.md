@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 35A: matriz de permisos y tareas
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `919e5f85001cc612b035a1fc9d04d805e5cf88f2`; CI `38016047782` aprobada.
 - Matriz de acciones por rol y estado documentada en `docs/PERMISSIONS_MATRIX.md`.
 - Cinco casos nuevos recorren los cinco roles y los tres servicios de tareas:
   creación, finalización, sesión ausente, repetición y rechazo tras alta.
