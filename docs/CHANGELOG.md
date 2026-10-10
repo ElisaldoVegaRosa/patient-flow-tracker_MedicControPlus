@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 37A: recuperación de nota de alta
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `323094dc53d0d5f398b025ae5bbefbf0d291787c`; CI `38055045590` aprobada.
 - Mejora elegida y autorizada para la Etapa 37: recuperación de nota de alta
   tras HTTP 401 según el diseño de 36A.
 - Login sin recarga; borrador solo en memoria durante 30 minutos desde el

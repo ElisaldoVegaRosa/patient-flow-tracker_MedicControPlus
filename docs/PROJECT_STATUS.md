@@ -4,7 +4,8 @@
 
 ### Entrega 37A: recuperación de nota de alta
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `323094dc53d0d5f398b025ae5bbefbf0d291787c`; CI `38055045590` aprobada.
 - Mejora elegida y autorizada para la Etapa 37: recuperación de nota de alta
   tras HTTP 401 según el diseño de 36A.
 - Login sin recarga; borrador solo en memoria durante 30 minutos desde el
@@ -697,15 +698,15 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar la publicación de 37A y comprobar su CI. Después
-revisar los criterios de aceptación y cierre de la mejora elegida para la
-Etapa 37; no se autoriza otra mejora por esta entrega.
+37A publicada y CI aprobada. Revisar los criterios de aceptación y cierre de
+la mejora elegida para la Etapa 37; cualquier extensión requiere alcance
+y autorización propios.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. Navegación, recarga y cierre de pestaña siguen
 perdiendo el borrador; otros formularios no tienen recuperación.
 No se almacenan notas clínicas en localStorage/sessionStorage ni en el backend.
 
-La implementación de 37A fue autorizada; su publicación está pendiente.
+La implementación de 37A está publicada y su CI aprobada.
 El contrato backend no cambia: la exigencia de nota no vacía se aplica en
 esta UI y el alta requiere una nueva acción explícita del médico.
