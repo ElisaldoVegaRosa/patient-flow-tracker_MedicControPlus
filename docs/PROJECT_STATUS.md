@@ -4,7 +4,8 @@
 
 ### Entrega 33J: carga de datos demo
 
-- Implementada y validada localmente; pendiente de commit, push y CI.
+- Entrega cerrada y publicada en
+  `f1ce279a9192de290ca48095532475d7ad624268`; CI `38012709436` aprobada.
 - `POST /demo/seed` extraído a `backend/app/routes/demo.py`, mediante APIRouter.
 - Conexión, fecha, eventos y permisos recibidos explícitamente; composición
   conservada en `main.py`. Acceso exclusivo de supervisor conservado.
@@ -562,8 +563,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Revisar y autorizar la publicación de 33J y comprobar su CI.
-Después resta revisar la composición y los criterios de cierre de la Etapa 33.
+Revisar la composición final y los criterios de cierre de la Etapa 33.
+33J está publicada y su CI aprobada; la Etapa 33 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
