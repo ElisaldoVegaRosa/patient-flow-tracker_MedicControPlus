@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 34A: actualización de setup-python
+
+- Cerrada y publicada: PR #1 de Dependabot integrada en
+  `92c68d7684e95ac7af583bcb6425bcc7dab5da99`.
+- `actions/setup-python` actualizado de v6 a v7 en el workflow de CI.
+  Python 3.12, caché pip, dependencias y comandos de validación conservados.
+- Diff de una línea revisado; parámetros utilizados disponibles en v7.
+- PR actualizada con main antes de integrar: CI `38013945187` aprobada.
+- CI posterior en main `38014058972` aprobada: backend, frontend, lint y build.
+- Sin cambios en aplicación, esquema ni base local; no se repiten pruebas locales
+  para este cambio exclusivo de GitHub Actions.
+- Etapa 34 abierta: PR #2 de checkout pendiente de evaluación y autorización propias.
+
+---
+
 ## Entrega 33K: composición final y revisión de cierre
 
 - Entrega cerrada y publicada en
