@@ -294,11 +294,12 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
             state_after_invalid_transition.json()["events"]
         ) == events_count_before_invalid_transition
 
+        discharge_note = "Seguimiento en consulta.\nIndicaciones entregadas al paciente."
         discharge_response = client.post(
             f"/episodes/{episode['id']}/discharge",
             headers=doctor_headers,
             json={
-                "note": "Paciente estable",
+                "note": discharge_note,
             },
         )
 
@@ -323,6 +324,20 @@ def test_complete_clinical_flow(tmp_path: Path) -> None:
         assert "TASK_CREATED" in event_types
         assert "TASK_COMPLETED" in event_types
         assert "DISCHARGE" in event_types
+
+        # La nota enviada se conserva en auditoría y en consultas posteriores.
+        detail_response = client.get(
+            f"/episodes/{episode['id']}", headers=doctor_headers,
+        )
+        assert detail_response.status_code == 200
+        for detail in (closed_episode, detail_response.json()):
+            discharge_events = [
+                event for event in detail["events"]
+                if event["type"] == "DISCHARGE"
+            ]
+            assert len(discharge_events) == 1
+            assert discharge_events[0]["note"] == discharge_note
+            assert discharge_events[0]["username"] == "medico"
 
 
 def test_reception_cannot_register_vitals(tmp_path: Path) -> None:
@@ -429,6 +444,210 @@ def test_supervisor_dashboard_and_permissions(
 
         assert forbidden_response.status_code == 403
         
+def test_supervisor_dashboard_does_not_evaluate_time_rules(
+    tmp_path: Path,
+) -> None:
+    """
+    El dashboard supervisor debe ser una consulta sin efectos secundarios.
+
+    La evaluacion temporal queda reservada para POST /rules/evaluate.
+    """
+
+    main.DATABASE_PATH = tmp_path / "supervisor-dashboard-readonly.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente Reglas Explicitas",
+                "birth_date": "1988-08-08",
+                "document": "RULES-GET-001",
+                "priority": 3,
+                "location": "Recepcion",
+            },
+        )
+
+        assert create_response.status_code == 201
+
+        episode_id = create_response.json()["id"]
+
+        nurse_headers = login(client, "enfermeria")
+
+        triage_response = client.post(
+            f"/episodes/{episode_id}/triage",
+            headers=nurse_headers,
+            json={
+                "priority": 3,
+                "location": "Observacion",
+                "assigned_to": "Enfermeria A",
+            },
+        )
+
+        assert triage_response.status_code == 200
+
+        doctor_headers = login(client, "medico")
+
+        task_response = client.post(
+            f"/episodes/{episode_id}/tasks",
+            headers=doctor_headers,
+            json={
+                "title": "Estudio pendiente",
+                "service": "LAB",
+            },
+        )
+
+        assert task_response.status_code == 201
+
+        old_time = (
+            datetime.now(timezone.utc) - timedelta(minutes=90)
+        ).isoformat()
+
+        connection = main.get_connection()
+
+        connection.execute(
+            """
+            UPDATE tasks
+            SET created_at = ?
+            WHERE episode_id = ?
+            """,
+            (
+                old_time,
+                episode_id,
+            ),
+        )
+
+        initial_alert_count = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM alerts
+            """
+        ).fetchone()["total"]
+
+        initial_event_count = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM events
+            """
+        ).fetchone()["total"]
+
+        connection.commit()
+        connection.close()
+
+        supervisor_headers = login(client, "supervisor")
+
+        first_dashboard = client.get(
+            "/supervisor/dashboard",
+            headers=supervisor_headers,
+        )
+
+        assert first_dashboard.status_code == 200
+
+        second_dashboard = client.get(
+            "/supervisor/dashboard",
+            headers=supervisor_headers,
+        )
+
+        assert second_dashboard.status_code == 200
+
+        readonly_connection = main.get_connection()
+
+        alerts_after_dashboard = readonly_connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM alerts
+            """
+        ).fetchone()["total"]
+
+        events_after_dashboard = readonly_connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM events
+            """
+        ).fetchone()["total"]
+
+        readonly_connection.close()
+
+        assert alerts_after_dashboard == initial_alert_count
+        assert events_after_dashboard == initial_event_count
+
+        first_evaluation = client.post(
+            "/rules/evaluate",
+            headers=supervisor_headers,
+        )
+
+        assert first_evaluation.status_code == 200
+        assert first_evaluation.json()["generated_alerts"] == 1
+
+        evaluated_connection = main.get_connection()
+
+        task_alerts = evaluated_connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM alerts
+            WHERE episode_id = ?
+            AND reason = 'Tarea pendiente con tiempo excedido'
+            AND status != 'RESOLVED'
+            """,
+            (episode_id,),
+        ).fetchone()["total"]
+
+        alert_events = evaluated_connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM events
+            WHERE episode_id = ?
+            AND type = 'ALERT_CREATED'
+            AND note = 'Tarea pendiente con tiempo excedido'
+            """,
+            (episode_id,),
+        ).fetchone()["total"]
+
+        evaluated_connection.close()
+
+        assert task_alerts == 1
+        assert alert_events == 1
+
+        second_evaluation = client.post(
+            "/rules/evaluate",
+            headers=supervisor_headers,
+        )
+
+        assert second_evaluation.status_code == 200
+        assert second_evaluation.json()["generated_alerts"] == 0
+
+        final_connection = main.get_connection()
+
+        final_task_alerts = final_connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM alerts
+            WHERE episode_id = ?
+            AND reason = 'Tarea pendiente con tiempo excedido'
+            AND status != 'RESOLVED'
+            """,
+            (episode_id,),
+        ).fetchone()["total"]
+
+        final_alert_events = final_connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM events
+            WHERE episode_id = ?
+            AND type = 'ALERT_CREATED'
+            AND note = 'Tarea pendiente con tiempo excedido'
+            """,
+            (episode_id,),
+        ).fetchone()["total"]
+
+        final_connection.close()
+
+        assert final_task_alerts == 1
+        assert final_alert_events == 1
+
 def test_time_rules_generate_alerts_without_duplicates(
     tmp_path: Path,
 ) -> None:
@@ -1079,6 +1298,32 @@ def test_episode_integrity_and_vital_ranges(
             "La tarea ya está completada"
         )
 
+        missing_task_response = client.patch(
+            "/tasks/999999/complete",
+            headers=doctor_headers,
+            json={
+                "result": "Resultado inexistente",
+            },
+        )
+
+        assert missing_task_response.status_code == 404
+        assert missing_task_response.json()["detail"] == (
+            "Tarea no encontrada"
+        )
+
+        unauthorized_completion_response = client.patch(
+            f"/tasks/{task_id}/complete",
+            headers=reception_headers,
+            json={
+                "result": "Resultado no autorizado",
+            },
+        )
+
+        assert unauthorized_completion_response.status_code == 403
+        assert unauthorized_completion_response.json()["detail"] == (
+            "Su rol no tiene permiso para esta acción"
+        )
+
         discharge_response = client.post(
             f"/episodes/{episode_id}/discharge",
             headers=doctor_headers,
@@ -1169,3 +1414,122 @@ def test_episode_integrity_and_vital_ranges(
         ]
 
         assert len(discharge_events) == 1
+
+
+def test_complete_task_rejects_closed_episode_without_mutation(
+    tmp_path: Path,
+) -> None:
+    """
+    Una tarea pendiente no puede completarse si su episodio ya fue cerrado.
+    """
+
+    main.DATABASE_PATH = tmp_path / "task-closed-episode.db"
+    main.initialize_database()
+
+    with TestClient(main.app) as client:
+        reception_headers = login(client, "recepcion")
+        doctor_headers = login(client, "medico")
+
+        create_response = client.post(
+            "/episodes",
+            headers=reception_headers,
+            json={
+                "name": "Paciente Tarea Cerrada",
+                "birth_date": "1991-09-09",
+                "document": "TASK-CLOSED-001",
+                "priority": 3,
+                "location": "Recepcion",
+            },
+        )
+
+        assert create_response.status_code == 201
+
+        episode_id = create_response.json()["id"]
+
+        task_response = client.post(
+            f"/episodes/{episode_id}/tasks",
+            headers=doctor_headers,
+            json={
+                "title": "Seguimiento posterior",
+                "service": "MEDICAL",
+            },
+        )
+
+        assert task_response.status_code == 201
+
+        task_id = task_response.json()["tasks"][0]["id"]
+
+        discharge_response = client.post(
+            f"/episodes/{episode_id}/discharge",
+            headers=doctor_headers,
+            json={
+                "note": "Alta previa a completar tarea",
+            },
+        )
+
+        assert discharge_response.status_code == 200
+
+        closed_episode = discharge_response.json()
+        closed_at = closed_episode["closed_at"]
+        initial_event_count = len(closed_episode["events"])
+
+        completion_response = client.patch(
+            f"/tasks/{task_id}/complete",
+            headers=doctor_headers,
+            json={
+                "result": "Resultado no permitido",
+            },
+        )
+
+        assert completion_response.status_code == 409
+        assert completion_response.json()["detail"] == (
+            "El episodio está cerrado"
+        )
+
+        connection = main.get_connection()
+
+        task = connection.execute(
+            """
+            SELECT status, result
+            FROM tasks
+            WHERE id = ?
+            """,
+            (task_id,),
+        ).fetchone()
+
+        episode = connection.execute(
+            """
+            SELECT status, closed_at
+            FROM episodes
+            WHERE id = ?
+            """,
+            (episode_id,),
+        ).fetchone()
+
+        completed_event_count = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM events
+            WHERE episode_id = ?
+            AND type = 'TASK_COMPLETED'
+            """,
+            (episode_id,),
+        ).fetchone()["total"]
+
+        total_event_count = connection.execute(
+            """
+            SELECT COUNT(*) AS total
+            FROM events
+            WHERE episode_id = ?
+            """,
+            (episode_id,),
+        ).fetchone()["total"]
+
+        connection.close()
+
+        assert task["status"] == "PENDING"
+        assert task["result"] is None
+        assert episode["status"] == "CLOSED"
+        assert episode["closed_at"] == closed_at
+        assert completed_event_count == 0
+        assert total_event_count == initial_event_count

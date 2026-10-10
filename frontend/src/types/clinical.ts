@@ -142,6 +142,13 @@ export type SupervisorData = {
   requested_by: string;
 };
 
+export type TimeRulesEvaluationResponse = {
+  evaluated_episodes: number;
+  generated_alerts: number;
+  evaluated_at: string;
+  requested_by: string;
+};
+
 export type LaboratoryOrder = {
   id: number;
   episode_id: number;

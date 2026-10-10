@@ -5,6 +5,650 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 33K: composición final y revisión de cierre
+
+- Entrega cerrada y publicada en
+  `c7ddff2736eb25257f855a14cf81749dccc09b9d`; CI `38013558171` aprobada.
+- Composición de los diez routers reunida en `backend/app/main.py`;
+  retirados comentarios desubicados y espacios entre bloques.
+- AST completo y OpenAPI idénticos: código ejecutable, orden de registro,
+  dependencias, métodos, respuestas y permisos conservados.
+- Validación: 96 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33k-final` por el bloqueo conocido de socketpair.
+- Sin comportamiento nuevo; no se requieren pruebas adicionales.
+- Frontend y base local conservados. Diff revisado sin errores de whitespace.
+- Revisión de cierre: rutas por área separadas, sin importaciones de main
+  desde los routers. Servicios compartidos conservados en main, fuera del alcance.
+- Etapa 33 cerrada tras 33A–33K: rutas separadas por área y composición
+  revisada, con contratos y comportamiento conservados. Las referencias
+  anteriores a etapa abierta describen el estado histórico de cada entrega.
+
+---
+
+## Entrega 33J: carga de datos demo
+
+- Entrega cerrada y publicada en
+  `f1ce279a9192de290ca48095532475d7ad624268`; CI `38012709436` aprobada.
+- `POST /demo/seed` extraído a `backend/app/routes/demo.py`, mediante APIRouter.
+- Conexión, fecha, eventos y permisos recibidos explícitamente; composición
+  conservada en `main.py`. Acceso exclusivo de supervisor conservado.
+- Cuerpo comparado con el original y OpenAPI completo idéntico.
+- Seis casos nuevos verifican registro, método, cinco roles y conservación de
+  pacientes, episodios, tareas, alertas y eventos ante una segunda carga.
+- Se conserva la prueba de doce pacientes demo y protección de pacientes manuales.
+- Validación: 96 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33j-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend y base local conservados.
+- La Etapa 33 continúa abierta; resta revisar composición y criterios de cierre.
+
+---
+
+## Entrega 33I: evaluación de reglas temporales
+
+- Entrega cerrada y publicada en
+  `e31529084eee07f7a819772621be0d65a18f659a`; CI `37876308581` aprobada.
+- `POST /rules/evaluate` extraído a `backend/app/routes/rules.py`, mediante
+  APIRouter; motor compartido `evaluate_time_rules` conservado en `main.py`.
+- Conexión, fecha, motor y permisos recibidos explícitamente.
+- Cuerpo comparado con el original y OpenAPI completo idéntico.
+- Seis casos nuevos verifican registro único, método POST, cinco roles,
+  evaluación vacía, identidad solicitante y fecha UTC.
+- Se conservan pruebas existentes de generación temporal y ausencia de duplicados.
+- Validación: 90 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33i-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend y datos locales conservados.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Entrega 33H: registro de episodios
+
+- Entrega cerrada y publicada en
+  `be42aed69e4229a1962aaf49dda26deaecccedde`; CI `37874720158` aprobada.
+- `POST /episodes` y `EpisodeCreate` extraídos a
+  `backend/app/routes/episode_registration.py`, mediante APIRouter.
+- Conexión, fecha, detalle, eventos y permisos recibidos explícitamente;
+  composición en `main.py`. Creación de paciente, episodio activo y QR conservada.
+- Cuerpo comparado con el original y OpenAPI completo idéntico.
+- Siete casos nuevos verifican registro único, código 201, cinco roles, valores
+  iniciales, persistencia y vínculo paciente/episodio, evento, QR distintos y
+  prioridades inválidas sin registros. Se conserva el flujo clínico existente.
+- Validación: 84 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33h-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Entrega 33G: evaluación médica y alta
+
+- Entrega cerrada y publicada en
+  `ef92feff8054feab540cf9803776136eb19c0931`; CI `37873651116` aprobada.
+- Rutas de evaluación médica y alta, junto a sus modelos, extraídas a
+  `backend/app/routes/medical.py`, mediante APIRouter.
+- Dependencias de conexión, fecha, detalle, eventos, episodio activo y permisos
+  recibidas explícitamente; composición en `main.py`.
+- Cuerpos comparados con el original y OpenAPI completo idéntico.
+- Siete casos nuevos verifican registro, métodos, acceso exclusivo de médico,
+  notas y eventos, cierre, rechazo posterior al cierre y validaciones de petición.
+- Se conservan pruebas existentes de flujo clínico, historial y nota de alta.
+- Validación: 77 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33g-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Entrega 33F: triaje y signos vitales
+
+- Entrega cerrada y publicada en
+  `3ad17074b1d8cfeb3021c7293f88609ea6fd4dc7`; CI `37872644967` aprobada.
+- Rutas de triaje y signos vitales, junto a sus modelos, extraídas a
+  `backend/app/routes/nursing.py`, mediante APIRouter.
+- Dependencias de conexión, fecha, detalle, eventos, episodio activo y permisos
+  recibidas explícitamente; composición en `main.py`.
+- Cuerpos comparados con el original y OpenAPI completo idéntico.
+- Siete casos nuevos verifican registro, métodos, código 201, permisos distintos
+  para los cinco roles, umbrales de alertas y ausencia de duplicados.
+- Se conservan pruebas existentes de rangos inválidos y episodios cerrados.
+- Validación: 70 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33f-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Entrega 33E: actualización de alertas
+
+- Entrega cerrada y publicada en
+  `6af0bacfbc94a4f8e4c37e5a40416b719ad29f7c`; CI `37868893764` aprobada.
+- `PATCH /alerts/{alert_id}`, modelo y matriz de transiciones en
+  `backend/app/routes/alerts.py`; matriz importada en `main.py` por compatibilidad.
+- Router recibe conexión, fecha, detalle, eventos, protección de episodio activo
+  y permisos; composición conservada en `main.py`.
+- Lógica comparada con el original y OpenAPI completo idéntico.
+- Siete casos nuevos cubren registro único, compatibilidad de matriz, cinco roles,
+  historial y eventos, y rechazo en episodio cerrado sin mutación.
+  Se conservan pruebas existentes de transiciones y flujo clínico.
+- Validación: 63 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33e-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Entrega 33D: tareas y laboratorio
+
+- Entrega cerrada y publicada en
+  `4d485ebd9d6790e5ebd447b888a05c62c6cec0c0`; CI `37867451079` aprobada.
+- Creación de tareas, bandeja de laboratorio y finalización de tareas en
+  `backend/app/routes/tasks.py`, junto a sus dos modelos de petición.
+- Router con conexión, fecha, detalle, eventos, protección de episodio activo
+  y permisos recibidos explícitamente; composición en `main.py`.
+- Cuerpos comparados con el original y OpenAPI completo idéntico.
+- Cuatro casos nuevos verifican registro y métodos, código 201, filtros
+  PENDING/COMPLETED/ALL, servicio LAB, orden y ausencia de datos QR;
+  filtro inválido devuelve 422. Pruebas existentes cubren permisos, resultados,
+  duplicados y finalización rechazada en episodio cerrado sin mutación.
+- Validación: 56 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33d-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Entrega 33C: historial, detalle y escaneo
+
+- Entrega cerrada y publicada en
+  `ca41eb80512763b421d9e29b526b6439c3109440`; CI `37866233307` aprobada.
+- `GET /episodes/history`, `GET /episodes/{episode_id}` y `GET /scan/{qr_token}`
+  en `backend/app/routes/episode_queries.py`, mediante APIRouter.
+- Conexión, detalle, registro de eventos y dependencias de autenticación y rol
+  recibidos explícitamente; el router no importa `main.py`.
+- Consultas, respuestas, permisos, orden de rutas y evento `QR_SCANNED`
+  conservados. Cuerpos comparados y OpenAPI completo idéntico antes y después.
+- Siete casos nuevos cubren registro y orden, cinco roles, episodios inexistentes,
+  evento único del escaneo y rechazo de pulsera desconocida o episodio cerrado
+  sin nuevos eventos. Se conserva la prueba existente de historial cerrado.
+- Validación: 52 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33c-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Entrega 33B: router de paneles
+
+- Entrega cerrada y publicada en
+  `0247346057a9b9e1dcda95ddf26515c4ccc1aaf6`; CI `37865415981` aprobada.
+- `GET /dashboard` y `GET /supervisor/dashboard` en
+  `backend/app/routes/dashboard.py`, mediante APIRouter.
+- Conexión, detalle de episodio, fecha, autenticación y permisos recibidos
+  explícitamente; composición conservada en `main.py`.
+- Consultas, métricas, respuestas y permisos conservados; cuerpos comparados
+  con el original y OpenAPI completo idéntico antes y después.
+- Seis casos nuevos cubren registro único, métodos, acceso de los cinco roles
+  y paneles vacíos. Pruebas existentes conservan métricas y consulta supervisor
+  sin generación de alertas ni eventos.
+- Validación: 45 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33b-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Entrega 33A: router de autenticación
+
+- Entrega cerrada y publicada en
+  `f73e2c2261112464d7a77918f537c328bc756dbd`; CI `37864729924` aprobada.
+- `/auth/login`, `/auth/me`, `/auth/logout` y `LoginRequest` en
+  `backend/app/routes/auth.py`, con APIRouter y dependencias explícitas.
+- Composición, conexión, fecha y autenticación conservadas en `main.py`.
+  El router no importa `main.py`.
+- Métodos, respuestas, permisos y sesiones conservados; OpenAPI completo
+  idéntico antes y después.
+- Dos pruebas nuevas verifican registro único, métodos y uso de la
+  dependencia de autenticación suministrada.
+- Validación: 39 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33a-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend sin cambios.
+- La Etapa 33 continúa abierta.
+
+---
+
+## Cierre de la Etapa 32
+
+- 32A–32C completan las tres entregas previstas: hashes, validación y
+  autorización, y lógica de inicio/cierre de sesión y usuario actual.
+- Criterios cumplidos: hashes y formatos conservados, duración de ocho horas,
+  persistencia y revocación independientes, permisos y contratos HTTP.
+- Evidencia: `security.py`, `auth.py`, wrappers FastAPI en `main.py` y
+  pruebas de seguridad, sesiones y roles. Exportaciones compatibles conservadas.
+- Revisión del código de `5278fd7`; 37 pruebas backend y CI `37862024711`
+  y `37862184127` ya aprobadas. Sin nuevas pruebas ni cambios funcionales.
+- Etapa 32 cerrada. Las referencias anteriores a etapa abierta son históricas.
+- Próximo paso: definir y aprobar 33A; este cierre no autoriza implementarla.
+
+---
+
+## Etapa 32C - Separación de endpoints de autenticación
+
+- Entrega cerrada y publicada en
+  `65e2b3cd21999971f1f96405ff282d085d7177e4`; CI `37862024711` aprobada.
+- Lógica en `backend/app/auth.py`; rutas, modelos y dependencias en `main.py`.
+- Token aleatorio, hash persistido, duración de ocho horas, respuestas y
+  revocación conservados. Exportaciones de compatibilidad mantenidas.
+- Cuatro casos nuevos cubren contraseña incorrecta, usuario desconocido,
+  usuario inactivo y cierre de una sesión sin afectar otra.
+- Validación: 37 pruebas backend aprobadas fuera del sandbox, una advertencia;
+  temporal `.tmp/pytest-32c-final`. Diff revisado sin errores de whitespace.
+- La Etapa 32 continúa abierta.
+
+---
+
+## Etapa 32B - Separación de sesiones y autorización por rol
+
+- Validación de sesión y autorización movidas a `backend/app/auth.py`.
+- Dependencias FastAPI en `main.py` conservadas; conexión y fecha recibidas
+  como parámetros. Expiración, revocación, usuario activo y 401/403 conservados.
+- Once casos nuevos cubren estados de sesión, ausencia de token y los cinco roles.
+- Validación: 33 pruebas backend aprobadas fuera del sandbox, una advertencia;
+  temporal `.tmp/pytest-32b-verified` y diagnóstico de bloqueo activado.
+- Lógica comparada con el original; diff revisado y `git diff --check`
+  sin errores, incluidos los archivos nuevos.
+- Sin cambios frontend, endpoints de autenticación, esquema ni datos demo.
+- Entrega cerrada y publicada en el commit
+  `e754f09f4c6b4e9d7dbab21aedaef9323579f418`; CI `37860358716` aprobada.
+  La Etapa 32 continúa abierta.
+
+---
+
+## Etapa 32A - Extracción de hash y verificación
+
+- Tres funciones movidas a `backend/app/security.py`, importadas en `main.py`.
+- SHA-256, PBKDF2, sal aleatoria, iteraciones, comparación y formatos conservados.
+- Tres pruebas nuevas de formato, verificación, sal, compatibilidad y acceso
+  desde `main.py`; las funciones coinciden con las originales.
+- Validación: 22 pruebas backend aprobadas fuera del sandbox, una advertencia.
+  Temporal `.tmp/pytest-32a-verified`; diagnóstico de bloqueo de socketpair
+  de asyncio en la ejecución dentro del sandbox, que fue interrumpida.
+- Diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios frontend, endpoints, validación de sesiones, roles ni datos demo.
+- Entrega cerrada y publicada en el commit
+  `4c85e9c8e2abefdbc3b9e3adef9d98e8e22f8af9`; CI `37858667828` aprobada.
+  La Etapa 32 continúa abierta.
+
+---
+
+## Cierre documental de Etapa 31
+
+- Criterios cumplidos tras 31A–31C: configuración, conexiones e inicialización
+  separadas, manteniendo ruta SQLite, esquema, datos, endpoints y arranque.
+- Evidencia vigente: 19 pruebas backend aprobadas; CI `37857021915`
+  y CI documental `37857173485` aprobadas.
+- Revisión documental sin cambios de código ni nuevas pruebas.
+  Las referencias anteriores a Etapa 31 abierta son históricas.
+- Propuesta 32A documentada, pendiente de autorización.
+
+---
+
+## Etapa 31C - Extracción de inicialización SQLite
+
+- Esquema y carga inicial de usuarios demo movidos a `database.py`;
+  wrapper y arranque en `main.py` conservados.
+- Conexión, usuarios y funciones de hash y fecha recibidos como parámetros.
+  SQL, commit y cierre conservados; solo se elimina espacio final en una línea SQL vacía.
+- Prueba nueva de reinicialización que conserva esquema, usuarios, sesiones
+  y episodios y verifica contraseñas demo.
+- Validación: 19 pruebas backend aprobadas fuera del sandbox, una advertencia.
+  Temporal `.tmp/pytest-31c-verified`, con diagnóstico de bloqueo activado;
+  temporal habitual rechazado por permisos y ejecución anterior interrumpida.
+- Diff revisado y `git diff --check` sin errores, incluido el archivo nuevo.
+- Sin cambios frontend, endpoints, esquema ni datos demo locales.
+- Entrega cerrada y publicada en el commit
+  `1838e5716892106d30ea6b40000c9e8c5a551b24`; CI `37857021915` aprobada.
+  La Etapa 31 continúa abierta.
+
+---
+
+## Etapa 31B - Extracción de conexiones SQLite
+
+- Creación de conexiones movida a `backend/app/database.py`, con ruta explícita.
+- `sqlite3.Row` y claves foráneas conservados. Wrapper en `main.py` mantiene
+  la sustitución de `main.DATABASE_PATH` usada por las pruebas.
+- Dos pruebas nuevas de filas por nombre, integridad referencial y separación
+  de bases; conservada la cobertura del wrapper con ruta temporal.
+- Validación: 18 pruebas backend aprobadas, tres advertencias conocidas;
+  diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios frontend, inicialización, consultas, endpoints, esquema ni datos demo.
+- Entrega cerrada y publicada en el commit
+  `376d59d85143371af407139f8ec459ced3e6dec5`; CI `37727737285` aprobada.
+  La Etapa 31 continúa abierta.
+
+---
+
+## Etapa 31A - Extracción de configuración backend
+
+- Constantes `DATABASE_PATH`, `DEMO_USERS`, `PASSWORD_HASH_ITERATIONS` y
+  `SESSION_DURATION_HOURS` movidas a `backend/app/config.py`.
+- Valores y ruta SQLite conservados; `main.DATABASE_PATH` mantiene la sustitución
+  utilizada por las pruebas. Funciones y clases de `main.py` conservadas.
+- Dos pruebas nuevas de ruta por defecto y conexión con sustitución temporal.
+- Validación: 16 pruebas backend aprobadas, tres advertencias conocidas;
+  diff revisado y `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios frontend, endpoints, esquema ni datos demo.
+- Entrega cerrada y publicada en el commit
+  `26a6567758c4ad324d642307e86524e6f760b5e9`; CI `37727047490` aprobada.
+  La Etapa 31 continúa abierta.
+
+---
+
+## Cierre documental de Etapa 30
+
+- Revisión de criterios tras 30A–30I: ocho páginas y `AppHeader` separados;
+  `App.tsx` mantiene composición, sesión, navegación y datos.
+- Cliente HTTP y tipos compartidos conservados; `EpisodePage` mantiene
+  su lógica propia según el alcance aprobado.
+- Evidencia vigente: 46 pruebas frontend, lint y build aprobados;
+  CI `37725349264` y CI documental `37725456535` aprobadas.
+- Etapa 30 cerrada; cierre documental publicado en
+  `9ed4dbfa4b23b2351f6eaa4958b0ca7eefca7f7d`, CI `37726240159` aprobada.
+  Las entregas anteriores conservan su estado histórico.
+- Sin cambios de código ni nuevas ejecuciones de pruebas.
+  Propuesta 31A documentada, pendiente de autorización.
+
+---
+
+## Etapa 30I - Extracción de AppHeader
+
+- Cabecera extraída a `frontend/src/components/AppHeader.tsx`, con usuario
+  y callbacks de navegación y logout; sin estado propio.
+- Botones, identidad, visibilidad por rol, textos y CSS conservados.
+  Navegación, sesión y API permanecen en `App.tsx`.
+- Cinco casos nuevos cubren botones visibles y callbacks por rol.
+- Validación: 46 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios de backend, cliente API, tipos compartidos, CSS ni dependencias.
+- Entrega cerrada y publicada en el commit
+  `a80d42c5394930579f43491ff47bfd57b11cc2f9`; CI `37725349264` aprobada.
+  La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 30H - Extracción de LoginPage
+
+- Formulario de acceso y vista de restauración extraídos a
+  `frontend/src/pages/LoginPage.tsx`, sin estado propio.
+- Formulario, cinco usuarios demo, valores iniciales, textos y CSS conservados.
+  Autenticación, restauración, token y errores permanecen en `App.tsx`.
+- Tres casos nuevos cubren ingreso correcto y restauración correcta o fallida;
+  se conservan las pruebas de formulario y credenciales rechazadas.
+- Validación: 41 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluidos los archivos nuevos.
+- Sin cambios de backend, cliente API, tipos compartidos, CSS ni dependencias.
+- Entrega cerrada y publicada en el commit
+  `18841e97464e3aa38ab91a0b98d88a6661abb93f`; CI `37724737074` aprobada.
+  La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 30G - Traslado de EpisodePage
+
+- Componente existente movido de `App.tsx` a `frontend/src/pages/EpisodePage.tsx`.
+- Props, estado local, llamadas API, permisos, formularios y presentación
+  conservados. Sesión, navegación y episodio seleccionado siguen en `App.tsx`.
+- Imports ajustados; cuerpo y props comparados con el original.
+- Validación: 38 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores, incluido el archivo nuevo.
+- Conservadas las pruebas ACTIVE/CLOSED por rol y de alta médica;
+  sin comportamiento nuevo ni pruebas nuevas para este traslado.
+- Sin cambios de backend, cliente API, tipos compartidos, CSS ni dependencias.
+- Entrega cerrada y publicada en el commit
+  `7cf60c706131da9f9f0e9207639e609989010ec7`; CI `37724043270` aprobada.
+  La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 30F - Extracción de SupervisorPage
+
+- Centro de control del supervisor extraído a `frontend/src/pages/SupervisorPage.tsx`,
+  con datos, filtro, mensaje, estado de evaluación y callbacks; sin estado propio.
+- Indicadores, tabla, filtros, textos, acciones y CSS conservados.
+  Estado, API, carga, errores, permisos y navegación permanecen en `App.tsx`.
+- Seis casos nuevos cubren filtros, indicadores, apertura del episodio,
+  actualización que restablece Todos y ausencia de acceso para otros roles.
+- Conservadas las pruebas de evaluación explícita de reglas y errores.
+- Validación: 38 pruebas frontend, lint y build aprobados.
+- Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
+- Entrega cerrada y publicada en el commit
+  `d700a5aa0e7acb0a398eadc11b7a9efc54086ebf`; CI `37723480808` aprobada.
+  La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 30E - Extracción de LaboratoryPage
+
+- Bandeja «Órdenes pendientes» extraída a `frontend/src/pages/LaboratoryPage.tsx`,
+  con `laboratoryQueue`, `onRefresh` y `onCompleteOrder`; sin estado propio.
+- Contador, estado vacío, tarjetas, textos, CSS y validación conservados.
+  API, carga, errores, permisos y navegación permanecen en `App.tsx`.
+- Siete casos nuevos de integración cubren actualización, acceso por rol,
+  publicación correcta y rechazo conservando formulario y resultado.
+- Validación: 32 pruebas frontend, lint y build aprobados.
+- Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
+- Entrega cerrada y publicada en el commit
+  `e0cc198ff117d118aee39bc2a9afe46b658412cb`; CI `37721355298` aprobada
+  con pruebas backend, frontend, lint y build.
+  La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 30D - Extracción de DashboardPage
+
+- Centro de control general extraído a `frontend/src/pages/DashboardPage.tsx`.
+  Recibe `dashboard`, `onRefresh` y `onOpenEpisode`, sin estado propio.
+- Indicadores, cálculos, tabla, estado vacío, textos y CSS conservados.
+  API, carga, errores, permisos y navegación permanecen en `App.tsx`.
+- Dos pruebas de integración en `App.dashboard.test.tsx` cubren indicadores,
+  exclusión de alertas resueltas y tareas completadas de sus conteos, apertura
+  del episodio seleccionado y actualización desde el estado vacío.
+- Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
+- Validación: 25 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores. Pruebas fuera del sandbox tras un fallo de
+  acceso a un temporal; corregida una opción no admitida en la prueba nueva.
+- Sin pruebas backend locales nuevas: extracción limitada al frontend.
+- Entrega cerrada y publicada en el commit
+  `3a4616125d3733168b60a8bafc1aacaf41b8b41d`; CI `37719496231` aprobada,
+  según el resumen de continuidad. La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 30C - Extracción de NewEpisodePage
+
+- Pantalla «Registrar llegada» extraída a `frontend/src/pages/NewEpisodePage.tsx`,
+  sin estado propio y con un callback `onSubmit` tipado para el formulario.
+- Campos, textos, valores iniciales y estilos conservados. Creación del episodio,
+  consulta API, errores, permisos y navegación permanecen en `App.tsx`.
+- Dos pruebas de integración añadidas: ingreso correcto con apertura del episodio
+  y actualización del dashboard; rechazo de la API conservando el formulario.
+- Sin cambios de backend, cliente API, tipos compartidos ni dependencias.
+- Validación: 23 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores. Sin pruebas backend nuevas: cambio de frontend.
+- Entrega cerrada y publicada en el commit
+  `466cc5efc592106e576db305747593a3ec726df5`; CI `37718612913` aprobada.
+  La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 30B - Extracción de ScanPage
+
+- Pantalla «Escanear pulsera» extraída a `frontend/src/pages/ScanPage.tsx`,
+  sin estado propio y con un callback `onSubmit` tipado para el formulario.
+- Textos, campo obligatorio y clases CSS conservados. Consulta API, errores,
+  permisos y navegación permanecen en `App.tsx`; sin cambios funcionales.
+- Se conservan los casos existentes de apertura por token para los cinco roles
+  y se añade una prueba del rechazo de la consulta que conserva el formulario.
+- Validación final: 21 pruebas frontend, lint y build aprobados; diff revisado
+  y `git diff --check` sin errores. La prueba nueva se corrigió para comprobar
+  el mensaje visible del aviso existente, sin modificar la UI ni sus tiempos.
+- Sin pruebas backend nuevas: extracción limitada al frontend.
+- Entrega cerrada y publicada en el commit
+  `37864c1a4dfd027c0796bb7aaaee846451c70b40`; CI `37717881092` aprobada.
+  La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 30A - Extracción de EpisodeHistoryPage
+
+- Pantalla de historial extraída a `frontend/src/pages/EpisodeHistoryPage.tsx`.
+  Recibe `historyData`, `onRefresh` y `onOpenEpisode`; reutiliza `HistoryData`
+  y las clases CSS existentes.
+- Estado, carga, errores, permisos, navegación y llamadas API permanecen en
+  `App.tsx`. Se conservan textos, tabla, fechas, valores alternativos y acciones.
+- Se conserva la prueba de consulta del historial después del alta y se añaden
+  dos casos: historial vacío y actualización mediante una nueva consulta.
+- Validación: 20 pruebas frontend, lint y build aprobados; diff revisado y
+  `git diff --check` sin errores. Se conserva el build anterior al reinicio del
+  equipo, sin cambios posteriores de código; pruebas y lint completados al
+  retomar. No se ejecutaron pruebas backend para esta extracción de frontend.
+- Entrega cerrada y publicada en el commit
+  `a77970cfa653af7b72254573063f2d5445ed9ee3`; CI `37716248936` aprobada.
+  La Etapa 30 continúa abierta.
+
+---
+
+## Etapa 29 - Nota de alta editable
+
+- El médico dispone de un campo accesible «Nota de alta» únicamente en
+  episodios ACTIVE. Empieza vacío y sustituye la afirmación fija de estabilidad.
+- La UI exige contenido después de `trim` y envía la nota sin espacios en
+  los extremos mediante el contrato existente `POST /episodes/{id}/discharge`.
+- Durante la solicitud se bloquean campo y envío; una guarda evita solicitudes
+  duplicadas. Ante errores de red y rechazos de la API se muestra el mensaje
+  y se conserva el borrador para corregirlo o reintentar, mientras la sesión
+  siga vigente y la pantalla permanezca abierta.
+- Limitación aceptada de Etapa 29: HTTP 401 activa el flujo existente de
+  expiración de sesión y recarga; el borrador se pierde. Tampoco persiste al
+  navegar o recargar. El hallazgo se cierra como limitación aceptada, sin
+  modificar la autenticación ni almacenar notas en localStorage/sessionStorage.
+  Recuperar borradores durante reautenticación queda pendiente para una etapa
+  independiente.
+- La nota continúa almacenada en el evento DISCHARGE y puede consultarse en
+  el timeline después del cierre y desde el historial. CLOSED sigue siendo
+  de solo lectura; no cambian permisos, reglas clínicas ni contratos backend.
+- Pruebas frontend de permisos/estado, nota vacía o con espacios, envío,
+  auditoría posterior, error HTTP/de red, reintento y prevención de duplicados.
+- Prueba backend existente ampliada para verificar que una nota personalizada
+  con salto de línea se conserva exactamente en DISCHARGE y al consultar el
+  episodio cerrado. Usa SQLite temporal; no se usa la DB clínica original.
+- Validación: `scripts/validate.ps1` aprobado; backend 14 pruebas (tres
+  advertencias conocidas), frontend 18 pruebas, lint y build aprobados.
+  `git diff --check` sin errores y hash original de `clinical.db` conservado.
+- Estas validaciones permanecen vigentes: el cierre del hallazgo HTTP 401
+  modifica exclusivamente documentación, sin cambios de código ni pruebas.
+
+---
+
+## Etapa 28 - Validación funcional completada y episodios de solo lectura
+
+### Corrección mediante TDD
+
+- `EpisodePage` deriva `isClosed` y muestra el aviso accesible «Episodio
+  cerrado — solo lectura» para episodios CLOSED.
+- Oculta triaje, registro de vitales, transiciones de alertas y completar
+  tareas cuando el episodio está cerrado. Evaluación médica, creación de
+  órdenes y alta ya exigían ACTIVE; conservan sus permisos actuales.
+- Mantiene identidad, vitales históricos, alertas e historial de transiciones,
+  tareas pendientes y timeline, incluidos tareas completadas y resultados.
+- No agrega llamadas HTTP ni modifica backend, endpoints, reglas clínicas,
+  dependencias o workflows. El backend continúa bloqueando las mutaciones.
+- Cinco casos parametrizados CLOSED fallaron primero por controles de escritura
+  presentes y aviso ausente. Los mismos casos pasan tras la corrección; otros
+  cinco verifican que ACTIVE conserva los controles existentes por rol.
+
+### Protocolo y resultados
+
+- Evidencias previas 28A–28E: smoke, autenticación y restauración de sesión,
+  recepción, QR, triaje, vitales y alertas; evaluación médica, orden y resultado
+  de laboratorio; supervisor de consulta y evaluación temporal explícita;
+  resolución de alertas, alta, historial y rechazos posteriores al cierre.
+- QA final EP-15: CLOSED, P2, tres alertas RESOLVED, una evaluación médica,
+  una tarea LAB completada con resultado simulado y 17 eventos auditables.
+- Los seis intentos de modificación posteriores al cierre de 28E devolvieron
+  HTTP 409 sin cambios clínicos. Esa evidencia previa se conserva; no se
+  repitieron mutaciones para esta corrección visual.
+- Frontend: 14 pruebas aprobadas (antes 4). Backend: 14 aprobadas, con tres
+  advertencias conocidas. Suite frontend, lint y build aprobados; una ejecución
+  de `scripts/validate.ps1` aprobada.
+- Captura desde historial con Chrome temporal y el snapshot QA cerrado:
+  `.tmp/stage28-evidence/e28-closed-readonly-fixed.png`. Aviso visible,
+  cero formularios/campos/botones de escritura en el detalle, datos históricos
+  visibles. El verificador de red confundió OPTIONS con escritura después de
+  guardar la captura; revisión del log confirmó solo GET, OPTIONS y login/logout.
+- Perfil y servidores cerrados por PIDs exactos. DB original restaurada desde
+  `clinical.before-stage28.db`, SHA-256
+  `4EE9CF8ADE09D813715B750444DA8870E6E2CDB6FF6935FEC428C0A1F0756049`.
+  Puertos 8000, 5173 y 9444 libres.
+- Etapa 28 funcional completada. Limitación aceptada pendiente: la nota de alta
+  sigue fija en UI («Alta médica; paciente estable»).
+
+---
+
+## Etapa 28B - Integridad al completar tareas
+
+### Implementado
+
+- `complete_task` ahora valida que el episodio asociado siga activo antes de
+  modificar la tarea o registrar auditoria de finalizacion.
+- Las tareas pendientes de episodios cerrados devuelven el rechazo de
+  integridad existente: `409 El episodio está cerrado`.
+- Al rechazar por episodio cerrado no se modifica la tarea, no se registra
+  `TASK_COMPLETED` y no cambian los datos de cierre del episodio.
+- Completar tareas de episodios activos conserva el comportamiento existente.
+- Se mantiene separado del cambio del dashboard supervisor y de las reglas
+  temporales explicitas.
+
+### Verificacion
+
+- Prueba backend de regresion para una tarea pendiente creada en un episodio
+  activo y rechazada despues del alta.
+- Se conservan contratos de `complete_task` para tarea inexistente, tarea ya
+  completada y rol no autorizado.
+
+### Proxima accion
+
+- Reanudar las pruebas funcionales de Etapa 28.
+
+---
+
+## Etapa 28 - Reglas temporales explicitas
+
+### Implementado
+
+- El dashboard de supervisor queda como consulta de solo lectura.
+- La evaluacion temporal se mantiene en `POST /rules/evaluate` como
+  accion explicita para los roles medico y supervisor.
+- El panel de supervisor incorpora el boton **Evaluar reglas temporales**.
+- El boton **Actualizar indicadores** conserva solamente la consulta del
+  dashboard.
+- La idempotencia de alertas temporales se preserva: una segunda evaluacion
+  no duplica alertas abiertas ni eventos `ALERT_CREATED`.
+- No se modificaron reglas clinicas, umbrales, razones ni severidades.
+- El defecto detectado en `complete_task` queda pendiente como correccion
+  separada.
+
+### Verificacion
+
+- Prueba backend de regresion para confirmar que `GET /supervisor/dashboard`
+  no modifica `alerts` ni `events`.
+- Prueba backend para confirmar que `POST /rules/evaluate` conserva la
+  evaluacion explicita y no duplica alertas.
+- Pruebas frontend para los botones de supervisor, la llamada explicita a
+  `POST /rules/evaluate`, la consulta posterior del dashboard y el manejo de
+  errores visible.
+
+---
+
 ## Etapa 1 — Base funcional
 
 ### Implementado
