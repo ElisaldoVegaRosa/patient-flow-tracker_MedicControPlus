@@ -2,6 +2,21 @@
 
 ## Última etapa
 
+### Etapa 36A: diseño de recuperación de nota de alta
+
+- Diseño acordado y documentado en `docs/DRAFT_RECOVERY_DESIGN.md`.
+- Alcance: recuperar solo nota de alta tras HTTP 401, en memoria durante
+  un máximo de 30 minutos, sin persistencia del texto clínico.
+- Restauración explícita para la misma identidad, rol DOCTOR y mismo episodio
+  ACTIVE consultado nuevamente; sin reenvío automático del alta.
+- Eliminación y casos de prueba definidos. Navegación, recarga y otros
+  formularios fuera del primer alcance.
+- Etapa 36 cerrada como evaluación de diseño. La recuperación continúa
+  sin implementar y requiere autorización independiente. Se conserva la
+  limitación actual de pérdida de borrador.
+- Solo documentación; sin nuevas validaciones de aplicación ni cambios
+  en frontend, backend o base local. Diff revisado sin errores de whitespace.
+
 ### Revisión de cierre de Etapa 35
 
 - Criterios revisados: matriz de acciones por rol y estado documentada,
@@ -656,9 +671,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 35 cerrada. Evaluar el diseño de recuperación de borradores de la
-Etapa 36: identidad, vigencia del episodio, almacenamiento y eliminación.
-La evaluación y su cierre no autorizan implementar la recuperación.
+Etapa 36 cerrada como diseño. Elegir la siguiente necesidad de la Etapa 37
+con alcance y criterio de aceptación propios; implementar recuperación
+requiere autorización independiente.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se

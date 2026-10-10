@@ -5,6 +5,23 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 36A: diseño de recuperación de nota de alta
+
+- Diseño acordado y documentado en `docs/DRAFT_RECOVERY_DESIGN.md`.
+- Alcance: recuperar solo nota de alta tras HTTP 401, en memoria durante
+  un máximo de 30 minutos, sin persistencia del texto clínico.
+- Restauración explícita para la misma identidad, rol DOCTOR y mismo episodio
+  ACTIVE consultado nuevamente; sin reenvío automático del alta.
+- Eliminación y casos de prueba definidos. Navegación, recarga y otros
+  formularios fuera del primer alcance.
+- Etapa 36 cerrada como evaluación de diseño. La recuperación continúa
+  sin implementar y requiere autorización independiente. Se conserva la
+  limitación actual de pérdida de borrador.
+- Solo documentación; sin nuevas validaciones de aplicación ni cambios
+  en frontend, backend o base local. Diff revisado sin errores de whitespace.
+
+---
+
 ## Revisión de cierre de Etapa 35
 
 - Criterios revisados: matriz de acciones por rol y estado documentada,

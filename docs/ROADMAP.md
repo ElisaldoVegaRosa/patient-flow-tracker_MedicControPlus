@@ -529,6 +529,21 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Etapa 35 cerrada tras 35A–35B y revisión final. Las referencias anteriores
   a etapa abierta corresponden al estado histórico de cada entrega.
 
+## Etapa 36A: diseño de recuperación de nota de alta
+
+- Diseño acordado y documentado en `docs/DRAFT_RECOVERY_DESIGN.md`.
+- Alcance: recuperar solo nota de alta tras HTTP 401, en memoria durante
+  un máximo de 30 minutos, sin persistencia del texto clínico.
+- Restauración explícita para la misma identidad, rol DOCTOR y mismo episodio
+  ACTIVE consultado nuevamente; sin reenvío automático del alta.
+- Eliminación y casos de prueba definidos. Navegación, recarga y otros
+  formularios fuera del primer alcance.
+- Etapa 36 cerrada como evaluación de diseño. La recuperación continúa
+  sin implementar y requiere autorización independiente. Se conserva la
+  limitación actual de pérdida de borrador.
+- Solo documentación; sin nuevas validaciones de aplicación ni cambios
+  en frontend, backend o base local. Diff revisado sin errores de whitespace.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -613,9 +628,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapa 35 cerrada. Evaluar el diseño de recuperación de borradores de la
-Etapa 36: identidad, vigencia del episodio, almacenamiento y eliminación.
-La evaluación y su cierre no autorizan implementar la recuperación.
+Etapa 36 cerrada como diseño. Elegir la siguiente necesidad de la Etapa 37
+con alcance y criterio de aceptación propios; implementar recuperación
+requiere autorización independiente.
 
 ## Fuentes
 
