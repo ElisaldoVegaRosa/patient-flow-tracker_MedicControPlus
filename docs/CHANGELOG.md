@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Revisión de cierre de Etapa 35
+
+- Criterios revisados: matriz de acciones por rol y estado documentada,
+  rechazos relevantes cubiertos y ausencia de discrepancias en el alcance probado.
+- 35A cubre tareas por rol y servicio; 35B refuerza conservación de siete tablas
+  clínicas tras rechazos en CLOSED. Las consultas permitidas conservan lectura.
+- Evidencia vigente: 106 pruebas backend aprobadas, una advertencia;
+  CI de 35B `38016930642` y documental `38017077021` aprobadas.
+- No se repiten validaciones ni se modifica aplicación, frontend o base local.
+- Política actual conservada; nuevas restricciones requerirían otro alcance.
+- Etapa 35 cerrada tras 35A–35B y revisión final. Las referencias anteriores
+  a etapa abierta corresponden al estado histórico de cada entrega.
+
+---
+
 ## Entrega 35B: rechazos en episodios cerrados
 
 - Entrega cerrada y publicada en

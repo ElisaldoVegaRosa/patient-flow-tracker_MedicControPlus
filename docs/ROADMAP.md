@@ -516,6 +516,19 @@ Plan reconstruido propuesto; no recuperado del chat original
   conservados. Frontend y base local sin cambios. Diff sin errores de whitespace.
 - Etapa 35 abierta: pendiente de revisión final de cierre.
 
+## Revisión de cierre de Etapa 35
+
+- Criterios revisados: matriz de acciones por rol y estado documentada,
+  rechazos relevantes cubiertos y ausencia de discrepancias en el alcance probado.
+- 35A cubre tareas por rol y servicio; 35B refuerza conservación de siete tablas
+  clínicas tras rechazos en CLOSED. Las consultas permitidas conservan lectura.
+- Evidencia vigente: 106 pruebas backend aprobadas, una advertencia;
+  CI de 35B `38016930642` y documental `38017077021` aprobadas.
+- No se repiten validaciones ni se modifica aplicación, frontend o base local.
+- Política actual conservada; nuevas restricciones requerirían otro alcance.
+- Etapa 35 cerrada tras 35A–35B y revisión final. Las referencias anteriores
+  a etapa abierta corresponden al estado histórico de cada entrega.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -600,8 +613,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-35B publicada y CI aprobada. Revisar los criterios de cierre de la Etapa 35.
-Cualquier defecto requiere una corrección independiente autorizada.
+Etapa 35 cerrada. Evaluar el diseño de recuperación de borradores de la
+Etapa 36: identidad, vigencia del episodio, almacenamiento y eliminación.
+La evaluación y su cierre no autorizan implementar la recuperación.
 
 ## Fuentes
 
