@@ -420,6 +420,21 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Diff revisado sin errores de whitespace. Frontend y datos locales conservados.
 - La Etapa 33 continúa abierta.
 
+## Entrega 33J: carga de datos demo
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- `POST /demo/seed` extraído a `backend/app/routes/demo.py`, mediante APIRouter.
+- Conexión, fecha, eventos y permisos recibidos explícitamente; composición
+  conservada en `main.py`. Acceso exclusivo de supervisor conservado.
+- Cuerpo comparado con el original y OpenAPI completo idéntico.
+- Seis casos nuevos verifican registro, método, cinco roles y conservación de
+  pacientes, episodios, tareas, alertas y eventos ante una segunda carga.
+- Se conserva la prueba de doce pacientes demo y protección de pacientes manuales.
+- Validación: 96 pruebas backend aprobadas, una advertencia; fuera del sandbox
+  con temporal `.tmp/pytest-33j-final` por el bloqueo previo de socketpair.
+- Diff revisado sin errores de whitespace. Frontend y base local conservados.
+- La Etapa 33 continúa abierta; resta revisar composición y criterios de cierre.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -504,8 +519,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Definir y aprobar el alcance de 33J: extracción de la ruta demo.
-33I está publicada y su CI aprobada; después resta revisar la composición.
+Revisar y autorizar la publicación de 33J y comprobar su CI.
+Después resta revisar la composición y los criterios de cierre de la Etapa 33.
 
 ## Fuentes
 
