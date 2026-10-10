@@ -482,6 +482,24 @@ Plan reconstruido propuesto; no recuperado del chat original
   No quedan PRs abiertas al comprobar el cierre. Las referencias anteriores
   a etapa abierta corresponden al estado histórico de cada entrega.
 
+## Entrega 35A: matriz de permisos y tareas
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- Matriz de acciones por rol y estado documentada en `docs/PERMISSIONS_MATRIX.md`.
+- Cinco casos nuevos recorren los cinco roles y los tres servicios de tareas:
+  creación, finalización, sesión ausente, repetición y rechazo tras alta.
+- Rechazos comparan pacientes, episodios, tareas, eventos, alertas, historial
+  de alertas y signos para comprobar ausencia de mutaciones.
+- Política existente conservada: LAB puede completar NURSING y MEDICAL.
+  No se propone cambiarla sin un alcance y autorización independientes.
+- Validación: 101 pruebas backend aprobadas, una advertencia; cinco casos
+  nuevos aprobados tras ajustar el cierre de conexiones del comparador.
+  Temporales `.tmp/pytest-35a-final` y `.tmp/pytest-35a-targeted`;
+  fuera del sandbox por el bloqueo conocido de socketpair.
+- No se encontraron discrepancias en el alcance probado. No cambia código
+  de aplicación, frontend ni base local. Diff revisado sin errores de whitespace.
+- Etapa 35 abierta: resta revisar cobertura de rechazos y criterios de cierre.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -566,9 +584,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapa 34 cerrada. Revisar la matriz de acciones por rol y estado del episodio
-para delimitar la Etapa 35. Cualquier defecto requiere una corrección
-independiente con alcance y autorización propios.
+Revisar y autorizar la publicación de 35A y comprobar su CI. Después
+revisar cobertura de rechazos relevantes y criterios de cierre de la Etapa 35;
+cualquier defecto requiere una corrección independiente autorizada.
 
 ## Fuentes
 
