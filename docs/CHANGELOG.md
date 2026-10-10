@@ -5,6 +5,23 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 34B: actualización de checkout y cierre
+
+- Cerrada y publicada: PR #2 de Dependabot integrada en
+  `39b735496bc7e7a1742b6344172d426993757ad4`.
+- `actions/checkout` actualizado de v5 a v7; resto del workflow conservado.
+- Diff de una línea revisado y documentación oficial contrastada: la protección
+  nueva para pull_request_target y workflow_run no afecta a los eventos usados.
+- PR actualizada con main: CI `38014890914` aprobada.
+- CI posterior en main `38014992716` aprobada: backend, frontend, lint y build.
+- Sin cambios en aplicación, esquema ni base local; no se repiten pruebas locales
+  para este cambio exclusivo de GitHub Actions.
+- Etapa 34 cerrada tras evaluar y publicar las PRs #1 y #2 por separado.
+  No quedan PRs abiertas al comprobar el cierre. Las referencias anteriores
+  a etapa abierta corresponden al estado histórico de cada entrega.
+
+---
+
 ## Entrega 34A: actualización de setup-python
 
 - Cerrada y publicada: PR #1 de Dependabot integrada en

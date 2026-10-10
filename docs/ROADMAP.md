@@ -467,6 +467,21 @@ Plan reconstruido propuesto; no recuperado del chat original
   para este cambio exclusivo de GitHub Actions.
 - Etapa 34 abierta: PR #2 de checkout pendiente de evaluación y autorización propias.
 
+## Entrega 34B: actualización de checkout y cierre
+
+- Cerrada y publicada: PR #2 de Dependabot integrada en
+  `39b735496bc7e7a1742b6344172d426993757ad4`.
+- `actions/checkout` actualizado de v5 a v7; resto del workflow conservado.
+- Diff de una línea revisado y documentación oficial contrastada: la protección
+  nueva para pull_request_target y workflow_run no afecta a los eventos usados.
+- PR actualizada con main: CI `38014890914` aprobada.
+- CI posterior en main `38014992716` aprobada: backend, frontend, lint y build.
+- Sin cambios en aplicación, esquema ni base local; no se repiten pruebas locales
+  para este cambio exclusivo de GitHub Actions.
+- Etapa 34 cerrada tras evaluar y publicar las PRs #1 y #2 por separado.
+  No quedan PRs abiertas al comprobar el cierre. Las referencias anteriores
+  a etapa abierta corresponden al estado histórico de cada entrega.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -551,9 +566,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Revisar la PR #2 de Dependabot (checkout v5 a v7) sobre el main actual
-para delimitar 34B. Su actualización e integración requieren autorización
-individual; la Etapa 34 continúa abierta.
+Etapa 34 cerrada. Revisar la matriz de acciones por rol y estado del episodio
+para delimitar la Etapa 35. Cualquier defecto requiere una corrección
+independiente con alcance y autorización propios.
 
 ## Fuentes
 
