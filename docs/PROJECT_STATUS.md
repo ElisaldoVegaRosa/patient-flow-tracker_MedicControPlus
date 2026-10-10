@@ -2,6 +2,19 @@
 
 ## Última etapa
 
+### Entrega 34A: actualización de setup-python
+
+- Cerrada y publicada: PR #1 de Dependabot integrada en
+  `92c68d7684e95ac7af583bcb6425bcc7dab5da99`.
+- `actions/setup-python` actualizado de v6 a v7 en el workflow de CI.
+  Python 3.12, caché pip, dependencias y comandos de validación conservados.
+- Diff de una línea revisado; parámetros utilizados disponibles en v7.
+- PR actualizada con main antes de integrar: CI `38013945187` aprobada.
+- CI posterior en main `38014058972` aprobada: backend, frontend, lint y build.
+- Sin cambios en aplicación, esquema ni base local; no se repiten pruebas locales
+  para este cambio exclusivo de GitHub Actions.
+- Etapa 34 abierta: PR #2 de checkout pendiente de evaluación y autorización propias.
+
 ### Entrega 33K: composición final y revisión de cierre
 
 - Entrega cerrada y publicada en
@@ -581,9 +594,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 33 cerrada. Revisar el estado y el alcance de las PRs pendientes de
-Dependabot para la Etapa 34; cada actualización requiere evaluación y
-autorización propias antes de publicarse.
+Revisar la PR #2 de Dependabot (checkout v5 a v7) sobre el main actual
+para delimitar 34B. Su actualización e integración requieren autorización
+individual; la Etapa 34 continúa abierta.
 
 Limitación aceptada de la Etapa 29: el borrador se pierde ante HTTP 401,
 navegación o recarga. Solo se mantiene en memoria en el formulario; no se
