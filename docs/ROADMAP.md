@@ -501,6 +501,20 @@ Plan reconstruido propuesto; no recuperado del chat original
   de aplicación, frontend ni base local. Diff revisado sin errores de whitespace.
 - Etapa 35 abierta: resta revisar cobertura de rechazos y criterios de cierre.
 
+## Entrega 35B: rechazos en episodios cerrados
+
+- Implementada y validada localmente; pendiente de commit, push y CI.
+- Cinco casos nuevos recorren todos los roles en episodios cerrados para triaje,
+  signos, evaluación médica, alta repetida, acciones de alerta y escaneo.
+- Tras cada rechazo se comparan siete tablas clínicas; se comprueban 401, 403,
+  409 y 404 según sesión, rol y acción, y lectura de detalle CLOSED sin mutación.
+- Matriz de permisos actualizada con la evidencia de 35B.
+- Validación: 106 pruebas backend aprobadas, una advertencia; temporal
+  `.tmp/pytest-35b-final`, fuera del sandbox por el bloqueo conocido de socketpair.
+- Sin discrepancias en el alcance probado; política y código de aplicación
+  conservados. Frontend y base local sin cambios. Diff sin errores de whitespace.
+- Etapa 35 abierta: pendiente de publicación y revisión final de cierre.
+
 ## Etapas propuestas
 
 | Etapa | Objetivo | Criterio de cierre |
@@ -585,9 +599,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-35A publicada y CI aprobada. Revisar cobertura de rechazos relevantes y
-criterios de cierre de la Etapa 35; cualquier defecto requiere una corrección
-independiente autorizada.
+Revisar y autorizar la publicación de 35B y comprobar su CI; después revisar
+los criterios de cierre de la Etapa 35. Cualquier defecto requiere una
+corrección independiente autorizada.
 
 ## Fuentes
 

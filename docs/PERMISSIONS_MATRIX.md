@@ -1,6 +1,6 @@
 # Permisos por rol y estado del episodio
 
-Revisión 35A del comportamiento actual. No modifica la política de permisos.
+Revisión 35A–35B del comportamiento actual. No modifica la política de permisos.
 R = recepción, E = enfermería, M = médico, L = laboratorio, S = supervisor.
 Todas las acciones protegidas requieren sesión válida; su ausencia produce 401.
 Un rol excluido produce 403. Los códigos indicados suponen una petición válida
@@ -42,6 +42,10 @@ sin inferir que deba cambiarse.
 - `backend/tests/test_task_permissions.py` cubre los cinco roles, los tres
   servicios, sesión ausente, creación, finalización, repetición y rechazo
   tras alta; compara las tablas clínicas para detectar mutaciones rechazadas.
+- `backend/tests/test_closed_episode_permissions.py` recorre los cinco roles
+  para triaje, signos, evaluación, alta, tres acciones de alerta y escaneo
+  tras alta. Verifica 401, 403, 409 y 404 según el caso, compara siete tablas
+  clínicas después de cada rechazo y conserva la lectura de detalle CLOSED.
 - Pruebas existentes de flujo, alertas, consultas y medicina cubren bloqueos
   de episodios CLOSED y conservación del historial.
 - Esta revisión verifica la política implementada. No decide una política
