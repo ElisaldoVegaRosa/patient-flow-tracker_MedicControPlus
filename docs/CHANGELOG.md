@@ -5,6 +5,22 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre de la Etapa 50
+
+- Alcance acordado entregado en 50A: bloqueo del botón Completar por
+  identificador de tarea mientras espera respuesta, con «Completando…».
+- Criterios contrastados con nueve casos nuevos: una solicitud por tarea,
+  desbloqueo tras éxito, error de API/red o HTTP 401, reintento explícito,
+  solicitudes independientes y retirada de la tarea completada de pendientes.
+- Se conserva el manejo actual de permisos, errores y estados;
+  los episodios CLOSED mantienen las tareas de solo lectura.
+- Evidencia: 186 pruebas frontend, lint y build aprobados; CI de implementación
+  `38179803505` y documental `38179908014` aprobadas.
+- Etapa 50 cerrada dentro del alcance. El bloqueo cubre solicitudes en curso
+  en esta vista; no incorpora coordinación entre usuarios o navegadores.
+- Cierre documental; aplicación, reglas clínicas, contratos de API y base local
+  sin cambios adicionales. Validaciones aprobadas conservadas.
+
 ## Entrega 50A: bloqueo al completar tareas
 
 - Entrega publicada en `37fcba446544aee5b842d5439fc2b7fa03baa089`;
