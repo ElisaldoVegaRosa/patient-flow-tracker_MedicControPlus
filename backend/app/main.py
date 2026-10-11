@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .security import hash_session_token, hash_password, verify_password
 from . import auth, database
+from .write_operations import active_connection
 from .routes.auth import create_router
 from .routes.dashboard import create_router as create_dashboard_router
 from .routes.episode_queries import create_router as create_episode_queries_router
@@ -31,7 +32,7 @@ def utc_now() -> str:
 
 
 def get_connection() -> sqlite3.Connection:
-    return database.get_connection(DATABASE_PATH)
+    return active_connection() or database.get_connection(DATABASE_PATH)
 
 
 def initialize_database() -> None:

@@ -1,3 +1,4 @@
+from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import secrets
 import sqlite3
@@ -21,9 +22,11 @@ def create_router(
     add_event: Callable[..., None],
     require_roles: Callable[..., Callable[..., dict[str, str]]],
 ) -> APIRouter:
+    connection_factory = transaction_factory(connection_factory)
     router = APIRouter()
 
     @router.post("/episodes", status_code=201)
+    @atomic_write(connection_factory, detail)
     def create_episode(
         data: EpisodeCreate,
         user: dict[str, str] = Depends(

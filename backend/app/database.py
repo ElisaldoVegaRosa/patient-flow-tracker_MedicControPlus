@@ -103,6 +103,18 @@ def initialize_database(
             created_at TEXT NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS write_receipts (
+            username TEXT NOT NULL,
+            operation_key TEXT NOT NULL,
+            role TEXT NOT NULL,
+            scope TEXT NOT NULL,
+            fingerprint TEXT NOT NULL,
+            episode_id INTEGER REFERENCES episodes(id),
+            summary TEXT,
+            expires_at TEXT NOT NULL,
+            PRIMARY KEY (username, operation_key)
+        );
+
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             episode_id INTEGER NOT NULL REFERENCES episodes(id),

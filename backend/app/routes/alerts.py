@@ -1,3 +1,4 @@
+from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import sqlite3
 from typing import Literal
@@ -34,9 +35,11 @@ def create_router(
     require_active_episode: Callable[[sqlite3.Connection, int], None],
     require_roles: Callable[..., Callable[..., dict[str, str]]],
 ) -> APIRouter:
+    connection_factory = transaction_factory(connection_factory)
     router = APIRouter()
 
     @router.patch("/alerts/{alert_id}")
+    @atomic_write(connection_factory, detail)
     def change_alert_status(
         alert_id: int,
         data: AlertActionRequest,

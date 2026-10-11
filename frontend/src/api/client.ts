@@ -2,6 +2,9 @@ const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export const SESSION_EXPIRED_EVENT = "mediccontrol:session-expired";
 let sessionRevision = 0;
+// Ambiguous writes stay in memory only until explicit retry or session change.
+const writeIntents = new Map<string, { key: string; createdAt: number }>();
+const replayWindow = 24 * 60 * 60 * 1000;
 
 export class SessionInterruptedError extends Error {
   constructor() {
@@ -22,11 +25,13 @@ export const isSessionInterruption = (error: unknown) => error instanceof Sessio
 
 export function establishSession(token: string) {
   sessionRevision += 1;
+  writeIntents.clear();
   localStorage.setItem("token", token);
 }
 
 export function invalidateSession() {
   sessionRevision += 1;
+  writeIntents.clear();
   localStorage.removeItem("token");
 }
 
@@ -35,6 +40,22 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   const token = localStorage.getItem("token");
   const revision = sessionRevision;
   const login = path === "/auth/login";
+  const method = (options.method ?? "GET").toUpperCase();
+  const protectedWrite = ["POST", "PATCH"].includes(method) && !path.startsWith("/auth/");
+  const intent = protectedWrite ? `${method}:${path}:${options.body ?? ""}` : null;
+  const headers = new Headers(options.headers);
+  if (intent && !headers.has("Idempotency-Key")) {
+    let pending = writeIntents.get(intent);
+    if (pending && Date.now() - pending.createdAt >= replayWindow) {
+      throw new ApiError("Verifica el resultado anterior antes de repetir esta operación: su clave expiró.", 409);
+    }
+    if (!pending) {
+      if (writeIntents.size >= 256) throw new ApiError("Hay demasiadas operaciones sin confirmar. Revisa sus resultados antes de continuar.", 409);
+      pending = { key: crypto.randomUUID(), createdAt: Date.now() };
+      writeIntents.set(intent, pending);
+    }
+    headers.set("Idempotency-Key", pending.key);
+  }
   const isCurrent = () => revision === sessionRevision &&
     (login || token === localStorage.getItem("token"));
 
@@ -44,7 +65,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        ...options.headers,
+        ...Object.fromEntries(headers.entries()),
       },
     });
     if (!isCurrent()) throw new SessionInterruptedError();
@@ -55,6 +76,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     }
     const result = (await response.json()) as T & { detail?: string };
     if (!isCurrent()) throw new SessionInterruptedError();
+    if (intent && response.status < 500 && writeIntents.get(intent)?.key === headers.get("Idempotency-Key")) writeIntents.delete(intent);
     if (!response.ok) throw new ApiError(result.detail || "Ocurrió un error", response.status);
     return result;
   } catch (error) {

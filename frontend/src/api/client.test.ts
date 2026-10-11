@@ -61,3 +61,110 @@ describe("Interrupción centralizada de sesión", () => {
     }
   });
 });
+
+
+describe("Intenciones de escritura", () => {
+  afterEach(() => { invalidateSession(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+  const write = { method: "POST", body: JSON.stringify({ diagnosis: "Ficticio" }) };
+  const key = (mock: ReturnType<typeof vi.fn>, call: number) => new Headers(mock.mock.calls[call][1].headers).get("Idempotency-Key");
+
+  it("conserva la clave tras respuesta perdida, sin reenvio automatico; exito consume la intencion", async () => {
+    establishSession("test-session");
+    const fetchMock = vi.fn().mockRejectedValueOnce(new Error("Network fictitious"))
+      .mockResolvedValue(response(200));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(api("/episodes/53/medical-evaluation", write)).rejects.toThrow("Network fictitious");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await api("/episodes/53/medical-evaluation", write);
+    expect(key(fetchMock, 0)).toBe(key(fetchMock, 1));
+    await api("/episodes/53/medical-evaluation", write);
+    expect(key(fetchMock, 2)).not.toBe(key(fetchMock, 1));
+  });
+
+  it("comparte clave en envios concurrentes de la misma intencion y distingue contenido", async () => {
+    establishSession("test-session");
+    const first = deferred<Response>();
+    const fetchMock = vi.fn().mockReturnValue(first.promise);
+    vi.stubGlobal("fetch", fetchMock);
+    const a = api("/episodes", write);
+    const b = api("/episodes", write);
+    const c = api("/episodes", { ...write, body: JSON.stringify({ diagnosis: "Otra" }) });
+    expect(key(fetchMock, 0)).toBe(key(fetchMock, 1));
+    expect(key(fetchMock, 2)).not.toBe(key(fetchMock, 0));
+    first.resolve(response(200));
+    await Promise.all([a, b, c]);
+  });
+
+  it("una respuesta tardia no elimina la clave de una intencion posterior", async () => {
+    establishSession("test-session");
+    const first = deferred<Response>();
+    const second = deferred<Response>();
+    const third = deferred<Response>();
+    const fetchMock = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
+      .mockReturnValueOnce(third.promise).mockResolvedValue(response(200));
+    vi.stubGlobal("fetch", fetchMock);
+    const a = api("/episodes", write);
+    const b = api("/episodes", write);
+    first.resolve(response(200));
+    await a;
+    const c = api("/episodes", write).catch((error: unknown) => error);
+    second.resolve(response(200));
+    await b;
+    third.reject(new Error("Lost response"));
+    await c;
+    await api("/episodes", write);
+    expect(key(fetchMock, 2)).toBe(key(fetchMock, 3));
+    expect(key(fetchMock, 0)).not.toBe(key(fetchMock, 2));
+  });
+
+  it("retiene clave tras 503 y crea otra tras un rechazo definitivo", async () => {
+    establishSession("test-session");
+    const fetchMock = vi.fn().mockResolvedValueOnce(response(503, { detail: "Busy" }))
+      .mockResolvedValueOnce(response(422, { detail: "Invalid" })).mockResolvedValue(response(200));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(api("/episodes", write)).rejects.toThrow("Busy");
+    await expect(api("/episodes", write)).rejects.toThrow("Invalid");
+    await api("/episodes", write);
+    expect(key(fetchMock, 0)).toBe(key(fetchMock, 1));
+    expect(key(fetchMock, 1)).not.toBe(key(fetchMock, 2));
+  });
+
+  it("no traslada una intencion ambigua a otra sesion", async () => {
+    establishSession("old-session");
+    const fetchMock = vi.fn().mockRejectedValueOnce(new Error("Network fictitious")).mockResolvedValue(response(200));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(api("/episodes", write)).rejects.toThrow();
+    establishSession("new-session");
+    await api("/episodes", write);
+    expect(key(fetchMock, 0)).not.toBe(key(fetchMock, 1));
+  });
+
+  it("respeta clave explicita y normaliza Headers", async () => {
+    establishSession("test-session");
+    const fetchMock = vi.fn().mockResolvedValue(response(200));
+    vi.stubGlobal("fetch", fetchMock);
+    await api("/episodes", { ...write, headers: new Headers({ "Idempotency-Key": "explicit-53b-operation" }) });
+    expect(new Headers(fetchMock.mock.calls[0][1].headers).get("Idempotency-Key")).toBe("explicit-53b-operation");
+  });
+
+  it("no aplica claves a lectura, acceso o salida", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response(200));
+    vi.stubGlobal("fetch", fetchMock);
+    await api("/dashboard");
+    await api("/auth/login", write);
+    await api("/auth/logout", write);
+    for (let i = 0; i < 3; i++) expect(key(fetchMock, i)).toBeNull();
+  });
+
+  it("una clave ambigua vencida exige comprobar el resultado, sin nueva solicitud", async () => {
+    establishSession("test-session");
+    const fetchMock = vi.fn().mockRejectedValue(new Error("Network fictitious"));
+    vi.stubGlobal("fetch", fetchMock);
+    const now = Date.now();
+    vi.spyOn(Date, "now").mockReturnValue(now);
+    await expect(api("/episodes", write)).rejects.toThrow();
+    vi.mocked(Date.now).mockReturnValue(now + 24 * 60 * 60 * 1000);
+    await expect(api("/episodes", write)).rejects.toThrow("clave expir");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});

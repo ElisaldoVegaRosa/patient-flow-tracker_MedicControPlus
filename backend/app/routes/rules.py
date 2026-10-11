@@ -1,3 +1,4 @@
+from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import sqlite3
 
@@ -10,9 +11,11 @@ def create_router(
     evaluate: Callable[[sqlite3.Connection], dict[str, int]],
     require_roles: Callable[..., Callable[..., dict[str, str]]],
 ) -> APIRouter:
+    connection_factory = transaction_factory(connection_factory)
     router = APIRouter()
 
     @router.post("/rules/evaluate")
+    @atomic_write(connection_factory)
     def evaluate_rules(
         user: dict[str, str] = Depends(
             require_roles("SUPERVISOR", "DOCTOR")

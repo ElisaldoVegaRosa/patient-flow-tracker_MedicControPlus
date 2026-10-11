@@ -1,3 +1,4 @@
+from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import sqlite3
 from typing import Literal
@@ -27,9 +28,11 @@ def create_router(
     require_active_episode: Callable[[sqlite3.Connection, int], None],
     require_roles: Callable[..., Callable[..., dict[str, str]]],
 ) -> APIRouter:
+    connection_factory = transaction_factory(connection_factory)
     router = APIRouter()
 
     @router.post("/episodes/{episode_id}/medical-evaluation")
+    @atomic_write(connection_factory, detail)
     def register_medical_evaluation(
         episode_id: int,
         data: MedicalEvaluationRequest,
@@ -81,6 +84,7 @@ def create_router(
         return result
 
     @router.post("/episodes/{episode_id}/discharge")
+    @atomic_write(connection_factory, detail)
     def discharge_episode(
         episode_id: int,
         data: DischargeRequest,

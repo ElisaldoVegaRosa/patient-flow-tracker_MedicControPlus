@@ -1,3 +1,4 @@
+from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import sqlite3
 
@@ -11,6 +12,7 @@ def create_router(
     authenticated_user: Callable[..., dict[str, str]],
     require_roles: Callable[..., Callable[..., dict[str, str]]],
 ) -> APIRouter:
+    connection_factory = transaction_factory(connection_factory)
     router = APIRouter()
 
     @router.get("/episodes/history")
@@ -81,6 +83,7 @@ def create_router(
 
 
     @router.get("/scan/{qr_token}")
+    @atomic_write(connection_factory, detail)
     def scan_qr(
         qr_token: str,
         user: dict[str, str] = Depends(authenticated_user),

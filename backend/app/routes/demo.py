@@ -1,3 +1,4 @@
+from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import secrets
 import sqlite3
@@ -11,9 +12,11 @@ def create_router(
     add_event: Callable[..., None],
     require_roles: Callable[..., Callable[..., dict[str, str]]],
 ) -> APIRouter:
+    connection_factory = transaction_factory(connection_factory)
     router = APIRouter()
 
     @router.post("/demo/seed")
+    @atomic_write(connection_factory)
     def seed_demo_data(
         user: dict[str, str] = Depends(
             require_roles("SUPERVISOR")

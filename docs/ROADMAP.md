@@ -23,6 +23,32 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Los criterios de las etapas 32–37 son requisitos futuros; esta revisión
   no ejecuta pruebas nuevas ni autoriza su implementación.
 
+## Entrega 53B: escrituras atómicas e idempotencia compartida
+
+- Alcance transversal autorizado e implementado localmente.
+- Validación: 132 pruebas backend (26 nuevas, una advertencia existente),
+  230 frontend (ocho nuevas), lint y build aprobados.
+  Backend con Python de `.venv` y `--basetemp .tmp/pytest-53b-full`; ejecutado
+  fuera del aislamiento que bloquea el socket interno de TestClient en Windows.
+  Frontend con `--maxWorkers=1` y temporales locales, como en 53A.
+- `atomic_write` reserva la escritura SQLite antes de comprobar estados y confirma
+  juntos cambios, eventos y recibo. Aplica a ingreso, evaluaciones, órdenes, signos,
+  triaje, tareas, alertas, alta, demo, reglas y escaneo (que registra un evento).
+- `Idempotency-Key` distingue intenciones por identidad, rol, ruta y huella del
+  payload. Misma clave no repite efectos; otra clave permite otra evaluación.
+  Comprueba sesión/permisos actuales, conflictos y vigencia de 24 horas.
+- Recibos con referencias al episodio; no guarda copias de notas clínicas.
+  Las claves vencidas siguen reservadas. Detalle clínico reconstruido al reintentar.
+- El cliente HTTP reutiliza la clave ante red/5xx, sin reenvío automático; un éxito
+  consume la intención. Metadatos/payload permanecen solo en memoria de la sesión,
+  con límite de 256 intenciones ambiguas. Recargar o cambiar de sesión pierde esa
+  asociación y exige revisar un resultado incierto antes de una nueva intención.
+- Pruebas incluyen concurrencia entre conexiones, respuesta perdida, rollback,
+  bloqueo SQL, claves distintas/conflictivas/vencidas, permisos y sesiones.
+- Migración aditiva documentada en `backend/migrations/003_write_receipts.sql`;
+  datos clínicos existentes preservados. Política completa: [escrituras](WRITE_OPERATIONS.md).
+- Publicación de 53B autorizada; CI pendiente de comprobación.
+
 ## Entrega 53A: protección común de envíos pendientes
 
 - Alcance transversal autorizado: mecanismo único `usePendingOperations`,
@@ -42,7 +68,8 @@ Plan reconstruido propuesto; no recuperado del chat original
   `TEMP` y `TMP` apuntaron a `.tmp\vitest` para evitar temporales ausentes
   del entorno aislado. La ejecución paralela tuvo cinco tiempos de espera;
   la suite completa con un trabajador pasa sin ampliar los tiempos.
-- Publicación autorizada; CI de esta entrega pendiente de comprobación.
+- Publicada en `c5c32e28e93965db28fcdb3cb36f6a715e984f24`;
+  CI `38183333079` aprobada: backend, frontend, lint y build.
   Backend, contratos de API y base local sin cambios.
 
 ## Entrega 30A
@@ -1159,8 +1186,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 Etapas 30–52 cerradas. 53A autorizada como entrega transversal de protección
 de envíos pendientes, implementada y validada con 222 pruebas frontend,
-lint y build aprobados. Publicación del conjunto autorizada; pendiente push
-y comprobación de su CI.
+lint y build aprobados. Publicada; CI `38183333079` aprobada.
+53B implementada y validada: 132 pruebas backend, 230 frontend, lint y build
+aprobados. Publicación autorizada; pendiente comprobar su CI.
 
 ## Fuentes
 
