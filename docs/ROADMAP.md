@@ -544,6 +544,22 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 47
+
+- Alcance acordado entregado en 47A: bloqueo de prioridad, ubicación,
+  responsable y envíos repetidos de triaje mientras espera respuesta.
+- Criterios contrastados con diez casos nuevos: captura de los tres valores
+  antes del bloqueo, «Guardando triaje…», desbloqueo tras éxito, error de
+  API/red o HTTP 401, conservación de valores y reintento explícito.
+- Se mantienen roles NURSE/SUPERVISOR, restricción de episodios CLOSED
+  y bloqueo independiente del formulario de signos vitales.
+- Evidencia: 162 pruebas frontend, lint y build aprobados; CI de implementación
+  `38177407788` y documental `38177523136` aprobadas.
+- Etapa 47 cerrada dentro del alcance. Un nuevo envío intencional tras
+  terminar el anterior sigue permitido; el bloqueo cubre solicitudes en curso.
+- Cierre documental; aplicación, reglas clínicas, contratos de API y base local
+  sin cambios adicionales. Validaciones aprobadas conservadas.
+
 ## Entrega 47A: bloqueo de envío de triaje y asignación
 
 - Entrega publicada en `da05f9878154018c76997594325d28e80623fff6`;
@@ -969,8 +985,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–46 cerradas. 47A publicada con CI aprobada; revisar su aceptación
-y cierre dentro del alcance acordado.
+Etapas 30–47 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 

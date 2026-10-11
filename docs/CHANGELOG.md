@@ -5,6 +5,22 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre de la Etapa 47
+
+- Alcance acordado entregado en 47A: bloqueo de prioridad, ubicación,
+  responsable y envíos repetidos de triaje mientras espera respuesta.
+- Criterios contrastados con diez casos nuevos: captura de los tres valores
+  antes del bloqueo, «Guardando triaje…», desbloqueo tras éxito, error de
+  API/red o HTTP 401, conservación de valores y reintento explícito.
+- Se mantienen roles NURSE/SUPERVISOR, restricción de episodios CLOSED
+  y bloqueo independiente del formulario de signos vitales.
+- Evidencia: 162 pruebas frontend, lint y build aprobados; CI de implementación
+  `38177407788` y documental `38177523136` aprobadas.
+- Etapa 47 cerrada dentro del alcance. Un nuevo envío intencional tras
+  terminar el anterior sigue permitido; el bloqueo cubre solicitudes en curso.
+- Cierre documental; aplicación, reglas clínicas, contratos de API y base local
+  sin cambios adicionales. Validaciones aprobadas conservadas.
+
 ## Entrega 47A: bloqueo de envío de triaje y asignación
 
 - Entrega publicada en `da05f9878154018c76997594325d28e80623fff6`;
