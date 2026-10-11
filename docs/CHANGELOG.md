@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 50A: bloqueo al completar tareas
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `37fcba446544aee5b842d5439fc2b7fa03baa089`;
+  CI `38179803505` aprobada.
 - Completar bloquea el botón por identificador de tarea mientras espera
   respuesta y muestra «Completando…»; las demás tareas permanecen disponibles.
 - Impide envíos repetidos de la misma tarea y libera el bloqueo tras éxito,

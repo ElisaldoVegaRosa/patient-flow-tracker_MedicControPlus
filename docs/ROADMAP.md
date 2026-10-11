@@ -546,7 +546,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 50A: bloqueo al completar tareas
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `37fcba446544aee5b842d5439fc2b7fa03baa089`;
+  CI `38179803505` aprobada.
 - Completar bloquea el botón por identificador de tarea mientras espera
   respuesta y muestra «Completando…»; las demás tareas permanecen disponibles.
 - Impide envíos repetidos de la misma tarea y libera el bloqueo tras éxito,
@@ -1058,8 +1059,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–49 cerradas. Revisar y autorizar la publicación de 50A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+Etapas 30–49 cerradas. 50A publicada con CI aprobada; revisar su aceptación
+y cierre dentro del alcance acordado.
 
 ## Fuentes
 
