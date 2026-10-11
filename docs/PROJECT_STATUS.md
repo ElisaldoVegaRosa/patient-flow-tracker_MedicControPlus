@@ -4,7 +4,8 @@
 
 ### Entrega 52A: errores junto a la alerta
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `e21c40752dbf7d6b6e4ae16c7ec07bc17368ce69`;
+  CI `38181398952` aprobada.
 - Los errores de Reconocer, Escalar y Resolver aparecen junto a la alerta
   correspondiente mediante un mensaje accesible de alerta.
 - Reintentar una acción sobre esa alerta limpia únicamente su error.
@@ -1162,8 +1163,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–51 cerradas. Revisar y autorizar la publicación de 52A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+Etapas 30–51 cerradas. 52A publicada con CI aprobada; revisar su aceptación
+y cierre dentro del alcance acordado.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

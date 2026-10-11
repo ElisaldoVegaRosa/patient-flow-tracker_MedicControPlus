@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 52A: errores junto a la alerta
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `e21c40752dbf7d6b6e4ae16c7ec07bc17368ce69`;
+  CI `38181398952` aprobada.
 - Los errores de Reconocer, Escalar y Resolver aparecen junto a la alerta
   correspondiente mediante un mensaje accesible de alerta.
 - Reintentar una acción sobre esa alerta limpia únicamente su error.
