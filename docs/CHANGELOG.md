@@ -5,6 +5,19 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 48A: mensajes de resultado en triaje y asignación
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Triaje muestra «Triaje y asignación guardados» mediante un estado accesible
+  solo tras éxito; los errores de API/red aparecen junto al formulario.
+- Editar o reenviar retira sus mensajes, independientes de signos vitales.
+  HTTP 401 conserva el manejo de sesión sin éxito ni error ordinario.
+- Conserva valores, bloqueo de solicitudes y permisos de 47A.
+- Siete casos nuevos y pruebas ampliadas cubren espera, éxito, edición,
+  reintento, errores de API/red, HTTP 401 e independencia.
+- Validación: 169 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 47
 
 - Alcance acordado entregado en 47A: bloqueo de prioridad, ubicación,

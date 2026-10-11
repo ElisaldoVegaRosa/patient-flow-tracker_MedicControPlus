@@ -2,6 +2,19 @@
 
 ## Última etapa
 
+### Entrega 48A: mensajes de resultado en triaje y asignación
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Triaje muestra «Triaje y asignación guardados» mediante un estado accesible
+  solo tras éxito; los errores de API/red aparecen junto al formulario.
+- Editar o reenviar retira sus mensajes, independientes de signos vitales.
+  HTTP 401 conserva el manejo de sesión sin éxito ni error ordinario.
+- Conserva valores, bloqueo de solicitudes y permisos de 47A.
+- Siete casos nuevos y pruebas ampliadas cubren espera, éxito, edición,
+  reintento, errores de API/red, HTTP 401 e independencia.
+- Validación: 169 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ### Cierre de la Etapa 47
 
 - Alcance acordado entregado en 47A: bloqueo de prioridad, ubicación,
@@ -1028,9 +1041,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–47 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–47 cerradas. Revisar y autorizar la publicación de 48A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

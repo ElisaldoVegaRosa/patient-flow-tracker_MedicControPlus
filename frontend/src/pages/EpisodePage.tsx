@@ -36,6 +36,8 @@ export default function EpisodePage({
   const vitalsInFlight = useRef(false);
   const triageInFlight = useRef(false);
   const [savingTriage, setSavingTriage] = useState(false);
+  const [triageSaved, setTriageSaved] = useState(false);
+  const [triageError, setTriageError] = useState("");
   const [savingVitals, setSavingVitals] = useState(false);
   const [vitalsSaved, setVitalsSaved] = useState(false);
   const [vitalsError, setVitalsError] = useState("");
@@ -88,15 +90,18 @@ export default function EpisodePage({
     const form = new FormData(event.currentTarget);
     triageInFlight.current = true;
     setSavingTriage(true);
+    setTriageSaved(false);
+    setTriageError("");
     try {
-      await call(`/episodes/${episode.id}/triage`, {
+      const completed = await call(`/episodes/${episode.id}/triage`, {
         method: "POST",
         body: JSON.stringify({
           priority: Number(form.get("priority")),
           location: form.get("location"),
           assigned_to: form.get("assigned_to"),
         }),
-      });
+      }, setTriageError);
+      if (completed) setTriageSaved(true);
     } finally {
       triageInFlight.current = false;
       setSavingTriage(false);
@@ -259,7 +264,10 @@ async function createClinicalOrder(
       Actualiza la prioridad, ubicación y personal responsable.
     </p>
 
-    <form className="form-grid" onSubmit={registerTriage}>
+    <form className="form-grid" onSubmit={registerTriage} onChange={() => {
+      setTriageSaved(false);
+      setTriageError("");
+    }}>
       <label>
         Prioridad
         <select
@@ -307,6 +315,8 @@ async function createClinicalOrder(
       <button type="submit" disabled={savingTriage}>
         {savingTriage ? "Guardando triaje…" : "Guardar triaje y asignación"}
       </button>
+      {triageSaved && <p role="status">Triaje y asignación guardados</p>}
+      {triageError && <p role="alert">{triageError}</p>}
     </form>
   </section>
 )}

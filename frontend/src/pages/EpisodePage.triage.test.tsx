@@ -80,10 +80,18 @@ describe("Envio de triaje 47A", () => {
       expect(showError).not.toHaveBeenCalled();
       expect(localStorage.getItem("token")).toBeNull();
       establishSession("new-test-token");
-    } else expect(showError).toHaveBeenCalledWith("Error 47A");
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    } else {
+      expect(screen.getByRole("alert")).toHaveTextContent("Error 47A");
+      expect(screen.getByRole("alert").closest("form")).toBe(button.closest("form"));
+    }
+    expect(showError).not.toHaveBeenCalled();
+    expect(screen.queryByText("Triaje y asignaci\u00f3n guardados")).not.toBeInTheDocument();
     fetchMock.mockResolvedValueOnce(response(episode));
     fireEvent.click(button);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(episode));
+    expect(screen.getByText("Triaje y asignaci\u00f3n guardados")).toHaveAttribute("role", "status");
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual(payload);
   });
@@ -104,5 +112,72 @@ describe("Envio de triaje 47A", () => {
     expect(screen.getByRole("button", { name: "Guardar y evaluar reglas" })).toBeEnabled();
     resolve(response(episode));
     await waitFor(() => expect(button).toBeEnabled());
+  });
+});
+
+describe("Mensajes de triaje 48A", () => {
+  it("confirma solo tras exito y retira la confirmacion al editar", async () => {
+    const { fetchMock } = prepare();
+    const button = fill();
+    let resolve!: (value: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolve = done; }));
+    fireEvent.click(button);
+    expect(screen.queryByText("Triaje y asignaci\u00f3n guardados")).not.toBeInTheDocument();
+    resolve(response(episode));
+    expect(await screen.findByText("Triaje y asignaci\u00f3n guardados")).toHaveAttribute("role", "status");
+    fireEvent.change(screen.getByLabelText(labels[0]), { target: { value: "1" } });
+    expect(screen.queryByText("Triaje y asignaci\u00f3n guardados")).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["API", "red", "401"])("retira exito anterior al reenviar y no lo revive ante %s", async (failure) => {
+    const { fetchMock, showError } = prepare();
+    const button = fill();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    fireEvent.click(button);
+    await screen.findByText("Triaje y asignaci\u00f3n guardados");
+    establishSession("test-token");
+    let resolve!: (value: Response) => void;
+    let reject!: (reason: Error) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done, fail) => { resolve = done; reject = fail; }));
+    fireEvent.click(button);
+    expect(screen.queryByText("Triaje y asignaci\u00f3n guardados")).not.toBeInTheDocument();
+    if (failure === "red") reject(new Error("Error 48A"));
+    else resolve(response({ detail: "Error 48A" }, failure === "401" ? 401 : 422));
+    await waitFor(() => expect(button).toBeEnabled());
+    expect(screen.queryByText("Triaje y asignaci\u00f3n guardados")).not.toBeInTheDocument();
+    if (failure === "401") expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    else expect(screen.getByRole("alert")).toHaveTextContent("Error 48A");
+    expect(showError).not.toHaveBeenCalled();
+  });
+
+  it.each(["API", "red"])("editar retira error de %s conservando otros valores sin reenviar", async (failure) => {
+    const { fetchMock } = prepare();
+    const button = fill();
+    if (failure === "red") fetchMock.mockRejectedValueOnce(new Error("Error 48A"));
+    else fetchMock.mockResolvedValueOnce(response({ detail: "Error 48A" }, 422));
+    fireEvent.click(button);
+    await screen.findByRole("alert");
+    fireEvent.change(screen.getByLabelText(labels[0]), { target: { value: "1" } });
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(labels[0])).toHaveValue("1");
+    labels.slice(1).forEach((label, index) => expect(screen.getByLabelText(label)).toHaveValue(values[index + 1]));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("editar y guardar signos mantiene el error de triaje independiente", async () => {
+    const { fetchMock } = prepare();
+    const button = fill();
+    fetchMock.mockResolvedValueOnce(response({ detail: "Error triaje 48A" }, 422));
+    fireEvent.click(button);
+    await screen.findByRole("alert");
+    fireEvent.click(screen.getByText("Registrar nuevos signos"));
+    fireEvent.change(screen.getByLabelText("Temperatura"), { target: { value: 38 } });
+    expect(screen.getByRole("alert")).toHaveTextContent("Error triaje 48A");
+    fetchMock.mockResolvedValueOnce(response(episode));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar y evaluar reglas" }));
+    await screen.findByText("Signos vitales guardados");
+    expect(screen.getByRole("alert")).toHaveTextContent("Error triaje 48A");
+    expect(screen.queryByText("Triaje y asignaci\u00f3n guardados")).not.toBeInTheDocument();
   });
 });
