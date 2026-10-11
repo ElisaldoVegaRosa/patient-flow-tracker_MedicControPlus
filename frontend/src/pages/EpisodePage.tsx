@@ -40,6 +40,7 @@ export default function EpisodePage({
   const [completingTasks, setCompletingTasks] = useState<Set<number>>(new Set());
   const [taskErrors, setTaskErrors] = useState<Record<number, string>>({});
   const [updatingAlerts, setUpdatingAlerts] = useState<Set<number>>(new Set());
+  const [alertErrors, setAlertErrors] = useState<Record<number, string>>({});
   const [savingTriage, setSavingTriage] = useState(false);
   const [triageSaved, setTriageSaved] = useState(false);
   const [triageError, setTriageError] = useState("");
@@ -99,11 +100,16 @@ export default function EpisodePage({
     if (!allowed || alertsInFlight.current.has(alertId)) return;
     alertsInFlight.current.add(alertId);
     setUpdatingAlerts(new Set(alertsInFlight.current));
+    setAlertErrors((previous) => {
+      const next = { ...previous };
+      delete next[alertId];
+      return next;
+    });
     try {
       await call(`/alerts/${alertId}`, {
         method: "PATCH",
         body: JSON.stringify({ status }),
-      });
+      }, (message) => setAlertErrors((previous) => ({ ...previous, [alertId]: message })));
     } finally {
       alertsInFlight.current.delete(alertId);
       setUpdatingAlerts(new Set(alertsInFlight.current));
@@ -680,6 +686,7 @@ async function createClinicalOrder(
         </div>
 
         {updatingAlerts.has(alert.id) && <p role="status">Actualizando alerta…</p>}
+        {alertErrors[alert.id] && <p role="alert">{alertErrors[alert.id]}</p>}
 
         <details className="alert-history">
           <summary>

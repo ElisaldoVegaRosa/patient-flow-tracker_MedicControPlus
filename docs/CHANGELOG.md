@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 52A: errores junto a la alerta
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Los errores de Reconocer, Escalar y Resolver aparecen junto a la alerta
+  correspondiente mediante un mensaje accesible de alerta.
+- Reintentar una acción sobre esa alerta limpia únicamente su error.
+  Los errores y bloqueos de las demás permanecen independientes.
+- Conserva estados ante fallos, permisos, transiciones y bloqueo de 49A.
+  HTTP 401 mantiene el manejo de sesión sin error ordinario.
+- Ocho casos nuevos y pruebas ampliadas cubren las tres acciones ante errores
+  de API/red, reintento, fallos simultáneos, independencia y HTTP 401.
+- Validación: 198 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 51
 
 - Alcance acordado entregado en 51A: errores accesibles junto a la tarea

@@ -69,9 +69,12 @@ describe("Bloqueo por alerta 49A", () => {
       expect(showError).not.toHaveBeenCalled();
       expect(localStorage.getItem("token")).toBeNull();
       establishSession("new-test-token");
-    } else expect(showError).toHaveBeenCalledWith("Error 49A");
+      expect(row(1).queryByRole("alert")).not.toBeInTheDocument();
+    } else expect(row(1).getByRole("alert")).toHaveTextContent("Error 49A");
+    expect(showError).not.toHaveBeenCalled();
     fetchMock.mockResolvedValueOnce(response(episode));
     fireEvent.click(button);
+    expect(row(1).queryByRole("alert")).not.toBeInTheDocument();
     await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(episode));
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
@@ -105,5 +108,78 @@ describe("Bloqueo por alerta 49A", () => {
     expect(row(1).queryByRole("button", { name: "Reconocer" })).not.toBeInTheDocument();
     expect(row(1).getByRole("button", { name: "Resolver" })).toBeEnabled();
     expect(row(1).queryByRole("status")).not.toBeInTheDocument();
+  });
+});
+
+describe("Errores por alerta 52A", () => {
+  it.each([
+    ["Reconocer", "ACTIVE", "API"],
+    ["Reconocer", "ACTIVE", "red"],
+    ["Escalar", "ACKNOWLEDGED", "API"],
+    ["Escalar", "ACKNOWLEDGED", "red"],
+    ["Resolver", "ESCALATED", "API"],
+    ["Resolver", "ESCALATED", "red"],
+  ])("%s conserva el estado ante fallo de %s/%s y limpia al reintentar", async (action, initial, failure) => {
+    const data = { ...episode, alerts: [alert(1, initial), alert(2)] };
+    const { fetchMock, row, showError } = prepare(data);
+    if (failure === "red") fetchMock.mockRejectedValueOnce(new Error("Primer error 52A"));
+    else fetchMock.mockResolvedValueOnce(response({ detail: "Primer error 52A" }, 422));
+    const button = row(1).getByRole("button", { name: action });
+    fireEvent.click(button);
+    expect(await row(1).findByRole("alert")).toHaveTextContent("Primer error 52A");
+    expect(row(1).getByText(initial)).toBeVisible();
+    expect(row(2).queryByRole("alert")).not.toBeInTheDocument();
+    let resolve!: (value: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolve = done; }));
+    fireEvent.click(button);
+    expect(row(1).queryByRole("alert")).not.toBeInTheDocument();
+    expect(button).toBeDisabled();
+    resolve(response({ detail: "Segundo error 52A" }, 422));
+    expect(await row(1).findByRole("alert")).toHaveTextContent("Segundo error 52A");
+    expect(button).toBeEnabled();
+    expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("fallos simultaneos conservan ambos errores y resolver una alerta no limpia la otra", async () => {
+    const data = { ...episode, alerts: [alert(1, "ACKNOWLEDGED"), alert(2)] };
+    const { fetchMock, row, updateEpisode, view, props } = prepare(data);
+    let resolveFirst!: (value: Response) => void;
+    let resolveSecond!: (value: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolveFirst = done; }));
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolveSecond = done; }));
+    fireEvent.click(row(1).getByRole("button", { name: "Escalar" }));
+    fireEvent.click(row(2).getByRole("button", { name: "Reconocer" }));
+    resolveSecond(response({ detail: "Error alerta 2" }, 422));
+    await row(2).findByRole("alert");
+    resolveFirst(response({ detail: "Error alerta 1" }, 422));
+    expect(await row(1).findByRole("alert")).toHaveTextContent("Error alerta 1");
+    expect(row(2).getByRole("alert")).toHaveTextContent("Error alerta 2");
+    const updated = { ...episode, alerts: [alert(1, "RESOLVED"), alert(2)] };
+    let resolveRetry!: (value: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolveRetry = done; }));
+    fireEvent.click(row(1).getByRole("button", { name: "Resolver" }));
+    expect(row(1).queryByRole("alert")).not.toBeInTheDocument();
+    expect(row(2).getByRole("alert")).toHaveTextContent("Error alerta 2");
+    resolveRetry(response(updated));
+    await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(updated));
+    view.rerender(<EpisodePage {...props} episode={updated} />);
+    expect(row(1).queryByRole("alert")).not.toBeInTheDocument();
+    expect(row(1).queryByRole("button", { name: "Resolver" })).not.toBeInTheDocument();
+    expect(row(2).getByRole("alert")).toHaveTextContent("Error alerta 2");
+  });
+
+  it("HTTP 401 durante un reintento no revive el error anterior", async () => {
+    const { fetchMock, row, showError } = prepare();
+    const button = row(1).getByRole("button", { name: "Reconocer" });
+    establishSession("test-token");
+    fetchMock.mockResolvedValueOnce(response({ detail: "Error anterior 52A" }, 422));
+    fireEvent.click(button);
+    await row(1).findByRole("alert");
+    fetchMock.mockResolvedValueOnce(response({}, 401));
+    fireEvent.click(button);
+    await waitFor(() => expect(button).toBeEnabled());
+    expect(row(1).queryByRole("alert")).not.toBeInTheDocument();
+    expect(showError).not.toHaveBeenCalled();
+    expect(localStorage.getItem("token")).toBeNull();
   });
 });

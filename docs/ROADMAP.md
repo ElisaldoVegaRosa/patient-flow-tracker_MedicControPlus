@@ -544,6 +544,20 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Entrega 52A: errores junto a la alerta
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Los errores de Reconocer, Escalar y Resolver aparecen junto a la alerta
+  correspondiente mediante un mensaje accesible de alerta.
+- Reintentar una acción sobre esa alerta limpia únicamente su error.
+  Los errores y bloqueos de las demás permanecen independientes.
+- Conserva estados ante fallos, permisos, transiciones y bloqueo de 49A.
+  HTTP 401 mantiene el manejo de sesión sin error ordinario.
+- Ocho casos nuevos y pruebas ampliadas cubren las tres acciones ante errores
+  de API/red, reintento, fallos simultáneos, independencia y HTTP 401.
+- Validación: 198 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 51
 
 - Alcance acordado entregado en 51A: errores accesibles junto a la tarea
@@ -1105,9 +1119,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–51 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–51 cerradas. Revisar y autorizar la publicación de 52A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 ## Fuentes
 
