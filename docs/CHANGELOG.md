@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 45A: bloqueo de envío de signos vitales
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `b1df24ea00204164c9cb0b6adbcaaa418216a425`;
+  CI `38164479323` aprobada.
 - El registro de signos vitales bloquea campos, botón y envíos repetidos
   mientras espera respuesta; muestra «Guardando signos…».
 - Captura los seis valores antes de deshabilitar los campos y libera el bloqueo
