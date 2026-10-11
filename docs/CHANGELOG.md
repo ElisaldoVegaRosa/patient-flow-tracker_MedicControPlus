@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 47A: bloqueo de envío de triaje y asignación
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `da05f9878154018c76997594325d28e80623fff6`;
+  CI `38177407788` aprobada.
 - Triaje y asignación bloquea prioridad, ubicación, responsable y envíos
   repetidos mientras espera respuesta; muestra «Guardando triaje…».
 - Captura los tres valores antes del bloqueo y habilita los campos tras éxito,

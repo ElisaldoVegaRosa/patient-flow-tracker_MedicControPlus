@@ -546,7 +546,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 47A: bloqueo de envío de triaje y asignación
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `da05f9878154018c76997594325d28e80623fff6`;
+  CI `38177407788` aprobada.
 - Triaje y asignación bloquea prioridad, ubicación, responsable y envíos
   repetidos mientras espera respuesta; muestra «Guardando triaje…».
 - Captura los tres valores antes del bloqueo y habilita los campos tras éxito,
@@ -968,8 +969,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–46 cerradas. Revisar y autorizar la publicación de 47A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+Etapas 30–46 cerradas. 47A publicada con CI aprobada; revisar su aceptación
+y cierre dentro del alcance acordado.
 
 ## Fuentes
 
