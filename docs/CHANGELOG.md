@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 45A: bloqueo de envío de signos vitales
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- El registro de signos vitales bloquea campos, botón y envíos repetidos
+  mientras espera respuesta; muestra «Guardando signos…».
+- Captura los seis valores antes de deshabilitar los campos y libera el bloqueo
+  tras éxito, error de API/red o interrupción de sesión HTTP 401.
+- Conserva los valores y permite un nuevo envío explícito. Mantiene los roles
+  DOCTOR/NURSE y la restricción de episodios CLOSED.
+- Ocho casos nuevos cubren duplicados, payload, desbloqueo, reintento,
+  permisos y bloqueo independiente de los formularios médicos.
+- Validación: 145 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 44
 
 - Alcance acordado entregado en 44A: errores accesibles junto al formulario

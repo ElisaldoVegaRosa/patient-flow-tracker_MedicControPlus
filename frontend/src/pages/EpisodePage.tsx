@@ -33,6 +33,8 @@ export default function EpisodePage({
   const dischargeInFlight = useRef(false);
   const evaluationInFlight = useRef(false);
   const orderInFlight = useRef(false);
+  const vitalsInFlight = useRef(false);
+  const [savingVitals, setSavingVitals] = useState(false);
   const [savingEvaluation, setSavingEvaluation] = useState(false);
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [evaluationSaved, setEvaluationSaved] = useState(false);
@@ -173,19 +175,26 @@ async function createClinicalOrder(
 
   async function registerVitals(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (vitalsInFlight.current || isClosed || (user.role !== "NURSE" && user.role !== "DOCTOR")) return;
     const form = new FormData(event.currentTarget);
-
-    await call(`/episodes/${episode.id}/vitals`, {
-      method: "POST",
-      body: JSON.stringify({
-        temperature: Number(form.get("temperature")),
-        heart_rate: Number(form.get("heart_rate")),
-        systolic: Number(form.get("systolic")),
-        diastolic: Number(form.get("diastolic")),
-        spo2: Number(form.get("spo2")),
-        respiratory_rate: Number(form.get("respiratory_rate")),
-      }),
-    });
+    vitalsInFlight.current = true;
+    setSavingVitals(true);
+    try {
+      await call(`/episodes/${episode.id}/vitals`, {
+        method: "POST",
+        body: JSON.stringify({
+          temperature: Number(form.get("temperature")),
+          heart_rate: Number(form.get("heart_rate")),
+          systolic: Number(form.get("systolic")),
+          diastolic: Number(form.get("diastolic")),
+          spo2: Number(form.get("spo2")),
+          respiratory_rate: Number(form.get("respiratory_rate")),
+        }),
+      });
+    } finally {
+      vitalsInFlight.current = false;
+      setSavingVitals(false);
+    }
   }
 
   return (
@@ -312,6 +321,7 @@ async function createClinicalOrder(
                 <label>
                   Temperatura
                   <input
+                    disabled={savingVitals}
                     name="temperature"
                     type="number"
                     step="0.1"
@@ -322,6 +332,7 @@ async function createClinicalOrder(
                 <label>
                   Frecuencia cardíaca
                   <input
+                    disabled={savingVitals}
                     name="heart_rate"
                     type="number"
                     defaultValue="80"
@@ -331,6 +342,7 @@ async function createClinicalOrder(
                 <label>
                   Sistólica
                   <input
+                    disabled={savingVitals}
                     name="systolic"
                     type="number"
                     defaultValue="120"
@@ -340,6 +352,7 @@ async function createClinicalOrder(
                 <label>
                   Diastólica
                   <input
+                    disabled={savingVitals}
                     name="diastolic"
                     type="number"
                     defaultValue="80"
@@ -349,6 +362,7 @@ async function createClinicalOrder(
                 <label>
                   SpO₂
                   <input
+                    disabled={savingVitals}
                     name="spo2"
                     type="number"
                     defaultValue="98"
@@ -358,14 +372,15 @@ async function createClinicalOrder(
                 <label>
                   Frecuencia respiratoria
                   <input
+                    disabled={savingVitals}
                     name="respiratory_rate"
                     type="number"
                     defaultValue="16"
                   />
                 </label>
 
-                <button type="submit">
-                  Guardar y evaluar reglas
+                <button type="submit" disabled={savingVitals}>
+                  {savingVitals ? "Guardando signos…" : "Guardar y evaluar reglas"}
                 </button>
               </form>
             </details>

@@ -544,6 +544,20 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Entrega 45A: bloqueo de envío de signos vitales
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- El registro de signos vitales bloquea campos, botón y envíos repetidos
+  mientras espera respuesta; muestra «Guardando signos…».
+- Captura los seis valores antes de deshabilitar los campos y libera el bloqueo
+  tras éxito, error de API/red o interrupción de sesión HTTP 401.
+- Conserva los valores y permite un nuevo envío explícito. Mantiene los roles
+  DOCTOR/NURSE y la restricción de episodios CLOSED.
+- Ocho casos nuevos cubren duplicados, payload, desbloqueo, reintento,
+  permisos y bloqueo independiente de los formularios médicos.
+- Validación: 145 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 44
 
 - Alcance acordado entregado en 44A: errores accesibles junto al formulario
@@ -889,9 +903,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–44 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–44 cerradas. Revisar y autorizar la publicación de 45A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 ## Fuentes
 
