@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 51A: errores junto a la tarea
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Los errores al completar tareas aparecen junto a la tarea correspondiente
+  mediante un mensaje accesible de alerta, en lugar del error global.
+- Reintentar limpia únicamente su error. Los errores y bloqueos de las demás
+  tareas permanecen independientes, incluso ante fallos simultáneos.
+- Conserva la tarea pendiente ante fallos y el bloqueo de 50A.
+  HTTP 401 mantiene el manejo de sesión sin error ordinario.
+- Cuatro casos nuevos y pruebas ampliadas cubren errores de API/red,
+  reintento, independencia, éxito de otra tarea y HTTP 401 tras un fallo previo.
+- Validación: 190 pruebas frontend, lint y build aprobados.
+- Backend, permisos, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 50
 
 - Alcance acordado entregado en 50A: bloqueo del botón Completar por

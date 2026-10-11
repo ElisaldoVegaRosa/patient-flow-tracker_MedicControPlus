@@ -38,6 +38,7 @@ export default function EpisodePage({
   const alertsInFlight = useRef(new Set<number>());
   const tasksInFlight = useRef(new Set<number>());
   const [completingTasks, setCompletingTasks] = useState<Set<number>>(new Set());
+  const [taskErrors, setTaskErrors] = useState<Record<number, string>>({});
   const [updatingAlerts, setUpdatingAlerts] = useState<Set<number>>(new Set());
   const [savingTriage, setSavingTriage] = useState(false);
   const [triageSaved, setTriageSaved] = useState(false);
@@ -114,11 +115,16 @@ export default function EpisodePage({
     if (isClosed || task?.status !== "PENDING" || tasksInFlight.current.has(taskId)) return;
     tasksInFlight.current.add(taskId);
     setCompletingTasks(new Set(tasksInFlight.current));
+    setTaskErrors((previous) => {
+      const next = { ...previous };
+      delete next[taskId];
+      return next;
+    });
     try {
       await call(`/tasks/${taskId}/complete`, {
         method: "PATCH",
         body: JSON.stringify({ result: "Completada sin novedades" }),
-      });
+      }, (message) => setTaskErrors((previous) => ({ ...previous, [taskId]: message })));
     } finally {
       tasksInFlight.current.delete(taskId);
       setCompletingTasks(new Set(tasksInFlight.current));
@@ -826,6 +832,7 @@ async function createClinicalOrder(
                   {completingTasks.has(task.id) ? "Completando…" : "Completar"}
                 </button>
                 )}
+                {taskErrors[task.id] && <p role="alert">{taskErrors[task.id]}</p>}
               </article>
             ))}
         </section>
