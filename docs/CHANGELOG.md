@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 38A: aviso de nota de alta sin enviar
 
-- Implementación autorizada; pendiente de commit, push y CI.
+- Entrega publicada en `8fdedd90f55469af841c7601874930004822f075`;
+  CI `38099843479` aprobada.
 - Una nota no vacía en el formulario de alta requiere confirmar las salidas
   por navegación o logout: «Seguir editando» conserva texto y sesión;
   «Descartar y salir» ejecuta la salida elegida sin enviar el alta.

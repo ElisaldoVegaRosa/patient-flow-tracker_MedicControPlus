@@ -4,7 +4,8 @@
 
 ### Entrega 38A: aviso de nota de alta sin enviar
 
-- Implementación autorizada; pendiente de commit, push y CI.
+- Entrega publicada en `8fdedd90f55469af841c7601874930004822f075`;
+  CI `38099843479` aprobada.
 - Una nota no vacía en el formulario de alta requiere confirmar las salidas
   por navegación o logout: «Seguir editando» conserva texto y sesión;
   «Descartar y salir» ejecuta la salida elegida sin enviar el alta.
@@ -730,8 +731,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–37 cerradas. Revisar y autorizar la publicación de 38A y comprobar
-su CI; después evaluar el cierre de la Etapa 38 dentro del alcance acordado.
+38A publicada y CI aprobada, con prueba manual satisfactoria. Evaluar el
+cierre de la Etapa 38 dentro del alcance acordado antes de elegir otra mejora.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. Navegación, recarga y cierre de pestaña siguen

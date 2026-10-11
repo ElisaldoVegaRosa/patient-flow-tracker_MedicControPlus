@@ -546,7 +546,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 38A: aviso de nota de alta sin enviar
 
-- Implementación autorizada; pendiente de commit, push y CI.
+- Entrega publicada en `8fdedd90f55469af841c7601874930004822f075`;
+  CI `38099843479` aprobada.
 - Una nota no vacía en el formulario de alta requiere confirmar las salidas
   por navegación o logout: «Seguir editando» conserva texto y sesión;
   «Descartar y salir» ejecuta la salida elegida sin enviar el alta.
@@ -687,8 +688,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–37 cerradas. Revisar y autorizar la publicación de 38A y comprobar
-su CI; después evaluar el cierre de la Etapa 38 dentro del alcance acordado.
+38A publicada y CI aprobada, con prueba manual satisfactoria. Evaluar el
+cierre de la Etapa 38 dentro del alcance acordado antes de elegir otra mejora.
 
 ## Fuentes
 
