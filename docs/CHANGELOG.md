@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 42A: aviso de orden clínica sin enviar
 
-- Implementación autorizada y local; pendiente de commit, push y CI.
+- Entrega publicada en `54e7da4cd5681398994c1ab19d1dc730ccb9119b`;
+  CI `38154061106` aprobada.
 - Procedimiento solicitado y servicio responsable se comparan con sus valores
   iniciales. Cambios requieren confirmar navegación o logout mediante
   «Seguir editando» o «Descartar y salir»; cancelar conserva campos y sesión.

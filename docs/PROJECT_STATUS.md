@@ -4,7 +4,8 @@
 
 ### Entrega 42A: aviso de orden clínica sin enviar
 
-- Implementación autorizada y local; pendiente de commit, push y CI.
+- Entrega publicada en `54e7da4cd5681398994c1ab19d1dc730ccb9119b`;
+  CI `38154061106` aprobada.
 - Procedimiento solicitado y servicio responsable se comparan con sus valores
   iniciales. Cambios requieren confirmar navegación o logout mediante
   «Seguir editando» o «Descartar y salir»; cancelar conserva campos y sesión.
@@ -857,8 +858,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–41 cerradas. Revisar y autorizar la publicación de 42A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+42A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
+alcance acordado antes de elegir otra mejora.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
