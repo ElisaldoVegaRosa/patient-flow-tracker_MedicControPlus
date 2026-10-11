@@ -5,6 +5,23 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre de la Etapa 46
+
+- Alcance acordado entregado en 46A: confirmación accesible de signos vitales
+  guardados solo tras éxito y errores de API/red junto al formulario.
+- Criterios contrastados con siete casos nuevos y pruebas ampliadas: espera
+  sin confirmación, limpieza al editar o reenviar, ausencia de éxito ante fallos
+  y mensajes independientes de los formularios médicos.
+- Se conservan valores, bloqueo de solicitudes y permisos de 45A.
+  HTTP 401 mantiene el manejo de sesión sin éxito ni error ordinario.
+- Evidencia: 152 pruebas frontend, lint y build aprobados; CI de implementación
+  `38175744173` y documental `38175895543` aprobadas.
+- Los dos fallos iniciales del supervisor no se reprodujeron en la revisión
+  dirigida ni en la repetición completa; antecedente conservado en 46A.
+- Etapa 46 cerrada dentro del alcance. Cierre documental; aplicación, reglas
+  clínicas, contratos de API y base local sin cambios adicionales.
+  Validaciones aprobadas conservadas.
+
 ## Entrega 46A: mensajes de resultado en signos vitales
 
 - Entrega publicada en `8772a8aadbf44106e3866b8596e62898f0543be4`;

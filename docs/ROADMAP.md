@@ -544,6 +544,23 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 46
+
+- Alcance acordado entregado en 46A: confirmación accesible de signos vitales
+  guardados solo tras éxito y errores de API/red junto al formulario.
+- Criterios contrastados con siete casos nuevos y pruebas ampliadas: espera
+  sin confirmación, limpieza al editar o reenviar, ausencia de éxito ante fallos
+  y mensajes independientes de los formularios médicos.
+- Se conservan valores, bloqueo de solicitudes y permisos de 45A.
+  HTTP 401 mantiene el manejo de sesión sin éxito ni error ordinario.
+- Evidencia: 152 pruebas frontend, lint y build aprobados; CI de implementación
+  `38175744173` y documental `38175895543` aprobadas.
+- Los dos fallos iniciales del supervisor no se reprodujeron en la revisión
+  dirigida ni en la repetición completa; antecedente conservado en 46A.
+- Etapa 46 cerrada dentro del alcance. Cierre documental; aplicación, reglas
+  clínicas, contratos de API y base local sin cambios adicionales.
+  Validaciones aprobadas conservadas.
+
 ## Entrega 46A: mensajes de resultado en signos vitales
 
 - Entrega publicada en `8772a8aadbf44106e3866b8596e62898f0543be4`;
@@ -937,8 +954,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–45 cerradas. 46A publicada con CI aprobada; revisar su aceptación
-y cierre dentro del alcance acordado.
+Etapas 30–46 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 
