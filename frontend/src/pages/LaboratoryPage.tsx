@@ -3,6 +3,7 @@ import type { LaboratoryQueue } from "../types/clinical";
 
 type LaboratoryPageProps = {
   laboratoryQueue: LaboratoryQueue;
+  isCompleting?: (taskId: number) => boolean;
   onRefresh: () => Promise<void>;
   onCompleteOrder: (event: FormEvent<HTMLFormElement>, taskId: number) => Promise<void>;
 };
@@ -11,6 +12,7 @@ export default function LaboratoryPage({
   laboratoryQueue,
   onRefresh,
   onCompleteOrder,
+  isCompleting = () => false,
 }: LaboratoryPageProps) {
   return (
   <main className="container">
@@ -93,6 +95,7 @@ export default function LaboratoryPage({
                 Resultado de laboratorio
 
                 <textarea
+                  disabled={isCompleting(order.id)}
                   name="result"
                   rows={4}
                   placeholder={
@@ -104,8 +107,8 @@ export default function LaboratoryPage({
                 />
               </label>
 
-              <button type="submit">
-                Publicar resultado y completar
+              <button type="submit" disabled={isCompleting(order.id)}>
+                {isCompleting(order.id) ? "Publicando resultado…" : "Publicar resultado y completar"}
               </button>
             </form>
           </article>

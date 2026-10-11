@@ -23,6 +23,28 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Los criterios de las etapas 32–37 son requisitos futuros; esta revisión
   no ejecuta pruebas nuevas ni autoriza su implementación.
 
+## Entrega 53A: protección común de envíos pendientes
+
+- Alcance transversal autorizado: mecanismo único `usePendingOperations`,
+  compartido por App y EpisodePage, para acceso, salida, ingreso, laboratorio,
+  demo, reglas, alta, evaluaciones, órdenes, signos, triaje, tareas y alertas.
+- Adquiere el bloqueo antes del siguiente render; identifica la operación y
+  el recurso, y permite operaciones independientes. Laboratorio y episodio
+  comparten el bloqueo de una misma tarea incluso al cambiar de pantalla.
+- Sustituye los bloqueos anteriores; conserva permisos, estados, mensajes,
+  campos ante errores y tratamiento de HTTP 401. Libera al finalizar o cancelar
+  y exige una nueva acción explícita para reintentar; no reenvía automáticamente.
+- Protege solicitudes simultáneas desde esta instancia del frontend. La
+  idempotencia del servidor entre pestañas, dispositivos o reintentos tras una
+  respuesta perdida queda fuera del alcance y requiere una decisión específica.
+- Validación: 222 pruebas frontend (24 nuevas), lint y build aprobados.
+  Ejecución local con `npm.cmd run test --prefix frontend -- --maxWorkers=1`;
+  `TEMP` y `TMP` apuntaron a `.tmp\vitest` para evitar temporales ausentes
+  del entorno aislado. La ejecución paralela tuvo cinco tiempos de espera;
+  la suite completa con un trabajador pasa sin ampliar los tiempos.
+- Publicación autorizada; CI de esta entrega pendiente de comprobación.
+  Backend, contratos de API y base local sin cambios.
+
 ## Entrega 30A
 
 - Cerrada y publicada: extracción de `EpisodeHistoryPage`
@@ -1135,9 +1157,10 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–52 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–52 cerradas. 53A autorizada como entrega transversal de protección
+de envíos pendientes, implementada y validada con 222 pruebas frontend,
+lint y build aprobados. Publicación del conjunto autorizada; pendiente push
+y comprobación de su CI.
 
 ## Fuentes
 

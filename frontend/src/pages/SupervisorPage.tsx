@@ -5,6 +5,7 @@ type SupervisorPageProps = {
   supervisorFilter: string;
   rulesMessage: string;
   evaluatingRules: boolean;
+  loadingDemo?: boolean;
   onLoadDemo: () => Promise<void>;
   onEvaluateRules: () => Promise<void>;
   onRefresh: () => Promise<void>;
@@ -14,7 +15,7 @@ type SupervisorPageProps = {
 
 export default function SupervisorPage({
   supervisorData, supervisorFilter, rulesMessage, evaluatingRules,
-  onLoadDemo, onEvaluateRules, onRefresh, onFilterChange, onOpenEpisode,
+  loadingDemo = false, onLoadDemo, onEvaluateRules, onRefresh, onFilterChange, onOpenEpisode,
 }: SupervisorPageProps) {
   return (
   <main className="container">
@@ -30,9 +31,10 @@ export default function SupervisorPage({
 <div className="page-actions">
   <button
     className="secondary-button"
+    disabled={loadingDemo}
     onClick={onLoadDemo}
   >
-    Cargar datos de demostración
+    {loadingDemo ? "Cargando datos…" : "Cargar datos de demostración"}
   </button>
 
   <button

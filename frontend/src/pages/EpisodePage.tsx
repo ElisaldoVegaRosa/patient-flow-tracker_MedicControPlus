@@ -1,10 +1,13 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
+import { usePendingOperations } from "../hooks/usePendingOperations";
+import type { PendingOperations } from "../hooks/usePendingOperations";
 import { QRCodeSVG } from "qrcode.react";
 import { api, isSessionInterruption } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
 
 type EpisodePageProps = {
+  pendingOperations?: PendingOperations;
   episode: Episode;
   user: User;
   updateEpisode: (episode: Episode) => void;
@@ -20,6 +23,7 @@ export default function EpisodePage({
   user,
   updateEpisode,
   showError,
+  pendingOperations,
   initialDischargeNote = "",
   onDischargeNoteChange,
   onMedicalEvaluationChange,
@@ -29,26 +33,20 @@ export default function EpisodePage({
   const latestVitals = episode.vitals[0];
   const [dischargeNote, setDischargeNote] = useState(initialDischargeNote);
   const [dischargeError, setDischargeError] = useState("");
-  const [discharging, setDischarging] = useState(false);
-  const dischargeInFlight = useRef(false);
-  const evaluationInFlight = useRef(false);
-  const orderInFlight = useRef(false);
-  const vitalsInFlight = useRef(false);
-  const triageInFlight = useRef(false);
-  const alertsInFlight = useRef(new Set<number>());
-  const tasksInFlight = useRef(new Set<number>());
-  const [completingTasks, setCompletingTasks] = useState<Set<number>>(new Set());
+  const localOperations = usePendingOperations();
+  const operations = pendingOperations ?? localOperations;
+  const episodeKey = (name: string) => `episode:${episode.id}:${name}`;
+  const discharging = operations.isPending(episodeKey("discharge"));
+  const savingEvaluation = operations.isPending(episodeKey("evaluation"));
+  const creatingOrder = operations.isPending(episodeKey("order"));
+  const savingVitals = operations.isPending(episodeKey("vitals"));
+  const savingTriage = operations.isPending(episodeKey("triage"));
   const [taskErrors, setTaskErrors] = useState<Record<number, string>>({});
-  const [updatingAlerts, setUpdatingAlerts] = useState<Set<number>>(new Set());
   const [alertErrors, setAlertErrors] = useState<Record<number, string>>({});
-  const [savingTriage, setSavingTriage] = useState(false);
   const [triageSaved, setTriageSaved] = useState(false);
   const [triageError, setTriageError] = useState("");
-  const [savingVitals, setSavingVitals] = useState(false);
   const [vitalsSaved, setVitalsSaved] = useState(false);
   const [vitalsError, setVitalsError] = useState("");
-  const [savingEvaluation, setSavingEvaluation] = useState(false);
-  const [creatingOrder, setCreatingOrder] = useState(false);
   const [evaluationSaved, setEvaluationSaved] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
   const [evaluationError, setEvaluationError] = useState("");
@@ -56,14 +54,14 @@ export default function EpisodePage({
 
   async function dischargeEpisode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (dischargeInFlight.current || user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
+    if (user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
     const note = dischargeNote.trim();
     if (!note) {
       setDischargeError("Escribe una nota de alta antes de cerrar el episodio.");
       return;
     }
-    dischargeInFlight.current = true;
-    setDischarging(true);
+    const release = operations.start(episodeKey("discharge"));
+    if (!release) return;
     setDischargeError("");
     try {
       updateEpisode(await api<Episode>(`/episodes/${episode.id}/discharge`, {
@@ -74,8 +72,7 @@ export default function EpisodePage({
       if (isSessionInterruption(exception)) return;
       setDischargeError((exception as Error).message);
     } finally {
-      dischargeInFlight.current = false;
-      setDischarging(false);
+      release();
     }
   }
 
@@ -97,9 +94,9 @@ export default function EpisodePage({
       (status === "ESCALATED" && ["ACTIVE", "ACKNOWLEDGED"].includes(alert.status) && ["NURSE", "DOCTOR", "SUPERVISOR"].includes(user.role)) ||
       (status === "RESOLVED" && ["ACKNOWLEDGED", "ESCALATED"].includes(alert.status) && ["DOCTOR", "SUPERVISOR"].includes(user.role))
     );
-    if (!allowed || alertsInFlight.current.has(alertId)) return;
-    alertsInFlight.current.add(alertId);
-    setUpdatingAlerts(new Set(alertsInFlight.current));
+    if (!allowed) return;
+    const release = operations.start(`alert:${alertId}`);
+    if (!release) return;
     setAlertErrors((previous) => {
       const next = { ...previous };
       delete next[alertId];
@@ -111,16 +108,15 @@ export default function EpisodePage({
         body: JSON.stringify({ status }),
       }, (message) => setAlertErrors((previous) => ({ ...previous, [alertId]: message })));
     } finally {
-      alertsInFlight.current.delete(alertId);
-      setUpdatingAlerts(new Set(alertsInFlight.current));
+      release();
     }
   }
 
   async function completeTask(taskId: number) {
     const task = episode.tasks.find((item) => item.id === taskId);
-    if (isClosed || task?.status !== "PENDING" || tasksInFlight.current.has(taskId)) return;
-    tasksInFlight.current.add(taskId);
-    setCompletingTasks(new Set(tasksInFlight.current));
+    if (isClosed || task?.status !== "PENDING") return;
+    const release = operations.start(`task:${taskId}`);
+    if (!release) return;
     setTaskErrors((previous) => {
       const next = { ...previous };
       delete next[taskId];
@@ -132,17 +128,16 @@ export default function EpisodePage({
         body: JSON.stringify({ result: "Completada sin novedades" }),
       }, (message) => setTaskErrors((previous) => ({ ...previous, [taskId]: message })));
     } finally {
-      tasksInFlight.current.delete(taskId);
-      setCompletingTasks(new Set(tasksInFlight.current));
+      release();
     }
   }
 
   async function registerTriage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (triageInFlight.current || isClosed || (user.role !== "NURSE" && user.role !== "SUPERVISOR")) return;
+    if (isClosed || (user.role !== "NURSE" && user.role !== "SUPERVISOR")) return;
     const form = new FormData(event.currentTarget);
-    triageInFlight.current = true;
-    setSavingTriage(true);
+    const release = operations.start(episodeKey("triage"));
+    if (!release) return;
     setTriageSaved(false);
     setTriageError("");
     try {
@@ -156,8 +151,7 @@ export default function EpisodePage({
       }, setTriageError);
       if (completed) setTriageSaved(true);
     } finally {
-      triageInFlight.current = false;
-      setSavingTriage(false);
+      release();
     }
   }
 
@@ -171,13 +165,14 @@ export default function EpisodePage({
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
-    if (evaluationInFlight.current || user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
+    if (user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
 
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
 
-    evaluationInFlight.current = true;
-    setSavingEvaluation(true);
+    const release = operations.start(episodeKey("evaluation"));
+
+    if (!release) return;
     setEvaluationSaved(false);
     setEvaluationError("");
     try {
@@ -196,8 +191,7 @@ export default function EpisodePage({
         setEvaluationSaved(true);
       }
     } finally {
-      evaluationInFlight.current = false;
-      setSavingEvaluation(false);
+      release();
     }
   }
 
@@ -212,13 +206,14 @@ async function createClinicalOrder(
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
-  if (orderInFlight.current || user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
+  if (user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
 
   const formElement = event.currentTarget;
   const form = new FormData(formElement);
 
-  orderInFlight.current = true;
-  setCreatingOrder(true);
+  const release = operations.start(episodeKey("order"));
+
+  if (!release) return;
   setOrderCreated(false);
   setOrderError("");
   try {
@@ -236,17 +231,16 @@ async function createClinicalOrder(
       setOrderCreated(true);
     }
   } finally {
-    orderInFlight.current = false;
-    setCreatingOrder(false);
+    release();
   }
 }
 
   async function registerVitals(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (vitalsInFlight.current || isClosed || (user.role !== "NURSE" && user.role !== "DOCTOR")) return;
+    if (isClosed || (user.role !== "NURSE" && user.role !== "DOCTOR")) return;
     const form = new FormData(event.currentTarget);
-    vitalsInFlight.current = true;
-    setSavingVitals(true);
+    const release = operations.start(episodeKey("vitals"));
+    if (!release) return;
     setVitalsSaved(false);
     setVitalsError("");
     try {
@@ -263,8 +257,7 @@ async function createClinicalOrder(
       }, setVitalsError);
       if (completed) setVitalsSaved(true);
     } finally {
-      vitalsInFlight.current = false;
-      setSavingVitals(false);
+      release();
     }
   }
 
@@ -652,7 +645,7 @@ async function createClinicalOrder(
               user.role === "DOCTOR" ||
               user.role === "SUPERVISOR") && (
               <button
-                disabled={updatingAlerts.has(alert.id)}
+                disabled={operations.isPending(`alert:${alert.id}`)}
                 onClick={() => updateAlert(alert.id, "ACKNOWLEDGED")}
               >
                 Reconocer
@@ -665,7 +658,7 @@ async function createClinicalOrder(
               user.role === "DOCTOR" ||
               user.role === "SUPERVISOR") && (
               <button
-                disabled={updatingAlerts.has(alert.id)}
+                disabled={operations.isPending(`alert:${alert.id}`)}
                 onClick={() => updateAlert(alert.id, "ESCALATED")}
               >
                 Escalar
@@ -677,7 +670,7 @@ async function createClinicalOrder(
   (user.role === "DOCTOR" ||
     user.role === "SUPERVISOR") && (
     <button
-      disabled={updatingAlerts.has(alert.id)}
+      disabled={operations.isPending(`alert:${alert.id}`)}
                 onClick={() => updateAlert(alert.id, "RESOLVED")}
     >
       Resolver
@@ -685,7 +678,7 @@ async function createClinicalOrder(
   )}
         </div>
 
-        {updatingAlerts.has(alert.id) && <p role="status">Actualizando alerta…</p>}
+        {operations.isPending(`alert:${alert.id}`) && <p role="status">Actualizando alerta…</p>}
         {alertErrors[alert.id] && <p role="alert">{alertErrors[alert.id]}</p>}
 
         <details className="alert-history">
@@ -833,10 +826,10 @@ async function createClinicalOrder(
 
                 {!isClosed && (
                 <button
-                  disabled={completingTasks.has(task.id)}
+                  disabled={operations.isPending(`task:${task.id}`)}
                   onClick={() => completeTask(task.id)}
                 >
-                  {completingTasks.has(task.id) ? "Completando…" : "Completar"}
+                  {operations.isPending(`task:${task.id}`) ? "Completando…" : "Completar"}
                 </button>
                 )}
                 {taskErrors[task.id] && <p role="alert">{taskErrors[task.id]}</p>}

@@ -1,10 +1,11 @@
 import type { FormEvent } from "react";
 
 type NewEpisodePageProps = {
+  submitting?: boolean;
   onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
 };
 
-export default function NewEpisodePage({ onSubmit }: NewEpisodePageProps) {
+export default function NewEpisodePage({ onSubmit, submitting = false }: NewEpisodePageProps) {
   return (
     <main className="container narrow">
       <section className="panel">
@@ -13,22 +14,22 @@ export default function NewEpisodePage({ onSubmit }: NewEpisodePageProps) {
         <form className="form-grid" onSubmit={onSubmit}>
           <label>
             Nombre completo
-            <input name="name" required />
+            <input disabled={submitting} name="name" required />
           </label>
 
           <label>
             Fecha de nacimiento
-            <input name="birth_date" type="date" required />
+            <input disabled={submitting} name="birth_date" type="date" required />
           </label>
 
           <label>
             Documento
-            <input name="document" required />
+            <input disabled={submitting} name="document" required />
           </label>
 
           <label>
             Prioridad inicial
-            <select name="priority" defaultValue="3">
+            <select disabled={submitting} name="priority" defaultValue="3">
               <option value="1">P1 · Crítica</option>
               <option value="2">P2 · Alta</option>
               <option value="3">P3 · Media</option>
@@ -39,11 +40,11 @@ export default function NewEpisodePage({ onSubmit }: NewEpisodePageProps) {
 
           <label>
             Ubicación
-            <input name="location" defaultValue="Recepción" />
+            <input disabled={submitting} name="location" defaultValue="Recepción" />
           </label>
 
-          <button type="submit">
-            Crear episodio y pulsera
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Registrando llegada…" : "Crear episodio y pulsera"}
           </button>
         </form>
       </section>

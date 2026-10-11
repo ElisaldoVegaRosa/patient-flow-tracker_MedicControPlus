@@ -1,12 +1,13 @@
 import type { FormEvent } from "react";
 
 type LoginPageProps = {
+  submitting?: boolean;
   restoringSession: boolean;
   error: string;
   onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
 };
 
-export default function LoginPage({ restoringSession, error, onSubmit }: LoginPageProps) {
+export default function LoginPage({ restoringSession, error, onSubmit, submitting = false }: LoginPageProps) {
 if (restoringSession) {
   return (
     <main className="login-page">
@@ -29,7 +30,7 @@ if (restoringSession) {
           <form onSubmit={onSubmit}>
             <label>
               Usuario
-              <select name="username">
+              <select disabled={submitting} name="username">
                 <option value="recepcion">Recepción</option>
                 <option value="enfermeria">Enfermería</option>
                 <option value="medico">Médico</option>
@@ -41,13 +42,14 @@ if (restoringSession) {
             <label>
               Contraseña
               <input
+                disabled={submitting}
                 name="password"
                 type="password"
                 defaultValue="demo123"
               />
             </label>
 
-            <button type="submit">Entrar</button>
+            <button type="submit" disabled={submitting}>{submitting ? "Iniciando sesión…" : "Entrar"}</button>
           </form>
 
           {error && <p className="error">{error}</p>}

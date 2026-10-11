@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
+import { usePendingOperations } from "./hooks/usePendingOperations";
 import {
   api, establishSession, getSessionRevision, invalidateSession,
   isSessionInterruption, SESSION_EXPIRED_EVENT,
@@ -43,7 +44,8 @@ function App() {
   const [historyData, setHistoryData] =
     useState<HistoryData | null>(null);
   const [rulesMessage, setRulesMessage] = useState("");
-  const [evaluatingRules, setEvaluatingRules] = useState(false);
+  const operations = usePendingOperations();
+  const evaluatingRules = operations.isPending("rules");
   const [error, setError] = useState("");
   const [restoringSession, setRestoringSession] =
     useState(() => Boolean(localStorage.getItem("token")));
@@ -84,7 +86,6 @@ function App() {
       setHistoryData(null);
       setPage("dashboard");
       setRestoringSession(false);
-      setEvaluatingRules(false);
       setRulesMessage("");
       setError("Tu sesión expiró. Inicia sesión nuevamente.");
     }
@@ -186,6 +187,9 @@ useEffect(() => {
 
     const form = new FormData(event.currentTarget);
 
+    const release = operations.start("login");
+    if (!release) return;
+
     try {
       const result = await api<User>("/auth/login", {
         method: "POST",
@@ -201,6 +205,8 @@ useEffect(() => {
     } catch (exception) {
       if (isSessionInterruption(exception)) return;
       setError((exception as Error).message);
+    } finally {
+      release();
     }
   }
 
@@ -210,6 +216,9 @@ useEffect(() => {
     event.preventDefault();
 
     const form = new FormData(event.currentTarget);
+
+    const release = operations.start("arrival");
+    if (!release) return;
 
     try {
       const result = await api<Episode>("/episodes", {
@@ -229,6 +238,8 @@ useEffect(() => {
     } catch (exception) {
       if (isSessionInterruption(exception)) return;
       setError((exception as Error).message);
+    } finally {
+      release();
     }
   }
 
@@ -268,6 +279,8 @@ useEffect(() => {
  * - no duplica datos en ejecuciones posteriores.
  */
 async function loadDemoData() {
+  const release = operations.start("demo");
+  if (!release) return;
   const revision = getSessionRevision();
   const confirmed = window.confirm(
     "Se agregarán 12 pacientes ficticios sin borrar los datos actuales. " +
@@ -275,6 +288,7 @@ async function loadDemoData() {
   );
 
   if (!confirmed) {
+    release();
     return;
   }
 
@@ -291,6 +305,8 @@ async function loadDemoData() {
   } catch (exception) {
     if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
+  } finally {
+    release();
   }
 }
 
@@ -338,10 +354,11 @@ async function openSupervisorDashboard() {
  * Abre la bandeja de laboratorio y carga las órdenes pendientes.
  */
 async function evaluateTemporalRules() {
+  const release = operations.start("rules");
+  if (!release) return;
   const revision = getSessionRevision();
   setError("");
   setRulesMessage("");
-  setEvaluatingRules(true);
 
   try {
     const result = await api<TimeRulesEvaluationResponse>(
@@ -362,7 +379,7 @@ async function evaluateTemporalRules() {
     if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
   } finally {
-    if (revision === getSessionRevision()) setEvaluatingRules(false);
+    release();
   }
 }
 
@@ -392,6 +409,9 @@ async function completeLaboratoryOrder(
 
   const form = new FormData(event.currentTarget);
 
+  const release = operations.start(`task:${taskId}`);
+  if (!release) return;
+
   try {
     await api<Episode>(`/tasks/${taskId}/complete`, {
       method: "PATCH",
@@ -404,10 +424,14 @@ async function completeLaboratoryOrder(
   } catch (exception) {
     if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
+  } finally {
+    release();
   }
 }
 
 async function logout() {
+  const release = operations.start("logout");
+  if (!release) return;
   const request = api<LogoutResponse>("/auth/logout", { method: "POST" });
   invalidateSession();
   clearRecovery();
@@ -421,19 +445,21 @@ async function logout() {
   setPage("dashboard");
   setError("");
   setRulesMessage("");
-  setEvaluatingRules(false);
   try {
     await request;
   } catch (exception) {
     if (!isSessionInterruption(exception)) {
       console.warn("No fue posible cerrar la sesión en el servidor.", exception);
     }
+  } finally {
+    release();
   }
 }
 
   if (restoringSession || !user) {
     return (
       <LoginPage
+        submitting={operations.isPending("login")}
         restoringSession={restoringSession}
         error={error}
         onSubmit={login}
@@ -498,7 +524,7 @@ async function logout() {
         />
       )}
 
-      {page === "new" && <NewEpisodePage onSubmit={createEpisode} />}
+      {page === "new" && <NewEpisodePage submitting={operations.isPending("arrival")} onSubmit={createEpisode} />}
 
       {page === "scan" && <ScanPage onSubmit={scanEpisode} />}
 
@@ -516,6 +542,7 @@ async function logout() {
           supervisorFilter={supervisorFilter}
           rulesMessage={rulesMessage}
           evaluatingRules={evaluatingRules}
+          loadingDemo={operations.isPending("demo")}
           onLoadDemo={loadDemoData}
           onEvaluateRules={evaluateTemporalRules}
           onRefresh={openSupervisorDashboard}
@@ -528,6 +555,7 @@ async function logout() {
         <LaboratoryPage
           laboratoryQueue={laboratoryQueue}
           onRefresh={openLaboratoryQueue}
+          isCompleting={(id) => operations.isPending(`task:${id}`)}
           onCompleteOrder={completeLaboratoryOrder}
         />
       )}
@@ -535,6 +563,7 @@ async function logout() {
       {page === "episode" && episode && (
         <EpisodePage
           key={`${user.username}:${episode.id}`}
+          pendingOperations={operations}
           episode={episode}
           user={user}
           updateEpisode={updateEpisode}
