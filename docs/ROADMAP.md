@@ -544,6 +544,22 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 49
+
+- Alcance acordado entregado en 49A: bloqueo de Reconocer, Escalar y Resolver
+  por identificador de alerta mientras espera respuesta.
+- Criterios contrastados con ocho casos nuevos: una solicitud por alerta,
+  «Actualizando alerta…», desbloqueo tras éxito, error de API/red o HTTP 401,
+  reintento explícito y solicitudes independientes sobre distintas alertas.
+- Se conservan permisos y transiciones; la respuesta exitosa actualiza el
+  episodio y permite presentar las acciones del nuevo estado.
+- Evidencia: 177 pruebas frontend, lint y build aprobados; CI de implementación
+  `38178969360` y documental `38179130975` aprobadas.
+- Etapa 49 cerrada dentro del alcance. El bloqueo cubre solicitudes en curso
+  en esta vista; no incorpora coordinación entre usuarios o navegadores.
+- Cierre documental; aplicación, reglas clínicas, contratos de API y base local
+  sin cambios adicionales. Validaciones aprobadas conservadas.
+
 ## Entrega 49A: bloqueo de acciones por alerta
 
 - Entrega publicada en `2e2a21fdc9c56879db19bcbd6fe174b9aaa7a631`;
@@ -1028,8 +1044,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–48 cerradas. 49A publicada con CI aprobada; revisar su aceptación
-y cierre dentro del alcance acordado.
+Etapas 30–49 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 
