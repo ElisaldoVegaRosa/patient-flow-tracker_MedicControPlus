@@ -12,6 +12,7 @@ type EpisodePageProps = {
   initialDischargeNote?: string;
   onDischargeNoteChange?: (note: string) => void;
   onMedicalEvaluationChange?: (changed: boolean) => void;
+  onClinicalOrderChange?: (changed: boolean) => void;
 };
 
 export default function EpisodePage({
@@ -22,6 +23,7 @@ export default function EpisodePage({
   initialDischargeNote = "",
   onDischargeNoteChange,
   onMedicalEvaluationChange,
+  onClinicalOrderChange,
 }: EpisodePageProps) {
   const isClosed = episode.status === "CLOSED";
   const latestVitals = episode.vitals[0];
@@ -149,7 +151,10 @@ async function createClinicalOrder(
       }),
     });
 
-    if (completed) formElement.reset();
+    if (completed) {
+      formElement.reset();
+      onClinicalOrderChange?.(false);
+    }
   } finally {
     orderInFlight.current = false;
     setCreatingOrder(false);
@@ -463,6 +468,12 @@ async function createClinicalOrder(
     <form
       className="medical-form"
       onSubmit={createClinicalOrder}
+      onChange={(event) => {
+        const form = new FormData(event.currentTarget);
+        onClinicalOrderChange?.(
+          Boolean(form.get("title")) || form.get("service") !== "LAB",
+        );
+      }}
     >
       <label>
         Orden o procedimiento solicitado

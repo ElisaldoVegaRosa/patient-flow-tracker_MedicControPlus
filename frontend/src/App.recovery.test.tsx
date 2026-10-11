@@ -198,6 +198,121 @@ describe('Recuperación de nota tras reautenticación', () => {
   });
 });
 
+describe('Protección de orden clínica sin enviar', () => {
+  afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+  const title = 'Orden ficticia 42A';
+  function fillOrder() {
+    fireEvent.change(screen.getByLabelText('Orden o procedimiento solicitado'), { target: { value: title } });
+    fireEvent.change(screen.getByLabelText('Servicio responsable'), { target: { value: 'NURSING' } });
+  }
+
+  it.each([
+    ['Orden o procedimiento solicitado', title, ''],
+    ['Servicio responsable', 'NURSING', 'LAB'],
+  ])('detecta cambios en %s y deja de avisar al volver al valor inicial', async (label, value, initial) => {
+    const { user } = await prepare('');
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    fireEvent.change(screen.getByLabelText(label), { target: { value } });
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    fireEvent.change(screen.getByLabelText(label), { target: { value: initial } });
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Centro de control' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it.each(['Centro de control', 'Historial de episodios', 'Salir'])(
+    'cancelar %s conserva la orden y la sesión sin peticiones adicionales', async (destination) => {
+      const { user, fetchMock } = await prepare('');
+      fillOrder();
+      const calls = fetchMock.mock.calls.length;
+      await user.click(screen.getByRole('button', { name: destination }));
+      expect(screen.getByRole('dialog', { name: 'Cambios médicos sin guardar' })).toBeVisible();
+      await user.click(screen.getByRole('button', { name: 'Seguir editando' }));
+      expect(screen.getByLabelText('Orden o procedimiento solicitado')).toHaveValue(title);
+      expect(screen.getByLabelText('Servicio responsable')).toHaveValue('NURSING');
+      expect(localStorage.getItem('token')).toBe('anterior');
+      expect(fetchMock).toHaveBeenCalledTimes(calls);
+    },
+  );
+
+  it.each(['Centro de control', 'Salir'])('descartar permite %s sin crear la orden', async (destination) => {
+    const { user, fetchMock } = await prepare('');
+    fillOrder();
+    await user.click(screen.getByRole('button', { name: destination }));
+    await user.click(screen.getByRole('button', { name: 'Descartar y salir' }));
+    expect(screen.queryByLabelText('Orden o procedimiento solicitado')).not.toBeInTheDocument();
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/tasks'))).toHaveLength(0);
+    expect(sessionStorage.length).toBe(0);
+    if (destination === 'Salir') expect(localStorage.getItem('token')).toBeNull();
+  });
+
+  it('crear con éxito retira el aviso de orden', async () => {
+    const { user, fetchMock } = await prepare('');
+    fillOrder();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    await user.click(screen.getByRole('button', { name: 'Crear y asignar orden' }));
+    await waitFor(() => expect(screen.getByLabelText('Orden o procedimiento solicitado')).toHaveValue(''));
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Centro de control' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it.each(['API', 'red'])('un fallo de %s conserva campos y aviso', async (failure) => {
+    const { user, fetchMock } = await prepare('');
+    fillOrder();
+    if (failure === 'API') fetchMock.mockResolvedValueOnce(response({ detail: 'Error ficticio 42A' }, 422));
+    else fetchMock.mockRejectedValueOnce(new Error('Error ficticio 42A'));
+    await user.click(screen.getByRole('button', { name: 'Crear y asignar orden' }));
+    await screen.findByText(/Error ficticio 42A/);
+    expect(screen.getByLabelText('Orden o procedimiento solicitado')).toHaveValue(title);
+    expect(screen.getByLabelText('Servicio responsable')).toHaveValue('NURSING');
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    await user.click(screen.getByRole('button', { name: 'Salir' }));
+    expect(screen.getByRole('dialog', { name: 'Cambios médicos sin guardar' })).toBeVisible();
+  });
+
+  it.each(['evaluación', 'nota de alta'])('crear orden mantiene el aviso de %s pendiente', async (pending) => {
+    const { user, fetchMock } = await prepare(pending === 'nota de alta' ? note : '');
+    if (pending === 'evaluación') {
+      fireEvent.change(screen.getByLabelText('Diagnóstico o impresión clínica'), { target: { value: 'Diagnóstico ficticio' } });
+    }
+    fillOrder();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    await user.click(screen.getByRole('button', { name: 'Crear y asignar orden' }));
+    await waitFor(() => expect(screen.getByLabelText('Orden o procedimiento solicitado')).toHaveValue(''));
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    await user.click(screen.getByRole('button', { name: 'Centro de control' }));
+    expect(screen.getByRole('dialog', { name: pending === 'evaluación' ? 'Cambios médicos sin guardar' : 'Nota de alta sin enviar' })).toBeVisible();
+  });
+
+  it('guardar evaluación mantiene el aviso de orden pendiente', async () => {
+    const { user, fetchMock } = await prepare('');
+    fillOrder();
+    fireEvent.change(screen.getByLabelText('Diagnóstico o impresión clínica'), { target: { value: 'Diagnóstico ficticio' } });
+    fireEvent.change(screen.getByLabelText('Nota de evaluación'), { target: { value: 'Nota ficticia' } });
+    fetchMock.mockResolvedValueOnce(response(episode));
+    await user.click(screen.getByRole('button', { name: 'Guardar evaluación médica' }));
+    await waitFor(() => expect(screen.getByLabelText('Diagnóstico o impresión clínica')).toHaveValue(''));
+    expect(screen.getByLabelText('Orden o procedimiento solicitado')).toHaveValue(title);
+    await user.click(screen.getByRole('button', { name: 'Salir' }));
+    expect(screen.getByRole('dialog', { name: 'Cambios médicos sin guardar' })).toBeVisible();
+  });
+
+  it('un 401 conserva la reautenticación sin recuperar ni reenviar la orden', async () => {
+    const { user, fetchMock, login } = await prepare('');
+    fillOrder();
+    fetchMock.mockResolvedValueOnce(response({}, 401));
+    await user.click(screen.getByRole('button', { name: 'Crear y asignar orden' }));
+    await screen.findByRole('button', { name: 'Entrar' });
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    await login();
+    await screen.findByRole('heading', { name: 'Centro de control' });
+    expect(screen.queryByRole('region', { name: 'Recuperación de nota de alta' })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/tasks'))).toHaveLength(1);
+  });
+});
+
 describe('Protección de evaluación médica sin guardar', () => {
   afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
   const diagnosis = 'Diagnóstico ficticio 41A';

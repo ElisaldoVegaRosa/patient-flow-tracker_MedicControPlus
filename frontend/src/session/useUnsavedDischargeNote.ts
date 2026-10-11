@@ -4,6 +4,8 @@ export function useUnsavedDischargeNote() {
   const dirty = useRef(false);
   const evaluation = useRef(false);
   const [evaluationDirty, setEvaluationDirty] = useState(false);
+  const order = useRef(false);
+  const [orderDirty, setOrderDirty] = useState(false);
   const action = useRef<(() => void) | null>(null);
   const [confirming, setConfirming] = useState(false);
 
@@ -11,6 +13,8 @@ export function useUnsavedDischargeNote() {
     dirty.current = false;
     evaluation.current = false;
     setEvaluationDirty(false);
+    order.current = false;
+    setOrderDirty(false);
     action.current = null;
     setConfirming(false);
   }, []);
@@ -25,12 +29,17 @@ export function useUnsavedDischargeNote() {
   }, []);
 
   const run = useCallback((next: () => void) => {
-    if (!dirty.current && !evaluation.current) {
+    if (!dirty.current && !evaluation.current && !order.current) {
       next();
       return;
     }
     action.current = next;
     setConfirming(true);
+  }, []);
+
+  const trackOrder = useCallback((changed: boolean) => {
+    order.current = changed;
+    setOrderDirty(changed);
   }, []);
 
   const cancel = useCallback(() => {
@@ -46,7 +55,7 @@ export function useUnsavedDischargeNote() {
 
   useEffect(() => {
     function beforeUnload(event: BeforeUnloadEvent) {
-      if (!dirty.current && !evaluation.current) return;
+      if (!dirty.current && !evaluation.current && !order.current) return;
       event.preventDefault();
       event.returnValue = "";
     }
@@ -54,5 +63,5 @@ export function useUnsavedDischargeNote() {
     return () => window.removeEventListener("beforeunload", beforeUnload);
   }, []);
 
-  return { track, trackEvaluation, evaluationDirty, clear, run, confirming, cancel, discard };
+  return { track, trackEvaluation, trackOrder, evaluationDirty, orderDirty, clear, run, confirming, cancel, discard };
 }

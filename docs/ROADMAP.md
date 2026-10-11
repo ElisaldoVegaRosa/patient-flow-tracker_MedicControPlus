@@ -544,6 +544,26 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Entrega 42A: aviso de orden clínica sin enviar
+
+- Implementación autorizada y local; pendiente de commit, push y CI.
+- Procedimiento solicitado y servicio responsable se comparan con sus valores
+  iniciales. Cambios requieren confirmar navegación o logout mediante
+  «Seguir editando» o «Descartar y salir»; cancelar conserva campos y sesión.
+- Recarga y cierre de pestaña solicitan el aviso estándar del navegador.
+  Restaurar valores iniciales o crear con éxito retira solo el indicador de orden.
+- Errores conservan campos y protección. Los indicadores de evaluación y nota
+  de alta siguen siendo independientes y no se borran al crear una orden.
+- Solo indicadores en el guard; sin persistencia de texto ni cambios en API,
+  backend o base local. HTTP 401 no recupera ni reenvía la orden y conserva 37A.
+- Catorce casos nuevos cubren cambios, cancelación, descarte, éxito, errores,
+  aviso de recarga, independencia de las tres protecciones y HTTP 401.
+- Validación: 125 pruebas frontend, lint y build aprobados.
+- Primera corrida local con dos workers: 124 aprobadas y timeout de 5 segundos
+  en el primer caso existente de recuperación. Suite completa aprobada al repetir
+  con `npm.cmd run test --prefix frontend -- --maxWorkers=1`, sin cambiar pruebas.
+  CI mantiene su comando habitual.
+
 ## Cierre de la Etapa 41
 
 - Alcance acordado entregado en 41A: aviso por cambios sin guardar en diagnóstico,
@@ -794,9 +814,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–41 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–41 cerradas. Revisar y autorizar la publicación de 42A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 ## Fuentes
 
