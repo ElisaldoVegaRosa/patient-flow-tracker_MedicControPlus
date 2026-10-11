@@ -5,6 +5,21 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre de la Etapa 48
+
+- Alcance acordado entregado en 48A: confirmación accesible de triaje y
+  asignación guardados solo tras éxito, y errores de API/red junto al formulario.
+- Criterios contrastados con siete casos nuevos y pruebas ampliadas: espera
+  sin confirmación, limpieza al editar o reenviar, ausencia de éxito ante fallos
+  y mensajes independientes del registro de signos vitales.
+- Se conservan valores, bloqueo de solicitudes y permisos de 47A.
+  HTTP 401 mantiene el manejo de sesión sin éxito ni error ordinario.
+- Evidencia: 169 pruebas frontend, lint y build aprobados; CI de implementación
+  `38178157097` y documental `38178269547` aprobadas.
+- Etapa 48 cerrada dentro del alcance. Cierre documental; aplicación, reglas
+  clínicas, contratos de API y base local sin cambios adicionales.
+  Validaciones aprobadas conservadas.
+
 ## Entrega 48A: mensajes de resultado en triaje y asignación
 
 - Entrega publicada en `d5f3b06161138f71e8f5b9ed64d5232b6e30fcf3`;
