@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 48A: mensajes de resultado en triaje y asignación
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `d5f3b06161138f71e8f5b9ed64d5232b6e30fcf3`;
+  CI `38178157097` aprobada.
 - Triaje muestra «Triaje y asignación guardados» mediante un estado accesible
   solo tras éxito; los errores de API/red aparecen junto al formulario.
 - Editar o reenviar retira sus mensajes, independientes de signos vitales.
