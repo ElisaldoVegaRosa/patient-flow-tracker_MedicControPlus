@@ -4,7 +4,8 @@
 
 ### Entrega 40A: bloqueo de envíos médicos en curso
 
-- Implementación autorizada y local; pendiente de commit, push y CI.
+- Entrega publicada en `13c160c35dc5c4992ae0803fa4cc25acf405bf71`;
+  CI `38151760565` aprobada.
 - Evaluación médica y orden clínica tienen bloqueos independientes durante
   su petición: campos y botón deshabilitados, con «Guardando…» o «Creando orden…».
 - Guards inmediatos impiden clics y submits repetidos en cada formulario.
@@ -787,8 +788,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–39 cerradas. Revisar y autorizar la publicación de 40A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+40A publicada y CI aprobada. Realizar la prueba manual acordada y revisar
+su aceptación y cierre dentro del alcance antes de elegir otra mejora.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

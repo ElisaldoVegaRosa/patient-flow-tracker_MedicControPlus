@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 40A: bloqueo de envíos médicos en curso
 
-- Implementación autorizada y local; pendiente de commit, push y CI.
+- Entrega publicada en `13c160c35dc5c4992ae0803fa4cc25acf405bf71`;
+  CI `38151760565` aprobada.
 - Evaluación médica y orden clínica tienen bloqueos independientes durante
   su petición: campos y botón deshabilitados, con «Guardando…» o «Creando orden…».
 - Guards inmediatos impiden clics y submits repetidos en cada formulario.
