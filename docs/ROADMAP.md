@@ -546,7 +546,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 49A: bloqueo de acciones por alerta
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `2e2a21fdc9c56879db19bcbd6fe174b9aaa7a631`;
+  CI `38178969360` aprobada.
 - Reconocer, Escalar y Resolver comparten un bloqueo por identificador de alerta
   mientras esperan respuesta; muestra «Actualizando alerta…».
 - Impide envíos repetidos o acciones simultáneas sobre esa alerta y mantiene
@@ -1027,8 +1028,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–48 cerradas. Revisar y autorizar la publicación de 49A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+Etapas 30–48 cerradas. 49A publicada con CI aprobada; revisar su aceptación
+y cierre dentro del alcance acordado.
 
 ## Fuentes
 

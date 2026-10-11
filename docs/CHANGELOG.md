@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 49A: bloqueo de acciones por alerta
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `2e2a21fdc9c56879db19bcbd6fe174b9aaa7a631`;
+  CI `38178969360` aprobada.
 - Reconocer, Escalar y Resolver comparten un bloqueo por identificador de alerta
   mientras esperan respuesta; muestra «Actualizando alerta…».
 - Impide envíos repetidos o acciones simultáneas sobre esa alerta y mantiene
