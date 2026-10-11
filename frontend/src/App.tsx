@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
 import {
@@ -6,6 +6,7 @@ import {
   isSessionInterruption, SESSION_EXPIRED_EVENT,
 } from "./api/client";
 import { useDischargeRecovery } from "./session/useDischargeRecovery";
+import { useUnsavedDischargeNote } from "./session/useUnsavedDischargeNote";
 import EpisodeHistoryPage from "./pages/EpisodeHistoryPage";
 import ScanPage from "./pages/ScanPage";
 import NewEpisodePage from "./pages/NewEpisodePage";
@@ -47,7 +48,13 @@ function App() {
   const [restoringSession, setRestoringSession] =
     useState(() => Boolean(localStorage.getItem("token")));
   const recovery = useDischargeRecovery();
-  const { clear: clearRecovery, suspend: suspendRecovery } = recovery;
+  const { clear: clearDraft, suspend: suspendRecovery } = recovery;
+  const leave = useUnsavedDischargeNote();
+  const { clear: clearLeave, track: trackLeave } = leave;
+  const clearRecovery = useCallback(() => {
+    clearDraft();
+    clearLeave();
+  }, [clearDraft, clearLeave]);
   const [recoveredNote, setRecoveredNote] = useState("");
 
   function navigate(nextPage: string) {
@@ -67,6 +74,7 @@ function App() {
   useEffect(() => {
     function sessionExpired() {
       suspendRecovery();
+      clearLeave();
       setRecoveredNote("");
       setUser(null);
       setEpisode(null);
@@ -82,7 +90,7 @@ function App() {
     }
     window.addEventListener(SESSION_EXPIRED_EVENT, sessionExpired);
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, sessionExpired);
-  }, [suspendRecovery]);
+  }, [suspendRecovery, clearLeave]);
 
   async function restoreNote() {
     if (!user) return;
@@ -91,6 +99,7 @@ function App() {
       setEpisode(result.episode);
       setRecoveredNote(result.note);
       recovery.track(user.username, result.episode.id, result.note);
+      trackLeave(result.note);
       setPage("episode");
     }
   }
@@ -436,17 +445,26 @@ async function logout() {
     <>
       <AppHeader
         user={user}
-        onDashboard={() => {
+        onDashboard={() => leave.run(() => {
           navigate("dashboard");
-          loadDashboard();
-        }}
-        onSupervisor={openSupervisorDashboard}
-        onScan={() => navigate("scan")}
-        onHistory={openEpisodeHistory}
-        onLaboratory={openLaboratoryQueue}
-        onNewEpisode={() => navigate("new")}
-        onLogout={logout}
+          void loadDashboard();
+        })}
+        onSupervisor={async () => leave.run(() => { void openSupervisorDashboard(); })}
+        onScan={() => leave.run(() => navigate("scan"))}
+        onHistory={async () => leave.run(() => { void openEpisodeHistory(); })}
+        onLaboratory={async () => leave.run(() => { void openLaboratoryQueue(); })}
+        onNewEpisode={() => leave.run(() => navigate("new"))}
+        onLogout={async () => leave.run(() => { void logout(); })}
       />
+
+      {leave.confirming && (
+        <section className="panel" role="dialog" aria-labelledby="unsaved-note-title">
+          <h2 id="unsaved-note-title">Nota de alta sin enviar</h2>
+          <p>Si sales, perderás esta nota de alta.</p>
+          <button type="button" autoFocus onClick={leave.cancel}>Seguir editando</button>
+          <button type="button" onClick={leave.discard}>Descartar y salir</button>
+        </section>
+      )}
 
       {recovery.status !== "idle" && recovery.status !== "waiting" && (
         <section className="panel" aria-label="Recuperación de nota de alta">
@@ -476,7 +494,7 @@ async function logout() {
         <DashboardPage
           dashboard={dashboard}
           onRefresh={loadDashboard}
-          onOpenEpisode={openEpisode}
+          onOpenEpisode={async (id) => leave.run(() => { void openEpisode(id); })}
         />
       )}
 
@@ -488,7 +506,7 @@ async function logout() {
         <EpisodeHistoryPage
           historyData={historyData}
           onRefresh={openEpisodeHistory}
-          onOpenEpisode={openEpisode}
+          onOpenEpisode={async (id) => leave.run(() => { void openEpisode(id); })}
         />
       )}
 
@@ -502,7 +520,7 @@ async function logout() {
           onEvaluateRules={evaluateTemporalRules}
           onRefresh={openSupervisorDashboard}
           onFilterChange={setSupervisorFilter}
-          onOpenEpisode={openEpisode}
+          onOpenEpisode={async (id) => leave.run(() => { void openEpisode(id); })}
         />
       )}
 
@@ -522,7 +540,10 @@ async function logout() {
           updateEpisode={updateEpisode}
           showError={setError}
           initialDischargeNote={recoveredNote}
-          onDischargeNoteChange={(note) => recovery.track(user.username, episode.id, note)}
+          onDischargeNoteChange={(note) => {
+            recovery.track(user.username, episode.id, note);
+            trackLeave(note);
+          }}
         />
       )}
     </>

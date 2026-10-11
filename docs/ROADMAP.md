@@ -544,6 +544,25 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Entrega 38A: aviso de nota de alta sin enviar
+
+- Implementación autorizada; pendiente de commit, push y CI.
+- Una nota no vacía en el formulario de alta requiere confirmar las salidas
+  por navegación o logout: «Seguir editando» conserva texto y sesión;
+  «Descartar y salir» ejecuta la salida elegida sin enviar el alta.
+- Recarga y cierre de pestaña solicitan el aviso estándar mediante beforeunload.
+  Su presentación depende del navegador; no garantiza recuperación tras salir.
+- El guard de salida solo conserva un indicador y la acción pendiente en memoria.
+  No persiste texto clínico ni modifica API, backend, esquema o base local.
+- Alta exitosa y descarte retiran el aviso. Un HTTP 401 cancela la salida
+  pendiente y mantiene la recuperación 37A; restaurar reactiva la protección.
+  El borrador suspendido durante reautenticación conserva el alcance de 37A.
+- Diez casos nuevos cubren cancelación, descarte, logout, aviso de recarga,
+  limpieza del listener, alta exitosa y nota restaurada.
+- Validación: 88 pruebas frontend, lint y build aprobados.
+- Prueba manual realizada por el usuario y confirmada satisfactoria antes
+  de publicar: conservación al cancelar, descarte y aviso de recarga.
+
 ## Cierre de la Etapa 37
 
 - Mejora elegida: recuperación de nota de alta tras HTTP 401, entregada en 37A.
@@ -668,9 +687,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–37 cerradas dentro de sus alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–37 cerradas. Revisar y autorizar la publicación de 38A y comprobar
+su CI; después evaluar el cierre de la Etapa 38 dentro del alcance acordado.
 
 ## Fuentes
 

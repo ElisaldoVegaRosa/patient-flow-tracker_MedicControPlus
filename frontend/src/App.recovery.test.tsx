@@ -197,3 +197,74 @@ describe('Recuperación de nota tras reautenticación', () => {
     expect(screen.queryByRole('region', { name: 'Recuperación de nota de alta' })).not.toBeInTheDocument();
   });
 });
+
+describe('Protección de nota de alta sin enviar', () => {
+  afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+
+  it.each(['Centro de control', 'Escanear pulsera', 'Historial de episodios', 'Salir'])(
+    'cancelar %s conserva la nota y no ejecuta la salida', async (destination) => {
+      const { user, fetchMock } = await prepare();
+      const calls = fetchMock.mock.calls.length;
+      await user.click(screen.getByRole('button', { name: destination }));
+      expect(screen.getByRole('dialog', { name: 'Nota de alta sin enviar' })).toBeVisible();
+      expect(fetchMock).toHaveBeenCalledTimes(calls);
+      await user.click(screen.getByRole('button', { name: 'Seguir editando' }));
+      expect(screen.getByLabelText('Nota de alta')).toHaveValue(note);
+      expect(localStorage.getItem('token')).toBe('anterior');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(fetchMock).toHaveBeenCalledTimes(calls);
+    },
+  );
+
+  it.each(['Centro de control', 'Escanear pulsera', 'Salir'])(
+    'descartar permite %s y retira la protección', async (destination) => {
+      const { user, fetchMock } = await prepare();
+      await user.click(screen.getByRole('button', { name: destination }));
+      await user.click(screen.getByRole('button', { name: 'Descartar y salir' }));
+      expect(screen.queryByLabelText('Nota de alta')).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+      if (destination === 'Salir') {
+        await screen.findByRole('button', { name: 'Entrar' });
+        expect(localStorage.getItem('token')).toBeNull();
+        expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/auth/logout'))).toHaveLength(1);
+      }
+      expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/discharge'))).toHaveLength(0);
+      expect(sessionStorage.length).toBe(0);
+    },
+  );
+
+  it('protege recarga solo con texto no vacío y elimina el listener al desmontar', async () => {
+    const { view } = await prepare();
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    fireEvent.change(screen.getByLabelText('Nota de alta'), { target: { value: '  \n ' } });
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    fireEvent.change(screen.getByLabelText('Nota de alta'), { target: { value: note } });
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    view.unmount();
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+  });
+
+  it('alta exitosa retira el aviso de recarga y permite navegar sin confirmación', async () => {
+    const { user, server } = await prepare();
+    server.dischargeAccepted = true;
+    await user.click(screen.getByRole('button', { name: 'Cerrar episodio · Alta médica' }));
+    expect(await screen.findByRole('status')).toHaveTextContent('solo lectura');
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Centro de control' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('restaurar tras 401 vuelve a proteger la nota sin bloquear la reautenticación', async () => {
+    const { expire, login, user } = await prepare();
+    await expire();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    await login();
+    await user.click(await screen.findByRole('button', { name: 'Restaurar nota de alta' }));
+    expect(await screen.findByLabelText('Nota de alta')).toHaveValue(note);
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    await user.click(screen.getByRole('button', { name: 'Salir' }));
+    expect(screen.getByRole('dialog', { name: 'Nota de alta sin enviar' })).toBeVisible();
+  });
+});
