@@ -4,7 +4,8 @@
 
 ### Entrega 41A: aviso de evaluación médica sin guardar
 
-- Implementación autorizada y local; pendiente de commit, push y CI.
+- Entrega publicada en `3c9220146b989e8ff4648b61cd7d300353eb01c9`;
+  CI `38152974236` aprobada.
 - Diagnóstico, nota de evaluación y decisión médica se comparan con los valores
   iniciales. Sus cambios requieren confirmar navegación o logout con
   «Seguir editando» o «Descartar y salir», sin ejecutar la salida al cancelar.
@@ -820,8 +821,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–40 cerradas. Revisar y autorizar la publicación de 41A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+41A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
+alcance acordado antes de elegir otra mejora.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

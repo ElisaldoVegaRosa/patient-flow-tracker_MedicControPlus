@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 41A: aviso de evaluación médica sin guardar
 
-- Implementación autorizada y local; pendiente de commit, push y CI.
+- Entrega publicada en `3c9220146b989e8ff4648b61cd7d300353eb01c9`;
+  CI `38152974236` aprobada.
 - Diagnóstico, nota de evaluación y decisión médica se comparan con los valores
   iniciales. Sus cambios requieren confirmar navegación o logout con
   «Seguir editando» o «Descartar y salir», sin ejecutar la salida al cancelar.
