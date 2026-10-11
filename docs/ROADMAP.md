@@ -544,6 +544,19 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 37
+
+- Mejora elegida: recuperación de nota de alta tras HTTP 401, entregada en 37A.
+- Criterios del diseño 36A contrastados con la implementación y sus 32 casos
+  nuevos: identidad, rol, episodio ACTIVE, plazo, eliminación, restauración
+  explícita y ausencia de reenvío automático o persistencia del texto.
+- Evidencia conservada: 78 pruebas frontend, lint y build aprobados; CI de
+  implementación `38055045590` y documental `38055175333` aprobadas.
+- Etapa 37 cerrada dentro del alcance acordado. Recuperación tras navegación,
+  recarga o reinicio y otros formularios requieren una mejora independiente.
+- Revisión documental; no se repiten validaciones aprobadas ni se modifica la
+  aplicación, el backend o la base local.
+
 ## Entrega 37A: recuperación de nota de alta
 
 - Entrega cerrada y publicada en
@@ -655,9 +668,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-37A publicada y CI aprobada. Revisar los criterios de aceptación y cierre de
-la mejora elegida para la Etapa 37; cualquier extensión requiere alcance
-y autorización propios.
+Etapas 30–37 cerradas dentro de sus alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 

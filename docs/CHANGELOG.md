@@ -5,6 +5,19 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre de la Etapa 37
+
+- Mejora elegida: recuperación de nota de alta tras HTTP 401, entregada en 37A.
+- Criterios del diseño 36A contrastados con la implementación y sus 32 casos
+  nuevos: identidad, rol, episodio ACTIVE, plazo, eliminación, restauración
+  explícita y ausencia de reenvío automático o persistencia del texto.
+- Evidencia conservada: 78 pruebas frontend, lint y build aprobados; CI de
+  implementación `38055045590` y documental `38055175333` aprobadas.
+- Etapa 37 cerrada dentro del alcance acordado. Recuperación tras navegación,
+  recarga o reinicio y otros formularios requieren una mejora independiente.
+- Revisión documental; no se repiten validaciones aprobadas ni se modifica la
+  aplicación, el backend o la base local.
+
 ## Entrega 37A: recuperación de nota de alta
 
 - Entrega cerrada y publicada en
