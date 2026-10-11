@@ -544,6 +544,22 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 42
+
+- Alcance acordado entregado en 42A: aviso ante cambios sin enviar en el
+  procedimiento y servicio de una orden, al navegar, cerrar sesión o recargar.
+- Criterios contrastados con catorce casos nuevos: cancelar conserva campos y
+  sesión, descartar permite salir sin crear la orden, éxito retira su indicador
+  y errores conservan la protección. Restaurar valores iniciales elimina el aviso.
+- Los indicadores de orden, evaluación y nota de alta son independientes;
+  guardar un formulario no retira la protección de otro pendiente.
+- Evidencia: 125 pruebas frontend, lint y build aprobados; CI de implementación
+  `38154061106` y documental `38154208473` aprobadas.
+- Etapa 42 cerrada dentro del alcance. HTTP 401 conserva 37A sin recuperar ni
+  reenviar órdenes; persistencia y recuperación adicional requieren otro alcance.
+- Cierre documental; aplicación y base local sin cambios adicionales.
+  Validaciones aprobadas conservadas.
+
 ## Entrega 42A: aviso de orden clínica sin enviar
 
 - Entrega publicada en `54e7da4cd5681398994c1ab19d1dc730ccb9119b`;
@@ -815,8 +831,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-42A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
-alcance acordado antes de elegir otra mejora.
+Etapas 30–42 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 
