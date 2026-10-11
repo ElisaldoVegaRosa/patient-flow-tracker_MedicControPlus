@@ -2,6 +2,19 @@
 
 ## Última etapa
 
+### Cierre de la Etapa 39
+
+- Alcance acordado entregado en 39A: conservar evaluación médica y orden
+  clínica cuando falla su envío y vaciarlas solo tras una respuesta exitosa.
+- Criterios contrastados con seis casos nuevos: error de API, fallo de red,
+  campos conservados durante la espera y reintento explícito con los mismos datos.
+- Evidencia: 94 pruebas frontend, lint y build aprobados; CI de implementación
+  `38105192156` y documental `38105293438` aprobadas.
+- Etapa 39 cerrada dentro del alcance acordado. Persistencia, recuperación de
+  otros borradores y protección contra envíos duplicados no forman parte de 39A.
+- Cierre documental; aplicación y base local sin cambios adicionales.
+  Se conservan las validaciones aprobadas.
+
 ### Entrega 39A: conservar formularios ante envíos fallidos
 
 - Entrega publicada en `e5840ad8404257d6e475c168155a7d73a3a57937`;
@@ -759,8 +772,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-39A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
-alcance acordado antes de elegir otra mejora.
+Etapas 30–39 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
