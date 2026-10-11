@@ -11,6 +11,7 @@ type EpisodePageProps = {
   showError: (message: string) => void;
   initialDischargeNote?: string;
   onDischargeNoteChange?: (note: string) => void;
+  onMedicalEvaluationChange?: (changed: boolean) => void;
 };
 
 export default function EpisodePage({
@@ -20,6 +21,7 @@ export default function EpisodePage({
   showError,
   initialDischargeNote = "",
   onDischargeNoteChange,
+  onMedicalEvaluationChange,
 }: EpisodePageProps) {
   const isClosed = episode.status === "CLOSED";
   const latestVitals = episode.vitals[0];
@@ -110,7 +112,10 @@ export default function EpisodePage({
         }),
       });
 
-      if (completed) formElement.reset();
+      if (completed) {
+        formElement.reset();
+        onMedicalEvaluationChange?.(false);
+      }
     } finally {
       evaluationInFlight.current = false;
       setSavingEvaluation(false);
@@ -373,6 +378,13 @@ async function createClinicalOrder(
     <form
       className="medical-form"
       onSubmit={registerMedicalEvaluation}
+      onChange={(event) => {
+        const form = new FormData(event.currentTarget);
+        onMedicalEvaluationChange?.(
+          Boolean(form.get("diagnosis") || form.get("clinical_note")) ||
+          form.get("disposition") !== "CONTINUE_OBSERVATION",
+        );
+      }}
     >
       <label>
         Diagnóstico o impresión clínica

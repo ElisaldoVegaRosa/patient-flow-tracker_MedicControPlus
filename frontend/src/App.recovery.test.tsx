@@ -198,6 +198,110 @@ describe('Recuperación de nota tras reautenticación', () => {
   });
 });
 
+describe('Protección de evaluación médica sin guardar', () => {
+  afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+  const diagnosis = 'Diagnóstico ficticio 41A';
+
+  function fillEvaluation() {
+    fireEvent.change(screen.getByLabelText('Diagnóstico o impresión clínica'), { target: { value: diagnosis } });
+    fireEvent.change(screen.getByLabelText('Nota de evaluación'), { target: { value: 'Evaluación ficticia pendiente.' } });
+    fireEvent.change(screen.getByLabelText('Decisión médica'), { target: { value: 'ORDER_TESTS' } });
+  }
+
+  it.each([
+    ['Diagnóstico o impresión clínica', diagnosis, ''],
+    ['Nota de evaluación', 'Nota ficticia.', ''],
+    ['Decisión médica', 'ORDER_TESTS', 'CONTINUE_OBSERVATION'],
+  ])('detecta cambios en %s y retira el aviso al volver al valor inicial', async (label, value, initial) => {
+    const { user } = await prepare('');
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    fireEvent.change(screen.getByLabelText(label), { target: { value } });
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    fireEvent.change(screen.getByLabelText(label), { target: { value: initial } });
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Centro de control' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it.each(['Centro de control', 'Historial de episodios', 'Salir'])(
+    'cancelar %s mantiene todos los campos y la sesión', async (destination) => {
+      const { user, fetchMock } = await prepare('');
+      fillEvaluation();
+      const calls = fetchMock.mock.calls.length;
+      await user.click(screen.getByRole('button', { name: destination }));
+      expect(screen.getByRole('dialog', { name: 'Cambios médicos sin guardar' })).toBeVisible();
+      await user.click(screen.getByRole('button', { name: 'Seguir editando' }));
+      expect(screen.getByLabelText('Diagnóstico o impresión clínica')).toHaveValue(diagnosis);
+      expect(screen.getByLabelText('Nota de evaluación')).toHaveValue('Evaluación ficticia pendiente.');
+      expect(screen.getByLabelText('Decisión médica')).toHaveValue('ORDER_TESTS');
+      expect(localStorage.getItem('token')).toBe('anterior');
+      expect(fetchMock).toHaveBeenCalledTimes(calls);
+      expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    },
+  );
+
+  it('descartar permite salir y elimina el indicador sin persistir la evaluación', async () => {
+    const { user } = await prepare('');
+    fillEvaluation();
+    await user.click(screen.getByRole('button', { name: 'Escanear pulsera' }));
+    await user.click(screen.getByRole('button', { name: 'Descartar y salir' }));
+    expect(screen.queryByLabelText('Nota de evaluación')).not.toBeInTheDocument();
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    expect(localStorage.length).toBe(1);
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it('guardar con éxito retira el aviso de evaluación', async () => {
+    const { user, fetchMock } = await prepare('');
+    fillEvaluation();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    await user.click(screen.getByRole('button', { name: 'Guardar evaluación médica' }));
+    await waitFor(() => expect(screen.getByLabelText('Diagnóstico o impresión clínica')).toHaveValue(''));
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    await user.click(screen.getByRole('button', { name: 'Centro de control' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it.each(['API', 'red'])('un error de %s conserva la evaluación y el aviso', async (failure) => {
+    const { user, fetchMock } = await prepare('');
+    fillEvaluation();
+    if (failure === 'API') fetchMock.mockResolvedValueOnce(response({ detail: 'Error ficticio 41A' }, 422));
+    else fetchMock.mockRejectedValueOnce(new Error('Error ficticio 41A'));
+    await user.click(screen.getByRole('button', { name: 'Guardar evaluación médica' }));
+    await screen.findByText(/Error ficticio 41A/);
+    expect(screen.getByLabelText('Diagnóstico o impresión clínica')).toHaveValue(diagnosis);
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    await user.click(screen.getByRole('button', { name: 'Centro de control' }));
+    expect(screen.getByRole('dialog', { name: 'Cambios médicos sin guardar' })).toBeVisible();
+  });
+
+  it('guardar evaluación no elimina la protección de la nota de alta', async () => {
+    const { user, fetchMock } = await prepare();
+    fillEvaluation();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    await user.click(screen.getByRole('button', { name: 'Guardar evaluación médica' }));
+    await waitFor(() => expect(screen.getByLabelText('Diagnóstico o impresión clínica')).toHaveValue(''));
+    expect(screen.getByLabelText('Nota de alta')).toHaveValue(note);
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
+    await user.click(screen.getByRole('button', { name: 'Salir' }));
+    expect(screen.getByRole('dialog', { name: 'Nota de alta sin enviar' })).toBeVisible();
+  });
+
+  it('un 401 mantiene la reautenticación sin recuperar la evaluación', async () => {
+    const { user, fetchMock, login } = await prepare('');
+    fillEvaluation();
+    fetchMock.mockResolvedValueOnce(response({}, 401));
+    await user.click(screen.getByRole('button', { name: 'Guardar evaluación médica' }));
+    await screen.findByRole('button', { name: 'Entrar' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
+    await login();
+    await screen.findByRole('heading', { name: 'Centro de control' });
+    expect(screen.queryByRole('region', { name: 'Recuperación de nota de alta' })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/medical-evaluation'))).toHaveLength(1);
+  });
+});
+
 describe('Protección de nota de alta sin enviar', () => {
   afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 

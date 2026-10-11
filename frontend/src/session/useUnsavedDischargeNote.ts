@@ -2,11 +2,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useUnsavedDischargeNote() {
   const dirty = useRef(false);
+  const evaluation = useRef(false);
+  const [evaluationDirty, setEvaluationDirty] = useState(false);
   const action = useRef<(() => void) | null>(null);
   const [confirming, setConfirming] = useState(false);
 
   const clear = useCallback(() => {
     dirty.current = false;
+    evaluation.current = false;
+    setEvaluationDirty(false);
     action.current = null;
     setConfirming(false);
   }, []);
@@ -15,8 +19,13 @@ export function useUnsavedDischargeNote() {
     dirty.current = Boolean(note.trim());
   }, []);
 
+  const trackEvaluation = useCallback((changed: boolean) => {
+    evaluation.current = changed;
+    setEvaluationDirty(changed);
+  }, []);
+
   const run = useCallback((next: () => void) => {
-    if (!dirty.current) {
+    if (!dirty.current && !evaluation.current) {
       next();
       return;
     }
@@ -37,7 +46,7 @@ export function useUnsavedDischargeNote() {
 
   useEffect(() => {
     function beforeUnload(event: BeforeUnloadEvent) {
-      if (!dirty.current) return;
+      if (!dirty.current && !evaluation.current) return;
       event.preventDefault();
       event.returnValue = "";
     }
@@ -45,5 +54,5 @@ export function useUnsavedDischargeNote() {
     return () => window.removeEventListener("beforeunload", beforeUnload);
   }, []);
 
-  return { track, clear, run, confirming, cancel, discard };
+  return { track, trackEvaluation, evaluationDirty, clear, run, confirming, cancel, discard };
 }

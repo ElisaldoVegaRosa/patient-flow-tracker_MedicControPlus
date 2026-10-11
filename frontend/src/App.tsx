@@ -459,8 +459,8 @@ async function logout() {
 
       {leave.confirming && (
         <section className="panel" role="dialog" aria-labelledby="unsaved-note-title">
-          <h2 id="unsaved-note-title">Nota de alta sin enviar</h2>
-          <p>Si sales, perderás esta nota de alta.</p>
+          <h2 id="unsaved-note-title">{leave.evaluationDirty ? "Cambios médicos sin guardar" : "Nota de alta sin enviar"}</h2>
+          <p>{leave.evaluationDirty ? "Si sales, perderás los cambios de evaluación y cualquier nota de alta sin enviar." : "Si sales, perderás esta nota de alta."}</p>
           <button type="button" autoFocus onClick={leave.cancel}>Seguir editando</button>
           <button type="button" onClick={leave.discard}>Descartar y salir</button>
         </section>
@@ -540,6 +540,7 @@ async function logout() {
           updateEpisode={updateEpisode}
           showError={setError}
           initialDischargeNote={recoveredNote}
+          onMedicalEvaluationChange={leave.trackEvaluation}
           onDischargeNoteChange={(note) => {
             recovery.track(user.username, episode.id, note);
             trackLeave(note);

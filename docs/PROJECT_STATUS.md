@@ -2,6 +2,22 @@
 
 ## Última etapa
 
+### Entrega 41A: aviso de evaluación médica sin guardar
+
+- Implementación autorizada y local; pendiente de commit, push y CI.
+- Diagnóstico, nota de evaluación y decisión médica se comparan con los valores
+  iniciales. Sus cambios requieren confirmar navegación o logout con
+  «Seguir editando» o «Descartar y salir», sin ejecutar la salida al cancelar.
+- Recarga y cierre de pestaña solicitan el aviso estándar del navegador.
+  Volver a los valores iniciales o guardar con éxito retira el aviso de evaluación.
+- Un error mantiene campos y protección. La nota de alta conserva un indicador
+  independiente: guardar evaluación no elimina su aviso si sigue pendiente.
+- Solo indicadores en el guard; texto en el formulario, sin persistencia clínica.
+  HTTP 401 conserva 37A y no recupera la evaluación ni repite su envío.
+- Doce casos nuevos cubren los tres campos, cancelación, descarte, éxito,
+  errores de API/red, aviso de recarga, coexistencia con nota de alta y HTTP 401.
+- Validación: 111 pruebas frontend, lint y build aprobados. Backend y base local sin cambios.
+
 ### Cierre de la Etapa 40
 
 - Alcance 40A revisado: bloqueo independiente de evaluación y orden durante
@@ -804,9 +820,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–40 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–40 cerradas. Revisar y autorizar la publicación de 41A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
