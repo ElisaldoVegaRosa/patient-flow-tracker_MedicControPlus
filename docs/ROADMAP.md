@@ -544,6 +544,20 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 38
+
+- Alcance acordado entregado en 38A: aviso ante navegación o logout con nota
+  de alta no vacía y solicitud de aviso estándar ante recarga o cierre de pestaña.
+- Criterios revisados: cancelar conserva nota y sesión, descartar permite salir,
+  alta exitosa elimina el aviso y restauración tras 401 reactiva la protección.
+- Evidencia: diez casos nuevos, 88 pruebas frontend, lint y build aprobados;
+  prueba manual satisfactoria confirmada por el usuario.
+- CI de implementación `38099843479` y documental `38100001704` aprobadas.
+- Etapa 38 cerrada dentro del alcance acordado. El aviso del navegador no
+  garantiza recuperación tras salir; otros formularios siguen fuera de alcance.
+- Cierre documental; sin cambios en aplicación ni base local y sin repetir
+  validaciones aprobadas.
+
 ## Entrega 38A: aviso de nota de alta sin enviar
 
 - Entrega publicada en `8fdedd90f55469af841c7601874930004822f075`;
@@ -688,8 +702,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-38A publicada y CI aprobada, con prueba manual satisfactoria. Evaluar el
-cierre de la Etapa 38 dentro del alcance acordado antes de elegir otra mejora.
+Etapas 30–38 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 
