@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 46A: mensajes de resultado en signos vitales
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `8772a8aadbf44106e3866b8596e62898f0543be4`;
+  CI `38175744173` aprobada.
 - Signos vitales muestra «Signos vitales guardados» mediante un estado accesible
   solo tras una respuesta exitosa; los errores de API/red aparecen en el formulario.
 - Editar o reenviar retira los mensajes de signos, independientes de los

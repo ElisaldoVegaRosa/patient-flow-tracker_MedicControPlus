@@ -4,7 +4,8 @@
 
 ### Entrega 46A: mensajes de resultado en signos vitales
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `8772a8aadbf44106e3866b8596e62898f0543be4`;
+  CI `38175744173` aprobada.
 - Signos vitales muestra «Signos vitales guardados» mediante un estado accesible
   solo tras una respuesta exitosa; los errores de API/red aparecen en el formulario.
 - Editar o reenviar retira los mensajes de signos, independientes de los
@@ -979,8 +980,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–45 cerradas. Revisar y autorizar la publicación de 46A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+Etapas 30–45 cerradas. 46A publicada con CI aprobada; revisar su aceptación
+y cierre dentro del alcance acordado.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
