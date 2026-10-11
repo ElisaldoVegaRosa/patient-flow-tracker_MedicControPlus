@@ -546,7 +546,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 43A: confirmaciones de guardado médico
 
-- Implementación autorizada y local; pendiente de commit, push y CI.
+- Entrega publicada en `e908b785a63ca798c545981d9124fee713cccd50`;
+  CI `38158257237` aprobada.
 - Evaluación médica muestra «Evaluación guardada» y orden muestra «Orden creada»
   solo después de una respuesta exitosa, mediante un mensaje accesible de estado.
 - Nueva edición o envío retira la confirmación del formulario correspondiente.
@@ -844,8 +845,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–42 cerradas. Revisar y autorizar la publicación de 43A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+43A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
+alcance acordado antes de elegir otra mejora.
 
 ## Fuentes
 
