@@ -2,6 +2,22 @@
 
 ## Última etapa
 
+### Cierre de la Etapa 44
+
+- Alcance acordado entregado en 44A: errores accesibles junto al formulario
+  de evaluación u orden que falló.
+- Criterios contrastados con cinco casos nuevos y pruebas ampliadas: editar o
+  reintentar retira el error correspondiente; ambos formularios conservan
+  mensajes independientes y datos ante errores de API o red.
+- Se conservan confirmaciones de éxito, bloqueos de envío y avisos de salida.
+  HTTP 401 mantiene el manejo de interrupción de sesión.
+- Evidencia: 137 pruebas frontend, lint y build aprobados; CI de implementación
+  `38160358496` y documental `38160482207` aprobadas.
+- Etapa 44 cerrada dentro del alcance. Sin cambios en permisos, persistencia,
+  recuperación de borradores ni contratos de la API.
+- Cierre documental; aplicación y base local sin cambios adicionales.
+  Validaciones aprobadas conservadas.
+
 ### Entrega 44A: errores junto al formulario
 
 - Entrega publicada en `4e0ecc322e891da9a7b8eb94c3ff67dd0a9f19ac`;
@@ -916,8 +932,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–43 cerradas. 44A publicada con CI aprobada; revisar su aceptación
-y cierre dentro del alcance acordado.
+Etapas 30–44 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
