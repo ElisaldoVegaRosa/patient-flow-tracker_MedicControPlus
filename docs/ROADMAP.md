@@ -23,9 +23,25 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Los criterios de las etapas 32–37 son requisitos futuros; esta revisión
   no ejecuta pruebas nuevas ni autoriza su implementación.
 
+## Cierre de la Etapa 53
+
+- 53A y 53B publicadas: protección común en el frontend y transacciones/
+  idempotencia compartidas en el servidor para las escrituras operacionales.
+- Criterios verificados: bloqueo inmediato por recurso, operaciones independientes,
+  concurrencia entre conexiones, reintento con la misma clave sin repetir efectos,
+  rollback, permisos/sesiones actuales y evaluaciones nuevas intencionales.
+- Evidencia vigente: 132 pruebas backend, 230 frontend, lint y build aprobados;
+  CI de 53A `38183333079` y de 53B `38184736932` aprobadas.
+- Etapa 53 cerrada dentro del alcance acordado. Límites: recuperar una intención
+  ambigua después de recargar/cambiar de sesión y archivar recibos conservando
+  la reserva de claves requieren un diseño posterior. Las intenciones distintas
+  entre dispositivos no se deduplican por contenido clínico.
+- Cierre documental; conserva las validaciones aprobadas. Siguiente paso
+  recomendado: prueba funcional directa del flujo antes de acordar otra entrega.
+
 ## Entrega 53B: escrituras atómicas e idempotencia compartida
 
-- Alcance transversal autorizado e implementado localmente.
+- Alcance transversal autorizado, implementado y publicado.
 - Validación: 132 pruebas backend (26 nuevas, una advertencia existente),
   230 frontend (ocho nuevas), lint y build aprobados.
   Backend con Python de `.venv` y `--basetemp .tmp/pytest-53b-full`; ejecutado
@@ -47,7 +63,8 @@ Plan reconstruido propuesto; no recuperado del chat original
   bloqueo SQL, claves distintas/conflictivas/vencidas, permisos y sesiones.
 - Migración aditiva documentada en `backend/migrations/003_write_receipts.sql`;
   datos clínicos existentes preservados. Política completa: [escrituras](WRITE_OPERATIONS.md).
-- Publicación de 53B autorizada; CI pendiente de comprobación.
+- Publicada en `3037eb4a35475138f0a4c1925db33409f7f04f6e`;
+  CI `38184736932` aprobada: backend, frontend, lint y build.
 
 ## Entrega 53A: protección común de envíos pendientes
 
@@ -1184,11 +1201,10 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–52 cerradas. 53A autorizada como entrega transversal de protección
-de envíos pendientes, implementada y validada con 222 pruebas frontend,
-lint y build aprobados. Publicada; CI `38183333079` aprobada.
-53B implementada y validada: 132 pruebas backend, 230 frontend, lint y build
-aprobados. Publicación autorizada; pendiente comprobar su CI.
+Etapas 30–53 cerradas dentro de los alcances acordados. Validación vigente:
+132 pruebas backend, 230 frontend, lint y build; CI `38184736932` aprobada.
+Realizar una prueba funcional directa del flujo y acordar una necesidad completa
+antes de autorizar otra entrega. No implica implementar nuevas funciones.
 
 ## Fuentes
 
