@@ -37,6 +37,8 @@ export default function EpisodePage({
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [evaluationSaved, setEvaluationSaved] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
+  const [evaluationError, setEvaluationError] = useState("");
+  const [orderError, setOrderError] = useState("");
 
   async function dischargeEpisode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -63,12 +65,12 @@ export default function EpisodePage({
     }
   }
 
-  async function call(path: string, options: RequestInit) {
+  async function call(path: string, options: RequestInit, reportError = showError) {
     try {
       updateEpisode(await api<Episode>(path, options));
     } catch (exception) {
       if (isSessionInterruption(exception)) return false;
-      showError((exception as Error).message);
+      reportError((exception as Error).message);
       return false;
     }
     return true;
@@ -107,6 +109,7 @@ export default function EpisodePage({
     evaluationInFlight.current = true;
     setSavingEvaluation(true);
     setEvaluationSaved(false);
+    setEvaluationError("");
     try {
       const completed = await call(`/episodes/${episode.id}/medical-evaluation`, {
         method: "POST",
@@ -115,7 +118,7 @@ export default function EpisodePage({
           diagnosis: form.get("diagnosis"),
           disposition: form.get("disposition"),
         }),
-      });
+      }, setEvaluationError);
 
       if (completed) {
         formElement.reset();
@@ -147,6 +150,7 @@ async function createClinicalOrder(
   orderInFlight.current = true;
   setCreatingOrder(true);
   setOrderCreated(false);
+  setOrderError("");
   try {
     const completed = await call(`/episodes/${episode.id}/tasks`, {
       method: "POST",
@@ -154,7 +158,7 @@ async function createClinicalOrder(
         title: form.get("title"),
         service: form.get("service"),
       }),
-    });
+    }, setOrderError);
 
     if (completed) {
       formElement.reset();
@@ -391,6 +395,7 @@ async function createClinicalOrder(
       onSubmit={registerMedicalEvaluation}
       onChange={(event) => {
         setEvaluationSaved(false);
+        setEvaluationError("");
         const form = new FormData(event.currentTarget);
         onMedicalEvaluationChange?.(
           Boolean(form.get("diagnosis") || form.get("clinical_note")) ||
@@ -451,6 +456,7 @@ async function createClinicalOrder(
         {savingEvaluation ? "Guardando…" : "Guardar evaluación médica"}
       </button>
       {evaluationSaved && <p role="status">Evaluación guardada</p>}
+      {evaluationError && <p role="alert">{evaluationError}</p>}
     </form>
   </section>
 )}
@@ -478,6 +484,7 @@ async function createClinicalOrder(
       onSubmit={createClinicalOrder}
       onChange={(event) => {
         setOrderCreated(false);
+        setOrderError("");
         const form = new FormData(event.currentTarget);
         onClinicalOrderChange?.(
           Boolean(form.get("title")) || form.get("service") !== "LAB",
@@ -510,6 +517,7 @@ async function createClinicalOrder(
         {creatingOrder ? "Creando orden…" : "Crear y asignar orden"}
       </button>
       {orderCreated && <p role="status">Orden creada</p>}
+      {orderError && <p role="alert">{orderError}</p>}
     </form>
   </section>
 )}

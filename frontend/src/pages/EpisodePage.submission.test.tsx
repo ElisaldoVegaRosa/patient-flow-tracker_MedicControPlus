@@ -59,7 +59,8 @@ describe.each(forms)("Envío de $name", (form) => {
     if (failure === "error de API") fetchMock.mockResolvedValueOnce(response({ detail: message }, 422));
     else fetchMock.mockRejectedValueOnce(new Error(message));
     submit();
-    await waitFor(() => expect(showError).toHaveBeenCalledWith(message));
+    expect(await screen.findByRole("alert")).toHaveTextContent(message);
+    expect(showError).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: form.button })).toBeEnabled();
     for (const [label, value] of form.fields) expect(screen.getByLabelText(label)).toHaveValue(value);
     expect(updateEpisode).not.toHaveBeenCalled();
@@ -68,6 +69,7 @@ describe.each(forms)("Envío de $name", (form) => {
 
     fetchMock.mockResolvedValueOnce(response(episode));
     submit();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(episode));
     expect(fetchMock).toHaveBeenCalledTimes(2);
     const [url, init] = fetchMock.mock.calls[1];
@@ -77,6 +79,21 @@ describe.each(forms)("Envío de $name", (form) => {
     await waitFor(() => form.fields.forEach(([label], index) => {
       expect(screen.getByLabelText(label)).toHaveValue(form.defaults[index]);
     }));
+  });
+
+  it.each(["API", "red"])("retira el error de %s al editar sin reenviar", async (failure) => {
+    const { fetchMock, showError, submit } = prepare();
+    if (failure === "API") fetchMock.mockResolvedValueOnce(response({ detail: "Error 44A" }, 422));
+    else fetchMock.mockRejectedValueOnce(new Error("Error 44A"));
+    submit();
+    const alert = await screen.findByRole("alert");
+    expect(alert.closest("form")).toBe(screen.getByRole("button", { name: form.button }).closest("form"));
+    fireEvent.change(screen.getByLabelText(form.fields[0][0]), { target: { value: "Correccion 44A" } });
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(form.fields[0][0])).toHaveValue("Correccion 44A");
+    for (const [label, value] of form.fields.slice(1)) expect(screen.getByLabelText(label)).toHaveValue(value);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(showError).not.toHaveBeenCalled();
   });
 
   it("bloquea clics y submits repetidos mientras está en curso y habilita al terminar", async () => {
@@ -151,7 +168,8 @@ describe.each(forms)("Envío de $name", (form) => {
     expect(screen.queryByText(form.success)).not.toBeInTheDocument();
     if (failure === 'API') resolve(response({ detail: 'Error ficticio 43A' }, 422));
     else reject(new Error('Error ficticio 43A'));
-    await waitFor(() => expect(showError).toHaveBeenCalledWith('Error ficticio 43A'));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Error ficticio 43A');
+    expect(showError).not.toHaveBeenCalled();
     expect(screen.queryByText(form.success)).not.toBeInTheDocument();
   });
 });
@@ -196,6 +214,32 @@ it("los dos formularios mantienen bloqueos independientes", async () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
     resolve(response(episode));
     await waitFor(() => expect(screen.getByRole('button', { name: forms[0].button })).toBeEnabled());
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
+it("los errores son independientes al editar y guardar otro formulario", async () => {
+  const fetchMock = vi.fn();
+  vi.stubGlobal("fetch", fetchMock);
+  const showError = vi.fn();
+  try {
+    render(<EpisodePage episode={episode} user={doctor} updateEpisode={vi.fn()} showError={showError} />);
+    for (const [index, form] of forms.entries()) {
+      for (const [label, value] of form.fields) fireEvent.change(screen.getByLabelText(label), { target: { value } });
+      fetchMock.mockResolvedValueOnce(response({ detail: `Error formulario ${index}` }, 422));
+      fireEvent.submit(screen.getByRole("button", { name: form.button }).closest("form")!);
+      await screen.findByText(`Error formulario ${index}`);
+    }
+    expect(screen.getAllByRole("alert")).toHaveLength(2);
+    fireEvent.change(screen.getByLabelText(forms[0].fields[0][0]), { target: { value: "Correccion 44A" } });
+    expect(screen.queryByText("Error formulario 0")).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Error formulario 1");
+    fetchMock.mockResolvedValueOnce(response(episode));
+    fireEvent.submit(screen.getByRole("button", { name: forms[0].button }).closest("form")!);
+    await screen.findByText(forms[0].success);
+    expect(screen.getByRole("alert")).toHaveTextContent("Error formulario 1");
+    expect(showError).not.toHaveBeenCalled();
   } finally {
     vi.unstubAllGlobals();
   }

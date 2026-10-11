@@ -5,6 +5,18 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 44A: errores junto al formulario
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Los errores de API o red aparecen junto al formulario de evaluación u orden
+  que falló, mediante un mensaje accesible de alerta.
+- Editar o reintentar limpia el error correspondiente. Los errores y las
+  confirmaciones de ambos formularios permanecen independientes.
+- Se conservan datos ante fallos, bloqueos de envío y avisos de salida.
+  HTTP 401 mantiene el manejo de interrupción de sesión sin error ordinario.
+- Cinco casos nuevos y pruebas ampliadas: 137 pruebas frontend, lint y build aprobados.
+- Backend, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 43
 
 - Alcance acordado entregado en 43A: confirmaciones accesibles de evaluación
