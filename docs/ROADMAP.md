@@ -544,6 +544,22 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 41
+
+- Alcance acordado entregado en 41A: aviso por cambios sin guardar en diagnóstico,
+  nota de evaluación y decisión médica, al navegar, cerrar sesión o recargar.
+- Criterios contrastados con doce casos nuevos: cancelar conserva los campos,
+  descartar permite salir, éxito retira el aviso y errores conservan la protección.
+  Volver a los valores iniciales elimina el indicador de evaluación.
+- La protección de la nota de alta es independiente; guardar la evaluación no
+  elimina su aviso. HTTP 401 mantiene 37A sin recuperar ni reenviar la evaluación.
+- Evidencia: 111 pruebas frontend, lint y build aprobados; CI de implementación
+  `38152974236` y documental `38153115671` aprobadas.
+- Etapa 41 cerrada dentro del alcance. Recuperación de evaluación tras HTTP 401,
+  persistencia y protección de órdenes sin enviar requieren un alcance propio.
+- Cierre documental; aplicación y base local sin cambios adicionales.
+  No se repiten las validaciones aprobadas.
+
 ## Entrega 41A: aviso de evaluación médica sin guardar
 
 - Entrega publicada en `3c9220146b989e8ff4648b61cd7d300353eb01c9`;
@@ -778,8 +794,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-41A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
-alcance acordado antes de elegir otra mejora.
+Etapas 30–41 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 

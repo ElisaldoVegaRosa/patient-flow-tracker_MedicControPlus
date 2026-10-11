@@ -5,6 +5,22 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre de la Etapa 41
+
+- Alcance acordado entregado en 41A: aviso por cambios sin guardar en diagnóstico,
+  nota de evaluación y decisión médica, al navegar, cerrar sesión o recargar.
+- Criterios contrastados con doce casos nuevos: cancelar conserva los campos,
+  descartar permite salir, éxito retira el aviso y errores conservan la protección.
+  Volver a los valores iniciales elimina el indicador de evaluación.
+- La protección de la nota de alta es independiente; guardar la evaluación no
+  elimina su aviso. HTTP 401 mantiene 37A sin recuperar ni reenviar la evaluación.
+- Evidencia: 111 pruebas frontend, lint y build aprobados; CI de implementación
+  `38152974236` y documental `38153115671` aprobadas.
+- Etapa 41 cerrada dentro del alcance. Recuperación de evaluación tras HTTP 401,
+  persistencia y protección de órdenes sin enviar requieren un alcance propio.
+- Cierre documental; aplicación y base local sin cambios adicionales.
+  No se repiten las validaciones aprobadas.
+
 ## Entrega 41A: aviso de evaluación médica sin guardar
 
 - Entrega publicada en `3c9220146b989e8ff4648b61cd7d300353eb01c9`;

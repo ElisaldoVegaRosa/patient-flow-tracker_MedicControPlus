@@ -2,6 +2,22 @@
 
 ## Última etapa
 
+### Cierre de la Etapa 41
+
+- Alcance acordado entregado en 41A: aviso por cambios sin guardar en diagnóstico,
+  nota de evaluación y decisión médica, al navegar, cerrar sesión o recargar.
+- Criterios contrastados con doce casos nuevos: cancelar conserva los campos,
+  descartar permite salir, éxito retira el aviso y errores conservan la protección.
+  Volver a los valores iniciales elimina el indicador de evaluación.
+- La protección de la nota de alta es independiente; guardar la evaluación no
+  elimina su aviso. HTTP 401 mantiene 37A sin recuperar ni reenviar la evaluación.
+- Evidencia: 111 pruebas frontend, lint y build aprobados; CI de implementación
+  `38152974236` y documental `38153115671` aprobadas.
+- Etapa 41 cerrada dentro del alcance. Recuperación de evaluación tras HTTP 401,
+  persistencia y protección de órdenes sin enviar requieren un alcance propio.
+- Cierre documental; aplicación y base local sin cambios adicionales.
+  No se repiten las validaciones aprobadas.
+
 ### Entrega 41A: aviso de evaluación médica sin guardar
 
 - Entrega publicada en `3c9220146b989e8ff4648b61cd7d300353eb01c9`;
@@ -821,13 +837,15 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-41A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
-alcance acordado antes de elegir otra mejora.
+Etapas 30–41 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
 confirmar la salida, recargar o cerrar la pestaña siguen perdiendo el texto.
-Otros formularios no tienen recuperación.
+41A avisa antes de perder una evaluación médica sin guardar. Su recuperación
+tras HTTP 401 y la de otros formularios siguen fuera del alcance.
 No se almacenan notas clínicas en localStorage/sessionStorage ni en el backend.
 
 La implementación de 37A está publicada y su CI aprobada.
