@@ -544,6 +544,20 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Entrega 50A: bloqueo al completar tareas
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Completar bloquea el botón por identificador de tarea mientras espera
+  respuesta y muestra «Completando…»; las demás tareas permanecen disponibles.
+- Impide envíos repetidos de la misma tarea y libera el bloqueo tras éxito,
+  error de API/red o interrupción de sesión HTTP 401.
+- Conserva manejo de permisos y errores, estados y reintento explícito.
+  Los episodios CLOSED mantienen las tareas de solo lectura.
+- Nueve casos nuevos cubren roles admitidos por API, payload, errores,
+  sesión, solicitudes independientes y retirada de la tarea completada.
+- Validación: 186 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 49
 
 - Alcance acordado entregado en 49A: bloqueo de Reconocer, Escalar y Resolver
@@ -1044,9 +1058,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–49 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–49 cerradas. Revisar y autorizar la publicación de 50A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 ## Fuentes
 

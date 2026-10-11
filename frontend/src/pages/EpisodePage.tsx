@@ -36,6 +36,8 @@ export default function EpisodePage({
   const vitalsInFlight = useRef(false);
   const triageInFlight = useRef(false);
   const alertsInFlight = useRef(new Set<number>());
+  const tasksInFlight = useRef(new Set<number>());
+  const [completingTasks, setCompletingTasks] = useState<Set<number>>(new Set());
   const [updatingAlerts, setUpdatingAlerts] = useState<Set<number>>(new Set());
   const [savingTriage, setSavingTriage] = useState(false);
   const [triageSaved, setTriageSaved] = useState(false);
@@ -104,6 +106,22 @@ export default function EpisodePage({
     } finally {
       alertsInFlight.current.delete(alertId);
       setUpdatingAlerts(new Set(alertsInFlight.current));
+    }
+  }
+
+  async function completeTask(taskId: number) {
+    const task = episode.tasks.find((item) => item.id === taskId);
+    if (isClosed || task?.status !== "PENDING" || tasksInFlight.current.has(taskId)) return;
+    tasksInFlight.current.add(taskId);
+    setCompletingTasks(new Set(tasksInFlight.current));
+    try {
+      await call(`/tasks/${taskId}/complete`, {
+        method: "PATCH",
+        body: JSON.stringify({ result: "Completada sin novedades" }),
+      });
+    } finally {
+      tasksInFlight.current.delete(taskId);
+      setCompletingTasks(new Set(tasksInFlight.current));
     }
   }
 
@@ -802,16 +820,10 @@ async function createClinicalOrder(
 
                 {!isClosed && (
                 <button
-                  onClick={() =>
-                    call(`/tasks/${task.id}/complete`, {
-                      method: "PATCH",
-                      body: JSON.stringify({
-                        result: "Completada sin novedades",
-                      }),
-                    })
-                  }
+                  disabled={completingTasks.has(task.id)}
+                  onClick={() => completeTask(task.id)}
                 >
-                  Completar
+                  {completingTasks.has(task.id) ? "Completando…" : "Completar"}
                 </button>
                 )}
               </article>

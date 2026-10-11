@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 50A: bloqueo al completar tareas
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Completar bloquea el botón por identificador de tarea mientras espera
+  respuesta y muestra «Completando…»; las demás tareas permanecen disponibles.
+- Impide envíos repetidos de la misma tarea y libera el bloqueo tras éxito,
+  error de API/red o interrupción de sesión HTTP 401.
+- Conserva manejo de permisos y errores, estados y reintento explícito.
+  Los episodios CLOSED mantienen las tareas de solo lectura.
+- Nueve casos nuevos cubren roles admitidos por API, payload, errores,
+  sesión, solicitudes independientes y retirada de la tarea completada.
+- Validación: 186 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 49
 
 - Alcance acordado entregado en 49A: bloqueo de Reconocer, Escalar y Resolver
