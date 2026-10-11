@@ -5,6 +5,22 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cierre de la Etapa 40
+
+- Alcance 40A revisado: bloqueo independiente de evaluación y orden durante
+  el envío, campos deshabilitados, indicador visible y rechazo de submits repetidos.
+- Éxito, errores y HTTP 401 liberan los bloqueos según las pruebas; los errores
+  conservan los campos y admiten reintento explícito conforme a 39A.
+- Evidencia: 99 pruebas frontend, lint y build aprobados; CI de implementación
+  `38151760565` y documental `38151913835` aprobadas.
+- Prueba manual: el usuario creó dos evaluaciones, enviando la segunda tras
+  finalizar la primera. Es un comportamiento válido; no es un envío concurrente.
+  El bloqueo durante una petición pendiente se verifica mediante pruebas automatizadas.
+- Etapa 40 cerrada dentro de su alcance. Envíos sucesivos intencionales siguen
+  permitidos; la idempotencia entre pestañas o en backend requiere otro alcance.
+- Cierre documental; sin cambios adicionales en la aplicación ni en los datos
+  de demostración. Validaciones aprobadas conservadas.
+
 ## Entrega 40A: bloqueo de envíos médicos en curso
 
 - Entrega publicada en `13c160c35dc5c4992ae0803fa4cc25acf405bf71`;
