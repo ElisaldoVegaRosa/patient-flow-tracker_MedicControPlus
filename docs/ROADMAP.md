@@ -544,6 +544,21 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 43
+
+- Alcance acordado entregado en 43A: confirmaciones accesibles de evaluación
+  guardada y orden creada, únicamente tras una respuesta exitosa.
+- Criterios contrastados con siete casos nuevos y pruebas ampliadas: nueva
+  edición o envío retira el mensaje correspondiente; errores de API/red y
+  HTTP 401 no muestran éxito. Las confirmaciones son independientes.
+- Se conservan bloqueos de envío, datos ante errores y avisos de salida de 39A–42A.
+- Evidencia: 132 pruebas frontend, lint y build aprobados; CI de implementación
+  `38158257237` y documental `38158414456` aprobadas.
+- Etapa 43 cerrada dentro del alcance. Las confirmaciones no cambian permisos,
+  persistencia, recuperación de borradores ni contratos de la API.
+- Cierre documental; aplicación y base local sin cambios adicionales.
+  Validaciones aprobadas conservadas.
+
 ## Entrega 43A: confirmaciones de guardado médico
 
 - Entrega publicada en `e908b785a63ca798c545981d9124fee713cccd50`;
@@ -845,8 +860,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-43A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
-alcance acordado antes de elegir otra mejora.
+Etapas 30–43 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 
