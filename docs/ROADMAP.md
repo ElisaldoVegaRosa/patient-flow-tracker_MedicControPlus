@@ -546,7 +546,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 39A: conservar formularios ante envíos fallidos
 
-- Corrección autorizada e implementada localmente; pendiente de commit, push y CI.
+- Entrega publicada en `e5840ad8404257d6e475c168155a7d73a3a57937`;
+  CI `38105192156` aprobada.
 - El helper de envío devuelve fallo tras errores de API o de red, en lugar de
   permitir que evaluación médica y orden clínica se reinicien sin guardarse.
 - Ambos formularios conservan sus campos y muestran el error. Solo se vacían
@@ -715,8 +716,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–38 cerradas. Revisar y autorizar la publicación de 39A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+39A publicada y CI aprobada. Revisar su aceptación y cierre dentro del
+alcance acordado antes de elegir otra mejora.
 
 ## Fuentes
 

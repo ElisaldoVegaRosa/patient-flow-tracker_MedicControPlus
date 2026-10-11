@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 39A: conservar formularios ante envíos fallidos
 
-- Corrección autorizada e implementada localmente; pendiente de commit, push y CI.
+- Entrega publicada en `e5840ad8404257d6e475c168155a7d73a3a57937`;
+  CI `38105192156` aprobada.
 - El helper de envío devuelve fallo tras errores de API o de red, en lugar de
   permitir que evaluación médica y orden clínica se reinicien sin guardarse.
 - Ambos formularios conservan sus campos y muestran el error. Solo se vacían
