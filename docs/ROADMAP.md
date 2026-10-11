@@ -544,6 +544,19 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Entrega 49A: bloqueo de acciones por alerta
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Reconocer, Escalar y Resolver comparten un bloqueo por identificador de alerta
+  mientras esperan respuesta; muestra «Actualizando alerta…».
+- Impide envíos repetidos o acciones simultáneas sobre esa alerta y mantiene
+  disponibles las demás. Libera el bloqueo tras éxito, error de API/red o HTTP 401.
+- Conserva permisos, transiciones, estado ante fallos y reintento explícito.
+- Ocho casos nuevos cubren las tres acciones, payload, errores, sesión,
+  solicitudes independientes y presentación de la transición exitosa.
+- Validación: 177 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 48
 
 - Alcance acordado entregado en 48A: confirmación accesible de triaje y
@@ -1014,9 +1027,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–48 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–48 cerradas. Revisar y autorizar la publicación de 49A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 ## Fuentes
 

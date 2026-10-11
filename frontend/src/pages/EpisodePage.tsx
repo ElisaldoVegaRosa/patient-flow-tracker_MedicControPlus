@@ -35,6 +35,8 @@ export default function EpisodePage({
   const orderInFlight = useRef(false);
   const vitalsInFlight = useRef(false);
   const triageInFlight = useRef(false);
+  const alertsInFlight = useRef(new Set<number>());
+  const [updatingAlerts, setUpdatingAlerts] = useState<Set<number>>(new Set());
   const [savingTriage, setSavingTriage] = useState(false);
   const [triageSaved, setTriageSaved] = useState(false);
   const [triageError, setTriageError] = useState("");
@@ -82,6 +84,27 @@ export default function EpisodePage({
       return false;
     }
     return true;
+  }
+
+  async function updateAlert(alertId: number, status: "ACKNOWLEDGED" | "ESCALATED" | "RESOLVED") {
+    const alert = episode.alerts.find((item) => item.id === alertId);
+    const allowed = alert && !isClosed && (
+      (status === "ACKNOWLEDGED" && alert.status === "ACTIVE" && ["NURSE", "DOCTOR", "SUPERVISOR"].includes(user.role)) ||
+      (status === "ESCALATED" && ["ACTIVE", "ACKNOWLEDGED"].includes(alert.status) && ["NURSE", "DOCTOR", "SUPERVISOR"].includes(user.role)) ||
+      (status === "RESOLVED" && ["ACKNOWLEDGED", "ESCALATED"].includes(alert.status) && ["DOCTOR", "SUPERVISOR"].includes(user.role))
+    );
+    if (!allowed || alertsInFlight.current.has(alertId)) return;
+    alertsInFlight.current.add(alertId);
+    setUpdatingAlerts(new Set(alertsInFlight.current));
+    try {
+      await call(`/alerts/${alertId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status }),
+      });
+    } finally {
+      alertsInFlight.current.delete(alertId);
+      setUpdatingAlerts(new Set(alertsInFlight.current));
+    }
   }
 
   async function registerTriage(event: FormEvent<HTMLFormElement>) {
@@ -599,14 +622,8 @@ async function createClinicalOrder(
               user.role === "DOCTOR" ||
               user.role === "SUPERVISOR") && (
               <button
-                onClick={() =>
-                  call(`/alerts/${alert.id}`, {
-                    method: "PATCH",
-                    body: JSON.stringify({
-                      status: "ACKNOWLEDGED",
-                    }),
-                  })
-                }
+                disabled={updatingAlerts.has(alert.id)}
+                onClick={() => updateAlert(alert.id, "ACKNOWLEDGED")}
               >
                 Reconocer
               </button>
@@ -618,14 +635,8 @@ async function createClinicalOrder(
               user.role === "DOCTOR" ||
               user.role === "SUPERVISOR") && (
               <button
-                onClick={() =>
-                  call(`/alerts/${alert.id}`, {
-                    method: "PATCH",
-                    body: JSON.stringify({
-                      status: "ESCALATED",
-                    }),
-                  })
-                }
+                disabled={updatingAlerts.has(alert.id)}
+                onClick={() => updateAlert(alert.id, "ESCALATED")}
               >
                 Escalar
               </button>
@@ -636,19 +647,15 @@ async function createClinicalOrder(
   (user.role === "DOCTOR" ||
     user.role === "SUPERVISOR") && (
     <button
-      onClick={() =>
-        call(`/alerts/${alert.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({
-            status: "RESOLVED",
-          }),
-        })
-      }
+      disabled={updatingAlerts.has(alert.id)}
+                onClick={() => updateAlert(alert.id, "RESOLVED")}
     >
       Resolver
     </button>
   )}
         </div>
+
+        {updatingAlerts.has(alert.id) && <p role="status">Actualizando alerta…</p>}
 
         <details className="alert-history">
           <summary>

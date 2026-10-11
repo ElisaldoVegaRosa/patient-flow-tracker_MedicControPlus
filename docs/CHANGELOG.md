@@ -5,6 +5,19 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 49A: bloqueo de acciones por alerta
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Reconocer, Escalar y Resolver comparten un bloqueo por identificador de alerta
+  mientras esperan respuesta; muestra «Actualizando alerta…».
+- Impide envíos repetidos o acciones simultáneas sobre esa alerta y mantiene
+  disponibles las demás. Libera el bloqueo tras éxito, error de API/red o HTTP 401.
+- Conserva permisos, transiciones, estado ante fallos y reintento explícito.
+- Ocho casos nuevos cubren las tres acciones, payload, errores, sesión,
+  solicitudes independientes y presentación de la transición exitosa.
+- Validación: 177 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 48
 
 - Alcance acordado entregado en 48A: confirmación accesible de triaje y
