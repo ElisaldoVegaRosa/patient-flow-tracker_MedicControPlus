@@ -34,6 +34,8 @@ export default function EpisodePage({
   const evaluationInFlight = useRef(false);
   const orderInFlight = useRef(false);
   const vitalsInFlight = useRef(false);
+  const triageInFlight = useRef(false);
+  const [savingTriage, setSavingTriage] = useState(false);
   const [savingVitals, setSavingVitals] = useState(false);
   const [vitalsSaved, setVitalsSaved] = useState(false);
   const [vitalsError, setVitalsError] = useState("");
@@ -81,19 +83,25 @@ export default function EpisodePage({
   }
 
   async function registerTriage(event: FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-
-  const form = new FormData(event.currentTarget);
-
-  await call(`/episodes/${episode.id}/triage`, {
-    method: "POST",
-    body: JSON.stringify({
-      priority: Number(form.get("priority")),
-      location: form.get("location"),
-      assigned_to: form.get("assigned_to"),
-    }),
-  });
-}
+    event.preventDefault();
+    if (triageInFlight.current || isClosed || (user.role !== "NURSE" && user.role !== "SUPERVISOR")) return;
+    const form = new FormData(event.currentTarget);
+    triageInFlight.current = true;
+    setSavingTriage(true);
+    try {
+      await call(`/episodes/${episode.id}/triage`, {
+        method: "POST",
+        body: JSON.stringify({
+          priority: Number(form.get("priority")),
+          location: form.get("location"),
+          assigned_to: form.get("assigned_to"),
+        }),
+      });
+    } finally {
+      triageInFlight.current = false;
+      setSavingTriage(false);
+    }
+  }
 
   /**
    * Registra la evaluación clínica realizada por el médico.
@@ -255,6 +263,7 @@ async function createClinicalOrder(
       <label>
         Prioridad
         <select
+          disabled={savingTriage}
           name="priority"
           defaultValue={String(episode.priority)}
         >
@@ -269,6 +278,7 @@ async function createClinicalOrder(
       <label>
         Área o ubicación
         <select
+          disabled={savingTriage}
           name="location"
           defaultValue={episode.location}
         >
@@ -286,6 +296,7 @@ async function createClinicalOrder(
       <label>
         Personal responsable
         <input
+          disabled={savingTriage}
           name="assigned_to"
           defaultValue={episode.assigned_to || ""}
           placeholder="Ejemplo: Enfermería A"
@@ -293,8 +304,8 @@ async function createClinicalOrder(
         />
       </label>
 
-      <button type="submit">
-        Guardar triaje y asignación
+      <button type="submit" disabled={savingTriage}>
+        {savingTriage ? "Guardando triaje…" : "Guardar triaje y asignación"}
       </button>
     </form>
   </section>

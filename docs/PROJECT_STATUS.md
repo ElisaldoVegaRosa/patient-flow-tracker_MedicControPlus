@@ -2,6 +2,20 @@
 
 ## Última etapa
 
+### Entrega 47A: bloqueo de envío de triaje y asignación
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Triaje y asignación bloquea prioridad, ubicación, responsable y envíos
+  repetidos mientras espera respuesta; muestra «Guardando triaje…».
+- Captura los tres valores antes del bloqueo y habilita los campos tras éxito,
+  error de API/red o interrupción de sesión HTTP 401.
+- Conserva valores y permite un nuevo envío explícito. Mantiene roles
+  NURSE/SUPERVISOR y la restricción de episodios CLOSED.
+- Diez casos nuevos cubren duplicados, payload, desbloqueo, reintento,
+  permisos y bloqueo independiente del formulario de signos vitales.
+- Validación: 162 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ### Cierre de la Etapa 46
 
 - Alcance acordado entregado en 46A: confirmación accesible de signos vitales
@@ -997,9 +1011,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–46 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–46 cerradas. Revisar y autorizar la publicación de 47A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

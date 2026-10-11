@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 47A: bloqueo de envío de triaje y asignación
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Triaje y asignación bloquea prioridad, ubicación, responsable y envíos
+  repetidos mientras espera respuesta; muestra «Guardando triaje…».
+- Captura los tres valores antes del bloqueo y habilita los campos tras éxito,
+  error de API/red o interrupción de sesión HTTP 401.
+- Conserva valores y permite un nuevo envío explícito. Mantiene roles
+  NURSE/SUPERVISOR y la restricción de episodios CLOSED.
+- Diez casos nuevos cubren duplicados, payload, desbloqueo, reintento,
+  permisos y bloqueo independiente del formulario de signos vitales.
+- Validación: 162 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 46
 
 - Alcance acordado entregado en 46A: confirmación accesible de signos vitales

@@ -544,6 +544,20 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Entrega 47A: bloqueo de envío de triaje y asignación
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Triaje y asignación bloquea prioridad, ubicación, responsable y envíos
+  repetidos mientras espera respuesta; muestra «Guardando triaje…».
+- Captura los tres valores antes del bloqueo y habilita los campos tras éxito,
+  error de API/red o interrupción de sesión HTTP 401.
+- Conserva valores y permite un nuevo envío explícito. Mantiene roles
+  NURSE/SUPERVISOR y la restricción de episodios CLOSED.
+- Diez casos nuevos cubren duplicados, payload, desbloqueo, reintento,
+  permisos y bloqueo independiente del formulario de signos vitales.
+- Validación: 162 pruebas frontend, lint y build aprobados.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 46
 
 - Alcance acordado entregado en 46A: confirmación accesible de signos vitales
@@ -954,9 +968,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–46 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–46 cerradas. Revisar y autorizar la publicación de 47A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 ## Fuentes
 
