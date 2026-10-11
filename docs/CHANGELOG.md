@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 44A: errores junto al formulario
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `4e0ecc322e891da9a7b8eb94c3ff67dd0a9f19ac`;
+  CI `38160358496` aprobada.
 - Los errores de API o red aparecen junto al formulario de evaluación u orden
   que falló, mediante un mensaje accesible de alerta.
 - Editar o reintentar limpia el error correspondiente. Los errores y las

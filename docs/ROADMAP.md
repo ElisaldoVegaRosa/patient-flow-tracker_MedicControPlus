@@ -546,7 +546,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 44A: errores junto al formulario
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `4e0ecc322e891da9a7b8eb94c3ff67dd0a9f19ac`;
+  CI `38160358496` aprobada.
 - Los errores de API o red aparecen junto al formulario de evaluación u orden
   que falló, mediante un mensaje accesible de alerta.
 - Editar o reintentar limpia el error correspondiente. Los errores y las
@@ -872,8 +873,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–43 cerradas. Revisar y autorizar la publicación de 44A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+Etapas 30–43 cerradas. 44A publicada con CI aprobada; revisar su aceptación
+y cierre dentro del alcance acordado.
 
 ## Fuentes
 
