@@ -27,6 +27,10 @@ export default function EpisodePage({
   const [dischargeError, setDischargeError] = useState("");
   const [discharging, setDischarging] = useState(false);
   const dischargeInFlight = useRef(false);
+  const evaluationInFlight = useRef(false);
+  const orderInFlight = useRef(false);
+  const [savingEvaluation, setSavingEvaluation] = useState(false);
+  const [creatingOrder, setCreatingOrder] = useState(false);
 
   async function dischargeEpisode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -89,20 +93,28 @@ export default function EpisodePage({
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
+    if (evaluationInFlight.current || user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
 
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
 
-    const completed = await call(`/episodes/${episode.id}/medical-evaluation`, {
-      method: "POST",
-      body: JSON.stringify({
-        clinical_note: form.get("clinical_note"),
-        diagnosis: form.get("diagnosis"),
-        disposition: form.get("disposition"),
-      }),
-    });
+    evaluationInFlight.current = true;
+    setSavingEvaluation(true);
+    try {
+      const completed = await call(`/episodes/${episode.id}/medical-evaluation`, {
+        method: "POST",
+        body: JSON.stringify({
+          clinical_note: form.get("clinical_note"),
+          diagnosis: form.get("diagnosis"),
+          disposition: form.get("disposition"),
+        }),
+      });
 
-    if (completed) formElement.reset();
+      if (completed) formElement.reset();
+    } finally {
+      evaluationInFlight.current = false;
+      setSavingEvaluation(false);
+    }
   }
 
   /**
@@ -116,19 +128,27 @@ async function createClinicalOrder(
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
+  if (orderInFlight.current || user.role !== "DOCTOR" || episode.status !== "ACTIVE") return;
 
   const formElement = event.currentTarget;
   const form = new FormData(formElement);
 
-  const completed = await call(`/episodes/${episode.id}/tasks`, {
-    method: "POST",
-    body: JSON.stringify({
-      title: form.get("title"),
-      service: form.get("service"),
-    }),
-  });
+  orderInFlight.current = true;
+  setCreatingOrder(true);
+  try {
+    const completed = await call(`/episodes/${episode.id}/tasks`, {
+      method: "POST",
+      body: JSON.stringify({
+        title: form.get("title"),
+        service: form.get("service"),
+      }),
+    });
 
-  if (completed) formElement.reset();
+    if (completed) formElement.reset();
+  } finally {
+    orderInFlight.current = false;
+    setCreatingOrder(false);
+  }
 }
 
   async function registerVitals(event: FormEvent<HTMLFormElement>) {
@@ -359,6 +379,7 @@ async function createClinicalOrder(
 
         <input
           name="diagnosis"
+          disabled={savingEvaluation}
           placeholder="Ejemplo: síndrome febril en estudio"
           minLength={2}
           maxLength={500}
@@ -371,6 +392,7 @@ async function createClinicalOrder(
 
         <textarea
           name="clinical_note"
+          disabled={savingEvaluation}
           placeholder="Describe el estado del paciente y la conducta médica"
           minLength={3}
           maxLength={2000}
@@ -384,6 +406,7 @@ async function createClinicalOrder(
 
         <select
           name="disposition"
+          disabled={savingEvaluation}
           defaultValue="CONTINUE_OBSERVATION"
         >
           <option value="CONTINUE_OBSERVATION">
@@ -400,8 +423,8 @@ async function createClinicalOrder(
         </select>
       </label>
 
-      <button type="submit">
-        Guardar evaluación médica
+      <button type="submit" disabled={savingEvaluation}>
+        {savingEvaluation ? "Guardando…" : "Guardar evaluación médica"}
       </button>
     </form>
   </section>
@@ -433,7 +456,7 @@ async function createClinicalOrder(
         Orden o procedimiento solicitado
 
         <input
-          name="title"
+          name="title" disabled={creatingOrder}
           placeholder="Ejemplo: hemograma completo"
           minLength={3}
           maxLength={300}
@@ -444,15 +467,15 @@ async function createClinicalOrder(
       <label>
         Servicio responsable
 
-        <select name="service" defaultValue="LAB">
+        <select name="service" disabled={creatingOrder} defaultValue="LAB">
           <option value="LAB">Laboratorio</option>
           <option value="NURSING">Enfermería</option>
           <option value="MEDICAL">Equipo médico</option>
         </select>
       </label>
 
-      <button type="submit">
-        Crear y asignar orden
+      <button type="submit" disabled={creatingOrder}>
+        {creatingOrder ? "Creando orden…" : "Crear y asignar orden"}
       </button>
     </form>
   </section>

@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import EpisodePage from "./EpisodePage";
 import type { Episode, User } from "../types/clinical";
+import { establishSession } from "../api/client";
 
 const episode: Episode = {
   id: 42, name: "Paciente ficticio 39A", birth_date: "1990-01-01",
@@ -46,7 +47,8 @@ describe.each(forms)("Envío de $name", (form) => {
     for (const [label, value] of form.fields) {
       fireEvent.change(screen.getByLabelText(label), { target: { value } });
     }
-    const submit = () => fireEvent.submit(screen.getByRole("button", { name: form.button }).closest("form")!);
+    const element = screen.getByRole("button", { name: form.button }).closest("form")!;
+    const submit = () => fireEvent.submit(element);
     return { fetchMock, updateEpisode, showError, submit };
   }
 
@@ -57,6 +59,7 @@ describe.each(forms)("Envío de $name", (form) => {
     else fetchMock.mockRejectedValueOnce(new Error(message));
     submit();
     await waitFor(() => expect(showError).toHaveBeenCalledWith(message));
+    expect(screen.getByRole("button", { name: form.button })).toBeEnabled();
     for (const [label, value] of form.fields) expect(screen.getByLabelText(label)).toHaveValue(value);
     expect(updateEpisode).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -74,6 +77,37 @@ describe.each(forms)("Envío de $name", (form) => {
     }));
   });
 
+  it("bloquea clics y submits repetidos mientras está en curso y habilita al terminar", async () => {
+    const { fetchMock, submit } = prepare();
+    let resolve!: (value: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolve = done; }));
+    const button = screen.getByRole("button", { name: form.button });
+    fireEvent.click(button);
+    submit();
+    fireEvent.click(button);
+    submit();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(button).toBeDisabled();
+    expect(button).toHaveTextContent(form.path.endsWith('/tasks') ? 'Creando orden…' : 'Guardando…');
+    for (const [label] of form.fields) expect(screen.getByLabelText(label)).toBeDisabled();
+    resolve(response(episode));
+    await waitFor(() => expect(button).toBeEnabled());
+    for (const [label] of form.fields) expect(screen.getByLabelText(label)).toBeEnabled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("libera el bloqueo tras interrupción de sesión sin vaciar ni mostrar un error ordinario", async () => {
+    const { fetchMock, updateEpisode, showError, submit } = prepare();
+    establishSession('test-token');
+    fetchMock.mockResolvedValueOnce(response({}, 401));
+    submit();
+    await waitFor(() => expect(screen.getByRole('button', { name: form.button })).toBeEnabled());
+    for (const [label, value] of form.fields) expect(screen.getByLabelText(label)).toHaveValue(value);
+    expect(updateEpisode).not.toHaveBeenCalled();
+    expect(showError).not.toHaveBeenCalled();
+    expect(localStorage.getItem('token')).toBeNull();
+  });
+
   it("conserva los campos mientras espera y los vacía solo al confirmar éxito", async () => {
     const { fetchMock, updateEpisode, showError, submit } = prepare();
     let resolve!: (value: Response) => void;
@@ -89,4 +123,29 @@ describe.each(forms)("Envío de $name", (form) => {
     expect(showError).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+});
+
+it("los dos formularios mantienen bloqueos independientes", async () => {
+  const fetchMock = vi.fn();
+  vi.stubGlobal('fetch', fetchMock);
+  try {
+    render(<EpisodePage episode={episode} user={doctor} updateEpisode={vi.fn()} showError={vi.fn()} />);
+    for (const form of forms) {
+      for (const [label, value] of form.fields) fireEvent.change(screen.getByLabelText(label), { target: { value } });
+    }
+    let resolve!: (value: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolve = done; }));
+    fireEvent.click(screen.getByRole('button', { name: forms[0].button }));
+    const order = screen.getByRole('button', { name: forms[1].button });
+    expect(order).toBeEnabled();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    fireEvent.click(order);
+    await waitFor(() => expect(order).toBeEnabled());
+    expect(screen.getByRole('button', { name: 'Guardando…' })).toBeDisabled();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    resolve(response(episode));
+    await waitFor(() => expect(screen.getByRole('button', { name: forms[0].button })).toBeEnabled());
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });

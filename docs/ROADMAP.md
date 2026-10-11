@@ -544,6 +544,21 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Entrega 40A: bloqueo de envíos médicos en curso
+
+- Implementación autorizada y local; pendiente de commit, push y CI.
+- Evaluación médica y orden clínica tienen bloqueos independientes durante
+  su petición: campos y botón deshabilitados, con «Guardando…» o «Creando orden…».
+- Guards inmediatos impiden clics y submits repetidos en cada formulario.
+  Se capturan los datos antes de deshabilitar sus campos.
+- Al terminar se libera el bloqueo. Errores conservan los datos y permiten
+  reintento explícito; éxito conserva el reinicio de formulario de 39A.
+- Cinco casos nuevos verifican repeticiones, desbloqueo tras éxito o HTTP 401
+  e independencia entre formularios; las pruebas 39A comprueban reintentos tras error.
+- Protección limitada a esta instancia de la pantalla; no aporta idempotencia
+  entre pestañas ni cambios en backend, API, esquema o base local.
+- Validación: 99 pruebas frontend, lint y build aprobados.
+
 ## Cierre de la Etapa 39
 
 - Alcance acordado entregado en 39A: conservar evaluación médica y orden
@@ -729,9 +744,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–39 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–39 cerradas. Revisar y autorizar la publicación de 40A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 ## Fuentes
 
