@@ -7,7 +7,8 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Entrega 51A: errores junto a la tarea
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `a94a93ac3ffdb8a130eb03140609faf254474075`;
+  CI `38180567100` aprobada.
 - Los errores al completar tareas aparecen junto a la tarea correspondiente
   mediante un mensaje accesible de alerta, en lugar del error global.
 - Reintentar limpia únicamente su error. Los errores y bloqueos de las demás

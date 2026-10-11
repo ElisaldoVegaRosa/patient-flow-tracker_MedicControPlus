@@ -546,7 +546,8 @@ Plan reconstruido propuesto; no recuperado del chat original
 
 ## Entrega 51A: errores junto a la tarea
 
-- Implementación local; pendiente de autorización para commit, push y CI.
+- Entrega publicada en `a94a93ac3ffdb8a130eb03140609faf254474075`;
+  CI `38180567100` aprobada.
 - Los errores al completar tareas aparecen junto a la tarea correspondiente
   mediante un mensaje accesible de alerta, en lugar del error global.
 - Reintentar limpia únicamente su error. Los errores y bloqueos de las demás
@@ -1089,8 +1090,8 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–50 cerradas. Revisar y autorizar la publicación de 51A y comprobar
-su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
+Etapas 30–50 cerradas. 51A publicada con CI aprobada; revisar su aceptación
+y cierre dentro del alcance acordado.
 
 ## Fuentes
 
