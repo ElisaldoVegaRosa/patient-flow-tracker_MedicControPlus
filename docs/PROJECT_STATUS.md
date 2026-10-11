@@ -2,6 +2,19 @@
 
 ## Última etapa
 
+### Entrega 39A: conservar formularios ante envíos fallidos
+
+- Corrección autorizada e implementada localmente; pendiente de commit, push y CI.
+- El helper de envío devuelve fallo tras errores de API o de red, en lugar de
+  permitir que evaluación médica y orden clínica se reinicien sin guardarse.
+- Ambos formularios conservan sus campos y muestran el error. Solo se vacían
+  tras una respuesta exitosa; el reintento requiere una acción explícita.
+- Seis casos nuevos cubren errores de API, fallos de red, reintento con los
+  mismos datos y conservación durante una respuesta pendiente para ambos formularios.
+- Interrupción por HTTP 401 conserva su tratamiento de 37A. No se añade
+  persistencia, recuperación de otros borradores ni cambios en API o backend.
+- Validación: 94 pruebas frontend, lint y build aprobados. Base local sin cambios.
+
 ### Cierre de la Etapa 38
 
 - Alcance acordado entregado en 38A: aviso ante navegación o logout con nota
@@ -745,9 +758,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–38 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–38 cerradas. Revisar y autorizar la publicación de 39A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

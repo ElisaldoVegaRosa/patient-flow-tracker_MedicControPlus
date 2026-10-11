@@ -59,6 +59,7 @@ export default function EpisodePage({
     } catch (exception) {
       if (isSessionInterruption(exception)) return false;
       showError((exception as Error).message);
+      return false;
     }
     return true;
   }
