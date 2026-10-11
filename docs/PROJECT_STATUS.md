@@ -2,6 +2,21 @@
 
 ## Última etapa
 
+### Cierre de la Etapa 52
+
+- Alcance acordado entregado en 52A: errores accesibles junto a la alerta
+  cuya acción falló, con limpieza al reintentar una acción sobre esa alerta.
+- Criterios contrastados con ocho casos nuevos y pruebas ampliadas: Reconocer,
+  Escalar y Resolver ante errores de API/red, reintento, fallos simultáneos
+  independientes y conservación del error de otra alerta tras resolver una.
+- Se conservan estados ante fallos, permisos, transiciones y bloqueo de 49A.
+  HTTP 401 durante un reintento no revive el error anterior ni genera uno ordinario.
+- Evidencia: 198 pruebas frontend, lint y build aprobados; CI de implementación
+  `38181398952` y documental `38181529431` aprobadas.
+- Etapa 52 cerrada dentro del alcance. Cierre documental; aplicación, reglas
+  clínicas, contratos de API y base local sin cambios adicionales.
+  Validaciones aprobadas conservadas.
+
 ### Entrega 52A: errores junto a la alerta
 
 - Entrega publicada en `e21c40752dbf7d6b6e4ae16c7ec07bc17368ce69`;
@@ -1163,8 +1178,9 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–51 cerradas. 52A publicada con CI aprobada; revisar su aceptación
-y cierre dentro del alcance acordado.
+Etapas 30–52 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
