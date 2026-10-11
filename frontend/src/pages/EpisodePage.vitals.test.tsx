@@ -80,10 +80,18 @@ describe("Envio de signos vitales", () => {
       expect(showError).not.toHaveBeenCalled();
       expect(localStorage.getItem("token")).toBeNull();
       establishSession("new-test-token");
-    } else expect(showError).toHaveBeenCalledWith("Error 45A");
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    } else {
+      expect(screen.getByRole("alert")).toHaveTextContent("Error 45A");
+      expect(screen.getByRole("alert").closest("form")).toBe(button.closest("form"));
+    }
+    expect(showError).not.toHaveBeenCalled();
+    expect(screen.queryByText("Signos vitales guardados")).not.toBeInTheDocument();
     fetchMock.mockResolvedValueOnce(response(episode));
     fireEvent.click(button);
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(episode));
+    expect(screen.getByText("Signos vitales guardados")).toHaveAttribute("role", "status");
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual(payload);
   });
@@ -104,5 +112,71 @@ describe("Envio de signos vitales", () => {
     expect(screen.getByRole("button", { name: "Crear y asignar orden" })).toBeEnabled();
     resolve(response(episode));
     await waitFor(() => expect(button).toBeEnabled());
+  });
+});
+
+describe("Mensajes de signos vitales 46A", () => {
+  it("confirma solo tras exito y retira la confirmacion al editar", async () => {
+    const { fetchMock } = prepare();
+    const button = fill();
+    let resolve!: (value: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolve = done; }));
+    fireEvent.click(button);
+    expect(screen.queryByText("Signos vitales guardados")).not.toBeInTheDocument();
+    resolve(response(episode));
+    expect(await screen.findByText("Signos vitales guardados")).toHaveAttribute("role", "status");
+    fireEvent.change(screen.getByLabelText(labels[0]), { target: { value: 39 } });
+    expect(screen.queryByText("Signos vitales guardados")).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["API", "red", "401"])("retira exito anterior al reenviar y no lo revive ante %s", async (failure) => {
+    const { fetchMock, showError } = prepare();
+    const button = fill();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    fireEvent.click(button);
+    await screen.findByText("Signos vitales guardados");
+    establishSession("test-token");
+    let resolve!: (value: Response) => void;
+    let reject!: (reason: Error) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done, fail) => { resolve = done; reject = fail; }));
+    fireEvent.click(button);
+    expect(screen.queryByText("Signos vitales guardados")).not.toBeInTheDocument();
+    if (failure === "red") reject(new Error("Error 46A"));
+    else resolve(response({ detail: "Error 46A" }, failure === "401" ? 401 : 422));
+    await waitFor(() => expect(button).toBeEnabled());
+    expect(screen.queryByText("Signos vitales guardados")).not.toBeInTheDocument();
+    if (failure === "401") expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    else expect(screen.getByRole("alert")).toHaveTextContent("Error 46A");
+    expect(showError).not.toHaveBeenCalled();
+  });
+
+  it.each(["API", "red"])("editar retira error de %s conservando otros valores sin reenviar", async (failure) => {
+    const { fetchMock } = prepare();
+    const button = fill();
+    if (failure === "red") fetchMock.mockRejectedValueOnce(new Error("Error 46A"));
+    else fetchMock.mockResolvedValueOnce(response({ detail: "Error 46A" }, 422));
+    fireEvent.click(button);
+    await screen.findByRole("alert");
+    fireEvent.change(screen.getByLabelText(labels[0]), { target: { value: 39 } });
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(labels[0])).toHaveValue(39);
+    labels.slice(1).forEach((label, index) => expect(screen.getByLabelText(label)).toHaveValue(values[index + 1]));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("editar y guardar evaluacion mantiene el error de signos independiente", async () => {
+    const { fetchMock } = prepare();
+    const button = fill();
+    fetchMock.mockResolvedValueOnce(response({ detail: "Error signos 46A" }, 422));
+    fireEvent.click(button);
+    await screen.findByRole("alert");
+    fireEvent.change(screen.getByLabelText("Diagn\u00f3stico o impresi\u00f3n cl\u00ednica"), { target: { value: "Diagnostico ficticio 46A" } });
+    expect(screen.getByRole("alert")).toHaveTextContent("Error signos 46A");
+    fetchMock.mockResolvedValueOnce(response(episode));
+    fireEvent.submit(screen.getByRole("button", { name: "Guardar evaluaci\u00f3n m\u00e9dica" }).closest("form")!);
+    await screen.findByText("Evaluaci\u00f3n guardada");
+    expect(screen.getByRole("alert")).toHaveTextContent("Error signos 46A");
+    expect(screen.queryByText("Signos vitales guardados")).not.toBeInTheDocument();
   });
 });

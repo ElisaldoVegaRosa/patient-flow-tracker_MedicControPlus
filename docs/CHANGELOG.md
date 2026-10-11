@@ -5,6 +5,22 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Entrega 46A: mensajes de resultado en signos vitales
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Signos vitales muestra «Signos vitales guardados» mediante un estado accesible
+  solo tras una respuesta exitosa; los errores de API/red aparecen en el formulario.
+- Editar o reenviar retira los mensajes de signos, independientes de los
+  formularios médicos. HTTP 401 no muestra éxito ni un error ordinario.
+- Conserva valores, bloqueo de solicitudes en curso y permisos de 45A.
+- Siete casos nuevos y pruebas ampliadas cubren espera, éxito, edición,
+  reintento, errores de API/red, HTTP 401 e independencia.
+- Validación: 152 pruebas frontend, lint y build aprobados.
+- La primera ejecución tuvo dos fallos en pruebas del supervisor durante la
+  carga/sesión; la revisión dirigida (21 pruebas) y la repetición completa
+  aprobaron sin cambios adicionales de código.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ## Cierre de la Etapa 45
 
 - Alcance acordado entregado en 45A: bloqueo de campos y envíos repetidos

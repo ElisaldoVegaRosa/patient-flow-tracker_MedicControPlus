@@ -2,6 +2,22 @@
 
 ## Última etapa
 
+### Entrega 46A: mensajes de resultado en signos vitales
+
+- Implementación local; pendiente de autorización para commit, push y CI.
+- Signos vitales muestra «Signos vitales guardados» mediante un estado accesible
+  solo tras una respuesta exitosa; los errores de API/red aparecen en el formulario.
+- Editar o reenviar retira los mensajes de signos, independientes de los
+  formularios médicos. HTTP 401 no muestra éxito ni un error ordinario.
+- Conserva valores, bloqueo de solicitudes en curso y permisos de 45A.
+- Siete casos nuevos y pruebas ampliadas cubren espera, éxito, edición,
+  reintento, errores de API/red, HTTP 401 e independencia.
+- Validación: 152 pruebas frontend, lint y build aprobados.
+- La primera ejecución tuvo dos fallos en pruebas del supervisor durante la
+  carga/sesión; la revisión dirigida (21 pruebas) y la repetición completa
+  aprobaron sin cambios adicionales de código.
+- Backend, reglas clínicas, contratos de API y base local sin cambios.
+
 ### Cierre de la Etapa 45
 
 - Alcance acordado entregado en 45A: bloqueo de campos y envíos repetidos
@@ -963,9 +979,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–45 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–45 cerradas. Revisar y autorizar la publicación de 46A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

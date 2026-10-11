@@ -35,6 +35,8 @@ export default function EpisodePage({
   const orderInFlight = useRef(false);
   const vitalsInFlight = useRef(false);
   const [savingVitals, setSavingVitals] = useState(false);
+  const [vitalsSaved, setVitalsSaved] = useState(false);
+  const [vitalsError, setVitalsError] = useState("");
   const [savingEvaluation, setSavingEvaluation] = useState(false);
   const [creatingOrder, setCreatingOrder] = useState(false);
   const [evaluationSaved, setEvaluationSaved] = useState(false);
@@ -179,8 +181,10 @@ async function createClinicalOrder(
     const form = new FormData(event.currentTarget);
     vitalsInFlight.current = true;
     setSavingVitals(true);
+    setVitalsSaved(false);
+    setVitalsError("");
     try {
-      await call(`/episodes/${episode.id}/vitals`, {
+      const completed = await call(`/episodes/${episode.id}/vitals`, {
         method: "POST",
         body: JSON.stringify({
           temperature: Number(form.get("temperature")),
@@ -190,7 +194,8 @@ async function createClinicalOrder(
           spo2: Number(form.get("spo2")),
           respiratory_rate: Number(form.get("respiratory_rate")),
         }),
-      });
+      }, setVitalsError);
+      if (completed) setVitalsSaved(true);
     } finally {
       vitalsInFlight.current = false;
       setSavingVitals(false);
@@ -317,7 +322,10 @@ async function createClinicalOrder(
                 Registrar nuevos signos
               </summary>
 
-              <form className="form-grid" onSubmit={registerVitals}>
+              <form className="form-grid" onSubmit={registerVitals} onChange={() => {
+                setVitalsSaved(false);
+                setVitalsError("");
+              }}>
                 <label>
                   Temperatura
                   <input
@@ -382,6 +390,8 @@ async function createClinicalOrder(
                 <button type="submit" disabled={savingVitals}>
                   {savingVitals ? "Guardando signos…" : "Guardar y evaluar reglas"}
                 </button>
+                {vitalsSaved && <p role="status">Signos vitales guardados</p>}
+                {vitalsError && <p role="alert">{vitalsError}</p>}
               </form>
             </details>
           )}
