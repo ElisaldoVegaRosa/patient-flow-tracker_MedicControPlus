@@ -544,6 +544,21 @@ Plan reconstruido propuesto; no recuperado del chat original
 - Solo documentación; sin nuevas validaciones de aplicación ni cambios
   en frontend, backend o base local. Diff revisado sin errores de whitespace.
 
+## Cierre de la Etapa 51
+
+- Alcance acordado entregado en 51A: errores accesibles junto a la tarea
+  que falló al completarse, con limpieza únicamente al reintentar esa tarea.
+- Criterios contrastados con cuatro casos nuevos y pruebas ampliadas: errores
+  de API/red, fallos simultáneos independientes, reintento y conservación del
+  error de otra tarea tras completar una con éxito.
+- Se conserva la tarea pendiente ante fallos y el bloqueo de 50A.
+  HTTP 401 durante un reintento no revive el error anterior ni genera uno ordinario.
+- Evidencia: 190 pruebas frontend, lint y build aprobados; CI de implementación
+  `38180567100` y documental `38180677073` aprobadas.
+- Etapa 51 cerrada dentro del alcance. Cierre documental; aplicación, permisos,
+  reglas clínicas, contratos de API y base local sin cambios adicionales.
+  Validaciones aprobadas conservadas.
+
 ## Entrega 51A: errores junto a la tarea
 
 - Entrega publicada en `a94a93ac3ffdb8a130eb03140609faf254474075`;
@@ -1090,8 +1105,9 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–50 cerradas. 51A publicada con CI aprobada; revisar su aceptación
-y cierre dentro del alcance acordado.
+Etapas 30–51 cerradas dentro de los alcances acordados. Seleccionar con el
+usuario la siguiente necesidad y definir alcance y aceptación antes de
+implementar.
 
 ## Fuentes
 
