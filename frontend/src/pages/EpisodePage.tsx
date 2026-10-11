@@ -35,6 +35,8 @@ export default function EpisodePage({
   const orderInFlight = useRef(false);
   const [savingEvaluation, setSavingEvaluation] = useState(false);
   const [creatingOrder, setCreatingOrder] = useState(false);
+  const [evaluationSaved, setEvaluationSaved] = useState(false);
+  const [orderCreated, setOrderCreated] = useState(false);
 
   async function dischargeEpisode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,6 +106,7 @@ export default function EpisodePage({
 
     evaluationInFlight.current = true;
     setSavingEvaluation(true);
+    setEvaluationSaved(false);
     try {
       const completed = await call(`/episodes/${episode.id}/medical-evaluation`, {
         method: "POST",
@@ -117,6 +120,7 @@ export default function EpisodePage({
       if (completed) {
         formElement.reset();
         onMedicalEvaluationChange?.(false);
+        setEvaluationSaved(true);
       }
     } finally {
       evaluationInFlight.current = false;
@@ -142,6 +146,7 @@ async function createClinicalOrder(
 
   orderInFlight.current = true;
   setCreatingOrder(true);
+  setOrderCreated(false);
   try {
     const completed = await call(`/episodes/${episode.id}/tasks`, {
       method: "POST",
@@ -154,6 +159,7 @@ async function createClinicalOrder(
     if (completed) {
       formElement.reset();
       onClinicalOrderChange?.(false);
+      setOrderCreated(true);
     }
   } finally {
     orderInFlight.current = false;
@@ -384,6 +390,7 @@ async function createClinicalOrder(
       className="medical-form"
       onSubmit={registerMedicalEvaluation}
       onChange={(event) => {
+        setEvaluationSaved(false);
         const form = new FormData(event.currentTarget);
         onMedicalEvaluationChange?.(
           Boolean(form.get("diagnosis") || form.get("clinical_note")) ||
@@ -443,6 +450,7 @@ async function createClinicalOrder(
       <button type="submit" disabled={savingEvaluation}>
         {savingEvaluation ? "Guardando…" : "Guardar evaluación médica"}
       </button>
+      {evaluationSaved && <p role="status">Evaluación guardada</p>}
     </form>
   </section>
 )}
@@ -469,6 +477,7 @@ async function createClinicalOrder(
       className="medical-form"
       onSubmit={createClinicalOrder}
       onChange={(event) => {
+        setOrderCreated(false);
         const form = new FormData(event.currentTarget);
         onClinicalOrderChange?.(
           Boolean(form.get("title")) || form.get("service") !== "LAB",
@@ -500,6 +509,7 @@ async function createClinicalOrder(
       <button type="submit" disabled={creatingOrder}>
         {creatingOrder ? "Creando orden…" : "Crear y asignar orden"}
       </button>
+      {orderCreated && <p role="status">Orden creada</p>}
     </form>
   </section>
 )}

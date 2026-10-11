@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import EpisodePage from "./EpisodePage";
 import type { Episode, User } from "../types/clinical";
@@ -16,7 +17,7 @@ const response = (data: unknown, status = 200) => ({
 }) as Response;
 const forms = [
   {
-    name: "evaluación médica", button: "Guardar evaluación médica",
+    name: "evaluación médica", button: "Guardar evaluación médica", success: "Evaluación guardada",
     path: "/episodes/42/medical-evaluation",
     fields: [
       ["Diagnóstico o impresión clínica", "Diagnóstico ficticio"],
@@ -27,7 +28,7 @@ const forms = [
     defaults: ["", "", "CONTINUE_OBSERVATION"],
   },
   {
-    name: "orden clínica", button: "Crear y asignar orden",
+    name: "orden clínica", button: "Crear y asignar orden", success: "Orden creada",
     path: "/episodes/42/tasks",
     fields: [["Orden o procedimiento solicitado", "Orden ficticia"], ["Servicio responsable", "NURSING"]],
     payload: { title: "Orden ficticia", service: "NURSING" },
@@ -63,6 +64,7 @@ describe.each(forms)("Envío de $name", (form) => {
     for (const [label, value] of form.fields) expect(screen.getByLabelText(label)).toHaveValue(value);
     expect(updateEpisode).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(form.success)).not.toBeInTheDocument();
 
     fetchMock.mockResolvedValueOnce(response(episode));
     submit();
@@ -106,6 +108,7 @@ describe.each(forms)("Envío de $name", (form) => {
     expect(updateEpisode).not.toHaveBeenCalled();
     expect(showError).not.toHaveBeenCalled();
     expect(localStorage.getItem('token')).toBeNull();
+    expect(screen.queryByText(form.success)).not.toBeInTheDocument();
   });
 
   it("conserva los campos mientras espera y los vacía solo al confirmar éxito", async () => {
@@ -115,6 +118,7 @@ describe.each(forms)("Envío de $name", (form) => {
     submit();
     for (const [label, value] of form.fields) expect(screen.getByLabelText(label)).toHaveValue(value);
     expect(updateEpisode).not.toHaveBeenCalled();
+    expect(screen.queryByText(form.success)).not.toBeInTheDocument();
     resolve(response(episode));
     await waitFor(() => form.fields.forEach(([label], index) => {
       expect(screen.getByLabelText(label)).toHaveValue(form.defaults[index]);
@@ -123,6 +127,53 @@ describe.each(forms)("Envío de $name", (form) => {
     expect(showError).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("anuncia éxito y retira la confirmación al comenzar una nueva edición", async () => {
+    const { fetchMock, submit } = prepare();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    submit();
+    const confirmation = await screen.findByText(form.success);
+    expect(confirmation).toHaveAttribute('role', 'status');
+    await userEvent.type(screen.getByLabelText(form.fields[0][0]), 'Nueva edición ficticia');
+    expect(screen.queryByText(form.success)).not.toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['API', 'red'])("un nuevo envío retira el éxito anterior y no lo revive ante error de %s", async (failure) => {
+    const { fetchMock, submit, showError } = prepare();
+    fetchMock.mockResolvedValueOnce(response(episode));
+    submit();
+    await screen.findByText(form.success);
+    let reject!: (reason: Error) => void;
+    let resolve!: (value: Response) => void;
+    fetchMock.mockReturnValueOnce(new Promise<Response>((done, fail) => { resolve = done; reject = fail; }));
+    submit();
+    expect(screen.queryByText(form.success)).not.toBeInTheDocument();
+    if (failure === 'API') resolve(response({ detail: 'Error ficticio 43A' }, 422));
+    else reject(new Error('Error ficticio 43A'));
+    await waitFor(() => expect(showError).toHaveBeenCalledWith('Error ficticio 43A'));
+    expect(screen.queryByText(form.success)).not.toBeInTheDocument();
+  });
+});
+
+it("editar la evaluación no retira la confirmación de una orden creada", async () => {
+  const fetchMock = vi.fn().mockResolvedValue(response(episode));
+  vi.stubGlobal('fetch', fetchMock);
+  try {
+    render(<EpisodePage episode={episode} user={doctor} updateEpisode={vi.fn()} showError={vi.fn()} />);
+    for (const form of forms) {
+      for (const [label, value] of form.fields) fireEvent.change(screen.getByLabelText(label), { target: { value } });
+      fireEvent.submit(screen.getByRole('button', { name: form.button }).closest('form')!);
+      await screen.findByText(form.success);
+    }
+    expect(screen.getByText(forms[0].success)).toBeVisible();
+    expect(screen.getByText(forms[1].success)).toBeVisible();
+    fireEvent.change(screen.getByLabelText(forms[0].fields[0][0]), { target: { value: 'Nueva evaluación ficticia' } });
+    expect(screen.queryByText(forms[0].success)).not.toBeInTheDocument();
+    expect(screen.getByText(forms[1].success)).toBeVisible();
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });
 
 it("los dos formularios mantienen bloqueos independientes", async () => {

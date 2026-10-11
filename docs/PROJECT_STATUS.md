@@ -2,6 +2,19 @@
 
 ## Última etapa
 
+### Entrega 43A: confirmaciones de guardado médico
+
+- Implementación autorizada y local; pendiente de commit, push y CI.
+- Evaluación médica muestra «Evaluación guardada» y orden muestra «Orden creada»
+  solo después de una respuesta exitosa, mediante un mensaje accesible de estado.
+- Nueva edición o envío retira la confirmación del formulario correspondiente.
+  Los mensajes son independientes y no confirman resultados pendientes o fallidos.
+- Se conservan bloqueos de envío, datos tras errores y avisos de salida de 39A–42A.
+  HTTP 401 no produce confirmación de éxito.
+- Siete casos nuevos y ampliaciones de pruebas existentes cubren éxito, nueva
+  edición/envío, errores de API/red, independencia y ausencia de éxito ante HTTP 401.
+- Validación: 132 pruebas frontend, lint y build aprobados. Backend, API y base local sin cambios.
+
 ### Cierre de la Etapa 42
 
 - Alcance acordado entregado en 42A: aviso ante cambios sin enviar en el
@@ -874,9 +887,8 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–42 cerradas dentro de los alcances acordados. Seleccionar con el
-usuario la siguiente necesidad y definir alcance y aceptación antes de
-implementar.
+Etapas 30–42 cerradas. Revisar y autorizar la publicación de 43A y comprobar
+su CI. Después revisar su aceptación y cierre dentro del alcance acordado.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
