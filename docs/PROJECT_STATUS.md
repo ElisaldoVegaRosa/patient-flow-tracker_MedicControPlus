@@ -4,7 +4,7 @@
 
 ### Etapa 54: recuperación común de formularios tras HTTP 401
 
-- Alcance transversal autorizado e implementado localmente: ingreso, triaje,
+- Alcance transversal implementado y publicado: ingreso, triaje,
   signos, evaluación, órdenes, resultado LAB y nota de alta.
 - Un almacén de borradores y un hook compartidos reemplazan el flujo exclusivo
   de alta; captura común de campos, sin reenvío ni guardado automático.
@@ -20,7 +20,10 @@
 - Validación: 259 pruebas frontend (29 nuevas), lint y build aprobados. Pruebas
   con `--maxWorkers=1` y temporales locales. Backend sin cambios: se conserva la
   evidencia de 132 pruebas y CI aprobada de 53B, sin repetir esa validación.
-- Commit/push autorizados por el usuario; publicación y CI pendientes.
+- Publicada en `7e6c559b19043546a2e47269783d1f967e058b92`;
+  CI `38257535035` aprobada: backend, frontend, lint y build.
+- Siguiente paso: prueba funcional directa de recuperación con el usuario.
+  La confirmación manual de 53 no valida automáticamente la recuperación de 54.
 
 ### Cierre de la Etapa 53
 
@@ -1267,13 +1270,11 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–53 cerradas dentro de los alcances acordados. Etapa 54 autorizada e
-implementada localmente en una entrega transversal. Validación: 259 pruebas
-frontend, lint y build aprobados; backend sin cambios, conserva sus 132 pruebas
-y CI de 53B aprobada. Siguiente paso: publicar y comprobar
-CI. Commit/push autorizados por el usuario. La prueba manual de evaluaciones
-confirmada corresponde a 53; no se presenta
-como prueba manual de recuperación de formularios de 54.
+Etapa 54 publicada con CI `38257535035` aprobada: 132 pruebas backend,
+259 frontend, lint y build. Realizar una prueba funcional directa de recuperación
+tras expirar la sesión, incluida restauración explícita de varios formularios.
+Después acordar la siguiente necesidad completa. No hay otra implementación
+autorizada ni una nueva etapa definida todavía.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

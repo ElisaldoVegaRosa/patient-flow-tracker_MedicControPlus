@@ -1204,15 +1204,15 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–53 cerradas dentro de los alcances acordados. Etapa 54 autorizada
-como una entrega transversal e implementada localmente. Validación: 259 pruebas
-frontend (29 nuevas), lint y build aprobados. Commit/push autorizados; publicar
-y comprobar CI. Backend sin cambios: conservar las 132 pruebas y
-CI aprobadas de 53B.
+Etapa 54 publicada con CI `38257535035` aprobada: 132 pruebas backend,
+259 frontend, lint y build. Siguiente paso: prueba funcional directa de
+recuperación con el usuario. Después acordar una necesidad transversal completa;
+no hay otra implementación autorizada ni una nueva etapa definida todavía.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
-- Autorizada e implementada localmente. Una entrega funcional transversal,
+- Commit `7e6c559b19043546a2e47269783d1f967e058b92`; CI `38257535035` aprobada.
+- Implementada y publicada. Una entrega funcional transversal,
   con mecanismo compartido para ingreso, triaje, signos, evaluación, órdenes, resultado LAB y
   nota de alta; integra la recuperación de 37A conservando sus garantías.
 - Conservar campos editados solo en memoria, ocultos durante el login, durante

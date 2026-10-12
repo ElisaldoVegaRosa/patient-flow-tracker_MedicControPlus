@@ -7,7 +7,7 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Etapa 54: recuperación común de formularios tras HTTP 401
 
-- Implementación transversal local autorizada para ingreso, triaje, signos,
+- Implementación transversal publicada para ingreso, triaje, signos,
   evaluación, órdenes, resultado LAB y nota de alta. Integra la recuperación
   anterior de alta en el mismo almacén/hook, con captura común de campos.
 - Restauración explícita de varios formularios, únicamente para la misma
@@ -21,7 +21,8 @@ las verificaciones realizadas y el estado de cada etapa.
   borradores, estados clínicos, reintentos, vigencia y respuestas tardías.
 - Validación: 259 pruebas frontend (29 nuevas), lint y build aprobados, con
   `--maxWorkers=1` y temporales locales. Backend sin cambios, conserva las 132
-  pruebas y CI aprobadas de 53B. Commit/push autorizados; CI pendiente.
+  pruebas previas; CI `38257535035` aprobada para esta entrega.
+- Publicada en `7e6c559b19043546a2e47269783d1f967e058b92`.
   Recarga y reinicio no conservan estos borradores.
 
 ## Cierre de la Etapa 53
