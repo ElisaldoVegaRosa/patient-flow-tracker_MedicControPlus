@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
 import { usePendingOperations } from "./hooks/usePendingOperations";
+import { useVersionedWrites } from "./hooks/useVersionedWrites";
+import WriteConflicts from "./components/WriteConflicts";
 import {
   api, establishSession, getSessionRevision, invalidateSession,
   isSessionInterruption, SESSION_EXPIRED_EVENT,
@@ -51,6 +53,8 @@ function App() {
   const [restoringSession, setRestoringSession] =
     useState(() => Boolean(localStorage.getItem("token")));
   const recovery = useFormRecovery();
+  const writes = useVersionedWrites();
+  const { clear: clearWrites, remember: rememberVersion } = writes;
   const { clear: clearDraft, suspend: suspendRecovery } = recovery;
   const leave = useUnsavedDischargeNote();
   const { clear: clearLeave, track: trackLeave } = leave;
@@ -59,9 +63,10 @@ function App() {
   const clearRecovery = useCallback(() => {
     clearDraft();
     clearLeave();
+    clearWrites();
     setRestoredForms([]);
     applyRestoration.current = false;
-  }, [clearDraft, clearLeave]);
+  }, [clearDraft, clearLeave, clearWrites]);
   const [recoveredNote, setRecoveredNote] = useState("");
   const draftRoot = useRef<HTMLDivElement>(null);
 
@@ -78,8 +83,12 @@ function App() {
       }
       return (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) && element.value.trim() !== element.defaultValue.trim();
     });
-    recovery.trackForm(user, { kind, episodeId: form.dataset.episodeId ? Number(form.dataset.episodeId) : undefined,
-      taskId: form.dataset.taskId ? Number(form.dataset.taskId) : undefined, fields }, dirty);
+    const episodeId = form.dataset.episodeId ? Number(form.dataset.episodeId) : undefined;
+    const taskId = form.dataset.taskId ? Number(form.dataset.taskId) : undefined;
+    const path = kind === "triage" ? `/episodes/${episodeId}/triage` : kind === "lab" ? `/tasks/${taskId}/complete` : null;
+    if (path && !dirty) writes.forget(path);
+    const baseVersion = path && dirty ? writes.remember(path, form.dataset.draftVersion) : undefined;
+    recovery.trackForm(user, { kind, episodeId, taskId, baseVersion, fields }, dirty);
   }
 
   useEffect(() => {
@@ -111,9 +120,31 @@ function App() {
     setEpisode(updated);
   }
 
+  function reviewChanges(latest: Episode) {
+    // Re-render authoritative state while preserving every visible local form.
+    const drafts = [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-draft-kind]") ?? [])]
+      .filter(form => form.dataset.draftKind !== "discharge")
+      .map(form => ({ kind: form.dataset.draftKind as DraftKind,
+        episodeId: form.dataset.episodeId ? Number(form.dataset.episodeId) : undefined,
+        taskId: form.dataset.taskId ? Number(form.dataset.taskId) : undefined,
+        fields: Object.fromEntries([...new FormData(form).entries()].filter((entry): entry is [string, string] => typeof entry[1] === "string")),
+      }));
+    applyRestoration.current = true;
+    setRestoredForms(drafts);
+    if (page === "episode") updateEpisode(latest);
+    if (page === "laboratory") setLaboratoryQueue(previous => previous ? { ...previous, orders: previous.orders.map(order => {
+      const task = latest.tasks.find(item => item.id === order.id);
+      return order.episode_id === latest.id && task ? { ...order, ...task, episode_status: latest.status } : order;
+    }) } : previous);
+  }
+
   useEffect(() => {
     function sessionExpired() {
-      suspendRecovery();
+      suspendRecovery(draft => {
+        const path = draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
+        return path ? rememberVersion(path, draft.baseVersion) : undefined;
+      });
+      clearWrites();
       clearLeave();
       setRecoveredNote("");
       setRestoredForms([]);
@@ -130,7 +161,7 @@ function App() {
     }
     window.addEventListener(SESSION_EXPIRED_EVENT, sessionExpired);
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, sessionExpired);
-  }, [suspendRecovery, clearLeave]);
+  }, [suspendRecovery, clearLeave, clearWrites, rememberVersion]);
 
   async function restoreNote() {
     if (!user) return;
@@ -140,6 +171,10 @@ function App() {
       setRecoveredNote(result.note);
       applyRestoration.current = true;
       setRestoredForms(result.drafts);
+      for (const draft of result.drafts) {
+        const path = draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
+        if (path) writes.remember(path, draft.baseVersion ?? '"unversioned-draft"');
+      }
       trackLeave(result.note);
       leave.trackEvaluation(result.drafts.some(draft => draft.kind === "evaluation"));
       leave.trackOrder(result.drafts.some(draft => draft.kind === "order"));
@@ -456,12 +491,13 @@ async function completeLaboratoryOrder(
   if (!release) return;
 
   try {
-    const completed = await api<Episode>(`/tasks/${taskId}/complete`, {
+    const order = laboratoryQueue?.orders.find(item => item.id === taskId);
+    const completed = await writes.write(`/tasks/${taskId}/complete`, {
       method: "PATCH",
       body: JSON.stringify({
         result: form.get("result"),
       }),
-    });
+    }, order?.episode_id ?? 0, order?.version);
 
     recovery.remove("lab", completed.id, taskId);
     setRestoredForms(previous => previous.filter(draft => draft.taskId !== taskId));
@@ -560,6 +596,7 @@ async function logout() {
           {error} ×
         </div>
       )}
+      <WriteConflicts writes={writes} onReviewed={reviewChanges} />
 
       {page === "dashboard" && dashboard && (
         <DashboardPage
@@ -610,6 +647,7 @@ async function logout() {
           key={`${user.username}:${episode.id}`}
           onDraftSaved={(kind) => { recovery.remove(kind, episode.id); setRestoredForms(previous => previous.filter(draft => draft.kind !== kind)); }}
           pendingOperations={operations}
+          versionedWrites={writes}
           episode={episode}
           user={user}
           updateEpisode={updateEpisode}
@@ -618,7 +656,7 @@ async function logout() {
           onMedicalEvaluationChange={leave.trackEvaluation}
           onClinicalOrderChange={leave.trackOrder}
           onDischargeNoteChange={(note) => {
-            recovery.track(user.username, episode.id, note);
+            recovery.track(user.username, episode.id, note, note.trim() ? writes.remember(`/episodes/${episode.id}/discharge`, episode.clinical_version) : undefined);
             trackLeave(note);
           }}
         />

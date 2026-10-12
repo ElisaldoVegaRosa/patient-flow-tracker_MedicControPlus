@@ -2,6 +2,32 @@
 
 ## Última etapa
 
+### Etapa 55: protección contra conflictos entre sesiones
+
+- Alcance transversal autorizado e implementado localmente. Mantiene el acceso
+  simultáneo y los registros nuevos independientes (evaluaciones, signos y órdenes).
+- Versiones opacas por triaje, tarea y alerta; versión clínica para alta. Se
+  calculan desde el estado persistido y su historial, sin migración ni columnas
+  nuevas. Escanear/consultar no cambia la versión clínica.
+- Nuevas escrituras de triaje, alta, tareas y alertas requieren `If-Match`:
+  ausencia devuelve 428; versión desactualizada devuelve 409 estructurado.
+  Se comprueba dentro de `BEGIN IMMEDIATE`, con rollback de efectos y recibos.
+- Un recibo confirmado de 53 se reconoce antes de comprobar la versión; no
+  repite efectos aunque el episodio haya cambiado después. Permisos actuales
+  continúan siendo obligatorios.
+- Interfaz común: conserva campos, bloquea el reenvío del recurso en conflicto,
+  consulta datos actuales y exige revisión explícita. Revisar no escribe;
+  guardar requiere otra acción. Episodio cerrado/tarea completada/alerta resuelta
+  no admiten continuar por este flujo.
+- Recuperación de 54 conserva la versión original del borrador; no la renueva
+  automáticamente al reautenticar. El cliente distingue intención y versión,
+  reutiliza ambas ante respuesta perdida y protege respuestas tardías.
+- Validación: 140 pruebas backend (ocho nuevas, una advertencia existente),
+  271 frontend (12 nuevas), lint y build aprobados. Backend con Python de
+  `.venv` y `--basetemp .tmp/pytest-55-full`; frontend con `--maxWorkers=1`
+  y temporales locales.
+- Commit/push autorizados por el usuario; publicación y CI pendientes. Política: [escrituras](WRITE_OPERATIONS.md).
+
 ### Etapa 54: recuperación común de formularios tras HTTP 401
 
 - Alcance transversal implementado y publicado: ingreso, triaje,
@@ -22,8 +48,10 @@
   evidencia de 132 pruebas y CI aprobada de 53B, sin repetir esa validación.
 - Publicada en `7e6c559b19043546a2e47269783d1f967e058b92`;
   CI `38257535035` aprobada: backend, frontend, lint y build.
-- Siguiente paso: prueba funcional directa de recuperación con el usuario.
-  La confirmación manual de 53 no valida automáticamente la recuperación de 54.
+- Prueba funcional directa de recuperación confirmada satisfactoria por el
+  usuario. Confirmación manual del flujo solicitado; no sustituye la suite.
+- Observación del usuario: dos sesiones pueden abrir y editar un mismo episodio.
+  Siguiente propuesta: protección común contra cambios concurrentes (Etapa 55).
 
 ### Cierre de la Etapa 53
 
@@ -1270,11 +1298,11 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 54 publicada con CI `38257535035` aprobada: 132 pruebas backend,
-259 frontend, lint y build. Realizar una prueba funcional directa de recuperación
-tras expirar la sesión, incluida restauración explícita de varios formularios.
-Después acordar la siguiente necesidad completa. No hay otra implementación
-autorizada ni una nueva etapa definida todavía.
+Etapa 54 publicada y prueba funcional de recuperación confirmada por el usuario.
+Etapa 55 autorizada e implementada localmente: protección común por versiones
+para escrituras concurrentes, conservando acceso simultáneo y borradores.
+Validación: 140 pruebas backend, 271 frontend, lint y build aprobados. Commit/push
+autorizados por el usuario; publicar y comprobar CI. No hay otra entrega autorizada.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

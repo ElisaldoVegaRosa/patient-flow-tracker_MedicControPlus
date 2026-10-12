@@ -33,6 +33,7 @@ export type AlertHistoryEntry = {
 };
 
 export type ClinicalAlert = {
+  version?: string;
   id: number;
   episode_id: number;
   reason: string;
@@ -45,6 +46,7 @@ export type ClinicalAlert = {
 };
 
 export type ClinicalTask = {
+  version?: string;
   id: number;
   episode_id: number;
   title: string;
@@ -66,6 +68,8 @@ export type TimelineEvent = {
 };
 
 export type Episode = {
+  triage_version?: string;
+  clinical_version?: string;
   id: number;
   name: string;
   birth_date: string;
@@ -150,6 +154,7 @@ export type TimeRulesEvaluationResponse = {
 };
 
 export type LaboratoryOrder = {
+  version?: string;
   id: number;
   episode_id: number;
   title: string;

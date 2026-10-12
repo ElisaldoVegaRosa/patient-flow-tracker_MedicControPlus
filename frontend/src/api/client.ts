@@ -20,6 +20,8 @@ export class ApiError extends Error {
   }
 }
 
+export class VersionConflictError extends ApiError {}
+
 export const getSessionRevision = () => sessionRevision;
 export const isSessionInterruption = (error: unknown) => error instanceof SessionInterruptedError;
 
@@ -42,8 +44,9 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   const login = path === "/auth/login";
   const method = (options.method ?? "GET").toUpperCase();
   const protectedWrite = ["POST", "PATCH"].includes(method) && !path.startsWith("/auth/");
-  const intent = protectedWrite ? `${method}:${path}:${options.body ?? ""}` : null;
   const headers = new Headers(options.headers);
+  const version = headers.get("If-Match");
+  const intent = protectedWrite ? `${method}:${path}:${options.body ?? ""}:${version ?? ""}` : null;
   if (intent && !headers.has("Idempotency-Key")) {
     let pending = writeIntents.get(intent);
     if (pending && Date.now() - pending.createdAt >= replayWindow) {
@@ -74,10 +77,15 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
       window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
       throw new SessionInterruptedError();
     }
-    const result = (await response.json()) as T & { detail?: string };
+    const result = (await response.json()) as T & { detail?: string | { code?: string; message?: string } };
     if (!isCurrent()) throw new SessionInterruptedError();
     if (intent && response.status < 500 && writeIntents.get(intent)?.key === headers.get("Idempotency-Key")) writeIntents.delete(intent);
-    if (!response.ok) throw new ApiError(result.detail || "Ocurrió un error", response.status);
+    if (!response.ok) {
+      const detail = result.detail;
+      const message = typeof detail === "string" ? detail : detail?.message || "Ocurrió un error";
+      if (response.status === 409 && typeof detail === "object" && detail.code === "version_conflict") throw new VersionConflictError(message, 409);
+      throw new ApiError(message, response.status);
+    }
     return result;
   } catch (error) {
     if (!isCurrent()) throw new SessionInterruptedError();

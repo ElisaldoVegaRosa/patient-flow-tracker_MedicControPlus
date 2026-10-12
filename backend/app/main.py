@@ -413,7 +413,8 @@ def episode_detail(
         )
     ]
 
-    return result
+    from .concurrency import annotate_versions
+    return annotate_versions(result)
 
 
 app = FastAPI(

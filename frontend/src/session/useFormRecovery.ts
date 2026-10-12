@@ -11,7 +11,7 @@ export function useFormRecovery() {
   const [error, setError] = useState("");
   const [noteOnly, setNoteOnly] = useState(true);
   const clear = useCallback(() => { store.clear(); setStatus("idle"); setError(""); }, [store]);
-  const suspend = useCallback(() => { store.suspend(); setStatus(store.remainingMs() ? "waiting" : "idle"); setError(""); }, [store]);
+  const suspend = useCallback((resolveVersion?: (draft: FormDraft) => string | undefined) => { store.suspend(resolveVersion); setStatus(store.remainingMs() ? "waiting" : "idle"); setError(""); }, [store]);
   useEffect(() => () => store.clear(), [store]);
   useEffect(() => {
     if (status === "idle") return;
@@ -70,7 +70,7 @@ export function useFormRecovery() {
     }
   }, [store, clear]);
   const trackForm = useCallback((user: SessionUser, draft: FormDraft, dirty = true) => store.track(user, draft, dirty), [store]);
-  const track = useCallback((username: string, episodeId: number, note: string) => store.track({ username, role: "DOCTOR" }, { kind: "discharge", episodeId, fields: { note } }, !!note.trim()), [store]);
+  const track = useCallback((username: string, episodeId: number, note: string, baseVersion?: string) => store.track({ username, role: "DOCTOR" }, { kind: "discharge", episodeId, baseVersion, fields: { note } }, !!note.trim()), [store]);
   const remove = useCallback((kind: DraftKind, episodeId?: number, taskId?: number) => store.remove(kind, episodeId, taskId), [store]);
   return { status, error, noteOnly, clear, suspend, check, track, trackForm, remove };
 }

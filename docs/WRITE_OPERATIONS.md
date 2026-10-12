@@ -59,3 +59,42 @@ aditiva e idempotente al iniciar la API. No modifica registros clínicos existen
 Las pruebas usan bases temporales, concurrencia real con conexiones separadas,
 respuesta perdida simulada, claves conflictivas/vencidas, identidad, permisos,
 sesión revocada, episodios cerrados, fallo posterior a la escritura y bloqueo SQL.
+
+## Versiones y conflictos entre sesiones (55)
+
+Las nuevas escrituras de triaje, alta, completar tareas y modificar alertas
+requieren `If-Match`. Copiar el valor opaco, incluidas sus comillas, desde la
+lectura del recurso: `triage_version`, `clinical_version` o `version` de la
+tarea/alerta. La bandeja LAB incluye la misma versión de tarea que el episodio.
+Clientes anteriores deben actualizarse: sin precondición se responde 428;
+no se conserva un modo de escritura ciega para estas rutas. Permisos y estados
+terminales conservan sus rechazos; una versión desactualizada de un recurso
+activo devuelve 409 con `detail.code = "version_conflict"` y mensaje de revisión.
+
+Las versiones son SHA-256 del estado persistido relevante y su historial. No
+requieren migración ni escriben revisiones adicionales. Triaje usa sus campos y
+sus eventos (también distingue escrituras consecutivas con valores idénticos);
+tareas y alertas usan su propio estado. Alta considera la información clínica
+actual, incluidas evaluaciones, signos, tareas y alertas. `QR_SCANNED` queda fuera.
+Añadir registros nuevos no exige una versión global ni reserva el episodio.
+
+La comparación ocurre dentro de la transacción compartida antes de mutar.
+Una escritura conflictiva no produce eventos, cambios ni recibo. Reintentar un
+recibo confirmado se resuelve antes de comprobar la versión: la misma intención
+no repite efectos aunque operaciones posteriores hayan cambiado los datos.
+
+El frontend captura la versión al editar y la conserva ante errores y HTTP 401.
+Un conflicto exige consultar y revisar datos actuales; aceptar la revisión no
+escribe. Conserva los campos locales y actualiza la información consultada.
+Guardar de nuevo usa la versión revisada y una nueva intención. Una respuesta
+perdida mantiene clave y versión anteriores, sin reenvío automático. Restaurar
+un borrador sin versión anterior obliga a revisar mediante el mismo conflicto.
+Salir, logout y cambio de sesión limpian conflictos; respuestas tardías no los
+reviven. No ofrece continuar sobre un episodio cerrado, tarea completada o
+alerta resuelta. No implementa presencia en tiempo real ni bloqueo exclusivo.
+
+Las pruebas anteriores de flujos adquieren la versión mediante una lectura API
+antes de cada intención nueva (`backend/tests/conftest.py`). Las pruebas de
+concurrencia envían versiones explícitas congeladas o vacías: cubren dos sesiones,
+428, conflicto, rollback, revisión, permisos e idempotencia. No omiten el control
+de producción ni actualizan automáticamente versiones en los casos de conflicto.

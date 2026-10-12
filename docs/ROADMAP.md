@@ -1204,10 +1204,10 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapa 54 publicada con CI `38257535035` aprobada: 132 pruebas backend,
-259 frontend, lint y build. Siguiente paso: prueba funcional directa de
-recuperación con el usuario. Después acordar una necesidad transversal completa;
-no hay otra implementación autorizada ni una nueva etapa definida todavía.
+Etapa 54 publicada y prueba funcional de recuperación confirmada por el usuario.
+Etapa 55 autorizada e implementada localmente como una entrega transversal.
+Validación: 140 pruebas backend, 271 frontend, lint y build aprobados. Commit/push
+autorizados por el usuario; publicar y comprobar CI. No hay otra entrega autorizada.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
@@ -1231,6 +1231,30 @@ no hay otra implementación autorizada ni una nueva etapa definida todavía.
 - Recarga, cierre de pestaña y reinicio quedan fuera de esta recuperación en
   memoria. Preservar borradores después de esos eventos requiere otro diseño
   sobre almacenamiento y privacidad; no se presenta como capacidad de 54.
+
+## Etapa 55: conflictos entre sesiones
+
+- Autorizada e implementada localmente: 140 pruebas backend (ocho nuevas),
+  271 frontend (12 nuevas), lint y build aprobados.
+- Mantener lectura y trabajo simultáneos por los roles autorizados; no reservar
+  un episodio completo para una única sesión.
+- Mecanismo compartido de versiones y comprobación atómica para modificaciones
+  del mismo recurso. Triaje es el caso confirmado de sustitución de datos:
+  prioridad, ubicación y responsable pueden quedar sobrescritos por otra sesión.
+- Diferenciar registros nuevos (signos, evaluaciones y órdenes) de modificaciones
+  de triaje, tareas y alertas. Evitar conflictos por actividades independientes.
+- Alta médica requiere revisar cambios clínicos relevantes ocurridos desde la
+  versión que el médico consultó; excluir eventos meramente informativos como
+  abrir/escanear el episodio de esa versión clínica.
+- Conflicto visible: conservar los campos locales, consultar cambios actuales y
+  exigir revisión explícita antes de otra acción. Sin sobrescritura forzada,
+  fusión ni reenvío automático. Integrar recuperación de 54 con estas versiones.
+- Preservar idempotencia de 53: una escritura confirmada con la misma clave debe
+  reconocerse aunque una operación posterior haya cambiado la versión.
+- Una entrega transversal con pruebas de dos conexiones/sesiones, permisos,
+  estados, conflicto, actividades independientes, reintentos y rollback.
+- Commit/push autorizados por el usuario; publicación y CI pendientes. Presencia en tiempo real, edición
+  colaborativa y bloqueos exclusivos no forman parte de esta propuesta.
 
 ## Fuentes
 

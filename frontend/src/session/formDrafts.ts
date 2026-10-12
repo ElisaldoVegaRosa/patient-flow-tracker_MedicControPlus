@@ -2,7 +2,7 @@ import type { SessionUser } from "../types/clinical";
 import { RECOVERY_DURATION_MS } from "./dischargeDraft";
 
 export type DraftKind = "arrival" | "triage" | "vitals" | "evaluation" | "order" | "lab" | "discharge";
-export type FormDraft = { kind: DraftKind; episodeId?: number; taskId?: number; fields: Record<string, string> };
+export type FormDraft = { kind: DraftKind; episodeId?: number; taskId?: number; baseVersion?: string; fields: Record<string, string> };
 const roles: Record<DraftKind, string[]> = {
   arrival: ["RECEPTION", "SUPERVISOR"], triage: ["NURSE", "SUPERVISOR"],
   vitals: ["NURSE", "DOCTOR"], evaluation: ["DOCTOR"], order: ["DOCTOR"],
@@ -36,9 +36,10 @@ export class FormDraftRecovery {
     }
   }
 
-  suspend() {
+  suspend(resolveVersion?: (draft: FormDraft) => string | undefined) {
     if (!this.pending && this.owner && this.current.size) {
-      this.pending = { owner: this.owner, drafts: [...this.current.values()], interruptedAt: Date.now() };
+      const drafts = [...this.current.values()].map(draft => ({ ...draft, baseVersion: resolveVersion?.(draft) ?? draft.baseVersion }));
+      this.pending = { owner: this.owner, drafts, interruptedAt: Date.now() };
       this.version += 1;
     }
     this.current.clear();

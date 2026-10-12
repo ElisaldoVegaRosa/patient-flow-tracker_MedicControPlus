@@ -85,7 +85,7 @@ export default function LaboratoryPage({
               </div>
             </dl>
 
-            <form data-draft-kind="lab" data-episode-id={order.episode_id} data-task-id={order.id}
+            <form data-draft-kind="lab" data-episode-id={order.episode_id} data-task-id={order.id} data-draft-version={order.version}
               className="lab-result-form"
               onSubmit={(event) =>
                 onCompleteOrder(event, order.id)

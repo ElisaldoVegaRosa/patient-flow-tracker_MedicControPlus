@@ -3,12 +3,16 @@ import type { FormEvent } from "react";
 import { usePendingOperations } from "../hooks/usePendingOperations";
 import type { PendingOperations } from "../hooks/usePendingOperations";
 import type { DraftKind } from "../session/formDrafts";
+import { resourceVersion, useVersionedWrites } from "../hooks/useVersionedWrites";
+import type { VersionedWrites } from "../hooks/useVersionedWrites";
+import WriteConflicts from "../components/WriteConflicts";
 import { QRCodeSVG } from "qrcode.react";
-import { api, isSessionInterruption } from "../api/client";
+import { isSessionInterruption } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
 
 type EpisodePageProps = {
   pendingOperations?: PendingOperations;
+  versionedWrites?: VersionedWrites;
   onDraftSaved?: (kind: DraftKind) => void;
   episode: Episode;
   user: User;
@@ -26,6 +30,7 @@ export default function EpisodePage({
   updateEpisode,
   showError,
   pendingOperations,
+  versionedWrites,
   onDraftSaved,
   initialDischargeNote = "",
   onDischargeNoteChange,
@@ -38,6 +43,8 @@ export default function EpisodePage({
   const [dischargeError, setDischargeError] = useState("");
   const localOperations = usePendingOperations();
   const operations = pendingOperations ?? localOperations;
+  const localWrites = useVersionedWrites();
+  const writes = versionedWrites ?? localWrites;
   const episodeKey = (name: string) => `episode:${episode.id}:${name}`;
   const discharging = operations.isPending(episodeKey("discharge"));
   const savingEvaluation = operations.isPending(episodeKey("evaluation"));
@@ -67,10 +74,11 @@ export default function EpisodePage({
     if (!release) return;
     setDischargeError("");
     try {
-      updateEpisode(await api<Episode>(`/episodes/${episode.id}/discharge`, {
+      const path = `/episodes/${episode.id}/discharge`;
+      updateEpisode(await writes.write(path, {
         method: "POST",
         body: JSON.stringify({ note }),
-      }));
+      }, episode.id, episode.clinical_version));
     } catch (exception) {
       if (isSessionInterruption(exception)) return;
       setDischargeError((exception as Error).message);
@@ -81,7 +89,7 @@ export default function EpisodePage({
 
   async function call(path: string, options: RequestInit, reportError = showError) {
     try {
-      const updated = await api<Episode>(path, options);
+      const updated = await writes.write(path, options, episode.id, resourceVersion(path, episode));
       const kind = path.endsWith("/triage") ? "triage" : path.endsWith("/vitals") ? "vitals" : path.endsWith("/medical-evaluation") ? "evaluation" : path.endsWith("/tasks") ? "order" : null;
       if (kind) onDraftSaved?.(kind);
       updateEpisode(updated);
@@ -269,6 +277,7 @@ async function createClinicalOrder(
 
   return (
     <main className="container">
+      {!versionedWrites && <WriteConflicts writes={writes} onReviewed={updateEpisode} />}
       <div className="page-title">
         <div>
           <h1>{episode.name}</h1>
@@ -316,7 +325,11 @@ async function createClinicalOrder(
       Actualiza la prioridad, ubicación y personal responsable.
     </p>
 
-    <form data-draft-kind="triage" data-episode-id={episode.id} className="form-grid" onSubmit={registerTriage} onChange={() => {
+    <form data-draft-kind="triage" data-episode-id={episode.id} data-draft-version={episode.triage_version} className="form-grid" onSubmit={registerTriage} onChange={(event) => {
+      const form = new FormData(event.currentTarget);
+      const dirty = Number(form.get("priority")) !== episode.priority || form.get("location") !== episode.location || String(form.get("assigned_to") ?? "").trim() !== (episode.assigned_to ?? "").trim();
+      if (dirty) writes.remember(`/episodes/${episode.id}/triage`, episode.triage_version);
+      else writes.forget(`/episodes/${episode.id}/triage`);
       setTriageSaved(false);
       setTriageError("");
     }}>
@@ -867,6 +880,8 @@ async function createClinicalOrder(
             value={dischargeNote}
             onChange={(event) => {
               setDischargeNote(event.target.value);
+              if (event.target.value.trim()) writes.remember(`/episodes/${episode.id}/discharge`, episode.clinical_version);
+              else writes.forget(`/episodes/${episode.id}/discharge`);
               onDischargeNoteChange?.(event.target.value);
             }}
             required

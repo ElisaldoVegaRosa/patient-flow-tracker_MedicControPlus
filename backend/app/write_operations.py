@@ -10,6 +10,7 @@ import sqlite3
 
 from fastapi import HTTPException, Request
 from pydantic import BaseModel
+from .concurrency import check_version
 
 _active = ContextVar("write_connection", default=None)
 
@@ -77,6 +78,7 @@ def atomic_write(connection_factory, detail=None):
                             result = json.loads(receipt["summary"])
                         connection.commit()
                         return result
+                check_version(connection, detail, request, user, payload)
                 result = endpoint(*args, **kwargs)
                 if key:
                     episode_id = result.get("id") if detail else None

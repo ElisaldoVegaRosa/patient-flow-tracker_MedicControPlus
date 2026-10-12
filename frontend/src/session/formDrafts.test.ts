@@ -58,4 +58,12 @@ describe('Política común de borradores', () => {
     vi.mocked(Date.now).mockReturnValue(now + RECOVERY_DURATION_MS);
     expect(store.forUser(doctor)).toBeNull();
   });
+  it('conserva la versión de edición y puede capturar la revisión explícita antes del 401', () => {
+    const store = new FormDraftRecovery();
+    store.track(doctor, { kind: 'discharge', episodeId: 42, baseVersion: 'old', fields: { note: 'Ficticio' } });
+    store.suspend(() => 'reviewed');
+    expect(store.forUser(doctor)?.drafts[0]).toMatchObject({ baseVersion: 'reviewed', fields: { note: 'Ficticio' } });
+    store.suspend(() => 'another-session');
+    expect(store.forUser(doctor)?.drafts[0].baseVersion).toBe('reviewed');
+  });
 });

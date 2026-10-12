@@ -5,8 +5,37 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 55: protección contra conflictos entre sesiones
+
+- Alcance transversal autorizado e implementado localmente. Mantiene el acceso
+  simultáneo y los registros nuevos independientes (evaluaciones, signos y órdenes).
+- Versiones opacas por triaje, tarea y alerta; versión clínica para alta. Se
+  calculan desde el estado persistido y su historial, sin migración ni columnas
+  nuevas. Escanear/consultar no cambia la versión clínica.
+- Nuevas escrituras de triaje, alta, tareas y alertas requieren `If-Match`:
+  ausencia devuelve 428; versión desactualizada devuelve 409 estructurado.
+  Se comprueba dentro de `BEGIN IMMEDIATE`, con rollback de efectos y recibos.
+- Un recibo confirmado de 53 se reconoce antes de comprobar la versión; no
+  repite efectos aunque el episodio haya cambiado después. Permisos actuales
+  continúan siendo obligatorios.
+- Interfaz común: conserva campos, bloquea el reenvío del recurso en conflicto,
+  consulta datos actuales y exige revisión explícita. Revisar no escribe;
+  guardar requiere otra acción. Episodio cerrado/tarea completada/alerta resuelta
+  no admiten continuar por este flujo.
+- Recuperación de 54 conserva la versión original del borrador; no la renueva
+  automáticamente al reautenticar. El cliente distingue intención y versión,
+  reutiliza ambas ante respuesta perdida y protege respuestas tardías.
+- Validación: 140 pruebas backend (ocho nuevas, una advertencia existente),
+  271 frontend (12 nuevas), lint y build aprobados. Backend con Python de
+  `.venv` y `--basetemp .tmp/pytest-55-full`; frontend con `--maxWorkers=1`
+  y temporales locales.
+- Commit/push autorizados por el usuario; publicación y CI pendientes. Política: [escrituras](WRITE_OPERATIONS.md).
+
 ## Etapa 54: recuperación común de formularios tras HTTP 401
 
+- Prueba funcional directa de recuperación confirmada satisfactoria por el
+  usuario. Se registra la observación de acceso simultáneo desde dos sesiones;
+  no se ha implementado una protección nueva contra conflictos.
 - Implementación transversal publicada para ingreso, triaje, signos,
   evaluación, órdenes, resultado LAB y nota de alta. Integra la recuperación
   anterior de alta en el mismo almacén/hook, con captura común de campos.

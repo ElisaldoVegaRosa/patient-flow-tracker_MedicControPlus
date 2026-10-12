@@ -1,4 +1,5 @@
 from ..write_operations import atomic_write, transaction_factory
+from ..concurrency import task_version
 from collections.abc import Callable
 import sqlite3
 from typing import Literal
@@ -120,6 +121,8 @@ def create_router(
         ).fetchall()
 
         orders = [dict(row) for row in rows]
+        for order in orders:
+            order["version"] = task_version(order)
         connection.close()
 
         return {
