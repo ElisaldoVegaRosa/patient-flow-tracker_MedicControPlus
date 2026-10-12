@@ -1211,10 +1211,11 @@ suite de 290 y comprobaciones finales dirigidas aprobadas (293 casos distintos),
 lint y build aprobados; CI `38276196805` aprobada. Prueba directa de
 interrupción y reintento confirmada satisfactoria por el usuario. Etapa 56
 cerrada dentro del alcance. Cierre documental autorizado para publicación.
-Etapa 57 autorizada e implementada localmente: actualización común entre
-sesiones; frontend 309 pruebas, lint y build aprobados. Prueba directa de conflicto
-confirmada por el usuario. Siguiente paso: autorización específica para commit/push
-y comprobación de CI.
+Etapa 57 cerrada y publicada: actualización común entre sesiones; frontend
+309 pruebas, lint y build aprobados. Prueba directa de conflicto confirmada por
+el usuario. Commit `e51acdc3fdff70c07b58de183f0a5b9a78156948` y CI
+`38284664050` aprobada. Siguiente paso: acordar la próxima necesidad funcional.
+No hay otra entrega funcional autorizada.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
@@ -1304,7 +1305,7 @@ y comprobación de CI.
 
 ## Etapa 57: actualización común entre sesiones
 
-- Implementación local autorizada: un mecanismo compartido actualiza dashboard,
+- Alcance autorizado y publicado: un mecanismo compartido actualiza dashboard,
   supervisor, bandeja LAB y episodio abierto cada 15 segundos tras finalizar la
   consulta anterior; solo consulta la pantalla activa y visible. Al regresar a
   la pestaña vuelve a consultar; no usa WebSocket ni bloquea otras sesiones.
@@ -1325,8 +1326,10 @@ y comprobación de CI.
 - Prueba directa entre sesiones confirmada por el usuario: se mostró el aviso
   de datos modificados durante la edición y se conservaron los campos locales.
   Esta confirmación no acredita todavía aceptar los cambios y volver a guardar.
-- Commit y push autorizados por el usuario; pendiente publicar y comprobar CI.
-  Etapa 57 todavía abierta hasta completar la publicación.
+- Publicada en `e51acdc3fdff70c07b58de183f0a5b9a78156948`;
+  CI `38284664050` aprobada: backend, frontend, lint y build.
+- Etapa 57 cerrada dentro del alcance acordado. Cierre documental incluido
+  en la publicación autorizada; la revisión explícita de conflictos sigue disponible.
 
 ## Fuentes
 
