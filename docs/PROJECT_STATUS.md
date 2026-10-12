@@ -28,7 +28,14 @@
   Frontend: suite completa de 290 pruebas aprobada y comprobaciones finales
   dirigidas aprobadas (22 casos nuevos en total; 293 casos distintos cubiertos).
   Lint y build aprobados. No se repite backend tras cambios solo frontend.
-- Commit/push de 56 autorizados por el usuario; publicación y CI pendientes.
+- Publicada en `3a5d67c341f9cfebf06ca5d7b3a9e8f32d2231bb`;
+  CI `38276196805` aprobada: backend, frontend, lint y build.
+- Prueba directa de interrupción y reintento confirmada satisfactoria por el
+  usuario: API detenida antes del envío, resultado por confirmar, consulta
+  y reintento explícito; guardado confirmado sin otro registro.
+  Confirmación manual de este flujo. La respuesta perdida después de guardar
+  conserva su cobertura automatizada; no se atribuye a esta prueba manual.
+- Etapa 56 cerrada dentro del alcance acordado.
 
 ### Etapa 55: protección contra conflictos entre sesiones
 
@@ -1331,10 +1338,13 @@ ESCALATED → RESOLVED
 ## Próximo paso recomendado
 
 Etapa 55 cerrada: implementación y cierre documental publicados; CI aprobada.
-Etapa 56 autorizada e implementada localmente como una entrega transversal
+Etapa 56 implementada y publicada como una entrega transversal
 para revisar resultados inciertos. Backend: 143 pruebas aprobadas; frontend:
 suite de 290 y comprobaciones finales dirigidas aprobadas (293 casos distintos),
-lint y build aprobados. Commit/push autorizados; publicar y comprobar CI.
+lint y build aprobados; CI `38276196805` aprobada. Prueba directa de
+interrupción y reintento confirmada satisfactoria por el usuario. Etapa 56
+cerrada dentro del alcance. Cierre documental autorizado para publicación.
+Siguiente paso: acordar la próxima necesidad funcional.
 No hay otra entrega funcional autorizada.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo

@@ -31,7 +31,14 @@ las verificaciones realizadas y el estado de cada etapa.
   Frontend: suite completa de 290 pruebas aprobada y comprobaciones finales
   dirigidas aprobadas (22 casos nuevos en total; 293 casos distintos cubiertos).
   Lint y build aprobados. No se repite backend tras cambios solo frontend.
-- Commit/push de 56 autorizados por el usuario; publicación y CI pendientes.
+- Publicada en `3a5d67c341f9cfebf06ca5d7b3a9e8f32d2231bb`;
+  CI `38276196805` aprobada: backend, frontend, lint y build.
+- Prueba directa de interrupción y reintento confirmada satisfactoria por el
+  usuario: API detenida antes del envío, resultado por confirmar, consulta
+  y reintento explícito; guardado confirmado sin otro registro.
+  Confirmación manual de este flujo. La respuesta perdida después de guardar
+  conserva su cobertura automatizada; no se atribuye a esta prueba manual.
+- Etapa 56 cerrada dentro del alcance acordado.
 
 ## Etapa 55: protección contra conflictos entre sesiones
 
