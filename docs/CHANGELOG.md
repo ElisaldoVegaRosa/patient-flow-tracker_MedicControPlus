@@ -40,8 +40,10 @@ las verificaciones realizadas y el estado de cada etapa.
 - Prueba directa completada por el usuario: intento sin conexión, recuperación
   del aviso tras recargar, resultado sin confirmación, revisión manual conservada
   tras otra recarga y retirada explícita del aviso revisado.
-- Pendiente: autorización específica para commit/push y comprobación de CI.
-  Etapa 58 validada localmente, todavía sin publicar.
+- Entrega publicada: commit `498e5569bd06f0a342bd021a0b4259574eacb1c2`;
+  CI `38292624235` aprobada: backend, frontend, lint y build.
+  Etapa 58 cerrada dentro de este alcance. Cierre documental incluido
+  en la publicación autorizada; próximas implementaciones requieren autorización.
 
 ## Etapa 57: actualización común entre sesiones
 

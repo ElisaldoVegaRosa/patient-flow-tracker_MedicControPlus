@@ -37,8 +37,10 @@
 - Prueba directa completada por el usuario: intento sin conexión, recuperación
   del aviso tras recargar, resultado sin confirmación, revisión manual conservada
   tras otra recarga y retirada explícita del aviso revisado.
-- Pendiente: autorización específica para commit/push y comprobación de CI.
-  Etapa 58 validada localmente, todavía sin publicar.
+- Entrega publicada: commit `498e5569bd06f0a342bd021a0b4259574eacb1c2`;
+  CI `38292624235` aprobada: backend, frontend, lint y build.
+  Etapa 58 cerrada dentro de este alcance. Cierre documental incluido
+  en la publicación autorizada; próximas implementaciones requieren autorización.
 
 ### Etapa 57: actualización común entre sesiones
 
@@ -1413,10 +1415,11 @@ cerrada dentro del alcance. Cierre documental autorizado para publicación.
 Etapa 57 cerrada y publicada: actualización común entre sesiones; frontend
 309 pruebas, lint y build aprobados. Prueba directa de conflicto confirmada por
 el usuario. Commit `e51acdc3fdff70c07b58de183f0a5b9a78156948` y CI
-`38284664050` aprobada. Etapa 58 autorizada e implementada localmente para
-revisar envíos tras recarga o reinicio. Frontend: 341 pruebas, lint y build
-aprobados; prueba directa completada por el usuario. Siguiente paso:
-autorizar commit/push de la entrega y comprobar su CI.
+`38284664050` aprobada. Etapa 58 cerrada y publicada para revisar envíos
+tras recarga o reinicio. Frontend: 341 pruebas, lint y build aprobados;
+prueba directa completada por el usuario. Commit
+`498e5569bd06f0a342bd021a0b4259574eacb1c2` y CI `38292624235` aprobada.
+Siguiente paso: revisar y acordar el alcance de la próxima mejora transversal.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;
