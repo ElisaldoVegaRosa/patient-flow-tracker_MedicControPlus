@@ -15,6 +15,7 @@ export function usePendingOperations() {
       setPending(new Set(locks.current.keys()));
     };
   }, []);
-  return { start, isPending: (key: string) => pending.has(key) };
+  const hasPending = useCallback(() => locks.current.size > 0, []);
+  return { start, hasPending, isPending: (key: string) => pending.has(key) };
 }
 export type PendingOperations = ReturnType<typeof usePendingOperations>;

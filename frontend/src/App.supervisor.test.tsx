@@ -76,15 +76,16 @@ describe("Centro de control del supervisor", () => {
     ]);
   });
 
-  it("Actualizar indicadores consulta y restablece el filtro Todos sin evaluar reglas", async () => {
+  it("Actualizar indicadores consulta y conserva el filtro sin evaluar reglas", async () => {
     const { user, fetchMock } = await setup();
     await user.click(screen.getByRole("button", { name: "Panel de supervisor" }));
     await screen.findByRole("heading", { name: "Centro de control del supervisor" });
     await user.click(screen.getByRole("button", { name: "En riesgo" }));
     const before = fetchMock.mock.calls.length;
     await user.click(screen.getByRole("button", { name: "Actualizar indicadores" }));
-    expect(await screen.findByRole("row", { name: /Paciente ficticio 81/ })).toBeVisible();
-    expect(screen.getByRole("button", { name: "Todos" })).toHaveClass("active-filter");
+    expect(await screen.findByRole("row", { name: /Paciente ficticio 82/ })).toBeVisible();
+    expect(screen.queryByRole("row", { name: /Paciente ficticio 81/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "En riesgo" })).toHaveClass("active-filter");
     expect(fetchMock.mock.calls.slice(before)).toEqual([
       ["http://localhost:8000/supervisor/dashboard", expect.any(Object)],
     ]);

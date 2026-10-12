@@ -2,6 +2,8 @@ const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export const SESSION_EXPIRED_EVENT = "mediccontrol:session-expired";
 let sessionRevision = 0;
+let writeRevision = 0;
+export const getWriteRevision = () => writeRevision;
 // Ambiguous writes stay in memory only until explicit retry or session change.
 const writeIntents = new Map<string, { key: string; createdAt: number }>();
 const replayWindow = 24 * 60 * 60 * 1000;
@@ -42,6 +44,7 @@ export async function retryWrite(key: string): Promise<unknown> {
 export function confirmWrite(key: string) {
   const pending = uncertainWrites.get(key);
   if (!pending) return;
+  writeRevision++;
   if (writeIntents.get(pending.intent)?.key === key) writeIntents.delete(pending.intent);
   uncertainWrites.delete(key);
   window.dispatchEvent(new CustomEvent(WRITE_CONFIRMED_EVENT, { detail: pending.path }));
@@ -108,7 +111,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   const isCurrent = () => revision === sessionRevision &&
     (login || token === localStorage.getItem("token"));
   const writeTicket = Symbol();
-  if (protectedWrite) activeWrites.set(writeTicket, revision);
+  if (protectedWrite) { writeRevision++; activeWrites.set(writeTicket, revision); }
 
   try {
     const response = await fetch(`${API}${path}`, {

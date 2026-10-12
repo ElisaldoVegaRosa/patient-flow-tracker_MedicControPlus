@@ -342,8 +342,10 @@ async function createClinicalOrder(
     </p>
 
     <form data-draft-kind="triage" data-episode-id={episode.id} data-draft-version={episode.triage_version} className="form-grid" onSubmit={registerTriage} onChange={(event) => {
-      const form = new FormData(event.currentTarget);
-      const dirty = Number(form.get("priority")) !== episode.priority || form.get("location") !== episode.location || String(form.get("assigned_to") ?? "").trim() !== (episode.assigned_to ?? "").trim();
+      const dirty = [...event.currentTarget.elements].some(element => {
+        if (element instanceof HTMLSelectElement) return element.value !== ([...element.options].find(option => option.defaultSelected)?.value ?? element.options[0]?.value ?? "");
+        return element instanceof HTMLInputElement && element.value.trim() !== element.defaultValue.trim();
+      });
       if (dirty) writes.remember(`/episodes/${episode.id}/triage`, episode.triage_version);
       else writes.forget(`/episodes/${episode.id}/triage`);
       setTriageSaved(false);
@@ -893,6 +895,7 @@ async function createClinicalOrder(
           <label htmlFor="discharge-note">Nota de alta</label>
           <textarea
             id="discharge-note"
+            name="note"
             value={dischargeNote}
             onChange={(event) => {
               setDischargeNote(event.target.value);

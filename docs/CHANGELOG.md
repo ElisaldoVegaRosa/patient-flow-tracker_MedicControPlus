@@ -5,6 +5,32 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 57: actualización común entre sesiones
+
+- Implementación local autorizada: un mecanismo compartido actualiza dashboard,
+  supervisor, bandeja LAB y episodio abierto cada 15 segundos tras finalizar la
+  consulta anterior; solo consulta la pantalla activa y visible. Al regresar a
+  la pestaña vuelve a consultar; no usa WebSocket ni bloquea otras sesiones.
+- Consultas manuales y automáticas de la pantalla activa comparten el bloqueo.
+  Pausa durante envíos y descarta respuestas tras navegación, cambio de sesión,
+  pestaña oculta o una escritura iniciada después de la lectura.
+- Conserva campos editados y sus versiones originales; actualiza triaje limpio
+  y mantiene el filtro del supervisor. No acepta conflictos ni reenvía operaciones.
+- Si otro usuario cierra el episodio o retira una orden pendiente, muestra el
+  estado actualizado y conserva el texto local para copiarlo, sin botón de envío.
+  El texto solo vive en memoria mientras se permanezca en esa pantalla.
+- Un fallo conserva los datos anteriores, avisa que pueden estar desactualizados
+  y permite reintentar. Historial, escaneo e ingreso quedan fuera del sondeo.
+- Validación final: suite completa frontend de 309 pruebas aprobada (16 casos
+  nuevos), comprobación dirigida final de 6 casos aprobada, lint y build aprobados.
+  Backend sin cambios: 143 pruebas y CI de 56 aprobadas, sin repetirlas.
+  Datos de demostración conservados; API y frontend responden HTTP 200.
+- Prueba directa entre sesiones confirmada por el usuario: se mostró el aviso
+  de datos modificados durante la edición y se conservaron los campos locales.
+  Esta confirmación no acredita todavía aceptar los cambios y volver a guardar.
+- Commit y push autorizados por el usuario; pendiente publicar y comprobar CI.
+  Etapa 57 todavía abierta hasta completar la publicación.
+
 ## Etapa 56: revisión común de resultados inciertos
 
 - Alcance transversal autorizado e implementado localmente para POST/PATCH

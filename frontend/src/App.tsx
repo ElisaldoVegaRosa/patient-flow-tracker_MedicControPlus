@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
 import { usePendingOperations } from "./hooks/usePendingOperations";
+import { useLiveRefresh } from "./hooks/useLiveRefresh";
 import { useVersionedWrites } from "./hooks/useVersionedWrites";
 import WriteConflicts from "./components/WriteConflicts";
 import UncertainWrites from "./components/UncertainWrites";
+import RetainedDrafts from "./components/RetainedDrafts";
 import {
   api, establishSession, getSessionRevision, invalidateSession,
   isSessionInterruption, SESSION_EXPIRED_EVENT, VersionConflictError,
@@ -12,6 +14,7 @@ import {
 import { useFormRecovery } from "./session/useFormRecovery";
 import { matchesSubmittedFields } from "./session/submittedFields";
 import type { DraftKind, FormDraft } from "./session/formDrafts";
+type VisibleDraft = FormDraft & { defaults?: Record<string, string> };
 import { useUnsavedDischargeNote } from "./session/useUnsavedDischargeNote";
 import EpisodeHistoryPage from "./pages/EpisodeHistoryPage";
 import ScanPage from "./pages/ScanPage";
@@ -61,17 +64,80 @@ function App() {
   const { clear: clearDraft, suspend: suspendRecovery } = recovery;
   const leave = useUnsavedDischargeNote();
   const { clear: clearLeave, track: trackLeave } = leave;
-  const [restoredForms, setRestoredForms] = useState<FormDraft[]>([]);
+  const [restoredForms, setRestoredForms] = useState<VisibleDraft[]>([]);
   const applyRestoration = useRef(false);
   const clearRecovery = useCallback(() => {
     clearDraft();
     clearLeave();
     clearWrites();
     setRestoredForms([]);
+    setRetainedDrafts([]);
     applyRestoration.current = false;
   }, [clearDraft, clearLeave, clearWrites]);
   const [recoveredNote, setRecoveredNote] = useState("");
   const draftRoot = useRef<HTMLDivElement>(null);
+  const [retainedDrafts, setRetainedDrafts] = useState<FormDraft[]>([]);
+
+  function visibleDrafts(): VisibleDraft[] {
+    return [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-draft-kind]") ?? [])].filter(form => [...form.elements].some(element => {
+      if (form.dataset.draftKind === "discharge" && element instanceof HTMLTextAreaElement) return Boolean(element.value.trim());
+      if (element instanceof HTMLSelectElement) return element.value !== ([...element.options].find(option => option.defaultSelected)?.value ?? element.options[0]?.value ?? "");
+      return (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) && element.value !== element.defaultValue;
+    })).map(form => ({
+      kind: form.dataset.draftKind as DraftKind,
+      episodeId: form.dataset.episodeId ? Number(form.dataset.episodeId) : undefined,
+      taskId: form.dataset.taskId ? Number(form.dataset.taskId) : undefined,
+      fields: Object.fromEntries([...form.elements].filter((element): element is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement => element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement).filter(element => element.name).map(element => [element.name, element.value])),
+      defaults: Object.fromEntries([...form.elements].filter((element): element is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement => element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement).filter(element => element.name).map(element => [element.name, element instanceof HTMLSelectElement ? [...element.options].find(option => option.defaultSelected)?.value ?? element.options[0]?.value ?? "" : element.defaultValue])),
+    }));
+  }
+
+  const liveReady = page === "dashboard" ? dashboard : page === "supervisor" ? supervisorData : page === "laboratory" ? laboratoryQueue : page === "episode" ? episode : null;
+  const liveContext = user && liveReady
+    ? `${getSessionRevision()}:${user.username}:${user.role}:${page}:${page === "episode" ? episode?.id ?? "" : ""}` : null;
+  const live = useLiveRefresh({
+    context: liveContext,
+    paused: () => operations.hasPending() || leave.confirming || recovery.status === "checking",
+    load: async signal => {
+      if (page === "dashboard") {
+        const result = await api<DashboardData>("/dashboard", { signal });
+        return () => setDashboard(result);
+      }
+      if (page === "supervisor") {
+        const result = await api<SupervisorData>("/supervisor/dashboard", { signal });
+        return () => setSupervisorData(result);
+      }
+      if (page === "laboratory") {
+        const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING", { signal });
+        return () => {
+          const drafts = visibleDrafts();
+          const removed = drafts.filter(draft => draft.kind === "lab" && !result.orders.some(order => order.id === draft.taskId) && Object.values(draft.fields).some(value => value.trim()));
+          setRetainedDrafts(previous => [...previous.filter(draft => !removed.some(item => item.taskId === draft.taskId)), ...removed]);
+          applyRestoration.current = true;
+          setRestoredForms(drafts.filter(draft => result.orders.some(order => order.id === draft.taskId)));
+          setLaboratoryQueue(result);
+        };
+      }
+      if (page === "episode" && episode) {
+        const result = await api<Episode>(`/episodes/${episode.id}`, { signal });
+        return () => {
+          const drafts = visibleDrafts();
+          if (!drafts.some(draft => draft.kind === "triage") && result.status === "ACTIVE") {
+            const fields = { priority: String(result.priority), location: result.location, assigned_to: result.assigned_to ?? "" };
+            drafts.push({ kind: "triage", episodeId: result.id, fields, defaults: fields });
+          }
+          if (result.status === "CLOSED" && episode.status !== "CLOSED") {
+            setRetainedDrafts(drafts.filter(draft => Object.values(draft.fields).some(value => value.trim())));
+          }
+          // Never adopt a new write baseline: dirty drafts retain their original version.
+          applyRestoration.current = true;
+          setRestoredForms(drafts);
+          setEpisode(result);
+        };
+      }
+      return () => {};
+    },
+  });
 
   function captureDraft(event: FormEvent<HTMLDivElement>) {
     if (!user || !(event.target instanceof HTMLElement)) return;
@@ -94,7 +160,7 @@ function App() {
     recovery.trackForm(user, { kind, episodeId, taskId, baseVersion, fields }, dirty);
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!applyRestoration.current || !user || !restoredForms.length || !draftRoot.current) return;
     for (const draft of restoredForms) {
       if (draft.kind === "discharge") continue;
@@ -103,7 +169,14 @@ function App() {
       if (!form) continue;
       for (const [name, value] of Object.entries(draft.fields)) {
         const element = form.elements.namedItem(name);
-        if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) element.value = value;
+        if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) {
+          const original = draft.defaults?.[name];
+          if (original !== undefined) {
+            if (element instanceof HTMLSelectElement) for (const option of element.options) option.defaultSelected = option.value === original;
+            else element.defaultValue = original;
+          }
+          element.value = value;
+        }
       }
     }
     applyRestoration.current = false;
@@ -166,6 +239,7 @@ function App() {
       setEpisode(updated);
       setPage("episode");
       setRestoredForms([]);
+      setRetainedDrafts([]);
       void loadDashboard();
     } else if ((page === "episode" && episode?.id === updated.id) || page === "laboratory") {
       reviewChanges(updated, savedForm);
@@ -183,6 +257,7 @@ function App() {
       clearLeave();
       setRecoveredNote("");
       setRestoredForms([]);
+      setRetainedDrafts([]);
       setUser(null);
       setEpisode(null);
       setDashboard(null);
@@ -588,14 +663,14 @@ async function logout() {
     <div style={{ display: "contents" }} ref={draftRoot} onChangeCapture={captureDraft}>
       <AppHeader
         user={user}
-        onDashboard={() => leave.run(() => {
+        onDashboard={() => page === "dashboard" ? void live.refresh() : leave.run(() => {
           navigate("dashboard");
           void loadDashboard();
         })}
-        onSupervisor={async () => leave.run(() => { void openSupervisorDashboard(); })}
+        onSupervisor={async () => page === "supervisor" ? await live.refresh() : leave.run(() => { void openSupervisorDashboard(); })}
         onScan={() => leave.run(() => navigate("scan"))}
         onHistory={async () => leave.run(() => { void openEpisodeHistory(); })}
-        onLaboratory={async () => leave.run(() => { void openLaboratoryQueue(); })}
+        onLaboratory={async () => page === "laboratory" ? await live.refresh() : leave.run(() => { void openLaboratoryQueue(); })}
         onNewEpisode={() => leave.run(() => navigate("new"))}
         onLogout={async () => leave.run(() => { void logout(); })}
       />
@@ -641,11 +716,18 @@ async function logout() {
         }
       }} />
       {writeNotice && <p role="status">{writeNotice}</p>}
+      {liveContext && (
+        <section className="panel" aria-label="Actualización entre sesiones">
+          {live.error ? <p role="alert">No se pudieron actualizar los datos. La información puede estar desactualizada. {live.error}</p> : <p>Actualización automática cada 15 segundos mientras esta pestaña esté visible.{live.updated ? ` Última actualización: ${new Date(live.updated).toLocaleTimeString()}.` : ""}</p>}
+          {live.error && <button type="button" onClick={live.refresh}>Reintentar actualización</button>}
+        </section>
+      )}
+      <RetainedDrafts drafts={retainedDrafts} />
 
       {page === "dashboard" && dashboard && (
         <DashboardPage
           dashboard={dashboard}
-          onRefresh={loadDashboard}
+          onRefresh={live.refresh}
           onOpenEpisode={async (id) => leave.run(() => { void openEpisode(id); })}
         />
       )}
@@ -671,7 +753,7 @@ async function logout() {
           loadingDemo={operations.isPending("demo")}
           onLoadDemo={loadDemoData}
           onEvaluateRules={evaluateTemporalRules}
-          onRefresh={openSupervisorDashboard}
+          onRefresh={live.refresh}
           onFilterChange={setSupervisorFilter}
           onOpenEpisode={async (id) => leave.run(() => { void openEpisode(id); })}
         />
@@ -680,7 +762,7 @@ async function logout() {
       {page === "laboratory" && laboratoryQueue && (
         <LaboratoryPage
           laboratoryQueue={laboratoryQueue}
-          onRefresh={openLaboratoryQueue}
+          onRefresh={live.refresh}
           isCompleting={(id) => operations.isPending(`task:${id}`)}
           onCompleteOrder={completeLaboratoryOrder}
         />
