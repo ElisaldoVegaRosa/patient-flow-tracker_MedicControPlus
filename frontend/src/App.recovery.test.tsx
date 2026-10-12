@@ -264,7 +264,7 @@ describe('Protección de orden clínica sin enviar', () => {
     if (failure === 'API') fetchMock.mockResolvedValueOnce(response({ detail: 'Error ficticio 42A' }, 422));
     else fetchMock.mockRejectedValueOnce(new Error('Error ficticio 42A'));
     await user.click(screen.getByRole('button', { name: 'Crear y asignar orden' }));
-    await screen.findByText(/Error ficticio 42A/);
+    for (const message of await screen.findAllByText(/Error ficticio 42A/)) expect(message).toBeVisible();
     expect(screen.getByLabelText('Orden o procedimiento solicitado')).toHaveValue(title);
     expect(screen.getByLabelText('Servicio responsable')).toHaveValue('NURSING');
     expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
@@ -383,7 +383,7 @@ describe('Protección de evaluación médica sin guardar', () => {
     if (failure === 'API') fetchMock.mockResolvedValueOnce(response({ detail: 'Error ficticio 41A' }, 422));
     else fetchMock.mockRejectedValueOnce(new Error('Error ficticio 41A'));
     await user.click(screen.getByRole('button', { name: 'Guardar evaluación médica' }));
-    await screen.findByText(/Error ficticio 41A/);
+    for (const message of await screen.findAllByText(/Error ficticio 41A/)) expect(message).toBeVisible();
     expect(screen.getByLabelText('Diagnóstico o impresión clínica')).toHaveValue(diagnosis);
     expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(false);
     await user.click(screen.getByRole('button', { name: 'Centro de control' }));

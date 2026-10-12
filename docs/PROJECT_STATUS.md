@@ -4,6 +4,11 @@
 
 ### Etapa 59: espera y cancelación comunes
 
+- Implementación publicada: `099f4f3df5dd0600c2fd06a821612987a7b872e7`.
+  CI inicial `38303379464` falló en siete pruebas por mensajes presentes tanto
+  en el banner como en el panel. Consultas de pruebas ajustadas sin cambiar el
+  producto: 99 pruebas dirigidas, lint/build aprobados. Corrección y cierre
+  documental incluidos en la publicación autorizada; CI final pendiente.
 - Alcance transversal autorizado e implementado localmente: un plazo de 30
   segundos cubre cabeceras y cuerpo de todas las solicitudes del cliente.
   Configurable con VITE_REQUEST_TIMEOUT_MS; valores inválidos usan 30000 ms.

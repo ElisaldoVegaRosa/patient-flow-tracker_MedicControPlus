@@ -102,7 +102,7 @@ it.each(flows.flatMap(flow => ["API", "red", "401"].map(failure => ({ flow, fail
     await screen.findByRole("button", { name: "Entrar" });
     expect(localStorage.getItem("token")).toBeNull();
   } else {
-    await screen.findByText(/Fallo ficticio 53A/);
+    for (const message of await screen.findAllByText(/Fallo ficticio 53A/)) expect(message).toBeVisible();
     expect(button).toBeEnabled();
     for (const [label, value] of flow.fields) expect(scope.getByLabelText(label)).toHaveValue(value);
     writes.mockResolvedValueOnce(response(flow.success));

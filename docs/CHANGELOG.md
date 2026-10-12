@@ -7,6 +7,10 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Etapa 59: espera y cancelación comunes
 
+- Publicación inicial `099f4f3df5dd0600c2fd06a821612987a7b872e7`;
+  CI `38303379464` falló en siete pruebas que esperaban un único mensaje de
+  error. Ajustadas para comprobar mensajes visibles en banner y panel;
+  99 pruebas dirigidas, lint/build aprobados. Sin cambio adicional del producto.
 - Implementación local autorizada: plazo común de 30 segundos para cabeceras
   y cuerpo; VITE_REQUEST_TIMEOUT_MS permite configurarlo. Sin reenvío automático.
 - Una escritura vencida conserva clave y referencia; puede consultarse o

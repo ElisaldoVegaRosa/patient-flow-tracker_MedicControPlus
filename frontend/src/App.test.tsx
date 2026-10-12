@@ -511,9 +511,7 @@ describe("Historial de episodios", () => {
         }),
         );
 
-        expect(
-        await screen.findByText(/no fue posible evaluar reglas/i),
-        ).toBeInTheDocument();
+        for (const message of await screen.findAllByText(/no fue posible evaluar reglas/i)) expect(message).toBeVisible();
     });
     });
 
