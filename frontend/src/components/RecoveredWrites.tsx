@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { bindWriteRecovery, confirmRecoveredWrite, forgetRecoveredWrite, getRecoveredWrites, getSessionRevision, getWriteRecoveryError, inspectRecoveredWrite, isSessionInterruption, refreshWriteRecovery, reviewRecoveredWrite, WRITE_RESULTS_EVENT } from "../api/client";
+import { bindWriteRecovery, getDamagedWriteReferences, inspectDamagedWriteReference, confirmRecoveredWrite, forgetRecoveredWrite, getRecoveredWrites, getSessionRevision, getWriteRecoveryError, inspectRecoveredWrite, isSessionInterruption, refreshWriteRecovery, reviewRecoveredWrite, WRITE_RESULTS_EVENT } from "../api/client";
 import { WRITE_REFERENCE_PREFIX } from "../session/writeReferences";
 import type { WriteKind, WriteReference } from "../session/writeReferences";
 import type { PendingOperations } from "../hooks/usePendingOperations";
@@ -15,6 +15,7 @@ export default function RecoveredWrites({ user, operations, onConfirmed }: {
 }) {
   const [pending, setPending] = useState(getRecoveredWrites);
   const [error, setError] = useState(getWriteRecoveryError);
+  const [damaged, setDamaged] = useState(getDamagedWriteReferences);
   const [messages, setMessages] = useState<Record<string, string>>({});
   const checked = useRef(new Set<string>());
   const mounted = useRef(true);
@@ -22,7 +23,7 @@ export default function RecoveredWrites({ user, operations, onConfirmed }: {
   useLayoutEffect(() => { callbacks.current = { operations, onConfirmed }; });
   useEffect(() => {
     mounted.current = true;
-    const update = () => { setPending(getRecoveredWrites()); setError(getWriteRecoveryError()); };
+    const update = () => { setPending(getRecoveredWrites()); setError(getWriteRecoveryError()); setDamaged(getDamagedWriteReferences()); };
     const storage = (event: StorageEvent) => { if (event.key === null || event.key.startsWith(WRITE_REFERENCE_PREFIX)) refreshWriteRecovery(); };
     window.addEventListener(WRITE_RESULTS_EVENT, update);
     window.addEventListener("storage", storage);
@@ -68,12 +69,35 @@ export default function RecoveredWrites({ user, operations, onConfirmed }: {
       if (!isSessionInterruption(exception)) setMessages(previous => ({ ...previous, [item.key]: "No se pudo guardar la revisión local. La referencia se conserva." }));
     }
   }
-  if (error) return <section className="panel" aria-label="Registro de envíos no disponible">
-    <p role="alert">{error}</p><p>Las consultas siguen disponibles. Las nuevas operaciones están bloqueadas para evitar perder su referencia.</p>
-    <button type="button" onClick={() => { void bindWriteRecovery(user).catch(() => {}); }}>Reintentar cargar referencias</button>
-  </section>;
-  if (!pending.length) return null;
-  return <section className="panel" aria-label="Envíos recuperados por revisar">
+  async function inspectDamage(key: string) {
+    const release = callbacks.current.operations.start(`damaged-write:${key}`);
+    if (!release) return;
+    const revision = getSessionRevision();
+    try {
+      const result = await inspectDamagedWriteReference(key);
+      if (!mounted.current || revision !== getSessionRevision()) return;
+      if (result.status === "confirmed") callbacks.current.onConfirmed();
+      else setMessages(previous => ({ ...previous, [key]: "Sin confirmación. La referencia se conserva y las nuevas operaciones siguen bloqueadas." }));
+    } catch (exception) {
+      if (mounted.current && revision === getSessionRevision() && !isSessionInterruption(exception)) setMessages(previous => ({ ...previous, [key]: "No se pudo confirmar la referencia. Puede haber cambiado durante la consulta; se conserva. Vuelve a consultar." }));
+    } finally { release(); }
+  }
+  if (!error && !pending.length) return null;
+  return <>
+    {error && <section className="panel" aria-label="Registro de envíos no disponible">
+      <p role="alert">{error}</p>
+      <p>Las consultas siguen disponibles. Las nuevas operaciones están bloqueadas para evitar perder su referencia.</p>
+      <button type="button" onClick={() => { void bindWriteRecovery(user).catch(() => {}); }}>Reintentar cargar referencias</button>
+      {damaged.map((item, index) => <article key={item.key}>
+        <h3>Referencia dañada · {index + 1}</h3>
+        {item.consultable ? <>
+          <p>Se conservan su identificador y propietario. Consultar no vuelve a enviar; solo una confirmación del servidor permite retirar esta referencia dañada.</p>
+          <button type="button" disabled={operations.isPending(`damaged-write:${item.key}`)} onClick={() => void inspectDamage(item.key)}>Consultar referencia dañada</button>
+        </> : <p>No se pueden verificar su identificador o propietario. Se conserva sin consultar ni eliminar. Solicita revisión del almacenamiento local; no borres los datos del navegador para desbloquear envíos.</p>}
+        {messages[item.key] && <p role="status">{messages[item.key]}</p>}
+      </article>)}
+    </section>}
+    {pending.length > 0 && <section className="panel" aria-label="Envíos recuperados por revisar">
     <h2>Envíos anteriores por revisar</h2>
     <p>Se conservó su identificador tras recargar o cambiar de sesión. Consultar no vuelve a enviar. El contenido original ya no está disponible para reintentarlo.</p>
     {pending.some(item => !item.reviewed) && <p>Revisa estos envíos antes de crear otra operación. Puedes consultar los registros del sistema.</p>}
@@ -83,9 +107,10 @@ export default function RecoveredWrites({ user, operations, onConfirmed }: {
       {item.reviewed && <p>Revisión manual registrada. El resultado sigue sin confirmar; esta revisión no demuestra que el envío haya fallado.</p>}
       <button type="button" disabled={operations.isPending(operationKey(item.key))} onClick={() => void inspect.current(item)}>Consultar resultado anterior</button>
       {!item.reviewed ? <>
-        <p>Marca la revisión solo después de comprobar los registros. Habilitar nuevos envíos puede duplicar una operación si la anterior termina más tarde.</p>
-        <button type="button" disabled={operations.isPending(operationKey(item.key))} onClick={() => manual(item, false)}>He revisado los registros; habilitar nuevos envíos</button>
+        <p>Marca la revisión solo después de comprobar los registros. Habilitar nuevos envíos puede duplicar una operación si la anterior termina más tarde. {error && "La revisión de este envío no elimina el bloqueo por referencias dañadas."}</p>
+        <button type="button" disabled={operations.isPending(operationKey(item.key))} onClick={() => manual(item, false)}>{error ? "He revisado los registros de este envío" : "He revisado los registros; habilitar nuevos envíos"}</button>
       </> : <button type="button" disabled={operations.isPending(operationKey(item.key))} onClick={() => manual(item, true)}>Retirar aviso revisado</button>}
     </article>)}
-  </section>;
+  </section>}
+  </>;
 }

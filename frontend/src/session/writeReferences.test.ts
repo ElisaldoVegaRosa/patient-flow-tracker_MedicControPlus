@@ -52,3 +52,32 @@ it.each(["{", JSON.stringify({ owner, kind: "evaluation", createdAt: 0, reviewed
   expect(() => new WriteReferences(localStorage).list(owner)).toThrow();
   expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + key)).toBe(raw);
 });
+
+it("separa referencias sanas, daño propio y daño sin propietario sin exponer contenido", () => {
+  const store = new WriteReferences(localStorage);
+  store.remember(reference);
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key + "-damage", JSON.stringify({ owner, kind: "evaluation", createdAt: 0, reviewed: false }));
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key + "-unknown", "{");
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key + "-other", JSON.stringify({ owner: other, createdAt: 0 }));
+  expect(store.scan(owner).references).toEqual([reference]);
+  expect(store.scan(owner).damaged.map(({ key, consultable }) => ({ key, consultable }))).toEqual([
+    { key: key + "-damage", consultable: true }, { key: key + "-unknown", consultable: false },
+  ]);
+  store.review(owner, key);
+  store.remove(owner, key);
+  expect(store.scan(owner).references).toEqual([]);
+  expect(store.scan(owner).damaged).toHaveLength(2);
+});
+it("no retira daño cambiado ni daño de otro propietario", () => {
+  const store = new WriteReferences(localStorage);
+  const raw = JSON.stringify({ owner, createdAt: 0 });
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key, raw);
+  expect(() => store.removeConfirmedDamage(other, key, raw)).toThrow();
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key, raw + " ");
+  expect(() => store.removeConfirmedDamage(owner, key, raw)).toThrow("cambió");
+  expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + key)).toBe(raw + " ");
+});
+it("un identificador inválido nunca es consultable", () => {
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + "invalid", JSON.stringify({ owner }));
+  expect(new WriteReferences(localStorage).scan(owner).damaged[0].consultable).toBe(false);
+});

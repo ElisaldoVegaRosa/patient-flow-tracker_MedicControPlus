@@ -2,6 +2,32 @@
 
 ## Última etapa
 
+### Etapa 60: recuperación del registro local dañado
+
+- Implementación local autorizada: lectura separada de referencias válidas y
+  dañadas, común a todos los envíos operacionales. Una entrada dañada deja de
+  ocultar las referencias sanas y sus consultas de recibo.
+- Consulta explícita por GET de daño con clave válida y propietario de la sesión
+  verificado. Solo una confirmación del servidor retira esa entrada, comprobando
+  antes que no cambió desde el comienzo de la consulta. Nunca reenvía el contenido.
+- Sin confirmación, error, cambio de sesión o modificación en otra pestaña:
+  conserva la referencia. Daño sin clave/propietario verificable conserva el
+  bloqueo y ofrece orientación; no se atribuye al usuario ni se elimina.
+- Revisar una referencia sana no habilita envíos mientras exista daño. No hay
+  borrado masivo, migración de almacenamiento, persistencia clínica adicional,
+  cambios backend ni modificación de datos locales.
+- Validación final: 375 pruebas frontend (35 archivos, 12 casos nuevos), lint
+  y build aprobados. Suite con un trabajador fuera del sandbox por un fallo de
+  lectura de temporales. Una ejecución intermedia mezcló el panel cargado antes
+  del ajuste de texto y su prueba posterior (374/375); la ejecución final pasó
+  completa sin ampliar tiempos. Backend conserva la validación aprobada de 59.
+- Prueba directa aprobada por el usuario: tras alterar solo createdAt de una
+  referencia ficticia, la consulta confirmó el envío anterior; desapareció la
+  referencia dañada y el historial mostró una sola evaluación de ese intento.
+  La interfaz informó que conservó los campos actuales, sin reenviar.
+- Commit/push y comprobación de CI autorizados por el usuario, incluida la
+  documentación. Publicación y CI pendientes; cierre documental incluido.
+
 ### Etapa 59: espera y cancelación comunes
 
 - Implementación publicada: `099f4f3df5dd0600c2fd06a821612987a7b872e7`.
@@ -1466,7 +1492,9 @@ Etapa 59 autorizada e implementada localmente: espera y cancelación comunes,
 con plazo configurable de 30 segundos. Frontend: 362 pruebas, lint y build
 aprobados, más el caso nuevo del ajuste de mensaje (363 distintos).
 Prueba directa completa confirmada y CI `38303904910` aprobada. Etapa 59 cerrada.
-Siguiente paso: acordar el alcance de la próxima mejora transversal.
+Etapa 60 autorizada e implementada localmente: recuperación del registro dañado.
+Prueba directa de 60 aprobada por el usuario.
+Siguiente paso: publicar la entrega autorizada y comprobar CI.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

@@ -61,7 +61,7 @@ export async function bindWriteRecovery(user: SessionUser) {
     const owner = await writeReferenceOwner(API, user);
     if (revision !== sessionRevision || token !== localStorage.getItem("token") || binding !== recoveryBindingRevision) throw new SessionInterruptedError();
     referenceOwner = owner;
-    recoveredKeys = new Set(references().list(owner).map(item => item.key));
+    recoveredKeys = new Set(references().scan(owner).references.map(item => item.key));
     refreshWriteRecovery();
   } catch (error) {
     if (isSessionInterruption(error) || revision !== sessionRevision || binding !== recoveryBindingRevision) throw new SessionInterruptedError();
@@ -74,16 +74,36 @@ export async function bindWriteRecovery(user: SessionUser) {
 
 export function refreshWriteRecovery() {
   if (!referenceOwner) { notifyWrites(); return; }
-  try { if (referenceOwner) references().list(referenceOwner); referenceError = ""; }
+  try { referenceError = references().scan(referenceOwner).damaged.length ? "El registro local contiene referencias dañadas. Puedes consultar las referencias válidas; las nuevas operaciones siguen bloqueadas." : ""; }
   catch { referenceError = "No se puede leer el registro local de envíos. Revisa el almacenamiento antes de realizar otra operación."; }
   notifyWrites();
 }
 export const getWriteRecoveryError = () => referenceError;
 export function getRecoveredWrites(): WriteReference[] {
-  if (!referenceOwner || referenceError) return [];
+  if (!referenceOwner) return [];
   try {
-    return references().list(referenceOwner).filter(item => recoveredKeys.has(item.key) && !uncertainWrites.has(item.key) && ![...activeWrites.values()].some(active => active.revision === sessionRevision && active.owner === referenceOwner && active.key === item.key));
+    return references().scan(referenceOwner).references.filter(item => recoveredKeys.has(item.key) && !uncertainWrites.has(item.key) && ![...activeWrites.values()].some(active => active.revision === sessionRevision && active.owner === referenceOwner && active.key === item.key));
   } catch { return []; }
+}
+export function getDamagedWriteReferences(): { key: string; consultable: boolean }[] {
+  if (!referenceOwner) return [];
+  try { return references().scan(referenceOwner).damaged.map(({ key, consultable }) => ({ key, consultable })); }
+  catch { return []; }
+}
+export async function inspectDamagedWriteReference(key: string) {
+  const owner = referenceOwner;
+  const revision = sessionRevision;
+  if (!owner) throw new SessionInterruptedError();
+  const item = references().scan(owner).damaged.find(item => item.key === key && item.consultable);
+  if (!item) throw new SessionInterruptedError();
+  const response = await api<{ status: "unknown" | "confirmed" }>("/write-result", { headers: { "Idempotency-Key": key } });
+  if (revision !== sessionRevision || owner !== referenceOwner) throw new SessionInterruptedError();
+  if (response.status === "confirmed") {
+    references().removeConfirmedDamage(owner, key, item.raw);
+    writeRevision++;
+  }
+  refreshWriteRecovery();
+  return response;
 }
 export function reviewRecoveredWrite(key: string) {
   if (!referenceOwner || !getRecoveredWrites().some(item => item.key === key)) throw new SessionInterruptedError();

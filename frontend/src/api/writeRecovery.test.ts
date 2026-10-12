@@ -172,3 +172,60 @@ it("una respuesta ilegible conserva la referencia sin persistir datos clínicos"
   c.invalidateSession(); c.establishSession("restored"); await c.bindWriteRecovery(identity);
   expect(c.getRecoveredWrites().map(item => item.key)).toEqual([key]);
 });
+
+it("consulta y retira daño propio confirmado sin reenviar ni perder la referencia sana", async () => {
+  const owner = await writeReferenceOwner("http://localhost:8000", identity);
+  const healthy = "healthy-reference-60";
+  const damaged = "damaged-reference-60";
+  new WriteReferences(localStorage).remember({ owner, key: healthy, kind: "evaluation", createdAt: 1000, reviewed: false });
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + damaged, JSON.stringify({ owner, createdAt: 0 }));
+  const c = await client();
+  const fetchMock = vi.fn().mockResolvedValue(response(200, { status: "confirmed" })); vi.stubGlobal("fetch", fetchMock);
+  expect(c.getRecoveredWrites().map(item => item.key)).toEqual([healthy]);
+  expect(c.getDamagedWriteReferences()).toEqual([{ key: damaged, consultable: true }]);
+  await expect(c.api("/episodes/42/vitals", options)).rejects.toThrow("No se ha enviado");
+  await c.inspectRecoveredWrite(healthy);
+  c.confirmRecoveredWrite(healthy);
+  expect(c.getWriteRecoveryError()).not.toBe("");
+  await c.inspectDamagedWriteReference(damaged);
+  expect(c.getWriteRecoveryError()).toBe("");
+  expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + damaged)).toBeNull();
+  expect(fetchMock.mock.calls.every(([, options]) => !options.method)).toBe(true);
+});
+it.each(["unknown", "network"])("conserva daño tras resultado %s y sigue bloqueando", async result => {
+  const owner = await writeReferenceOwner("http://localhost:8000", identity);
+  const key = "damaged-reference-60";
+  const raw = JSON.stringify({ owner, createdAt: 0 });
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key, raw);
+  const c = await client();
+  const fetchMock = result === "network" ? vi.fn().mockRejectedValue(new Error("Red")) : vi.fn().mockResolvedValue(response(200, { status: "unknown" }));
+  vi.stubGlobal("fetch", fetchMock);
+  await c.inspectDamagedWriteReference(key).catch(() => {});
+  expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + key)).toBe(raw);
+  await expect(c.api("/episodes/42/vitals", options)).rejects.toThrow("No se ha enviado");
+  expect(fetchMock).toHaveBeenCalledOnce();
+});
+it("no consulta daño sin identidad y no toca otro propietario", async () => {
+  const key = "unknown-reference-60";
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key, "{");
+  const c = await client();
+  const fetchMock = vi.fn(); vi.stubGlobal("fetch", fetchMock);
+  await expect(c.inspectDamagedWriteReference(key)).rejects.toBeInstanceOf(c.SessionInterruptedError);
+  expect(fetchMock).not.toHaveBeenCalled();
+  expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + key)).toBe("{");
+});
+it.each(["storage", "session"])("no aplica confirmación tardía tras cambio de %s", async change => {
+  const owner = await writeReferenceOwner("http://localhost:8000", identity);
+  const key = "damaged-reference-60";
+  const raw = JSON.stringify({ owner, createdAt: 0 });
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key, raw);
+  const c = await client();
+  let finish!: (response: Response) => void;
+  vi.stubGlobal("fetch", vi.fn().mockImplementation(() => new Promise<Response>(resolve => { finish = resolve; })));
+  const checking = c.inspectDamagedWriteReference(key).catch(error => error);
+  if (change === "storage") localStorage.setItem(WRITE_REFERENCE_PREFIX + key, raw + " ");
+  else { c.invalidateSession(); c.establishSession("another"); await c.bindWriteRecovery({ username: "otro", role: "DOCTOR" }); }
+  finish(response(200, { status: "confirmed" }));
+  expect(await checking).toBeInstanceOf(Error);
+  expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + key)).toBe(change === "storage" ? raw + " " : raw);
+});

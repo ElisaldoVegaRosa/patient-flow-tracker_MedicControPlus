@@ -116,3 +116,53 @@ it("una consulta vencida libera el bloqueo y permite consultar la referencia sig
     expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + keys[0])).not.toBeNull();
   } finally { vi.useRealTimers(); }
 });
+
+async function damagedSetup(identified = true) {
+  establishSession("damage-session-60");
+  const owner = await writeReferenceOwner("http://localhost:8000", identity);
+  const key = "damaged-reference-60";
+  const raw = identified ? JSON.stringify({ owner, createdAt: 0, body: "Contenido que no debe mostrarse" }) : "{";
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + key, raw);
+  localStorage.setItem(WRITE_REFERENCE_PREFIX + "healthy-reference-60", JSON.stringify({ owner, kind: "evaluation", createdAt: 1000, reviewed: false }));
+  await bindWriteRecovery(identity);
+  const fetchMock = vi.fn().mockResolvedValue(response({ status: "unknown" })); vi.stubGlobal("fetch", fetchMock);
+  const onConfirmed = vi.fn();
+  function Harness() { return <RecoveredWrites user={identity} operations={usePendingOperations()} onConfirmed={onConfirmed} />; }
+  const view = render(<Harness />);
+  await screen.findByText(/Sin confirmación. El envío/);
+  return { ...view, key, raw, fetchMock, onConfirmed };
+}
+it("muestra referencias válidas junto al daño y confirma sin reenviar", async () => {
+  const { key, fetchMock, onConfirmed } = await damagedSetup();
+  expect(screen.getByText("Consultar resultado anterior")).toBeEnabled();
+  expect(screen.getByText("He revisado los registros de este envío")).toBeVisible();
+  expect(screen.queryByText("He revisado los registros; habilitar nuevos envíos")).not.toBeInTheDocument();
+  expect(screen.queryByText(/Contenido que no debe mostrarse/)).not.toBeInTheDocument();
+  let finish!: (response: Response) => void;
+  fetchMock.mockImplementationOnce(() => new Promise<Response>(resolve => { finish = resolve; }));
+  const button = screen.getByText("Consultar referencia dañada");
+  fireEvent.click(button); fireEvent.click(button);
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(button).toBeDisabled();
+  await act(async () => finish(response({ status: "confirmed" })));
+  expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + key)).toBeNull();
+  expect(onConfirmed).toHaveBeenCalledOnce();
+  expect(screen.queryByText("Consultar referencia dañada")).not.toBeInTheDocument();
+  expect(screen.getByText("Consultar resultado anterior")).toBeVisible();
+  expect(fetchMock.mock.calls.every(([, options]) => !options.method)).toBe(true);
+});
+it("daño desconocido conserva bloqueo y admite otra consulta explícita", async () => {
+  const { key, raw, fetchMock } = await damagedSetup();
+  fireEvent.click(screen.getByText("Consultar referencia dañada"));
+  await screen.findByText(/La referencia se conserva y las nuevas operaciones/);
+  expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + key)).toBe(raw);
+  expect(screen.getByText("Consultar referencia dañada")).toBeEnabled();
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+it("daño sin propietario ofrece orientación y no consulta ni elimina", async () => {
+  const { key, raw, fetchMock } = await damagedSetup(false);
+  expect(screen.getByText(/No se pueden verificar/)).toBeVisible();
+  expect(screen.queryByText("Consultar referencia dañada")).not.toBeInTheDocument();
+  expect(fetchMock).toHaveBeenCalledOnce();
+  expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + key)).toBe(raw);
+});

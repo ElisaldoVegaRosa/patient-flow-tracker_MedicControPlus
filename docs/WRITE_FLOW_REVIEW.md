@@ -118,3 +118,57 @@ verificados: 363 (última suite completa: 362 antes del ajuste). El usuario
 confirmó el mensaje visible y después la consulta del mismo intento:
 «Operación confirmada por el servidor. No se ha creado otro registro».
 Prueba directa completa aprobada; publicación autorizada y CI aprobada.
+
+## Recuperación de daño local: Etapa 60
+
+- Implementación local autorizada: lectura separada de referencias válidas y
+  dañadas, común a todos los envíos operacionales. Una entrada dañada deja de
+  ocultar las referencias sanas y sus consultas de recibo.
+- Consulta explícita por GET de daño con clave válida y propietario de la sesión
+  verificado. Solo una confirmación del servidor retira esa entrada, comprobando
+  antes que no cambió desde el comienzo de la consulta. Nunca reenvía el contenido.
+- Sin confirmación, error, cambio de sesión o modificación en otra pestaña:
+  conserva la referencia. Daño sin clave/propietario verificable conserva el
+  bloqueo y ofrece orientación; no se atribuye al usuario ni se elimina.
+- Revisar una referencia sana no habilita envíos mientras exista daño. No hay
+  borrado masivo, migración de almacenamiento, persistencia clínica adicional,
+  cambios backend ni modificación de datos locales.
+- Validación final: 375 pruebas frontend (35 archivos, 12 casos nuevos), lint
+  y build aprobados. Suite con un trabajador fuera del sandbox por un fallo de
+  lectura de temporales. Una ejecución intermedia mezcló el panel cargado antes
+  del ajuste de texto y su prueba posterior (374/375); la ejecución final pasó
+  completa sin ampliar tiempos. Backend conserva la validación aprobada de 59.
+- Prueba directa aprobada por el usuario: tras alterar solo createdAt de una
+  referencia ficticia, la consulta confirmó el envío anterior; desapareció la
+  referencia dañada y el historial mostró una sola evaluación de ese intento.
+  La interfaz informó que conservó los campos actuales, sin reenviar.
+- Commit/push y comprobación de CI autorizados por el usuario, incluida la
+  documentación. Publicación y CI pendientes; cierre documental incluido.
+
+### Prueba directa propuesta para 60
+
+Usar únicamente un envío ficticio por confirmar, como en la prueba de 59.
+No alterar referencias de operaciones reales ni borrar almacenamiento.
+
+1. Restaurar No throttling y no consultar todavía ese envío. En DevTools >
+   Application > Local Storage > http://localhost:5173, localizar su entrada
+   con prefijo mediccontrol:write-reference:v1:. Conservar su valor original
+   completo para poder restaurarlo; no modificar la clave ni el campo owner.
+2. Cambiar solo createdAt a 0 y recargar. Debe aparecer Referencia dañada y
+   Consultar referencia dañada; las nuevas operaciones permanecen bloqueadas.
+3. Consultar una vez. Un recibo confirmado retira esa referencia; comprobar el
+   registro ficticio del episodio y que la consulta fue GET, sin otro POST.
+4. Si el resultado es desconocido o falla la red, la entrada debe conservarse.
+   Restaurar exactamente el valor original guardado y recargar; vuelve a ser
+   una referencia válida por revisar, sin que la restauración acredite un fallo.
+   Consultar o revisar los registros antes de habilitar nuevos envíos.
+
+Las pruebas automatizadas cubren además coexistencia de referencias sanas,
+propietario no verificable, doble clic, cambio de sesión y modificación de la
+entrada por otra pestaña mientras la consulta está pendiente. No se introduce
+una reparación manual automática para claves o propietarios perdidos.
+
+Resultado confirmado por el usuario: mensaje de confirmación del envío anterior,
+referencia dañada retirada y una sola evaluación correspondiente al intento.
+Prueba directa del caso confirmado aprobada; no se atribuye a esta prueba manual
+la cobertura de los casos desconocidos o de concurrencia, verificados en pruebas.
