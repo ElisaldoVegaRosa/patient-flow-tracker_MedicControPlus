@@ -1224,7 +1224,8 @@ aprobados, más el caso nuevo del ajuste de mensaje (363 distintos).
 Prueba directa completa confirmada y CI `38303904910` aprobada. Etapa 59 cerrada.
 Etapa 60 autorizada e implementada localmente: recuperación del registro dañado.
 Prueba directa de 60 aprobada por el usuario.
-Siguiente paso: publicar la entrega autorizada y comprobar CI.
+Entrega de 60 publicada: `fe7f802`; CI `38310344158` aprobada. Etapa cerrada.
+Siguiente paso: acordar el alcance de la próxima mejora transversal.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
@@ -1426,8 +1427,10 @@ Siguiente paso: publicar la entrega autorizada y comprobar CI.
   referencia ficticia, la consulta confirmó el envío anterior; desapareció la
   referencia dañada y el historial mostró una sola evaluación de ese intento.
   La interfaz informó que conservó los campos actuales, sin reenviar.
-- Commit/push y comprobación de CI autorizados por el usuario, incluida la
-  documentación. Publicación y CI pendientes; cierre documental incluido.
+- Entrega publicada: `fe7f802aa1888af67435f997d49f2a2259520386`.
+  CI `38310344158` aprobada: 143 pruebas backend (1 warning conocido),
+  375 frontend, lint y build. Etapa 60 cerrada dentro del alcance;
+  cierre documental incluido en la publicación autorizada.
 
 ## Fuentes
 

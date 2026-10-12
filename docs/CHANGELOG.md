@@ -28,8 +28,10 @@ las verificaciones realizadas y el estado de cada etapa.
   referencia ficticia, la consulta confirmó el envío anterior; desapareció la
   referencia dañada y el historial mostró una sola evaluación de ese intento.
   La interfaz informó que conservó los campos actuales, sin reenviar.
-- Commit/push y comprobación de CI autorizados por el usuario, incluida la
-  documentación. Publicación y CI pendientes; cierre documental incluido.
+- Entrega publicada: `fe7f802aa1888af67435f997d49f2a2259520386`.
+  CI `38310344158` aprobada: 143 pruebas backend (1 warning conocido),
+  375 frontend, lint y build. Etapa 60 cerrada dentro del alcance;
+  cierre documental incluido en la publicación autorizada.
 
 ## Etapa 59: espera y cancelación comunes
 
