@@ -4,7 +4,11 @@
 
 ### Etapa 55: protección contra conflictos entre sesiones
 
-- Alcance transversal autorizado e implementado localmente. Mantiene el acceso
+- Prueba directa entre dos sesiones confirmada satisfactoria por el usuario:
+  conflicto visible, conservación de campos y revisión explícita sin guardar
+  automáticamente. Confirmación manual; no es una nueva prueba automatizada.
+- Etapa 55 cerrada dentro del alcance acordado.
+- Alcance transversal implementado y publicado. Mantiene el acceso
   simultáneo y los registros nuevos independientes (evaluaciones, signos y órdenes).
 - Versiones opacas por triaje, tarea y alerta; versión clínica para alta. Se
   calculan desde el estado persistido y su historial, sin migración ni columnas
@@ -26,7 +30,7 @@
   271 frontend (12 nuevas), lint y build aprobados. Backend con Python de
   `.venv` y `--basetemp .tmp/pytest-55-full`; frontend con `--maxWorkers=1`
   y temporales locales.
-- Commit/push autorizados por el usuario; publicación y CI pendientes. Política: [escrituras](WRITE_OPERATIONS.md).
+- Publicada en `bfa171b1a21f121fbd11cf322b7f767e991667b0`; CI `38268979298` aprobada. Política: [escrituras](WRITE_OPERATIONS.md).
 
 ### Etapa 54: recuperación común de formularios tras HTTP 401
 
@@ -1298,11 +1302,14 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapa 54 publicada y prueba funcional de recuperación confirmada por el usuario.
-Etapa 55 autorizada e implementada localmente: protección común por versiones
-para escrituras concurrentes, conservando acceso simultáneo y borradores.
-Validación: 140 pruebas backend, 271 frontend, lint y build aprobados. Commit/push
-autorizados por el usuario; publicar y comprobar CI. No hay otra entrega autorizada.
+Etapa 55 publicada en `bfa171b1a21f121fbd11cf322b7f767e991667b0`;
+CI `38268979298` aprobada. Se conservan las validaciones de 140 pruebas
+backend, 271 frontend, lint y build; no se repiten por este ajuste documental.
+Prueba directa entre dos sesiones confirmada satisfactoria por el usuario:
+conflicto visible, campos conservados y revisión explícita sin guardado
+automático. Etapa 55 cerrada dentro del alcance acordado.
+Cierre documental autorizado para publicación. Siguiente paso:
+acordar la próxima necesidad funcional. No hay otra entrega autorizada.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

@@ -7,7 +7,11 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ## Etapa 55: protección contra conflictos entre sesiones
 
-- Alcance transversal autorizado e implementado localmente. Mantiene el acceso
+- Prueba directa entre dos sesiones confirmada satisfactoria por el usuario:
+  conflicto visible, conservación de campos y revisión explícita sin guardar
+  automáticamente. Confirmación manual; no es una nueva prueba automatizada.
+- Etapa 55 cerrada dentro del alcance acordado.
+- Alcance transversal implementado y publicado. Mantiene el acceso
   simultáneo y los registros nuevos independientes (evaluaciones, signos y órdenes).
 - Versiones opacas por triaje, tarea y alerta; versión clínica para alta. Se
   calculan desde el estado persistido y su historial, sin migración ni columnas
@@ -29,7 +33,7 @@ las verificaciones realizadas y el estado de cada etapa.
   271 frontend (12 nuevas), lint y build aprobados. Backend con Python de
   `.venv` y `--basetemp .tmp/pytest-55-full`; frontend con `--maxWorkers=1`
   y temporales locales.
-- Commit/push autorizados por el usuario; publicación y CI pendientes. Política: [escrituras](WRITE_OPERATIONS.md).
+- Publicada en `bfa171b1a21f121fbd11cf322b7f767e991667b0`; CI `38268979298` aprobada. Política: [escrituras](WRITE_OPERATIONS.md).
 
 ## Etapa 54: recuperación común de formularios tras HTTP 401
 

@@ -1204,10 +1204,14 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapa 54 publicada y prueba funcional de recuperación confirmada por el usuario.
-Etapa 55 autorizada e implementada localmente como una entrega transversal.
-Validación: 140 pruebas backend, 271 frontend, lint y build aprobados. Commit/push
-autorizados por el usuario; publicar y comprobar CI. No hay otra entrega autorizada.
+Etapa 55 publicada en `bfa171b1a21f121fbd11cf322b7f767e991667b0`;
+CI `38268979298` aprobada. Se conservan las validaciones de 140 pruebas
+backend, 271 frontend, lint y build; no se repiten por este ajuste documental.
+Prueba directa entre dos sesiones confirmada satisfactoria por el usuario:
+conflicto visible, campos conservados y revisión explícita sin guardado
+automático. Etapa 55 cerrada dentro del alcance acordado.
+Cierre documental autorizado para publicación. Siguiente paso:
+acordar la próxima necesidad funcional. No hay otra entrega autorizada.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
@@ -1234,7 +1238,11 @@ autorizados por el usuario; publicar y comprobar CI. No hay otra entrega autoriz
 
 ## Etapa 55: conflictos entre sesiones
 
-- Autorizada e implementada localmente: 140 pruebas backend (ocho nuevas),
+- Prueba directa entre dos sesiones confirmada satisfactoria por el usuario:
+  conflicto visible, conservación de campos y revisión explícita sin guardar
+  automáticamente. Confirmación manual; no es una nueva prueba automatizada.
+- Etapa 55 cerrada dentro del alcance acordado.
+- Implementada y publicada: 140 pruebas backend (ocho nuevas),
   271 frontend (12 nuevas), lint y build aprobados.
 - Mantener lectura y trabajo simultáneos por los roles autorizados; no reservar
   un episodio completo para una única sesión.
@@ -1253,7 +1261,7 @@ autorizados por el usuario; publicar y comprobar CI. No hay otra entrega autoriz
   reconocerse aunque una operación posterior haya cambiado la versión.
 - Una entrega transversal con pruebas de dos conexiones/sesiones, permisos,
   estados, conflicto, actividades independientes, reintentos y rollback.
-- Commit/push autorizados por el usuario; publicación y CI pendientes. Presencia en tiempo real, edición
+- Publicada en `bfa171b1a21f121fbd11cf322b7f767e991667b0`; CI `38268979298` aprobada. Presencia en tiempo real, edición
   colaborativa y bloqueos exclusivos no forman parte de esta propuesta.
 
 ## Fuentes
