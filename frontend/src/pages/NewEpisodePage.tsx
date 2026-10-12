@@ -11,7 +11,7 @@ export default function NewEpisodePage({ onSubmit, submitting = false }: NewEpis
       <section className="panel">
         <h1>Registrar llegada</h1>
 
-        <form className="form-grid" onSubmit={onSubmit}>
+        <form data-draft-kind="arrival" className="form-grid" onSubmit={onSubmit}>
           <label>
             Nombre completo
             <input disabled={submitting} name="name" required />

@@ -2,6 +2,26 @@
 
 ## Última etapa
 
+### Etapa 54: recuperación común de formularios tras HTTP 401
+
+- Alcance transversal autorizado e implementado localmente: ingreso, triaje,
+  signos, evaluación, órdenes, resultado LAB y nota de alta.
+- Un almacén de borradores y un hook compartidos reemplazan el flujo exclusivo
+  de alta; captura común de campos, sin reenvío ni guardado automático.
+- Memoria únicamente, oculta durante el login. Treinta minutos desde el primer
+  401 pendiente; nuevas interrupciones antes de restaurar no renuevan el plazo.
+- Misma identidad y rol. Consulta episodio ACTIVE antes de ofrecer y confirmar;
+  laboratorio exige tarea LAB/PENDING y presencia actual en la bandeja.
+- Limpieza por éxito confirmado, descarte, logout, salida del contexto y vencimiento.
+  Conserva varios formularios; guardar uno no sobrescribe los demás. Respuestas
+  tardías no reviven borradores descartados ni atraviesan un cambio de sesión.
+- Recarga, cierre de pestaña y reinicio siguen fuera del alcance. No almacena
+  campos clínicos en localStorage/sessionStorage ni en el servidor.
+- Validación: 259 pruebas frontend (29 nuevas), lint y build aprobados. Pruebas
+  con `--maxWorkers=1` y temporales locales. Backend sin cambios: se conserva la
+  evidencia de 132 pruebas y CI aprobada de 53B, sin repetir esa validación.
+- Commit/push autorizados por el usuario; publicación y CI pendientes.
+
 ### Cierre de la Etapa 53
 
 - 53A y 53B publicadas: protección común en el frontend y transacciones/
@@ -11,12 +31,15 @@
   rollback, permisos/sesiones actuales y evaluaciones nuevas intencionales.
 - Evidencia vigente: 132 pruebas backend, 230 frontend, lint y build aprobados;
   CI de 53A `38183333079` y de 53B `38184736932` aprobadas.
+- Prueba funcional directa de evaluaciones realizada por el usuario y confirmada
+  satisfactoria. Confirmación manual; no constituye una nueva prueba automatizada.
 - Etapa 53 cerrada dentro del alcance acordado. Límites: recuperar una intención
   ambigua después de recargar/cambiar de sesión y archivar recibos conservando
   la reserva de claves requieren un diseño posterior. Las intenciones distintas
   entre dispositivos no se deduplican por contenido clínico.
-- Cierre documental; conserva las validaciones aprobadas. Siguiente paso
-  recomendado: prueba funcional directa del flujo antes de acordar otra entrega.
+- Cierre documental publicado en `94bc0800611cb54cec05f873a06a97d24217a987`;
+  CI `38185005967` aprobada. Conserva las validaciones previas.
+  Siguiente propuesta: Etapa 54, recuperación común de borradores tras HTTP 401.
 
 ### Entrega 53B: escrituras atómicas e idempotencia compartida
 
@@ -1244,10 +1267,13 @@ ESCALATED → RESOLVED
 
 ## Próximo paso recomendado
 
-Etapas 30–53 cerradas dentro de los alcances acordados. Validación vigente:
-132 pruebas backend, 230 frontend, lint y build; CI `38184736932` aprobada.
-Realizar una prueba funcional directa del flujo y acordar una necesidad completa
-antes de autorizar otra entrega. No implica implementar nuevas funciones.
+Etapas 30–53 cerradas dentro de los alcances acordados. Etapa 54 autorizada e
+implementada localmente en una entrega transversal. Validación: 259 pruebas
+frontend, lint y build aprobados; backend sin cambios, conserva sus 132 pruebas
+y CI de 53B aprobada. Siguiente paso: publicar y comprobar
+CI. Commit/push autorizados por el usuario. La prueba manual de evaluaciones
+confirmada corresponde a 53; no se presenta
+como prueba manual de recuperación de formularios de 54.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

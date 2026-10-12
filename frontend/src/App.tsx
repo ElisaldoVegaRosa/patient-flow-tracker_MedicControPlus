@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
 import { usePendingOperations } from "./hooks/usePendingOperations";
@@ -6,7 +6,8 @@ import {
   api, establishSession, getSessionRevision, invalidateSession,
   isSessionInterruption, SESSION_EXPIRED_EVENT,
 } from "./api/client";
-import { useDischargeRecovery } from "./session/useDischargeRecovery";
+import { useFormRecovery } from "./session/useFormRecovery";
+import type { DraftKind, FormDraft } from "./session/formDrafts";
 import { useUnsavedDischargeNote } from "./session/useUnsavedDischargeNote";
 import EpisodeHistoryPage from "./pages/EpisodeHistoryPage";
 import ScanPage from "./pages/ScanPage";
@@ -49,15 +50,52 @@ function App() {
   const [error, setError] = useState("");
   const [restoringSession, setRestoringSession] =
     useState(() => Boolean(localStorage.getItem("token")));
-  const recovery = useDischargeRecovery();
+  const recovery = useFormRecovery();
   const { clear: clearDraft, suspend: suspendRecovery } = recovery;
   const leave = useUnsavedDischargeNote();
   const { clear: clearLeave, track: trackLeave } = leave;
+  const [restoredForms, setRestoredForms] = useState<FormDraft[]>([]);
+  const applyRestoration = useRef(false);
   const clearRecovery = useCallback(() => {
     clearDraft();
     clearLeave();
+    setRestoredForms([]);
+    applyRestoration.current = false;
   }, [clearDraft, clearLeave]);
   const [recoveredNote, setRecoveredNote] = useState("");
+  const draftRoot = useRef<HTMLDivElement>(null);
+
+  function captureDraft(event: FormEvent<HTMLDivElement>) {
+    if (!user || !(event.target instanceof HTMLElement)) return;
+    const form = event.target.closest("form");
+    const kind = form?.dataset.draftKind as DraftKind | undefined;
+    if (!form || !kind || kind === "discharge") return;
+    const fields = Object.fromEntries([...new FormData(form).entries()].filter((entry): entry is [string, string] => typeof entry[1] === "string"));
+    const dirty = [...form.elements].some(element => {
+      if (element instanceof HTMLSelectElement) {
+        const original = [...element.options].find(option => option.defaultSelected)?.value ?? element.options[0]?.value ?? "";
+        return element.value !== original;
+      }
+      return (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) && element.value.trim() !== element.defaultValue.trim();
+    });
+    recovery.trackForm(user, { kind, episodeId: form.dataset.episodeId ? Number(form.dataset.episodeId) : undefined,
+      taskId: form.dataset.taskId ? Number(form.dataset.taskId) : undefined, fields }, dirty);
+  }
+
+  useEffect(() => {
+    if (!applyRestoration.current || !user || !restoredForms.length || !draftRoot.current) return;
+    for (const draft of restoredForms) {
+      if (draft.kind === "discharge") continue;
+      const form = [...draftRoot.current.querySelectorAll<HTMLFormElement>("form[data-draft-kind]")].find(form =>
+        form.dataset.draftKind === draft.kind && Number(form.dataset.episodeId ?? 0) === (draft.episodeId ?? 0) && Number(form.dataset.taskId ?? 0) === (draft.taskId ?? 0));
+      if (!form) continue;
+      for (const [name, value] of Object.entries(draft.fields)) {
+        const element = form.elements.namedItem(name);
+        if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement || element instanceof HTMLSelectElement) element.value = value;
+      }
+    }
+    applyRestoration.current = false;
+  }, [restoredForms, user, page]);
 
   function navigate(nextPage: string) {
     clearRecovery();
@@ -78,6 +116,7 @@ function App() {
       suspendRecovery();
       clearLeave();
       setRecoveredNote("");
+      setRestoredForms([]);
       setUser(null);
       setEpisode(null);
       setDashboard(null);
@@ -99,9 +138,14 @@ function App() {
     if (result) {
       setEpisode(result.episode);
       setRecoveredNote(result.note);
-      recovery.track(user.username, result.episode.id, result.note);
+      applyRestoration.current = true;
+      setRestoredForms(result.drafts);
       trackLeave(result.note);
-      setPage("episode");
+      leave.trackEvaluation(result.drafts.some(draft => draft.kind === "evaluation"));
+      leave.trackOrder(result.drafts.some(draft => draft.kind === "order"));
+      if (result.drafts[0].kind === "arrival") setPage("new");
+      else if (result.drafts[0].kind === "lab") { setLaboratoryQueue(result.laboratoryQueue); setPage("laboratory"); }
+      else setPage("episode");
     }
   }
 
@@ -211,8 +255,6 @@ useEffect(() => {
   }
 
   async function createEpisode(event: FormEvent<HTMLFormElement>) {
-    clearRecovery();
-    setRecoveredNote("");
     event.preventDefault();
 
     const form = new FormData(event.currentTarget);
@@ -232,6 +274,8 @@ useEffect(() => {
         }),
       });
 
+      recovery.remove("arrival");
+      setRestoredForms([]);
       setEpisode(result);
       setPage("episode");
       loadDashboard();
@@ -384,8 +428,7 @@ async function evaluateTemporalRules() {
 }
 
 async function openLaboratoryQueue() {
-    clearRecovery();
-    setRecoveredNote("");
+  if (page !== "laboratory") { clearRecovery(); setRecoveredNote(""); }
   try {
     const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING");
 
@@ -413,13 +456,15 @@ async function completeLaboratoryOrder(
   if (!release) return;
 
   try {
-    await api<Episode>(`/tasks/${taskId}/complete`, {
+    const completed = await api<Episode>(`/tasks/${taskId}/complete`, {
       method: "PATCH",
       body: JSON.stringify({
         result: form.get("result"),
       }),
     });
 
+    recovery.remove("lab", completed.id, taskId);
+    setRestoredForms(previous => previous.filter(draft => draft.taskId !== taskId));
     await openLaboratoryQueue();
   } catch (exception) {
     if (isSessionInterruption(exception)) return;
@@ -468,7 +513,7 @@ async function logout() {
   }
 
   return (
-    <>
+    <div style={{ display: "contents" }} ref={draftRoot} onChangeCapture={captureDraft}>
       <AppHeader
         user={user}
         onDashboard={() => leave.run(() => {
@@ -493,14 +538,14 @@ async function logout() {
       )}
 
       {recovery.status !== "idle" && recovery.status !== "waiting" && (
-        <section className="panel" aria-label="Recuperación de nota de alta">
+        <section className="panel" aria-label={recovery.noteOnly ? "Recuperación de nota de alta" : "Recuperación de formularios"}>
           {recovery.status === "checking" ? (
-            <p role="status">Comprobando el episodio para recuperar la nota…</p>
+            <p role="status">{recovery.noteOnly ? "Comprobando el episodio para recuperar la nota…" : "Comprobando los formularios pendientes…"}</p>
           ) : (
             <>
-              <p>{recovery.error || "Hay una nota de alta pendiente de recuperar tras expirar la sesión."}</p>
+              <p>{recovery.error || (recovery.noteOnly ? "Hay una nota de alta pendiente de recuperar tras expirar la sesión." : "Hay formularios pendientes de recuperar tras expirar la sesión.")}</p>
               {recovery.status === "offer" ? (
-                <button type="button" onClick={restoreNote}>Restaurar nota de alta</button>
+                <button type="button" onClick={restoreNote}>{recovery.noteOnly ? "Restaurar nota de alta" : "Restaurar formularios"}</button>
               ) : (
                 <button type="button" onClick={() => recovery.check(user)}>Reintentar recuperación</button>
               )}
@@ -563,6 +608,7 @@ async function logout() {
       {page === "episode" && episode && (
         <EpisodePage
           key={`${user.username}:${episode.id}`}
+          onDraftSaved={(kind) => { recovery.remove(kind, episode.id); setRestoredForms(previous => previous.filter(draft => draft.kind !== kind)); }}
           pendingOperations={operations}
           episode={episode}
           user={user}
@@ -577,7 +623,7 @@ async function logout() {
           }}
         />
       )}
-    </>
+    </div>
   );
 }
 

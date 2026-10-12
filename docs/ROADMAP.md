@@ -32,12 +32,15 @@ Plan reconstruido propuesto; no recuperado del chat original
   rollback, permisos/sesiones actuales y evaluaciones nuevas intencionales.
 - Evidencia vigente: 132 pruebas backend, 230 frontend, lint y build aprobados;
   CI de 53A `38183333079` y de 53B `38184736932` aprobadas.
+- Prueba funcional directa de evaluaciones realizada por el usuario y confirmada
+  satisfactoria. Confirmación manual; no constituye una nueva prueba automatizada.
 - Etapa 53 cerrada dentro del alcance acordado. Límites: recuperar una intención
   ambigua después de recargar/cambiar de sesión y archivar recibos conservando
   la reserva de claves requieren un diseño posterior. Las intenciones distintas
   entre dispositivos no se deduplican por contenido clínico.
-- Cierre documental; conserva las validaciones aprobadas. Siguiente paso
-  recomendado: prueba funcional directa del flujo antes de acordar otra entrega.
+- Cierre documental publicado en `94bc0800611cb54cec05f873a06a97d24217a987`;
+  CI `38185005967` aprobada. Conserva las validaciones previas.
+  Siguiente propuesta: Etapa 54, recuperación común de borradores tras HTTP 401.
 
 ## Entrega 53B: escrituras atómicas e idempotencia compartida
 
@@ -1201,10 +1204,33 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapas 30–53 cerradas dentro de los alcances acordados. Validación vigente:
-132 pruebas backend, 230 frontend, lint y build; CI `38184736932` aprobada.
-Realizar una prueba funcional directa del flujo y acordar una necesidad completa
-antes de autorizar otra entrega. No implica implementar nuevas funciones.
+Etapas 30–53 cerradas dentro de los alcances acordados. Etapa 54 autorizada
+como una entrega transversal e implementada localmente. Validación: 259 pruebas
+frontend (29 nuevas), lint y build aprobados. Commit/push autorizados; publicar
+y comprobar CI. Backend sin cambios: conservar las 132 pruebas y
+CI aprobadas de 53B.
+
+## Etapa 54: recuperación común de borradores tras HTTP 401
+
+- Autorizada e implementada localmente. Una entrega funcional transversal,
+  con mecanismo compartido para ingreso, triaje, signos, evaluación, órdenes, resultado LAB y
+  nota de alta; integra la recuperación de 37A conservando sus garantías.
+- Conservar campos editados solo en memoria, ocultos durante el login, durante
+  30 minutos desde la interrupción inicial. Nunca conservar contraseñas ni
+  escribir datos clínicos en localStorage/sessionStorage o en el backend.
+- Restauración explícita para la misma identidad y rol, después de consultar
+  permisos/estado actual del episodio y de la tarea LAB. Revalidar al confirmar;
+  rechazar episodios cerrados, tareas completadas, otra identidad y vencimiento.
+- Limpiar al guardar con éxito, descartar, logout explícito o salir del contexto.
+  Un guardado confirmado antes de fallar una consulta posterior no es un borrador.
+  No reenviar solicitudes automáticamente ni confundir recuperación de campos
+  con reintento de una escritura de resultado incierto.
+- Criterios comunes: varios formularios editados en un episodio, HTTP 401
+  concurrentes, respuestas tardías, reintento de consulta, cambios de identidad/
+  rol/estado, vencimiento, limpieza y ausencia de escrituras al restaurar.
+- Recarga, cierre de pestaña y reinicio quedan fuera de esta recuperación en
+  memoria. Preservar borradores después de esos eventos requiere otro diseño
+  sobre almacenamiento y privacidad; no se presenta como capacidad de 54.
 
 ## Fuentes
 

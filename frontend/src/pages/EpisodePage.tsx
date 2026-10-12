@@ -2,12 +2,14 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { usePendingOperations } from "../hooks/usePendingOperations";
 import type { PendingOperations } from "../hooks/usePendingOperations";
+import type { DraftKind } from "../session/formDrafts";
 import { QRCodeSVG } from "qrcode.react";
 import { api, isSessionInterruption } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
 
 type EpisodePageProps = {
   pendingOperations?: PendingOperations;
+  onDraftSaved?: (kind: DraftKind) => void;
   episode: Episode;
   user: User;
   updateEpisode: (episode: Episode) => void;
@@ -24,6 +26,7 @@ export default function EpisodePage({
   updateEpisode,
   showError,
   pendingOperations,
+  onDraftSaved,
   initialDischargeNote = "",
   onDischargeNoteChange,
   onMedicalEvaluationChange,
@@ -78,7 +81,10 @@ export default function EpisodePage({
 
   async function call(path: string, options: RequestInit, reportError = showError) {
     try {
-      updateEpisode(await api<Episode>(path, options));
+      const updated = await api<Episode>(path, options);
+      const kind = path.endsWith("/triage") ? "triage" : path.endsWith("/vitals") ? "vitals" : path.endsWith("/medical-evaluation") ? "evaluation" : path.endsWith("/tasks") ? "order" : null;
+      if (kind) onDraftSaved?.(kind);
+      updateEpisode(updated);
     } catch (exception) {
       if (isSessionInterruption(exception)) return false;
       reportError((exception as Error).message);
@@ -310,7 +316,7 @@ async function createClinicalOrder(
       Actualiza la prioridad, ubicación y personal responsable.
     </p>
 
-    <form className="form-grid" onSubmit={registerTriage} onChange={() => {
+    <form data-draft-kind="triage" data-episode-id={episode.id} className="form-grid" onSubmit={registerTriage} onChange={() => {
       setTriageSaved(false);
       setTriageError("");
     }}>
@@ -389,7 +395,7 @@ async function createClinicalOrder(
                 Registrar nuevos signos
               </summary>
 
-              <form className="form-grid" onSubmit={registerVitals} onChange={() => {
+              <form data-draft-kind="vitals" data-episode-id={episode.id} className="form-grid" onSubmit={registerVitals} onChange={() => {
                 setVitalsSaved(false);
                 setVitalsError("");
               }}>
@@ -482,7 +488,7 @@ async function createClinicalOrder(
       <span className="role-badge">MÉDICO</span>
     </div>
 
-    <form
+    <form data-draft-kind="evaluation" data-episode-id={episode.id}
       className="medical-form"
       onSubmit={registerMedicalEvaluation}
       onChange={(event) => {
@@ -571,7 +577,7 @@ async function createClinicalOrder(
       <span className="role-badge">ORDEN MÉDICA</span>
     </div>
 
-    <form
+    <form data-draft-kind="order" data-episode-id={episode.id}
       className="medical-form"
       onSubmit={createClinicalOrder}
       onChange={(event) => {
@@ -854,7 +860,7 @@ async function createClinicalOrder(
       </div>
 
       {user.role === "DOCTOR" && episode.status === "ACTIVE" && (
-        <form className="panel medical-form" onSubmit={dischargeEpisode} noValidate>
+        <form data-draft-kind="discharge" data-episode-id={episode.id} className="panel medical-form" onSubmit={dischargeEpisode} noValidate>
           <label htmlFor="discharge-note">Nota de alta</label>
           <textarea
             id="discharge-note"
