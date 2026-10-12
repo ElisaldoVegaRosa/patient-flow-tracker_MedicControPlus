@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { api, establishSession, invalidateSession } from "../api/client";
 import { usePendingOperations } from "../hooks/usePendingOperations";
 import UncertainWrites from "./UncertainWrites";
+import { REQUEST_TIMEOUT_MS } from "../api/requestLifetime";
 
 const response = (data: unknown) => ({ ok: true, status: 200, json: async () => data }) as Response;
 describe("Revisión explícita de guardados inciertos", () => {
@@ -44,7 +45,10 @@ describe("Revisión explícita de guardados inciertos", () => {
     fireEvent.click(retry);
     fireEvent.click(screen.getByText("Consultar resultado"));
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock.mock.calls[1][1]).toEqual(fetchMock.mock.calls[0][1]);
+    const { signal: originalSignal, ...originalRequest } = fetchMock.mock.calls[0][1];
+    const { signal: retrySignal, ...retryRequest } = fetchMock.mock.calls[1][1];
+    expect(retryRequest).toEqual(originalRequest);
+    expect(retrySignal).not.toBe(originalSignal);
     await act(async () => { finish(response({ id: 12 })); });
     expect(onConfirmed).toHaveBeenCalledTimes(1);
   });
@@ -58,13 +62,32 @@ describe("Revisión explícita de guardados inciertos", () => {
     expect(onConfirmed).not.toHaveBeenCalled();
     expect(screen.queryByText("Guardados por confirmar")).not.toBeInTheDocument();
   });
+  it("muestra la causa del plazo agotado en el panel y conserva las acciones explícitas", async () => {
+    vi.useFakeTimers();
+    try {
+      establishSession("ficticio59-panel");
+      const fetchMock = vi.fn(() => new Promise<Response>(() => {}));
+      vi.stubGlobal("fetch", fetchMock);
+      const sent = api("/episodes/12/medical-evaluation", { method: "POST", body: '{"diagnosis":"Texto privado ficticio"}' }).catch(error => error);
+      await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS);
+      await sent;
+      function Harness() { return <UncertainWrites operations={usePendingOperations()} onConfirmed={vi.fn()} />; }
+      render(<Harness />);
+      expect(screen.getByRole("status")).toHaveTextContent("Se agotó el tiempo de espera");
+      expect(screen.getByRole("status")).toHaveTextContent("Resultado por confirmar");
+      expect(screen.queryByText(/Texto privado ficticio/)).not.toBeInTheDocument();
+      expect(screen.getByText("Consultar resultado")).toBeEnabled();
+      expect(screen.getByText("Reintentar operación original")).toBeEnabled();
+      expect(fetchMock).toHaveBeenCalledOnce();
+    } finally { vi.useRealTimers(); }
+  });
   it("un rechazo definitivo del reintento se informa aunque desaparezca el pendiente", async () => {
     const { fetchMock, onRejected } = await setup();
     fetchMock.mockResolvedValueOnce({ ok: false, status: 409, json: async () => ({ detail: { code: "version_conflict", message: "Datos modificados" } }) });
     fireEvent.click(screen.getByText("Reintentar operación original"));
     await waitFor(() => expect(screen.queryByRole("region", { name: "Guardados por confirmar" })).not.toBeInTheDocument());
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(onRejected).toHaveBeenCalledWith("/episodes/12/medical-evaluation", expect.objectContaining({ message: "Datos modificados" }));
+    await waitFor(() => expect(onRejected).toHaveBeenCalledWith("/episodes/12/medical-evaluation", expect.objectContaining({ message: "Datos modificados" })));
   });
   it("tras cambiar de sesión exige revisar antes de otra escritura; aceptar no envía", async () => {
     const { fetchMock } = await setup();

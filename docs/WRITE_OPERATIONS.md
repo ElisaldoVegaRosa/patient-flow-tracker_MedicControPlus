@@ -1,4 +1,4 @@
-# Escrituras atómicas e idempotencia (53B)
+# Contrato común de escrituras y recuperación (53–59)
 
 ## Contrato
 
@@ -122,15 +122,72 @@ silenciosamente una versión de triaje modificada por otra sesión debajo de nue
 ediciones locales. Un rechazo por versión al reintentar utiliza la revisión de 55;
 otros rechazos definitivos permanecen visibles.
 
-Cambio de sesión, HTTP 401 o salida explícita descartan claves y contenido.
-Si quedaba incertidumbre o una escritura en curso, una bandera únicamente en
-memoria exige revisar los registros antes de otro POST/PATCH operacional.
-Autenticación y lecturas siguen disponibles. Aceptar esa revisión no reenvía y
-no recupera la clave descartada; no equivale a una confirmación del servidor.
-Un 401 definitivo de la propia escritura no se clasifica como guardado incierto,
-pero conserva la revisión exigida por otra escritura interrumpida.
+Cambio de sesión, HTTP 401 o salida explícita descartan el contenido original
+y su asociación en memoria. Desde 58, las referencias persistidas se conservan
+para la misma identidad, rol y API al volver a entrar. Solo cuando no existe
+una referencia persistida que cubra el envío interrumpido se utiliza la bandera
+de revisión en memoria de 56. Aceptar una revisión no confirma ni reenvía.
+Un primer rechazo 401 de la escritura retira su referencia nueva; si hubo un
+intento incierto anterior con esa clave, el rechazo no elimina su referencia.
 
-Recargar, cerrar la pestaña o reiniciar pierde tanto solicitudes como esa bandera.
-Esta entrega no garantiza recuperar ni deduplicar una intención después de esos
-eventos. No guarda contenido clínico ni claves nuevas en almacenamiento del
-navegador y no modifica el esquema SQLite.
+## Actualización entre sesiones (57)
+
+Dashboard, supervisor, bandeja LAB y episodio abierto comparten consultas cada
+15 segundos después de terminar la anterior. Solo se consulta la vista activa
+y visible; el regreso a la pestaña solicita una actualización. Se pausa durante
+operaciones pendientes y se descartan respuestas de otra vista/sesión o previas
+a una escritura. Conserva campos editados y sus versiones originales.
+No reserva episodios ni impide entrar desde dos sesiones. El servidor comprueba
+versiones y estados al guardar; ver datos actualizados no autoriza una escritura.
+
+## Referencias recuperadas (58)
+
+Antes de cada POST/PATCH operacional, el cliente vinculado a una identidad
+autenticada persiste una entrada por clave en localStorage. Solo incluye clave
+opaca, tipo de acción, fecha, revisión y huella SHA-256 de usuario/rol/API.
+No persiste rutas, IDs clínicos, cuerpos, versiones, respuestas ni nuevos tokens.
+La asociación necesaria para reintentar el contenido original sigue en memoria.
+
+Al entrar, recupera las referencias existentes de esa identidad y consulta
+GET /write-result secuencialmente, una vez por referencia en esa sesión.
+Un recibo confirmado retira el aviso y permite refrescar sin borrar formularios
+actuales. Un resultado desconocido o error conserva el aviso; exige confirmación
+o revisión manual antes de nuevos envíos. La revisión habilita acciones nuevas,
+conserva el aviso y no demuestra que el envío anterior haya fallado. La retirada
+manual solo está disponible después de revisar. No hay reenvío automático.
+
+Las referencias nuevas de otra pestaña no se incorporan como recuperaciones
+a una pantalla ya abierta. Detectar otro token interrumpe la sesión local sin
+borrar el token de la otra pestaña. La recuperación exige el mismo navegador,
+perfil y almacenamiento; no reconstruye claves anteriores a esta funcionalidad.
+No caduca ni desaloja referencias automáticamente. El límite es 256 por identidad;
+si el registro no puede leerse o persistirse, bloquea el envío antes de fetch.
+
+## Límites y revisión transversal
+
+Desde 59, un plazo común de 30000 ms cubre fetch y response.json conjuntamente.
+VITE_REQUEST_TIMEOUT_MS acepta un entero positivo hasta 2147483647 ms;
+configuración ausente o inválida usa 30000 ms. Se lee al iniciar/compilar Vite:
+modificarla requiere reiniciar el servidor frontend o generar un nuevo build.
+El vencimiento aborta el transporte y termina la espera incluso si la promesa
+ignora la señal. Libera bloqueos y permite continuar sondeo/consultas de recibos.
+Abortar no garantiza cancelar la escritura en el servidor: conserva clave,
+contenido en memoria y referencia, y exige consulta o reintento explícitos.
+No repite automáticamente ni POST/PATCH ni el escaneo GET que registra eventos.
+
+Una señal externa ya cancelada impide enviar. Una cancelación durante un envío
+se trata como resultado incierto; su reintento no hereda la señal cancelada.
+Cambiar sesión interrumpe las solicitudes anteriores, preserva referencias y
+rechaza respuestas tardías. Un evento de cambio de token de otra pestaña termina
+la espera sin borrar el token nuevo. Logout puede terminar su revocación remota
+después de borrar la sesión local, conservando plazo y rechazo de respuesta vieja.
+Temporizadores y listeners se limpian al terminar cada solicitud.
+
+GET /scan registra QR_SCANNED dentro de una transacción, pero el cliente no
+genera para él la clave ni la referencia de POST/PATCH. Escanear repetidamente
+puede registrar varios eventos; no equivale a duplicar una evaluación.
+Las claves diferentes entre dispositivos siguen representando intenciones
+distintas. Los recibos reservados crecen sin archivo automático. Estas limitaciones
+requieren alcance propio; no se corrigen silenciosamente en esta revisión.
+
+Evaluación y propuesta de siguiente entrega: [revisión transversal](WRITE_FLOW_REVIEW.md).

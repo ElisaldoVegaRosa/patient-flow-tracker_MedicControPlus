@@ -69,7 +69,7 @@ export default function UncertainWrites({ operations, onConfirmed, onRejected }:
     <p>Consultar no vuelve a enviar. Reintentar envía la operación original, aunque hayas editado los campos después.</p>
     {pending.map(item => <div key={item.key}>
       <h3>{label(item.path)}</h3>
-      <p role="status">{messages[item.key] ?? "El servidor puede haber guardado esta operación. Su resultado está por confirmar."}</p>
+      <p role="status">{messages[item.key] ?? item.message}</p>
       <button type="button" disabled={operations.isPending(operationKey(item.path))} onClick={() => void resolve(item, false)}>Consultar resultado</button>
       <button type="button" disabled={operations.isPending(operationKey(item.path))} onClick={() => void resolve(item, true)}>Reintentar operación original</button>
     </div>)}

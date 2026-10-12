@@ -1218,7 +1218,11 @@ el usuario. Commit `e51acdc3fdff70c07b58de183f0a5b9a78156948` y CI
 tras recarga o reinicio. Frontend: 341 pruebas, lint y build aprobados;
 prueba directa completada por el usuario. Commit
 `498e5569bd06f0a342bd021a0b4259574eacb1c2` y CI `38292624235` aprobada.
-Siguiente paso: revisar y acordar el alcance de la próxima mejora transversal.
+Etapa 59 autorizada e implementada localmente: espera y cancelación comunes,
+con plazo configurable de 30 segundos. Frontend: 362 pruebas, lint y build
+aprobados, más el caso nuevo del ajuste de mensaje (363 distintos).
+Prueba directa completa confirmada. Siguiente paso: autorizar publicación
+y comprobar la CI de la Etapa 59.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
@@ -1374,7 +1378,31 @@ Siguiente paso: revisar y acordar el alcance de la próxima mejora transversal.
   Etapa 58 cerrada dentro de este alcance. Cierre documental incluido
   en la publicación autorizada; próximas implementaciones requieren autorización.
 
+## Etapa 59: espera y cancelación comunes
+
+- Alcance aprobado e implementado localmente para todas las solicitudes del
+  cliente: plazo de 30 segundos configurable con VITE_REQUEST_TIMEOUT_MS.
+- Escrituras vencidas mantienen intención y resultado incierto; consultas
+  fallidas liberan bloqueos y permiten continuar sondeo/recibos. Sin reenvío.
+- Cancelación por sesión y señales externas; respuestas antiguas descartadas.
+  La petición de logout conserva su revocación remota y su propio plazo.
+- Validación final: 362 pruebas frontend (35 archivos, 21 casos nuevos), lint
+  y build aprobados. Un trabajador fuera del sandbox, sin ampliar tiempos;
+  suites afectadas también aprobadas por separado (77 pruebas).
+- Backend y datos intactos. Consulta de recibo confirmada por el usuario sin
+  otro registro; en la repetición confirmó el aviso de tiempo agotado y la
+  consulta posterior del mismo intento sin crear otro registro.
+  Commit/push no autorizados.
+- Panel corregido para mostrar la causa registrada del fallo. Validación final
+  del ajuste: 12 pruebas dirigidas, incluido un caso nuevo; 363 casos distintos
+  verificados (última suite completa: 362), lint/build aprobados.
+  Aviso de plazo confirmado por el usuario tras el ajuste del panel.
+
 ## Fuentes
+
+Revisión transversal 53–58 completada: [cobertura, límites y propuesta 59](WRITE_FLOW_REVIEW.md).
+La entrega común de espera y cancelación está autorizada como Etapa 59,
+con plazo inicial de 30 segundos. Su publicación todavía requiere autorización.
 
 - Plan de etapas 30–37 aportado por el usuario en esta conversación.
 - [Estado del proyecto](PROJECT_STATUS.md): cierre confirmado, capacidades y

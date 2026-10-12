@@ -17,7 +17,10 @@ describe("Resultados inciertos compartidos", () => {
     expect(pending.path).toBe(path);
     fetchMock.mockResolvedValueOnce(response({ id: 12 }));
     await expect(retryWrite(pending.key)).resolves.toEqual({ id: 12 });
-    expect(fetchMock.mock.calls[1][1]).toEqual(fetchMock.mock.calls[0][1]);
+    const { signal: firstSignal, ...firstRequest } = fetchMock.mock.calls[0][1];
+    const { signal: retrySignal, ...retryRequest } = fetchMock.mock.calls[1][1];
+    expect(retryRequest).toEqual(firstRequest);
+    expect(retrySignal).not.toBe(firstSignal);
     expect(getUncertainWrites()).toEqual([]);
   });
   it("rechazos definitivos no quedan pendientes ni bloquean una nueva intención", async () => {

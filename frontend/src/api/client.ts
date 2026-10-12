@@ -2,6 +2,7 @@ const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 import type { SessionUser } from "../types/clinical";
 import { WriteReferences, writeKind, writeReferenceOwner } from "../session/writeReferences";
 import type { WriteReference } from "../session/writeReferences";
+import { requestLifetime } from "./requestLifetime";
 
 export const SESSION_EXPIRED_EVENT = "mediccontrol:session-expired";
 let sessionRevision = 0;
@@ -15,6 +16,7 @@ export const WRITE_CONFIRMED_EVENT = "mediccontrol:write-confirmed";
 export type UncertainWrite = { key: string; path: string; message: string };
 const uncertainWrites = new Map<string, UncertainWrite & { intent: string; options: RequestInit; owner: string | null }>();
 const activeWrites = new Map<symbol, { revision: number; key: string | null; owner: string | null }>();
+const activeRequests = new Set<ReturnType<typeof requestLifetime>>();
 let referenceOwner: string | null = null;
 let referenceToken: string | null = null;
 let recoveredKeys = new Set<string>();
@@ -29,6 +31,8 @@ const notifyWrites = () => window.dispatchEvent(new Event(WRITE_RESULTS_EVENT));
 export const getUncertainWrites = (): UncertainWrite[] => [...uncertainWrites.values()].map(({ key, path, message }) => ({ key, path, message }));
 export const getWriteBody = (key: string) => uncertainWrites.get(key)?.options.body;
 function clearWriteIntents() {
+  for (const request of activeRequests) request.cancel(new SessionInterruptedError());
+  activeRequests.clear();
   const persisted = (owner: string | null, key: string | null) => {
     try { return Boolean(owner && key && references().list(owner).some(item => item.key === key)); }
     catch { return false; }
@@ -182,6 +186,8 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   if (!login && referenceToken && referenceToken !== token) interruptChangedToken();
   const method = (options.method ?? "GET").toUpperCase();
   const protectedWrite = ["POST", "PATCH"].includes(method) && !path.startsWith("/auth/");
+  // An already cancelled request has not reached the server or acquired an intention.
+  if (options.signal?.aborted) throw new DOMException("La solicitud fue cancelada.", "AbortError");
   if (protectedWrite && recoveryBinding) throw new ApiError("Comprobando los envíos anteriores. Espera antes de enviar otra operación; esta no se ha enviado.", 409);
   if (protectedWrite && referenceOwner) refreshWriteRecovery();
   if (protectedWrite && referenceError) throw new ApiError(`${referenceError} No se ha enviado esta operación.`, 503);
@@ -228,15 +234,25 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     }
   }
 
+  const request = requestLifetime(options.signal);
+  // Logout starts before App clears its local session: let server revocation finish.
+  // Its response still cannot affect a new session and retains the same deadline.
+  const logout = path === "/auth/logout";
+  if (!logout) activeRequests.add(request);
+  const storageChanged = (event: StorageEvent) => {
+    if (!logout && (event.key === "token" || event.key === null) && token !== localStorage.getItem("token")) request.cancel(new SessionInterruptedError());
+  };
+  window.addEventListener("storage", storageChanged);
   try {
-    const response = await fetch(`${API}${path}`, {
+    const response = await request.wait(() => fetch(`${API}${path}`, {
       ...options,
+      signal: request.signal,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
         ...Object.fromEntries(headers.entries()),
       },
-    });
+    }));
     if (!isCurrent()) throw new SessionInterruptedError();
     if (response.status === 401 && token && !login) {
       // A fresh auth rejection cannot have committed. A retry's 401 says
@@ -247,7 +263,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
       window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
       throw new SessionInterruptedError();
     }
-    const result = (await response.json()) as T & { detail?: string | { code?: string; message?: string } };
+    const result = (await request.wait(() => response.json())) as T & { detail?: string | { code?: string; message?: string } };
     if (!isCurrent()) throw new SessionInterruptedError();
     if (intent && response.status < 500) {
       const key = headers.get("Idempotency-Key")!;
@@ -271,12 +287,16 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     if (intent && (!(error instanceof ApiError) || error.status >= 500)) {
       const key = headers.get("Idempotency-Key")!;
       const message = `Resultado por confirmar. El servidor puede haber guardado la operación. ${(error as Error).message}`;
-      uncertainWrites.set(key, { key, path, intent, message, options: { ...options, headers }, owner });
+      // A retry is a new transport attempt, never reuse its cancelled caller signal.
+      uncertainWrites.set(key, { key, path, intent, message, options: { ...options, signal: undefined, headers }, owner });
       notifyWrites();
       throw new UncertainWriteError(message);
     }
     throw error;
   } finally {
+    request.dispose();
+    activeRequests.delete(request);
+    window.removeEventListener("storage", storageChanged);
     activeWrites.delete(writeTicket);
     if (protectedWrite) notifyWrites();
   }

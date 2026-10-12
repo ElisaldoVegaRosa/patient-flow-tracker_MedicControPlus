@@ -5,6 +5,42 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 59: espera y cancelación comunes
+
+- Implementación local autorizada: plazo común de 30 segundos para cabeceras
+  y cuerpo; VITE_REQUEST_TIMEOUT_MS permite configurarlo. Sin reenvío automático.
+- Una escritura vencida conserva clave y referencia; puede consultarse o
+  reintentarse explícitamente con el contenido original y una señal nueva.
+- Cancela solicitudes antiguas al cambiar sesión y rechaza respuestas tardías.
+  Logout conserva la revocación remota tras borrar la sesión local, con plazo.
+- Libera bloqueos y permite continuar recibos y sondeo después del vencimiento;
+  respeta señales externas y limpia temporizadores/listeners.
+- Validación final: 362 pruebas frontend en 35 archivos, incluidos 21 casos
+  nuevos; lint/build aprobados. Un trabajador fuera del sandbox, sin ampliar
+  tiempos. Las 77 pruebas de las suites afectadas pasaron también por separado.
+- Comparaciones de reintento conservan cuerpo/cabeceras/clave y exigen una
+  señal de transporte nueva. Backend/base local intactos; conserva validación
+  de 58 sin repetirla. El usuario confirmó la consulta del recibo sin crear otro
+  registro; en la repetición confirmó el aviso de tiempo agotado. Commit/push no
+  autorizados.
+
+- Ajuste tras prueba directa: mostrar en Guardados por confirmar la causa
+  registrada, incluido el tiempo agotado, que quedaba oculta por texto genérico.
+  12 pruebas dirigidas finales aprobadas, incluido un caso nuevo; 363 casos
+  distintos verificados (última suite completa: 362 antes de este ajuste).
+  Lint/build finales aprobados; aviso del plazo confirmado en la repetición
+  directa por el usuario. Después confirmó el recibo del mismo intento sin
+  crear otro registro: prueba directa completa aprobada.
+
+## Revisión transversal de las etapas 53–58
+
+- Contrato común actualizado: referencias recuperadas de 58 y sondeo de 57.
+- Cobertura y límites contrastados con código y pruebas existentes; prioridad
+  identificada: falta de plazo común para solicitudes y lectura de respuestas.
+- Propuesta 59 documentada con criterios de aceptación, sin implementación
+  autorizada. Detalle: [revisión transversal](WRITE_FLOW_REVIEW.md).
+- Solo documentación; no se repiten las pruebas y CI aprobadas de 58.
+
 ## Etapa 58: revisión de envíos tras recarga o reinicio
 
 - Alcance transversal autorizado e implementado localmente para POST/PATCH

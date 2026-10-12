@@ -2,7 +2,8 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, expect, it, vi } from "vitest";
 import { api, bindWriteRecovery, establishSession, getRecoveredWrites, invalidateSession } from "../api/client";
 import { usePendingOperations } from "../hooks/usePendingOperations";
-import { WRITE_REFERENCE_PREFIX } from "../session/writeReferences";
+import { WRITE_REFERENCE_PREFIX, WriteReferences, writeReferenceOwner } from "../session/writeReferences";
+import { REQUEST_TIMEOUT_MS } from "../api/requestLifetime";
 import RecoveredWrites from "./RecoveredWrites";
 const identity = { username: "qa58", role: "DOCTOR" };
 const response = (data: unknown) => ({ ok: true, status: 200, json: async () => data }) as Response;
@@ -84,4 +85,34 @@ it("refleja la retirada de una referencia desde otra pestaña sin reenviar", asy
   act(() => window.dispatchEvent(new StorageEvent("storage", { key: WRITE_REFERENCE_PREFIX + key })));
   expect(screen.queryByRole("region", { name: "Envíos recuperados por revisar" })).not.toBeInTheDocument();
   expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+it("una consulta vencida libera el bloqueo y permite consultar la referencia siguiente", async () => {
+  vi.useFakeTimers();
+  try {
+    establishSession("recibos59");
+    const owner = await writeReferenceOwner("http://localhost:8000", identity);
+    const registry = new WriteReferences(localStorage);
+    const keys = ["first-reference-59", "second-reference-59"];
+    keys.forEach((key, index) => registry.remember({ owner, key, kind: "evaluation", createdAt: Date.now() + index, reviewed: false }));
+    await bindWriteRecovery(identity);
+    const fetchMock = vi.fn().mockImplementationOnce(() => new Promise(() => {})).mockResolvedValue(response({ status: "confirmed" }));
+    vi.stubGlobal("fetch", fetchMock);
+    const onConfirmed = vi.fn();
+    function Harness() { return <RecoveredWrites user={identity} operations={usePendingOperations()} onConfirmed={onConfirmed} />; }
+    const view = render(<Harness />);
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await act(async () => { await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS); });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(onConfirmed).toHaveBeenCalledOnce();
+    expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + keys[0])).not.toBeNull();
+    expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + keys[1])).toBeNull();
+    expect(screen.getByText("Consultar resultado anterior")).toBeEnabled();
+    expect(fetchMock.mock.calls.every(([, options]) => !options.method)).toBe(true);
+    view.unmount();
+    await act(async () => { await vi.advanceTimersByTimeAsync(REQUEST_TIMEOUT_MS); });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(localStorage.getItem(WRITE_REFERENCE_PREFIX + keys[0])).not.toBeNull();
+  } finally { vi.useRealTimers(); }
 });

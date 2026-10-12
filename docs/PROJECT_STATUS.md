@@ -2,6 +2,41 @@
 
 ## Última etapa
 
+### Etapa 59: espera y cancelación comunes
+
+- Alcance transversal autorizado e implementado localmente: un plazo de 30
+  segundos cubre cabeceras y cuerpo de todas las solicitudes del cliente.
+  Configurable con VITE_REQUEST_TIMEOUT_MS; valores inválidos usan 30000 ms.
+- Vencimiento o cancelación durante una escritura mantiene clave, contenido en
+  memoria y referencia; muestra resultado por confirmar, sin reenvío automático.
+  Una señal ya cancelada no envía ni adquiere intención. El reintento explícito
+  conserva contenido/clave/versiones y usa una señal de transporte nueva.
+- Cambio de sesión interrumpe peticiones anteriores; respuestas tardías no
+  consumen referencias ni afectan la sesión nueva. Cambios de token notificados
+  por otra pestaña interrumpen la espera sin borrar el token nuevo.
+- Logout conserva su petición de revocación al borrar la sesión local, con el
+  mismo plazo y rechazo de respuestas antiguas; evita abortar su propio cierre.
+- Libera bloqueos, permite continuar consultas de recibos y reanuda el sondeo
+  después del plazo. Limpia temporizadores y listeners al terminar.
+- Validación final: 362 pruebas frontend aprobadas en 35 archivos, incluidos
+  21 casos nuevos; lint y build aprobados. Ejecución con un trabajador fuera del
+  sandbox, sin ampliar tiempos: allí también pasaron las 77 pruebas de las suites
+  afectadas por esperas locales. Comparaciones de reintento conservan cuerpo,
+  cabeceras y clave, y ahora exigen una señal de transporte diferente.
+- Backend, esquema y datos locales sin cambios: conserva las 143 pruebas y CI
+  aprobadas de 58, sin repetirlas localmente. El usuario confirmó la consulta
+  del recibo: operación confirmada sin otro registro, con actualización automática
+  visible. En la repetición confirmó el aviso explícito de tiempo agotado y la
+  consulta posterior del mismo intento sin crear otro registro;
+  commit/push no autorizados. Etapa 59 validada localmente, todavía sin publicar.
+- Revisión de origen: [cobertura transversal 53–58](WRITE_FLOW_REVIEW.md).
+- Ajuste posterior a la prueba directa: el panel mostraba texto genérico y
+  ocultaba la causa registrada del fallo. Ahora muestra el mensaje del envío,
+  incluido el tiempo agotado. Validación dirigida final: 12 pruebas aprobadas,
+  con un caso nuevo de visibilidad; 363 casos distintos verificados (última
+  suite completa: 362 antes de este ajuste). Lint/build finales aprobados.
+  Prueba directa del aviso de plazo confirmada por el usuario tras el ajuste.
+
 ### Etapa 58: revisión de envíos tras recarga o reinicio
 
 - Alcance transversal autorizado e implementado localmente para POST/PATCH
@@ -1419,7 +1454,11 @@ el usuario. Commit `e51acdc3fdff70c07b58de183f0a5b9a78156948` y CI
 tras recarga o reinicio. Frontend: 341 pruebas, lint y build aprobados;
 prueba directa completada por el usuario. Commit
 `498e5569bd06f0a342bd021a0b4259574eacb1c2` y CI `38292624235` aprobada.
-Siguiente paso: revisar y acordar el alcance de la próxima mejora transversal.
+Etapa 59 autorizada e implementada localmente: espera y cancelación comunes,
+con plazo configurable de 30 segundos. Frontend: 362 pruebas, lint y build
+aprobados, más el caso nuevo del ajuste de mensaje (363 distintos).
+Prueba directa completa confirmada. Siguiente paso: autorizar publicación
+y comprobar la CI de la Etapa 59.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

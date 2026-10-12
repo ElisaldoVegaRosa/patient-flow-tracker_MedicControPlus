@@ -50,7 +50,12 @@ it.each(["consultar", "reintentar", "consultar sin editar", "consultar cambios p
   expect(screen.getByLabelText("Temperatura")).toHaveValue(38);
   const writes = fetchMock.mock.calls.filter(([url]) => String(url).endsWith("/triage"));
   expect(writes).toHaveLength(mode === "reintentar" ? 2 : 1);
-  if (mode === "reintentar") expect(writes[1][1]).toEqual(writes[0][1]);
+  if (mode === "reintentar") {
+    const { signal: originalSignal, ...originalRequest } = writes[0][1]!;
+    const { signal: retrySignal, ...retryRequest } = writes[1][1]!;
+    expect(retryRequest).toEqual(originalRequest);
+    expect(retrySignal).not.toBe(originalSignal);
+  }
   if (mode === "consultar sin editar") return;
   fireEvent.click(screen.getByRole("button", { name: "Guardar triaje y asignación" }));
   await waitFor(() => expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith("/triage"))).toHaveLength(writes.length + 1));
