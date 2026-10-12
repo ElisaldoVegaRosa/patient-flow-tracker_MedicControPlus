@@ -98,3 +98,39 @@ antes de cada intención nueva (`backend/tests/conftest.py`). Las pruebas de
 concurrencia envían versiones explícitas congeladas o vacías: cubren dos sesiones,
 428, conflicto, rollback, revisión, permisos e idempotencia. No omiten el control
 de producción ni actualizan automáticamente versiones en los casos de conflicto.
+
+## Resultados por confirmar (56)
+
+El cliente distingue fallos de red, HTTP 5xx y respuestas ilegibles de rechazos
+definitivos. Conserva en memoria la solicitud original y muestra un panel común.
+Una intención distinta para esa ruta no puede enviarse mientras la anterior siga
+incierta. El reintento requiere otra acción explícita y conserva cuerpo, clave y
+versión; comparte el bloqueo por recurso de los formularios. El vencimiento de
+24 horas impide el reintento desde el panel, pero no la consulta.
+
+`GET /write-result`, con `Idempotency-Key`, consulta exclusivamente un recibo
+del usuario autenticado y exige el mismo rol. No crea ni reproduce operaciones,
+eventos o recibos. Devuelve `unknown` si no encuentra un recibo: una escritura
+en curso todavía podría confirmar después. Un recibo existente devuelve
+`confirmed` y el detalle actual del episodio o resumen operacional, incluso si
+el plazo para reintentar expiró. Ese detalle puede incluir cambios posteriores.
+
+Confirmar limpia la intención y actualiza la vista correspondiente sin otro POST.
+Conserva formularios ajenos y ediciones posteriores; solo limpia el borrador
+original cuando sus campos aún coinciden con el contenido confirmado. No adopta
+silenciosamente una versión de triaje modificada por otra sesión debajo de nuevas
+ediciones locales. Un rechazo por versión al reintentar utiliza la revisión de 55;
+otros rechazos definitivos permanecen visibles.
+
+Cambio de sesión, HTTP 401 o salida explícita descartan claves y contenido.
+Si quedaba incertidumbre o una escritura en curso, una bandera únicamente en
+memoria exige revisar los registros antes de otro POST/PATCH operacional.
+Autenticación y lecturas siguen disponibles. Aceptar esa revisión no reenvía y
+no recupera la clave descartada; no equivale a una confirmación del servidor.
+Un 401 definitivo de la propia escritura no se clasifica como guardado incierto,
+pero conserva la revisión exigida por otra escritura interrumpida.
+
+Recargar, cerrar la pestaña o reiniciar pierde tanto solicitudes como esa bandera.
+Esta entrega no garantiza recuperar ni deduplicar una intención después de esos
+eventos. No guarda contenido clínico ni claves nuevas en almacenamiento del
+navegador y no modifica el esquema SQLite.

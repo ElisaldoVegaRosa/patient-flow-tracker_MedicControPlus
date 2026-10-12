@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { usePendingOperations } from "../hooks/usePendingOperations";
 import type { PendingOperations } from "../hooks/usePendingOperations";
@@ -7,7 +7,7 @@ import { resourceVersion, useVersionedWrites } from "../hooks/useVersionedWrites
 import type { VersionedWrites } from "../hooks/useVersionedWrites";
 import WriteConflicts from "../components/WriteConflicts";
 import { QRCodeSVG } from "qrcode.react";
-import { isSessionInterruption } from "../api/client";
+import { isSessionInterruption, WRITE_CONFIRMED_EVENT } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
 
 type EpisodePageProps = {
@@ -61,6 +61,22 @@ export default function EpisodePage({
   const [orderCreated, setOrderCreated] = useState(false);
   const [evaluationError, setEvaluationError] = useState("");
   const [orderError, setOrderError] = useState("");
+  useEffect(() => {
+    const confirmed = (event: Event) => {
+      const path = (event as CustomEvent<string>).detail;
+      if (path === `/episodes/${episode.id}/triage`) setTriageError("");
+      if (path === `/episodes/${episode.id}/vitals`) setVitalsError("");
+      if (path === `/episodes/${episode.id}/medical-evaluation`) setEvaluationError("");
+      if (path === `/episodes/${episode.id}/tasks`) setOrderError("");
+      if (path === `/episodes/${episode.id}/discharge`) setDischargeError("");
+      const task = path.match(/^\/tasks\/(\d+)\/complete$/);
+      const alert = path.match(/^\/alerts\/(\d+)$/);
+      if (task) setTaskErrors(previous => { const next = { ...previous }; delete next[Number(task[1])]; return next; });
+      if (alert) setAlertErrors(previous => { const next = { ...previous }; delete next[Number(alert[1])]; return next; });
+    };
+    window.addEventListener(WRITE_CONFIRMED_EVENT, confirmed);
+    return () => window.removeEventListener(WRITE_CONFIRMED_EVENT, confirmed);
+  }, [episode.id]);
 
   async function dischargeEpisode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

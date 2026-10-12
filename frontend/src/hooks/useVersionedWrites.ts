@@ -28,6 +28,10 @@ export function useVersionedWrites() {
     blocked.current.delete(path);
     setConflicts(previous => { if (!previous[path]) return previous; const next = { ...previous }; delete next[path]; return next; });
   }, []);
+  const reportConflict = useCallback((path: string, episodeId: number, error: VersionConflictError) => {
+    blocked.current.add(path);
+    setConflicts(previous => ({ ...previous, [path]: { path, episodeId, message: error.message } }));
+  }, []);
   const write = useCallback(async (path: string, options: RequestInit, episodeId: number, version?: string) => {
     if (blocked.current.has(path)) throw new VersionConflictError("Consulta y revisa los cambios antes de volver a guardar.", 409);
     const expected = remember(path, version);
@@ -42,12 +46,11 @@ export function useVersionedWrites() {
     } catch (error) {
       if (ticket !== generation.current) throw new SessionInterruptedError();
       if (error instanceof VersionConflictError) {
-        blocked.current.add(path);
-        setConflicts(previous => ({ ...previous, [path]: { path, episodeId, message: error.message } }));
+        reportConflict(path, episodeId, error);
       }
       throw error;
     }
-  }, [remember, forget]);
+  }, [remember, forget, reportConflict]);
   const inspect = useCallback(async (conflict: Conflict) => {
     const revision = getSessionRevision();
     const ticket = generation.current;
@@ -74,6 +77,6 @@ export function useVersionedWrites() {
     setConflicts(previous => { const next = { ...previous }; delete next[conflict.path]; return next; });
     return true;
   }, []);
-  return { remember, forget, write, clear, conflicts, inspect, accept };
+  return { remember, forget, write, clear, conflicts, inspect, accept, reportConflict };
 }
 export type VersionedWrites = ReturnType<typeof useVersionedWrites>;

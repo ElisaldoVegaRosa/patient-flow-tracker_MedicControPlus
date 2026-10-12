@@ -4,11 +4,13 @@ import "./App.css";
 import { usePendingOperations } from "./hooks/usePendingOperations";
 import { useVersionedWrites } from "./hooks/useVersionedWrites";
 import WriteConflicts from "./components/WriteConflicts";
+import UncertainWrites from "./components/UncertainWrites";
 import {
   api, establishSession, getSessionRevision, invalidateSession,
-  isSessionInterruption, SESSION_EXPIRED_EVENT,
+  isSessionInterruption, SESSION_EXPIRED_EVENT, VersionConflictError,
 } from "./api/client";
 import { useFormRecovery } from "./session/useFormRecovery";
+import { matchesSubmittedFields } from "./session/submittedFields";
 import type { DraftKind, FormDraft } from "./session/formDrafts";
 import { useUnsavedDischargeNote } from "./session/useUnsavedDischargeNote";
 import EpisodeHistoryPage from "./pages/EpisodeHistoryPage";
@@ -50,6 +52,7 @@ function App() {
   const operations = usePendingOperations();
   const evaluatingRules = operations.isPending("rules");
   const [error, setError] = useState("");
+  const [writeNotice, setWriteNotice] = useState("");
   const [restoringSession, setRestoringSession] =
     useState(() => Boolean(localStorage.getItem("token")));
   const recovery = useFormRecovery();
@@ -120,10 +123,10 @@ function App() {
     setEpisode(updated);
   }
 
-  function reviewChanges(latest: Episode) {
+  function reviewChanges(latest: Episode, savedForm?: HTMLFormElement) {
     // Re-render authoritative state while preserving every visible local form.
     const drafts = [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-draft-kind]") ?? [])]
-      .filter(form => form.dataset.draftKind !== "discharge")
+      .filter(form => form.dataset.draftKind !== "discharge" && form !== savedForm)
       .map(form => ({ kind: form.dataset.draftKind as DraftKind,
         episodeId: form.dataset.episodeId ? Number(form.dataset.episodeId) : undefined,
         taskId: form.dataset.taskId ? Number(form.dataset.taskId) : undefined,
@@ -136,6 +139,38 @@ function App() {
       const task = latest.tasks.find(item => item.id === order.id);
       return order.episode_id === latest.id && task ? { ...order, ...task, episode_status: latest.status } : order;
     }) } : previous);
+  }
+
+  function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
+    setWriteNotice("Operación confirmada por el servidor. No se ha creado otro registro.");
+    setError(previous => previous.includes("Resultado por confirmar") || previous.includes("envío anterior por confirmar") ? "" : previous);
+    const kind = path === "/episodes" ? "arrival" : path.endsWith("/triage") ? "triage" : path.endsWith("/vitals") ? "vitals" : path.endsWith("/medical-evaluation") ? "evaluation" : path.endsWith("/tasks") ? "order" : path.startsWith("/tasks/") ? "lab" : undefined;
+    const updated = result as Episode;
+    if (!updated || typeof updated.id !== "number") { writes.forget(path); return; }
+    const payload = typeof body === "string" ? JSON.parse(body) as Record<string, unknown> : {};
+    const savedForm = [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-draft-kind]") ?? [])].find(form =>
+      form.dataset.draftKind === kind &&
+      (!form.dataset.episodeId || Number(form.dataset.episodeId) === updated.id) &&
+      (!form.dataset.taskId || path === `/tasks/${form.dataset.taskId}/complete`) &&
+      matchesSubmittedFields(new FormData(form), payload));
+    // A receipt can return later changes by another session. Do not silently
+    // adopt their triage version underneath local edits still awaiting review.
+    if (kind !== "triage" || savedForm || Object.entries(payload).every(([name, value]) => String((updated as unknown as Record<string, unknown>)[name] ?? "") === String(value ?? ""))) writes.forget(path);
+    if (savedForm && kind) {
+      savedForm.reset();
+      recovery.remove(kind, kind === "arrival" ? undefined : updated.id, savedForm.dataset.taskId ? Number(savedForm.dataset.taskId) : undefined);
+      if (kind === "evaluation") leave.trackEvaluation(false);
+      if (kind === "order") leave.trackOrder(false);
+    }
+    if (path === "/episodes" && page === "new" && savedForm) {
+      setEpisode(updated);
+      setPage("episode");
+      setRestoredForms([]);
+      void loadDashboard();
+    } else if ((page === "episode" && episode?.id === updated.id) || page === "laboratory") {
+      reviewChanges(updated, savedForm);
+      if (page === "laboratory") setLaboratoryQueue(previous => previous ? { ...previous, orders: previous.orders.filter(order => !updated.tasks.some(task => task.id === order.id && task.status === "COMPLETED")) } : previous);
+    }
   }
 
   useEffect(() => {
@@ -157,6 +192,7 @@ function App() {
       setPage("dashboard");
       setRestoringSession(false);
       setRulesMessage("");
+      setWriteNotice("");
       setError("Tu sesión expiró. Inicia sesión nuevamente.");
     }
     window.addEventListener(SESSION_EXPIRED_EVENT, sessionExpired);
@@ -597,6 +633,14 @@ async function logout() {
         </div>
       )}
       <WriteConflicts writes={writes} onReviewed={reviewChanges} />
+      <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
+        setError(exception.message);
+        if (exception instanceof VersionConflictError) {
+          const id = Number(path.match(/^\/episodes\/(\d+)/)?.[1]) || (page === "episode" ? episode?.id : laboratoryQueue?.orders.find(order => path === `/tasks/${order.id}/complete`)?.episode_id);
+          if (id) writes.reportConflict(path, id, exception);
+        }
+      }} />
+      {writeNotice && <p role="status">{writeNotice}</p>}
 
       {page === "dashboard" && dashboard && (
         <DashboardPage

@@ -1204,14 +1204,12 @@ debe validarse antes de continuar con la siguiente entrega.
 
 ## Próximo paso
 
-Etapa 55 publicada en `bfa171b1a21f121fbd11cf322b7f767e991667b0`;
-CI `38268979298` aprobada. Se conservan las validaciones de 140 pruebas
-backend, 271 frontend, lint y build; no se repiten por este ajuste documental.
-Prueba directa entre dos sesiones confirmada satisfactoria por el usuario:
-conflicto visible, campos conservados y revisión explícita sin guardado
-automático. Etapa 55 cerrada dentro del alcance acordado.
-Cierre documental autorizado para publicación. Siguiente paso:
-acordar la próxima necesidad funcional. No hay otra entrega autorizada.
+Etapa 55 cerrada: implementación y cierre documental publicados; CI aprobada.
+Etapa 56 autorizada e implementada localmente como una entrega transversal
+para revisar resultados inciertos. Backend: 143 pruebas aprobadas; frontend:
+suite de 290 y comprobaciones finales dirigidas aprobadas (293 casos distintos),
+lint y build aprobados. Commit/push autorizados; publicar y comprobar CI.
+No hay otra entrega funcional autorizada.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
@@ -1263,6 +1261,34 @@ acordar la próxima necesidad funcional. No hay otra entrega autorizada.
   estados, conflicto, actividades independientes, reintentos y rollback.
 - Publicada en `bfa171b1a21f121fbd11cf322b7f767e991667b0`; CI `38268979298` aprobada. Presencia en tiempo real, edición
   colaborativa y bloqueos exclusivos no forman parte de esta propuesta.
+
+## Etapa 56: revisión común de resultados inciertos
+
+- Alcance transversal autorizado e implementado localmente para POST/PATCH
+  operacionales. Red, HTTP 5xx o respuesta ilegible distinguen un resultado por
+  confirmar de un rechazo definitivo; conservan campos e intención original.
+- Panel compartido para ingreso, triaje, signos, evaluación, órdenes, tareas,
+  alertas, alta, demo y reglas. Consultar usa un GET autenticado del recibo:
+  no reenvía ni escribe. Ausencia significa desconocido, no fallo confirmado.
+- Reintento explícito con contenido, clave y versión originales; bloquea una
+  intención distinta para el mismo recurso mientras exista incertidumbre.
+  Usa los bloqueos de 53A; recursos independientes continúan disponibles.
+- Confirmación actualiza el contexto correspondiente, limpia solo el formulario
+  original si sigue sin cambios y conserva ediciones posteriores y otros borradores.
+  Los conflictos del reintento pasan al mecanismo de revisión de 55.
+- Consulta de recibos restringida al usuario y rol actuales, incluso si venció
+  el plazo de reintento. Sin esquema nuevo ni cambios en la base de demostración.
+- Cambiar/expirar la sesión descarta contenido y claves; si había un envío
+  incierto o en curso, bloquea nuevas escrituras hasta la revisión explícita de
+  registros. Lecturas y autenticación siguen disponibles; confirmar revisión no
+  escribe ni garantiza recuperar la intención anterior.
+- Todo permanece en memoria. Recarga, cierre de pestaña y reinicio pierden esta
+  información; recuperación durable y archivo de recibos siguen fuera del alcance.
+- Validación backend: 143 pruebas aprobadas, una advertencia existente.
+  Frontend: suite completa de 290 pruebas aprobada y comprobaciones finales
+  dirigidas aprobadas (22 casos nuevos en total; 293 casos distintos cubiertos).
+  Lint y build aprobados. No se repite backend tras cambios solo frontend.
+- Commit/push de 56 autorizados por el usuario; publicación y CI pendientes.
 
 ## Fuentes
 

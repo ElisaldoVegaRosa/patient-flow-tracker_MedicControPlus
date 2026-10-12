@@ -5,6 +5,34 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 56: revisión común de resultados inciertos
+
+- Alcance transversal autorizado e implementado localmente para POST/PATCH
+  operacionales. Red, HTTP 5xx o respuesta ilegible distinguen un resultado por
+  confirmar de un rechazo definitivo; conservan campos e intención original.
+- Panel compartido para ingreso, triaje, signos, evaluación, órdenes, tareas,
+  alertas, alta, demo y reglas. Consultar usa un GET autenticado del recibo:
+  no reenvía ni escribe. Ausencia significa desconocido, no fallo confirmado.
+- Reintento explícito con contenido, clave y versión originales; bloquea una
+  intención distinta para el mismo recurso mientras exista incertidumbre.
+  Usa los bloqueos de 53A; recursos independientes continúan disponibles.
+- Confirmación actualiza el contexto correspondiente, limpia solo el formulario
+  original si sigue sin cambios y conserva ediciones posteriores y otros borradores.
+  Los conflictos del reintento pasan al mecanismo de revisión de 55.
+- Consulta de recibos restringida al usuario y rol actuales, incluso si venció
+  el plazo de reintento. Sin esquema nuevo ni cambios en la base de demostración.
+- Cambiar/expirar la sesión descarta contenido y claves; si había un envío
+  incierto o en curso, bloquea nuevas escrituras hasta la revisión explícita de
+  registros. Lecturas y autenticación siguen disponibles; confirmar revisión no
+  escribe ni garantiza recuperar la intención anterior.
+- Todo permanece en memoria. Recarga, cierre de pestaña y reinicio pierden esta
+  información; recuperación durable y archivo de recibos siguen fuera del alcance.
+- Validación backend: 143 pruebas aprobadas, una advertencia existente.
+  Frontend: suite completa de 290 pruebas aprobada y comprobaciones finales
+  dirigidas aprobadas (22 casos nuevos en total; 293 casos distintos cubiertos).
+  Lint y build aprobados. No se repite backend tras cambios solo frontend.
+- Commit/push de 56 autorizados por el usuario; publicación y CI pendientes.
+
 ## Etapa 55: protección contra conflictos entre sesiones
 
 - Prueba directa entre dos sesiones confirmada satisfactoria por el usuario:

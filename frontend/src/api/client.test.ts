@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { api, establishSession, invalidateSession, SESSION_EXPIRED_EVENT, SessionInterruptedError } from "./client";
+import { acknowledgeInterruptedWrites, api, establishSession, invalidateSession, SESSION_EXPIRED_EVENT, SessionInterruptedError } from "./client";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -135,6 +135,8 @@ describe("Intenciones de escritura", () => {
     vi.stubGlobal("fetch", fetchMock);
     await expect(api("/episodes", write)).rejects.toThrow();
     establishSession("new-session");
+    await expect(api("/episodes", write)).rejects.toThrow("Revisa los registros");
+    acknowledgeInterruptedWrites();
     await api("/episodes", write);
     expect(key(fetchMock, 0)).not.toBe(key(fetchMock, 1));
   });
