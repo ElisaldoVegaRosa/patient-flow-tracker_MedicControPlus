@@ -5,6 +5,44 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 58: revisión de envíos tras recarga o reinicio
+
+- Alcance transversal autorizado e implementado localmente para POST/PATCH
+  operacionales: registra antes del envío una referencia por clave y recupera
+  las referencias anteriores al validar la identidad después de recargar o entrar.
+- Solo persiste clave opaca, tipo de acción, fecha, estado de revisión y huella
+  de usuario/rol/API. No guarda rutas, IDs de pacientes/episodios, texto clínico,
+  contenido original, versiones, respuestas ni credenciales adicionales.
+- Consulta los recibos existentes por GET, una vez por referencia y sesión,
+  secuencialmente. Confirmación retira la referencia y permite refrescar la vista
+  sin borrar formularios actuales ni atribuirles el contenido del envío anterior.
+- Resultado desconocido o fallo conserva el aviso y bloquea nuevos envíos hasta
+  confirmación o revisión manual explícita. La revisión no demuestra un fallo:
+  habilita nuevas acciones, conserva el aviso y permite volver a consultar.
+  Solo un aviso revisado puede retirarse manualmente. No hay reenvío automático
+  ni reintento del contenido perdido; el reintento de 56 sigue en memoria.
+- Una entrada por clave evita sobrescribir listas entre pestañas. Solo recupera
+  las referencias existentes al entrar: las nuevas de otra pestaña no bloquean
+  por sí solas una pantalla ya abierta. Detecta cambios del token antes de enviar
+  y no elimina el token de la otra sesión. Las referencias se aíslan por identidad.
+- No caduca ni desaloja referencias pendientes automáticamente. Límite de 256
+  por propietario; fallo al persistir detiene el envío antes de fetch. Registro
+  dañado o no disponible bloquea escrituras y ofrece reintentar su carga.
+- Requiere conservar el almacenamiento del mismo navegador y perfil. Borrarlo,
+  usar otro equipo o cerrar un perfil privado puede perder las referencias;
+  no reconstruye claves antiguas que nunca fueron registradas. No cambia SQLite.
+- Un primer rechazo 401 retira la referencia nueva; si hubo antes un intento
+  de resultado incierto, conserva la clave para consultar tras reautenticarse.
+- Validación final: suite completa frontend de 341 pruebas aprobada en 33
+  archivos, incluidos 32 casos nuevos; lint y build aprobados.
+  Backend sin cambios: conserva las 143
+  pruebas y CI aprobada de 57, sin repetirlas localmente.
+- Prueba directa completada por el usuario: intento sin conexión, recuperación
+  del aviso tras recargar, resultado sin confirmación, revisión manual conservada
+  tras otra recarga y retirada explícita del aviso revisado.
+- Pendiente: autorización específica para commit/push y comprobación de CI.
+  Etapa 58 validada localmente, todavía sin publicar.
+
 ## Etapa 57: actualización común entre sesiones
 
 - Alcance autorizado y publicado: un mecanismo compartido actualiza dashboard,

@@ -7,8 +7,9 @@ import { useVersionedWrites } from "./hooks/useVersionedWrites";
 import WriteConflicts from "./components/WriteConflicts";
 import UncertainWrites from "./components/UncertainWrites";
 import RetainedDrafts from "./components/RetainedDrafts";
+import RecoveredWrites from "./components/RecoveredWrites";
 import {
-  api, establishSession, getSessionRevision, invalidateSession,
+  api, bindWriteRecovery, establishSession, getSessionRevision, invalidateSession,
   isSessionInterruption, SESSION_EXPIRED_EVENT, VersionConflictError,
 } from "./api/client";
 import { useFormRecovery } from "./session/useFormRecovery";
@@ -343,7 +344,9 @@ useEffect(() => {
   let cancelled = false;
 
   api<SessionUser>("/auth/me")
-    .then((session) => {
+    .then(async (session) => {
+      if (cancelled) return;
+      await bindWriteRecovery(session);
       if (!cancelled) {
         setUser({
           username: session.username,
@@ -390,6 +393,7 @@ useEffect(() => {
       });
 
       establishSession(result.access_token);
+      await bindWriteRecovery(result);
       setUser(result);
       await recovery.check(result);
     } catch (exception) {
@@ -708,6 +712,10 @@ async function logout() {
         </div>
       )}
       <WriteConflicts writes={writes} onReviewed={reviewChanges} />
+      <RecoveredWrites user={user} operations={operations} onConfirmed={() => {
+        setWriteNotice("El servidor confirmó un envío anterior. No se ha reenviado ni se han borrado los campos actuales; consulta los registros actualizados.");
+        void live.refresh();
+      }} />
       <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
         setError(exception.message);
         if (exception instanceof VersionConflictError) {
