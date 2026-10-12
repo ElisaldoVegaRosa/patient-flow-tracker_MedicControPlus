@@ -11,6 +11,9 @@ las verificaciones realizadas y el estado de cada etapa.
   CI `38303379464` falló en siete pruebas que esperaban un único mensaje de
   error. Ajustadas para comprobar mensajes visibles en banner y panel;
   99 pruebas dirigidas, lint/build aprobados. Sin cambio adicional del producto.
+  Corrección `15c13d955c7413ba4b5b867dcb8ac34b0760230e` y CI `38303904910`
+  aprobada: 143 pruebas backend (1 warning conocido), 363 frontend, lint/build.
+  Etapa 59 cerrada y publicada; cierre documental incluido en la autorización.
 - Implementación local autorizada: plazo común de 30 segundos para cabeceras
   y cuerpo; VITE_REQUEST_TIMEOUT_MS permite configurarlo. Sin reenvío automático.
 - Una escritura vencida conserva clave y referencia; puede consultarse o
@@ -25,8 +28,8 @@ las verificaciones realizadas y el estado de cada etapa.
 - Comparaciones de reintento conservan cuerpo/cabeceras/clave y exigen una
   señal de transporte nueva. Backend/base local intactos; conserva validación
   de 58 sin repetirla. El usuario confirmó la consulta del recibo sin crear otro
-  registro; en la repetición confirmó el aviso de tiempo agotado. Commit/push no
-  autorizados.
+  registro; en la repetición confirmó el aviso de tiempo agotado. Publicación
+  autorizada y completada con CI aprobada.
 
 - Ajuste tras prueba directa: mostrar en Guardados por confirmar la causa
   registrada, incluido el tiempo agotado, que quedaba oculta por texto genérico.

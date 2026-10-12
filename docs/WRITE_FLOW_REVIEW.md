@@ -7,7 +7,9 @@ de 58. Posteriormente el usuario autorizó la propuesta 59 con un plazo común
 configurable de 30 segundos. Implementación local validada: 362 pruebas
 frontend, lint y build aprobados. El ajuste posterior del panel agrega un caso
 verificado (363 distintos). Aviso de plazo y consulta posterior del mismo
-intento confirmados directamente por el usuario; publicación pendiente.
+intento confirmados directamente por el usuario. Etapa 59 cerrada y publicada:
+implementación `099f4f3`, corrección de pruebas `15c13d9`; CI `38303904910`
+aprobada con 143 pruebas backend, 363 frontend, lint y build.
 
 ## Cobertura común comprobada
 
@@ -115,4 +117,4 @@ mensaje de plazo agotado; lint/build aprobados. Total de casos distintos
 verificados: 363 (última suite completa: 362 antes del ajuste). El usuario
 confirmó el mensaje visible y después la consulta del mismo intento:
 «Operación confirmada por el servidor. No se ha creado otro registro».
-Prueba directa completa aprobada; publicación pendiente de autorización.
+Prueba directa completa aprobada; publicación autorizada y CI aprobada.

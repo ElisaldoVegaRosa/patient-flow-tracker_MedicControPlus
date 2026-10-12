@@ -8,7 +8,10 @@
   CI inicial `38303379464` falló en siete pruebas por mensajes presentes tanto
   en el banner como en el panel. Consultas de pruebas ajustadas sin cambiar el
   producto: 99 pruebas dirigidas, lint/build aprobados. Corrección y cierre
-  documental incluidos en la publicación autorizada; CI final pendiente.
+  documental incluidos en la publicación autorizada. Corrección publicada:
+  `15c13d955c7413ba4b5b867dcb8ac34b0760230e`; CI `38303904910` aprobada,
+  con 143 pruebas backend (1 warning conocido), 363 frontend, lint y build.
+  Etapa 59 cerrada dentro del alcance; cierre documental incluido.
 - Alcance transversal autorizado e implementado localmente: un plazo de 30
   segundos cubre cabeceras y cuerpo de todas las solicitudes del cliente.
   Configurable con VITE_REQUEST_TIMEOUT_MS; valores inválidos usan 30000 ms.
@@ -33,7 +36,7 @@
   del recibo: operación confirmada sin otro registro, con actualización automática
   visible. En la repetición confirmó el aviso explícito de tiempo agotado y la
   consulta posterior del mismo intento sin crear otro registro;
-  commit/push no autorizados. Etapa 59 validada localmente, todavía sin publicar.
+  publicación autorizada y completada, con CI aprobada.
 - Revisión de origen: [cobertura transversal 53–58](WRITE_FLOW_REVIEW.md).
 - Ajuste posterior a la prueba directa: el panel mostraba texto genérico y
   ocultaba la causa registrada del fallo. Ahora muestra el mensaje del envío,
@@ -1462,8 +1465,8 @@ prueba directa completada por el usuario. Commit
 Etapa 59 autorizada e implementada localmente: espera y cancelación comunes,
 con plazo configurable de 30 segundos. Frontend: 362 pruebas, lint y build
 aprobados, más el caso nuevo del ajuste de mensaje (363 distintos).
-Prueba directa completa confirmada. Siguiente paso: autorizar publicación
-y comprobar la CI de la Etapa 59.
+Prueba directa completa confirmada y CI `38303904910` aprobada. Etapa 59 cerrada.
+Siguiente paso: acordar el alcance de la próxima mejora transversal.
 
 37A permite recuperar la nota de alta tras HTTP 401 según identidad, plazo
 y estado del episodio. 38A avisa antes de abandonar una nota sin enviar;

@@ -1221,8 +1221,8 @@ prueba directa completada por el usuario. Commit
 Etapa 59 autorizada e implementada localmente: espera y cancelación comunes,
 con plazo configurable de 30 segundos. Frontend: 362 pruebas, lint y build
 aprobados, más el caso nuevo del ajuste de mensaje (363 distintos).
-Prueba directa completa confirmada. Siguiente paso: autorizar publicación
-y comprobar la CI de la Etapa 59.
+Prueba directa completa confirmada y CI `38303904910` aprobada. Etapa 59 cerrada.
+Siguiente paso: acordar el alcance de la próxima mejora transversal.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
@@ -1392,7 +1392,10 @@ y comprobar la CI de la Etapa 59.
 - Backend y datos intactos. Consulta de recibo confirmada por el usuario sin
   otro registro; en la repetición confirmó el aviso de tiempo agotado y la
   consulta posterior del mismo intento sin crear otro registro.
-  Commit/push no autorizados.
+  Publicación autorizada y completada: implementación `099f4f3`, corrección
+  `15c13d955c7413ba4b5b867dcb8ac34b0760230e`; CI `38303904910` aprobada
+  con 143 pruebas backend (1 warning conocido), 363 frontend, lint/build.
+  Etapa 59 cerrada dentro del alcance; cierre documental incluido.
 - Panel corregido para mostrar la causa registrada del fallo. Validación final
   del ajuste: 12 pruebas dirigidas, incluido un caso nuevo; 363 casos distintos
   verificados (última suite completa: 362), lint/build aprobados.
@@ -1402,7 +1405,7 @@ y comprobar la CI de la Etapa 59.
 
 Revisión transversal 53–58 completada: [cobertura, límites y propuesta 59](WRITE_FLOW_REVIEW.md).
 La entrega común de espera y cancelación está autorizada como Etapa 59,
-con plazo inicial de 30 segundos. Su publicación todavía requiere autorización.
+con plazo inicial de 30 segundos, publicada y con CI aprobada.
 
 - Plan de etapas 30–37 aportado por el usuario en esta conversación.
 - [Estado del proyecto](PROJECT_STATUS.md): cierre confirmado, capacidades y
