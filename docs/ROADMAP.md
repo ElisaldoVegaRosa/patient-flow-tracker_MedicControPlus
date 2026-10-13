@@ -1227,7 +1227,8 @@ Prueba directa de 60 aprobada por el usuario.
 Entrega de 60 publicada: `fe7f802`; CI `38310344158` aprobada. Etapa cerrada.
 Etapa 61 autorizada e implementada localmente: presencia por episodio.
 Validación de 61 aprobada: 160 backend, 386 frontend, lint/build.
-Siguiente paso: publicar la Etapa 61 autorizada y comprobar CI.
+Etapa 61 publicada: `45013fc`; CI `38325483200` aprobada.
+Siguiente paso: acordar el alcance de la próxima mejora transversal.
 
 ## Etapa 54: recuperación común de borradores tras HTTP 401
 
@@ -1469,9 +1470,10 @@ Siguiente paso: publicar la Etapa 61 autorizada y comprobar CI.
   indicador de cambios sin guardar, retirada al salir del episodio, caducidad
   en Offline y recuperación al restablecer la conexión. El primer intento usaba
   un backend anterior sin las rutas nuevas; se reinició y se verificó su disponibilidad.
-- Publicación autorizada por el usuario: commit y push de la Etapa 61;
-  pendiente comprobar la CI del commit publicado.
-  Sin commit/push; datos clínicos locales conservados.
+- Entrega publicada: `45013fc33a0310e88d07ad7e6c35eb6b0e4bb7ef`.
+  CI `38325483200` aprobada. Prueba directa aprobada; Etapa 61 cerrada.
+  Cierre documental incluido en la publicación autorizada.
+  Datos clínicos locales conservados.
 
 ## Fuentes
 

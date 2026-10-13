@@ -210,9 +210,10 @@ la cobertura de los casos desconocidos o de concurrencia, verificados en pruebas
   indicador de cambios sin guardar, retirada al salir del episodio, caducidad
   en Offline y recuperación al restablecer la conexión. El primer intento usaba
   un backend anterior sin las rutas nuevas; se reinició y se verificó su disponibilidad.
-- Publicación autorizada por el usuario: commit y push de la Etapa 61;
-  pendiente comprobar la CI del commit publicado.
-  Sin commit/push; datos clínicos locales conservados.
+- Entrega publicada: `45013fc33a0310e88d07ad7e6c35eb6b0e4bb7ef`.
+  CI `38325483200` aprobada. Prueba directa aprobada; Etapa 61 cerrada.
+  Cierre documental incluido en la publicación autorizada.
+  Datos clínicos locales conservados.
 
 ### Prueba directa propuesta para 61
 
