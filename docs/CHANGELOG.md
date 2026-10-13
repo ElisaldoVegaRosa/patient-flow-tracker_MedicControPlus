@@ -2593,5 +2593,6 @@ existentes y no modifica dependencias de frontend o backend.
   reducir carga. Prueba directa de ingreso aprobada por el usuario: rechazo
   de nombre con espacios y nacimiento futuro, con campos conservados y sin crear
   episodio. Los demás flujos y límites cuentan con pruebas automatizadas.
-  Publicación autorizada por el usuario: commit, push y comprobación de CI.
-  CI de la publicación pendiente de comprobación.
+  Entrega publicada: `99dac23ca7373a99fe5513e7bc2414d008baf4a9`;
+  CI `38328571734` aprobada. Etapa 62 cerrada dentro del alcance.
+  Cierre documental incluido en la publicación autorizada.

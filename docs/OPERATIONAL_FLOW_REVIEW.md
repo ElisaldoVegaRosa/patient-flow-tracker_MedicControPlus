@@ -106,7 +106,7 @@ localmente; validación aprobada: 173 backend, 409 frontend, lint/build.
 Prueba directa de ingreso aprobada por el usuario: nombre con espacios y
 fecha futura rechazados, conservando campos sin crear un episodio. El caso
 médico opcional no se probó manualmente; está cubierto por pruebas automatizadas.
-Publicación autorizada junto con implementación, pruebas y documentación.
+Entrega publicada: `99dac23`; CI `38328571734` aprobada. Etapa 62 cerrada.
 
 
 ## Prueba directa propuesta para 62

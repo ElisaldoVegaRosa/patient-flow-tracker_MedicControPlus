@@ -2,7 +2,7 @@
 
 ## Última etapa
 
-Etapa 62 autorizada e implementada localmente: validación transversal de entradas.
+Etapa 62 publicada y cerrada: validación transversal de entradas; commit `99dac23`, CI `38328571734` aprobada.
 Validación aprobada: 173 backend, 409 frontend, lint/build; prueba directa de ingreso aprobada.
 
 ### Etapa 61: presencia compartida por episodio
@@ -1592,5 +1592,6 @@ Revisión incluida en la publicación autorizada de la Etapa 62.
   reducir carga. Prueba directa de ingreso aprobada por el usuario: rechazo
   de nombre con espacios y nacimiento futuro, con campos conservados y sin crear
   episodio. Los demás flujos y límites cuentan con pruebas automatizadas.
-  Publicación autorizada por el usuario: commit, push y comprobación de CI.
-  CI de la publicación pendiente de comprobación.
+  Entrega publicada: `99dac23ca7373a99fe5513e7bc2414d008baf4a9`;
+  CI `38328571734` aprobada. Etapa 62 cerrada dentro del alcance.
+  Cierre documental incluido en la publicación autorizada.
