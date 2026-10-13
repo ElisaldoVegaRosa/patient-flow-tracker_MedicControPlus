@@ -2555,3 +2555,43 @@ workflow o tareas de VS Code.
 Mantenimiento automatizado y revisable de acciones oficiales de GitHub Actions.
 No cambia el comportamiento funcional de la aplicacion, no actualiza acciones
 existentes y no modifica dependencias de frontend o backend.
+
+
+## Revisión integral posterior a la Etapa 61
+
+- Informe docs/OPERATIONAL_FLOW_REVIEW.md: cobertura común, validaciones desiguales,
+  pendientes de laboratorio tras cierre y decisiones de identidad/retención.
+- Comprobación en memoria: seis modelos aceptan los casos inválidos descritos;
+  sin peticiones clínicas ni modificación de base local. No se repitieron suites.
+- Propuesta 62 transversal; sin implementación, commit ni push.
+
+
+## Etapa 62: validación transversal de entradas
+
+- Implementación autorizada: reglas comunes backend para ingreso, triaje,
+  evaluación, orden, resultado y alta; rechazo de vacío/solo espacios y límites
+  de texto. Fecha de nacimiento estricta AAAA-MM-DD, real y no futura.
+- Límites: nombre/ubicación/responsable 1–200; documento 1–100;
+  diagnóstico 2–500; evaluación y resultado 3–2000; orden 3–300;
+  nota de alta 1–2000. La longitud se comprueba sobre el valor original.
+  No se normaliza ni recorta texto en los nuevos validadores. El recorte de
+  nota de alta ya existente en la interfaz se conserva.
+- Los campos omitidos que tenían un valor predeterminado lo conservan.
+  Sin nuevas reglas de identidad/documento nacional ni cambios históricos.
+- Validación frontend central por formulario operacional antes del envío;
+  conserva campos y bloquea el submit inválido. Mensajes HTTP 422 muestran
+  el campo y motivo; un rechazo definitivo no se presenta como resultado incierto.
+- Sin cambios en roles, versiones, recibos, reintentos originales o política
+  de cierre. La coherencia de pendientes de laboratorio permanece fuera del alcance.
+- Pruebas nuevas de modelos, fechas, límites y preservación, API sin efectos ni
+  recibos ante rechazo, corrección/replay y formulario con corrección sin perder campos.
+- Validación final: 173 pruebas backend (13 nuevas, 1 warning conocido),
+  409 frontend (23 nuevas, 38 archivos), lint/build aprobados. Primer intento
+  frontend: 405/409; se corrigieron fixtures vacíos y expectativas de recuperación
+  múltiple, y una prueba agotó su tiempo bajo carga. Suite final completa aprobada
+  sin ampliar tiempos. Recarga del backend local limitada a backend/app para
+  reducir carga. Prueba directa de ingreso aprobada por el usuario: rechazo
+  de nombre con espacios y nacimiento futuro, con campos conservados y sin crear
+  episodio. Los demás flujos y límites cuentan con pruebas automatizadas.
+  Publicación autorizada por el usuario: commit, push y comprobación de CI.
+  CI de la publicación pendiente de comprobación.

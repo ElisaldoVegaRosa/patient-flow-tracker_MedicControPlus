@@ -1,3 +1,4 @@
+from ..input_validation import Location, Assignee
 from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import json
@@ -9,8 +10,8 @@ from pydantic import BaseModel, Field
 
 class TriageRequest(BaseModel):
     priority: int = Field(ge=1, le=5)
-    location: str
-    assigned_to: str = "Enfermería"
+    location: Location
+    assigned_to: Assignee = "Enfermería"
 
 
 class VitalSignsRequest(BaseModel):

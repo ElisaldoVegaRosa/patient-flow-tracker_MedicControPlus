@@ -1,3 +1,4 @@
+from ..input_validation import TaskTitle, TaskResult
 from ..write_operations import atomic_write, transaction_factory
 from ..concurrency import task_version
 from collections.abc import Callable
@@ -9,12 +10,12 @@ from pydantic import BaseModel
 
 
 class TaskCreateRequest(BaseModel):
-    title: str
+    title: TaskTitle
     service: Literal["NURSING", "LAB", "MEDICAL"]
 
 
 class TaskResultRequest(BaseModel):
-    result: str
+    result: TaskResult
 
 
 def create_router(

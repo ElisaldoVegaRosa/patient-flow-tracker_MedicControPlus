@@ -1,3 +1,4 @@
+from ..input_validation import Name, Document, Location, BirthDate
 from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import secrets
@@ -8,11 +9,11 @@ from pydantic import BaseModel, Field
 
 
 class EpisodeCreate(BaseModel):
-    name: str
-    birth_date: str
-    document: str
+    name: Name
+    birth_date: BirthDate
+    document: Document
     priority: int = Field(default=3, ge=1, le=5)
-    location: str = "Recepción"
+    location: Location = "Recepción"
 
 
 def create_router(

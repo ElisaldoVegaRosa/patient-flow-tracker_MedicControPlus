@@ -1,3 +1,4 @@
+import { validateOperationalForm } from "./forms/inputValidation";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
@@ -665,7 +666,9 @@ async function logout() {
   }
 
   return (
-    <div style={{ display: "contents" }} ref={draftRoot} onChangeCapture={captureDraft}>
+    <div style={{ display: "contents" }} ref={draftRoot} onChangeCapture={captureDraft}
+      onInputCapture={event => { const target = event.target; if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) target.setCustomValidity(""); }}
+      onSubmitCapture={event => { if (event.target instanceof HTMLFormElement && !validateOperationalForm(event.target)) { event.preventDefault(); event.stopPropagation(); } }}>
       <AppHeader
         user={user}
         onDashboard={() => page === "dashboard" ? void live.refresh() : leave.run(() => {

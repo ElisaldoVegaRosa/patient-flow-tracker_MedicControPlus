@@ -170,3 +170,18 @@ describe("Intenciones de escritura", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
+
+
+it("explica errores 422 de campos sin declararlos inciertos", async () => {
+  establishSession("test-validation");
+  const fetchMock = vi.fn().mockResolvedValue(response(422, { detail: [{ loc: ["body", "name"], msg: "Valor inválido" }] }));
+  vi.stubGlobal("fetch", fetchMock);
+  try {
+    await expect(api("/episodes", { method: "POST", body: JSON.stringify({ name: "   " }) })).rejects.toThrow("name: Valor inválido");
+    fetchMock.mockResolvedValue(response(201, { id: 1 }));
+    await expect(api("/episodes", { method: "POST", body: JSON.stringify({ name: "Corregido" }) })).resolves.toEqual({ id: 1 });
+    const first = new Headers(fetchMock.mock.calls[0][1].headers).get("Idempotency-Key");
+    const second = new Headers(fetchMock.mock.calls[1][1].headers).get("Idempotency-Key");
+    expect(second).not.toBe(first);
+  } finally { invalidateSession(); vi.unstubAllGlobals(); }
+});

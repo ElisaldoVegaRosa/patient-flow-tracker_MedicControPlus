@@ -73,7 +73,7 @@ Plazo aprobado: 30000 ms, configurable con VITE_REQUEST_TIMEOUT_MS.
 ## Límites que no son defectos de duplicación
 
 - Dos sesiones pueden abrir un episodio. El control es por versión al guardar;
-  no existe reserva exclusiva ni indicador de presencia.
+  no existe reserva exclusiva. Desde 61 existe un indicador de presencia.
 - Una clave nueva, incluso con texto idéntico, es una nueva intención. Comparar
   textos o bloquear todo el episodio podría impedir registros legítimos.
 - Tras recargar no se conserva texto clínico para reconstruir un reintento.
@@ -236,3 +236,7 @@ la cobertura de los casos desconocidos o de concurrencia, verificados en pruebas
 Estas comprobaciones solo requieren abrir y editar campos, sin guardar nuevos
 registros. El cierre del episodio, varias pestañas del mismo usuario, caducidad
 exacta, roles y respuestas tardías están cubiertos por pruebas automatizadas.
+
+
+Revisión posterior a 61: [flujo integral y prioridades actualizadas](OPERATIONAL_FLOW_REVIEW.md).
+Los límites históricos de esta revisión se interpretan según las entregas 59–61.

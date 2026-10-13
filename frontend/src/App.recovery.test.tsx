@@ -99,11 +99,15 @@ describe('Recuperación de nota tras reautenticación', () => {
   it.each(['Guardar evaluación médica', 'Crear y asignar orden'])(
     'conserva la nota si el 401 procede de %s', async (action) => {
       const { fetchMock, login, user } = await prepare();
+      if (action === 'Guardar evaluación médica') {
+        fireEvent.change(screen.getByLabelText('Diagnóstico o impresión clínica'), { target: { value: 'Control ficticio' } });
+        fireEvent.change(screen.getByLabelText('Nota de evaluación'), { target: { value: 'Evaluación ficticia' } });
+      } else fireEvent.change(screen.getByLabelText('Orden o procedimiento solicitado'), { target: { value: 'Orden ficticia' } });
       fetchMock.mockResolvedValueOnce(response({}, 401));
       fireEvent.submit(screen.getByRole('button', { name: action }).closest('form')!);
       await screen.findByRole('button', { name: 'Entrar' });
       await login();
-      await user.click(await screen.findByRole('button', { name: 'Restaurar nota de alta' }));
+      await user.click(await screen.findByRole('button', { name: 'Restaurar formularios' }));
       expect(await screen.findByLabelText('Nota de alta')).toHaveValue(note);
       expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/discharge'))).toHaveLength(0);
     },

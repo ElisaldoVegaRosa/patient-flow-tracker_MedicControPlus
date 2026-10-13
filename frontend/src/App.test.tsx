@@ -54,6 +54,22 @@ describe("Nuevo ingreso", () => {
     return { user, fetchMock, episode };
   }
 
+  it("rechaza espacios sin enviar ni borrar y permite corregir el ingreso", async () => {
+    const { fetchMock, episode } = await prepareAdmission();
+    const field = screen.getByLabelText("Nombre completo");
+    fireEvent.input(field, { target: { value: "   " } });
+    const form = field.closest("form")!;
+    const before = fetchMock.mock.calls.length;
+    fireEvent.submit(form);
+    expect(fetchMock.mock.calls.length).toBe(before);
+    expect(field).toHaveValue("   ");
+    expect(field).toBeInvalid();
+    fireEvent.input(field, { target: { value: episode.name } });
+    fireEvent.submit(form);
+    expect(await screen.findByRole("heading", { name: episode.name })).toBeVisible();
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1);
+  });
+
   it("envía el ingreso con sus valores iniciales y abre el episodio creado", async () => {
     const { user, fetchMock, episode } = await prepareAdmission();
     const beforeSubmit = fetchMock.mock.calls.length;

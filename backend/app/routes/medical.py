@@ -1,15 +1,16 @@
+from ..input_validation import ClinicalNote, Diagnosis, DischargeNote
 from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import sqlite3
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class MedicalEvaluationRequest(BaseModel):
-    clinical_note: str = Field(min_length=3, max_length=2000)
-    diagnosis: str = Field(min_length=2, max_length=500)
+    clinical_note: ClinicalNote
+    diagnosis: Diagnosis
     disposition: Literal[
         "CONTINUE_OBSERVATION",
         "ORDER_TESTS",
@@ -17,7 +18,7 @@ class MedicalEvaluationRequest(BaseModel):
     ] = "CONTINUE_OBSERVATION"
 
 class DischargeRequest(BaseModel):
-    note: str = "Alta médica"
+    note: DischargeNote = "Alta médica"
 
 
 def create_router(

@@ -2,6 +2,9 @@
 
 ## Última etapa
 
+Etapa 62 autorizada e implementada localmente: validación transversal de entradas.
+Validación aprobada: 173 backend, 409 frontend, lint/build; prueba directa de ingreso aprobada.
+
 ### Etapa 61: presencia compartida por episodio
 
 - Implementación local autorizada: indicador de otras sesiones/pestañas en el
@@ -1552,3 +1555,42 @@ No se almacenan notas clínicas en localStorage/sessionStorage ni en el backend.
 La implementación de 37A está publicada y su CI aprobada.
 El contrato backend no cambia: la exigencia de nota no vacía se aplica en
 esta UI y el alta requiere una nueva acción explícita del médico.
+
+
+## Revisión integral posterior a 61
+
+Revisión autorizada completada: [informe y propuesta transversal 62](OPERATIONAL_FLOW_REVIEW.md).
+Prioridad propuesta: validación común de entradas en todos los formularios operacionales.
+Segunda prioridad: coherencia de pendientes de laboratorio tras el cierre.
+Revisión incluida en la publicación autorizada de la Etapa 62.
+
+
+## Etapa 62: validación transversal de entradas
+
+- Implementación autorizada: reglas comunes backend para ingreso, triaje,
+  evaluación, orden, resultado y alta; rechazo de vacío/solo espacios y límites
+  de texto. Fecha de nacimiento estricta AAAA-MM-DD, real y no futura.
+- Límites: nombre/ubicación/responsable 1–200; documento 1–100;
+  diagnóstico 2–500; evaluación y resultado 3–2000; orden 3–300;
+  nota de alta 1–2000. La longitud se comprueba sobre el valor original.
+  No se normaliza ni recorta texto en los nuevos validadores. El recorte de
+  nota de alta ya existente en la interfaz se conserva.
+- Los campos omitidos que tenían un valor predeterminado lo conservan.
+  Sin nuevas reglas de identidad/documento nacional ni cambios históricos.
+- Validación frontend central por formulario operacional antes del envío;
+  conserva campos y bloquea el submit inválido. Mensajes HTTP 422 muestran
+  el campo y motivo; un rechazo definitivo no se presenta como resultado incierto.
+- Sin cambios en roles, versiones, recibos, reintentos originales o política
+  de cierre. La coherencia de pendientes de laboratorio permanece fuera del alcance.
+- Pruebas nuevas de modelos, fechas, límites y preservación, API sin efectos ni
+  recibos ante rechazo, corrección/replay y formulario con corrección sin perder campos.
+- Validación final: 173 pruebas backend (13 nuevas, 1 warning conocido),
+  409 frontend (23 nuevas, 38 archivos), lint/build aprobados. Primer intento
+  frontend: 405/409; se corrigieron fixtures vacíos y expectativas de recuperación
+  múltiple, y una prueba agotó su tiempo bajo carga. Suite final completa aprobada
+  sin ampliar tiempos. Recarga del backend local limitada a backend/app para
+  reducir carga. Prueba directa de ingreso aprobada por el usuario: rechazo
+  de nombre con espacios y nacimiento futuro, con campos conservados y sin crear
+  episodio. Los demás flujos y límites cuentan con pruebas automatizadas.
+  Publicación autorizada por el usuario: commit, push y comprobación de CI.
+  CI de la publicación pendiente de comprobación.

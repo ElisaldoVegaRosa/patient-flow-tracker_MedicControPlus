@@ -297,7 +297,9 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     }
     if (!response.ok) {
       const detail = result.detail;
-      const message = typeof detail === "string" ? detail : detail?.message || "Ocurrió un error";
+      const message = Array.isArray(detail)
+        ? detail.map((issue: { loc?: string[]; msg?: string }) => `${issue.loc?.slice(1).join(".") || "Datos"}: ${issue.msg || "Valor inválido"}`).join("; ")
+        : typeof detail === "string" ? detail : detail?.message || "Ocurrió un error";
       if (response.status === 409 && typeof detail === "object" && detail.code === "version_conflict") throw new VersionConflictError(message, 409);
       throw new ApiError(message, response.status);
     }
