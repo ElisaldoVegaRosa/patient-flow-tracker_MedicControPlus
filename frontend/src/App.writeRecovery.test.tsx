@@ -50,3 +50,6 @@ it("confirmar un recibo recuperado conserva formularios nuevos y permite una ope
   expect(new Headers(write[1]?.headers).get("Idempotency-Key")).not.toBe(key);
   expect(JSON.parse(String(write[1]?.body)).diagnosis).toBe("Diagnóstico actual");
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

@@ -25,6 +25,7 @@ import LaboratoryPage from "./pages/LaboratoryPage";
 import SupervisorPage from "./pages/SupervisorPage";
 import EpisodePage from "./pages/EpisodePage";
 import LoginPage from "./pages/LoginPage";
+import EpisodePresence from "./components/EpisodePresence";
 import AppHeader from "./components/AppHeader";
 import type {
   DashboardData,
@@ -775,6 +776,8 @@ async function logout() {
           onCompleteOrder={completeLaboratoryOrder}
         />
       )}
+
+      {page === "episode" && episode?.status === "ACTIVE" && <EpisodePresence episodeId={episode.id} user={user} root={draftRoot} isEditing={() => visibleDrafts().some(draft => draft.episodeId === episode.id)} />}
 
       {page === "episode" && episode && (
         <EpisodePage

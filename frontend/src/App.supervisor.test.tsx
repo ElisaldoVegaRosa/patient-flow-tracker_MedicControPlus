@@ -97,3 +97,6 @@ describe("Centro de control del supervisor", () => {
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes("/supervisor/"))).toBe(false);
   });
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

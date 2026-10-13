@@ -67,3 +67,6 @@ describe("Acceso y restauración de sesión", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

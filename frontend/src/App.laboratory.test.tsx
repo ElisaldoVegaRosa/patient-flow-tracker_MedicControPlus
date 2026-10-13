@@ -94,3 +94,6 @@ describe("Bandeja de laboratorio", () => {
     expect(queue).toHaveBeenCalledTimes(1);
   });
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

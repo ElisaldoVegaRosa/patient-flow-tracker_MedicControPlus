@@ -150,3 +150,6 @@ describe('Recuperación de todos los formularios en App', () => {
     expect(screen.getByRole('dialog', { name: 'Cambios médicos sin guardar' })).toBeVisible();
   });
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

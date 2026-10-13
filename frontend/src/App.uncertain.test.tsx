@@ -64,3 +64,6 @@ it.each(["consultar", "reintentar", "consultar sin editar", "consultar cambios p
   expect(JSON.parse(String(final?.body)).assigned_to).toBe("Edición posterior");
   if (mode === "consultar cambios posteriores") expect(await screen.findByRole("region", { name: "Cambios de otra sesión" })).toBeInTheDocument();
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

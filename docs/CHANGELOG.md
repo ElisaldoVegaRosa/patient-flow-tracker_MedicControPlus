@@ -5,6 +5,45 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 61: presencia compartida por episodio
+
+- Implementación local autorizada: indicador de otras sesiones/pestañas en el
+  episodio activo, agrupado por usuario y rol, con número de pestañas y sesiones.
+  Distingue consulta y formularios con cambios sin guardar, sin transmitir campos.
+- Renovación cada 15 segundos mientras la pestaña está visible; caducidad de
+  45 segundos sin renovar. La pérdida de actualización muestra aviso de información
+  posiblemente desactualizada, sin afirmar que el usuario trabaja a solas.
+- Rutas GET/PUT/DELETE de presencia autenticadas y tabla aditiva episode_presence,
+  documentada en backend/migrations/004_episode_presence.sql. PUT es renovación
+  idempotente de metadatos; no entra en el diario de envíos clínicos.
+- Solo NURSE/DOCTOR/SUPERVISOR pueden declarar EDIT; todos los roles autenticados
+  pueden consultar. Sesiones revocadas, vencidas o usuarios inactivos se excluyen.
+  No se exponen tokens, IDs de sesión ni identificadores de otras pestañas.
+- Secuencia por pestaña evita que una renovación anterior sustituya un modo nuevo.
+  Liberación al salir y pagehide, con marca temporal de cierre que impide renovar
+  esa misma presencia durante 45 segundos. Restaurar desde bfcache usa otra clave.
+  La salida es de mejor esfuerzo: una red fallida depende de la caducidad; esta
+  presencia aproximada no reserva el episodio ni sustituye If-Match al guardar.
+- Al cerrar el episodio se deja de renovar y se retira el panel. Se conserva el
+  mecanismo existente para texto pendiente y conflictos. No se añade evento clínico
+  ni recibo; las versiones clínicas y de triaje permanecen iguales.
+- Validación final: 160 pruebas backend (17 nuevas, 1 warning conocido),
+  386 frontend en 37 archivos (11 nuevas), lint y build aprobados. Suite frontend
+  con un trabajador, sin ampliar tiempos; validación fuera del sandbox. Primer
+  intento backend sin salida interrumpido. Pruebas dirigidas corrigieron el montaje
+  del listener de edición y una comparación dependiente del orden de usuarios.
+- Tras la suite completa se afinó solo la prueba de integración para comprobar
+  If-Match del triaje: 2 pruebas de esa suite, lint del archivo y TypeScript pasan.
+  Los flujos App anteriores aíslan el panel; App.presence.test.tsx prueba su
+  integración real, campos conservados y retirada tras cierre remoto.
+- Prueba directa confirmada por el usuario: presencia entre médico y enfermería,
+  indicador de cambios sin guardar, retirada al salir del episodio, caducidad
+  en Offline y recuperación al restablecer la conexión. El primer intento usaba
+  un backend anterior sin las rutas nuevas; se reinició y se verificó su disponibilidad.
+- Publicación autorizada por el usuario: commit y push de la Etapa 61;
+  pendiente comprobar la CI del commit publicado.
+  Sin commit/push; datos clínicos locales conservados.
+
 ## Etapa 60: recuperación del registro local dañado
 
 - Implementación local autorizada: lectura separada de referencias válidas y

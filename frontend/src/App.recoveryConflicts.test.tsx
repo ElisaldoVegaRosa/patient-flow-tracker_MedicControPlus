@@ -55,3 +55,6 @@ it('restaurar tras 401 mantiene la versión original; revisar datos nuevos conse
   expect(new Headers(writes()[2][1]?.headers).get('If-Match')).toBe('"new"');
   expect(JSON.parse(String(writes()[2][1]?.body))).toMatchObject({ priority: 3, location: 'Observación', assigned_to: 'Responsable local' });
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

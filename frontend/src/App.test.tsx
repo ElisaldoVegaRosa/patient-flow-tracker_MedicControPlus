@@ -697,3 +697,6 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
     expect(button).toBeEnabled();
   });
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

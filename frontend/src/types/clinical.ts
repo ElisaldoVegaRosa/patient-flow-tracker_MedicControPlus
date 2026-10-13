@@ -179,3 +179,9 @@ export type LogoutResponse = {
   message: string;
   username: string;
 };
+
+export type EpisodePresenceData = {
+  active: boolean;
+  ttl_seconds: number;
+  members: { username: string; role: string; tabs: number; sessions: number; editing_tabs: number }[];
+};

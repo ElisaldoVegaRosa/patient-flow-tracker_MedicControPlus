@@ -169,3 +169,6 @@ it.each(["exito", "API", "red"])("login bloquea duplicados y libera tras %s", as
     expect(screen.getByLabelText("Contrase\u00f1a")).toHaveValue("demo123");
   }
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

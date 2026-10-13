@@ -174,3 +174,64 @@ Resultado confirmado por el usuario: mensaje de confirmación del envío anterio
 referencia dañada retirada y una sola evaluación correspondiente al intento.
 Prueba directa del caso confirmado aprobada; no se atribuye a esta prueba manual
 la cobertura de los casos desconocidos o de concurrencia, verificados en pruebas.
+
+## Etapa 61: presencia compartida por episodio
+
+- Implementación local autorizada: indicador de otras sesiones/pestañas en el
+  episodio activo, agrupado por usuario y rol, con número de pestañas y sesiones.
+  Distingue consulta y formularios con cambios sin guardar, sin transmitir campos.
+- Renovación cada 15 segundos mientras la pestaña está visible; caducidad de
+  45 segundos sin renovar. La pérdida de actualización muestra aviso de información
+  posiblemente desactualizada, sin afirmar que el usuario trabaja a solas.
+- Rutas GET/PUT/DELETE de presencia autenticadas y tabla aditiva episode_presence,
+  documentada en backend/migrations/004_episode_presence.sql. PUT es renovación
+  idempotente de metadatos; no entra en el diario de envíos clínicos.
+- Solo NURSE/DOCTOR/SUPERVISOR pueden declarar EDIT; todos los roles autenticados
+  pueden consultar. Sesiones revocadas, vencidas o usuarios inactivos se excluyen.
+  No se exponen tokens, IDs de sesión ni identificadores de otras pestañas.
+- Secuencia por pestaña evita que una renovación anterior sustituya un modo nuevo.
+  Liberación al salir y pagehide, con marca temporal de cierre que impide renovar
+  esa misma presencia durante 45 segundos. Restaurar desde bfcache usa otra clave.
+  La salida es de mejor esfuerzo: una red fallida depende de la caducidad; esta
+  presencia aproximada no reserva el episodio ni sustituye If-Match al guardar.
+- Al cerrar el episodio se deja de renovar y se retira el panel. Se conserva el
+  mecanismo existente para texto pendiente y conflictos. No se añade evento clínico
+  ni recibo; las versiones clínicas y de triaje permanecen iguales.
+- Validación final: 160 pruebas backend (17 nuevas, 1 warning conocido),
+  386 frontend en 37 archivos (11 nuevas), lint y build aprobados. Suite frontend
+  con un trabajador, sin ampliar tiempos; validación fuera del sandbox. Primer
+  intento backend sin salida interrumpido. Pruebas dirigidas corrigieron el montaje
+  del listener de edición y una comparación dependiente del orden de usuarios.
+- Tras la suite completa se afinó solo la prueba de integración para comprobar
+  If-Match del triaje: 2 pruebas de esa suite, lint del archivo y TypeScript pasan.
+  Los flujos App anteriores aíslan el panel; App.presence.test.tsx prueba su
+  integración real, campos conservados y retirada tras cierre remoto.
+- Prueba directa confirmada por el usuario: presencia entre médico y enfermería,
+  indicador de cambios sin guardar, retirada al salir del episodio, caducidad
+  en Offline y recuperación al restablecer la conexión. El primer intento usaba
+  un backend anterior sin las rutas nuevas; se reinició y se verificó su disponibilidad.
+- Publicación autorizada por el usuario: commit y push de la Etapa 61;
+  pendiente comprobar la CI del commit publicado.
+  Sin commit/push; datos clínicos locales conservados.
+
+### Prueba directa propuesta para 61
+
+1. En una ventana normal entrar como medico y abrir un episodio ficticio activo.
+   En una ventana privada o en otro navegador entrar como enfermeria y abrir el
+   mismo episodio. Mantener ambas ventanas visibles, preferiblemente lado a lado.
+2. Esperar hasta 15 segundos. Cada ventana debe mostrar el otro usuario con su
+   rol y estado Consultando, dentro de Otras sesiones en este episodio.
+3. En enfermeria modificar Personal responsable sin guardar. Medico debe mostrar
+   una pestaña con cambios sin guardar. Restaurar exactamente el valor inicial:
+   después de la siguiente renovación debe volver a Consultando. Los campos de
+   medico conservan su contenido; no se transmite el texto escrito.
+4. Salir del episodio en enfermeria mediante Dashboard. La otra ventana debe
+   retirar su presencia en la siguiente actualización. Si la liberación no llega,
+   dejar 45 segundos sin renovar más hasta 15 segundos para la consulta visible.
+5. Volver a abrir el episodio en enfermeria. Activar Offline solo en esa ventana:
+   debe avisar que no pudo actualizar presencia; medico debe dejar de mostrarla
+   tras la caducidad. Restaurar la red y enfocar enfermeria: vuelve a renovar.
+
+Estas comprobaciones solo requieren abrir y editar campos, sin guardar nuevos
+registros. El cierre del episodio, varias pestañas del mismo usuario, caducidad
+exacta, roles y respuestas tardías están cubiertos por pruebas automatizadas.

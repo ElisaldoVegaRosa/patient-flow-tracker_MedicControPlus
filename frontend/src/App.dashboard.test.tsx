@@ -96,3 +96,6 @@ describe("Centro de control general", () => {
       .toEqual(["3", "3", "2", "2"]);
   });
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));

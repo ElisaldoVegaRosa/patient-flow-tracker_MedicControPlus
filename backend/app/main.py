@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .security import hash_session_token, hash_password, verify_password
 from . import auth, database
 from .write_operations import active_connection
+from .routes.presence import create_router as create_presence_router
 from .routes.write_results import create_router as create_write_results_router
 from .routes.auth import create_router
 from .routes.dashboard import create_router as create_dashboard_router
@@ -438,6 +439,7 @@ def health() -> dict[str, str]:
 
 # Composición de rutas por área; el orden de registro se conserva.
 app.include_router(create_router(get_connection, utc_now, authenticated_user))
+app.include_router(create_presence_router(get_connection, authenticated_user))
 app.include_router(create_write_results_router(get_connection, episode_detail, authenticated_user))
 app.include_router(create_dashboard_router(
     get_connection, utc_now, episode_detail, authenticated_user, require_roles,

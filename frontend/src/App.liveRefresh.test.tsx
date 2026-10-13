@@ -132,3 +132,6 @@ it("descarta texto retenido al expirar la sesión y no lo muestra a otro usuario
   expect(screen.queryByText("Texto del usuario anterior")).not.toBeInTheDocument();
   expect(screen.queryByRole("region", { name: "Texto local conservado" })).not.toBeInTheDocument();
 });
+
+// Isolate existing clinical flows; presence composition has its own integration tests.
+vi.mock("./components/EpisodePresence", () => ({ default: () => null }));
