@@ -5,6 +5,27 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Busqueda compartida de pacientes y episodios (validada)
+
+- Buscador por palabras del nombre, sin distincion de acentos/mayusculas, o
+  numero de EP exacto (20, EP-20, ep20) en Centro de control, Historial,
+  Supervisor y Laboratorio. Combina filtros existentes, informa coincidencias
+  y permite limpiar sin alterar los indicadores generales.
+- La busqueda no desmonta resultados ni correcciones de laboratorio: ocultar
+  una orden conserva campos y advertencias de salida. Sin envios al escribir
+  o pulsar Enter; sin persistencia de la consulta ni ampliacion de permisos.
+  Se limita a los datos ya disponibles en cada pantalla; no cambia la API,
+  los registros ni la comparacion de identidad del ingreso.
+- Validacion sobre `ebc433b` y cambios locales: 35 pruebas dirigidas, lint y
+  build aprobados; suite frontend 487/487 en 47 archivos. Ajuste posterior
+  del mensaje de Supervisor vacio, con un caso adicional: 15/15 pruebas de
+  las pantallas afectadas, lint y build aprobados. No se repitio la suite
+  sin cambios; TEMP/TMP en `.tmp/vitest-search`. Backend sin cambios.
+- Prueba manual guiada confirmada por el usuario como Supervisor en las cuatro
+  pantallas: EP-20 en Historial, EP-16 en control/supervision y EP-18/orden #15
+  en Laboratorio. Busquedas, limpieza, filtros e indicadores comprobados sin
+  crear registros. [Detalle](LOCAL_DEMO_CHECK.md).
+
 ## Prueba manual del ciclo de alertas (cierre documental)
 
 - Usuario confirmo en EP-20 la alerta critica por saturacion ficticia de 90:
@@ -13,6 +34,7 @@ las verificaciones realizadas y el estado de cada etapa.
   autores y fechas. Caso ficticio cerrado por Medico al terminar.
 - Sin cambios de codigo ni repeticion de suites. Se conserva la CI aprobada
   `39064241240` del commit `07050fc`. [Detalle](LOCAL_DEMO_CHECK.md).
+- Cierre publicado en `ebc433b`; CI `39076266889` aprobada.
 
 ## Lenguaje de interfaz en espanol (publicado)
 

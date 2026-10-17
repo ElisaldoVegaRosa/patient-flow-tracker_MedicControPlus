@@ -99,6 +99,32 @@ y las dos órdenes LAB en el detalle cerrado. Circuito manual completo.
 Si falla una fase, registrar rol, EP, accion y mensaje, conservar campos y
 revisar la causa compartida antes de proponer parches individuales por formulario.
 
+## Prueba manual guiada del buscador compartido
+
+Sobre `ebc433b` y el bloque local de busqueda. El usuario opero como Supervisor
+y confirmo los pasos en las cuatro pantallas; el agente solo dio instrucciones.
+Solo consultas sobre casos existentes, sin crear registros ni escribir resultados.
+
+- Historial: EP-20 encontrado con EP-20, 20 y DEMO alertas. NO-EXISTE-DEMO
+  mostro No hay coincidencias con la busqueda; Limpiar busqueda restauro la
+  lista completa. El total de Episodios historicos se conservo. Confirmado.
+- Centro de control: usuario eligio EP-16, fuera de P1-P2, lo localizo por
+  EP y comprobo que los indicadores generales no cambiaban. Confirmado.
+- Supervisor: al abrir la pantalla el buscador estaba vacio. Con Todos,
+  EP-16 aparecio; al seleccionar P1-P2 desaparecio y se mostro el aviso de
+  ausencia de coincidencias. Limpiar busqueda conservo P1-P2; Todos restauro
+  la lista. Confirmado.
+- Laboratorio: con Completadas y EP-18 aparecio la orden #15 con su resultado.
+  Cambiar a Todas conservo EP-18 y solo ordenes de ese episodio. La consulta
+  NO-EXISTE-DEMO mostro el aviso; Limpiar busqueda restauro la lista sin quitar
+  Todas. Confirmado.
+
+La conservacion de campos sin guardar y advertencias al ocultar ordenes se
+cubrio con pruebas automaticas; no se ensayo editando registros en esta prueba
+manual. Validacion previa: suite frontend 487/487 en 47 archivos y, tras el
+ajuste de Supervisor vacio y un caso nuevo, 15/15 pruebas afectadas, lint/build
+aprobados. No se repitieron suites por registrar estas confirmaciones.
+
 ## Prueba manual guiada del ciclo de alertas en EP-20
 
 Realizada sobre `07050fc`, CI `39064241240` aprobada. El usuario opero la app

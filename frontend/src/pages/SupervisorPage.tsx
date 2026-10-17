@@ -1,4 +1,6 @@
 import type { SupervisorData } from "../types/clinical";
+import PatientSearch from "../components/PatientSearch";
+import { usePatientSearch } from "../hooks/usePatientSearch";
 
 type SupervisorPageProps = {
   supervisorData: SupervisorData;
@@ -17,6 +19,16 @@ export default function SupervisorPage({
   supervisorData, supervisorFilter, rulesMessage, evaluatingRules,
   loadingDemo = false, onLoadDemo, onEvaluateRules, onRefresh, onFilterChange, onOpenEpisode,
 }: SupervisorPageProps) {
+  const search = usePatientSearch();
+  const filteredPatients = supervisorData.patients.filter(patient => {
+    if (supervisorFilter === "RISK") return patient.at_risk;
+    if (supervisorFilter === "HIGH") return patient.priority <= 2;
+    if (supervisorFilter === "ALERTS") return patient.open_alert_count > 0;
+    return true;
+  });
+  const patients = filteredPatients.filter(patient => search.matches(patient.name, patient.id));
+  const emptyMessage = supervisorData.patients.length === 0 ? "No hay pacientes activos."
+    : search.query.trim() ? "No hay coincidencias con la búsqueda y el filtro actual." : "No hay pacientes en el filtro seleccionado.";
   return (
   <main className="container">
     <div className="page-title">
@@ -163,6 +175,8 @@ export default function SupervisorPage({
         </div>
       </div>
 
+      <PatientSearch query={search.query} onChange={search.setQuery} count={patients.length} total={filteredPatients.length} unit="pacientes" />
+      {patients.length === 0 && <p>{emptyMessage}</p>}
       <table>
         <thead>
           <tr>
@@ -178,23 +192,7 @@ export default function SupervisorPage({
         </thead>
 
         <tbody>
-          {supervisorData.patients
-            .filter((patient) => {
-              if (supervisorFilter === "RISK") {
-                return patient.at_risk;
-              }
-
-              if (supervisorFilter === "HIGH") {
-                return patient.priority <= 2;
-              }
-
-              if (supervisorFilter === "ALERTS") {
-                return patient.open_alert_count > 0;
-              }
-
-              return true;
-            })
-            .map((patient) => (
+          {patients.map((patient) => (
               <tr key={patient.id}>
                 <td>
                   <strong>{patient.name}</strong>

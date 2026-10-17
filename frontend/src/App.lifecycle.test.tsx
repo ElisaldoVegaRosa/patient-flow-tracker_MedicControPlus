@@ -44,6 +44,15 @@ it("consulta completadas, corrige con versión y motivo, y conserva la orden vis
   await user.type(card.getByRole("textbox", { name: "Resultado corregido" }), "Resultado corregido ficticio");
   await user.type(card.getByRole("textbox", { name: "Motivo de la acción" }), "Error de transcripción");
   expect(window.dispatchEvent(new Event("beforeunload", { cancelable: true }))).toBe(false);
+  const correctedField = card.getByRole("textbox", { name: "Resultado corregido" });
+  const beforeSearch = fetchMock.mock.calls.length;
+  await user.type(screen.getByRole("searchbox", { name: "Buscar por nombre o episodio" }), "Sin coincidencias");
+  expect(correctedField).not.toBeVisible();
+  expect(window.dispatchEvent(new Event("beforeunload", { cancelable: true }))).toBe(false);
+  expect(fetchMock.mock.calls).toHaveLength(beforeSearch);
+  await user.click(screen.getByRole("button", { name: "Limpiar búsqueda" }));
+  expect(correctedField).toHaveValue("Resultado corregido ficticio");
+  expect(card.getByRole("textbox", { name: "Motivo de la acción" })).toHaveValue("Error de transcripción");
   await user.click(card.getByRole("button", { name: "Registrar corrección" }));
   await waitFor(() => expect(card.getByText(/Resultado corregido ficticio/)).toBeVisible());
   await waitFor(() => expect(window.dispatchEvent(new Event("beforeunload", { cancelable: true }))).toBe(true));

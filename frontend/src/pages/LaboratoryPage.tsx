@@ -2,6 +2,8 @@ import type { FormEvent } from "react";
 import type { LaboratoryQueue } from "../types/clinical";
 import RecordCorrectionForm from "../components/RecordCorrectionForm";
 import { clinicalLabel } from "../presentation/clinicalLabels";
+import PatientSearch from "../components/PatientSearch";
+import { usePatientSearch } from "../hooks/usePatientSearch";
 
 type LaboratoryPageProps = {
   laboratoryQueue: LaboratoryQueue;
@@ -22,6 +24,9 @@ export default function LaboratoryPage({
   isCompleting = () => false,
   canPublish = true,
 }: LaboratoryPageProps) {
+  const search = usePatientSearch();
+  const matchesOrder = (order: LaboratoryQueue["orders"][number]) => search.matches(order.patient_name, order.episode_id);
+  const matchingOrders = laboratoryQueue.orders.filter(matchesOrder);
   const active = laboratoryQueue.orders.filter(order => order.episode_status === "ACTIVE" && order.status === "PENDING");
   const closed = laboratoryQueue.orders.filter(order => order.episode_status === "CLOSED" && order.status === "PENDING");
   const completed = laboratoryQueue.orders.filter(order => order.status === "COMPLETED" || order.status === "ANNULLED");
@@ -51,6 +56,7 @@ export default function LaboratoryPage({
         <option value="ALL">Todas</option>
       </select>
     </label>
+    <PatientSearch query={search.query} onChange={search.setQuery} count={matchingOrders.length} total={laboratoryQueue.orders.length} unit="órdenes" />
 
     {laboratoryQueue.status_filter !== "COMPLETED" && <section className="lab-summary">
       <article>
@@ -73,6 +79,7 @@ export default function LaboratoryPage({
       </section>
     ) : (
       <>
+      {matchingOrders.length === 0 && <p>No hay coincidencias con la búsqueda y el filtro actual.</p>}
       {[
         ...(laboratoryQueue.status_filter !== "COMPLETED" ? [
           { title: "Órdenes ejecutables", orders: active },
@@ -82,11 +89,12 @@ export default function LaboratoryPage({
           { title: "Completadas y anuladas", orders: completed },
         ] : []),
       ].filter(group => group.orders.length > 0).map(group => (
-      <section key={group.title} aria-label={group.title}>
+      // Keep forms mounted so searching cannot discard unsaved results or corrections.
+      <section className="lab-results-group" key={group.title} aria-label={group.title} hidden={!group.orders.some(matchesOrder)}>
         <h2>{group.title}</h2>
         <div className="lab-grid">
         {group.orders.map((order) => (
-          <article className="panel lab-order" key={order.id}>
+          <article className="panel lab-order" key={order.id} hidden={!matchesOrder(order)}>
             <div className="lab-order-header">
               <div>
                 <span className="order-number">

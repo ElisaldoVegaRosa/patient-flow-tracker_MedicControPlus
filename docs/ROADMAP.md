@@ -2,14 +2,25 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Bloque priorizado y autorizado: buscador comun por nombre o EP para las
+  cuatro bandejas. Implementado y validado: combina filtros, mantiene metricas
+  generales y conserva campos sin guardar de laboratorio al ocultar ordenes.
+  No cambia API, permisos, datos, comparacion de identidad ni busqueda servidor.
+  Validacion: 35 pruebas dirigidas y suite frontend 487/487 en 47 archivos
+  aprobadas. Ajuste posterior del estado vacio de Supervisor: 15 pruebas
+  afectadas (incluido un caso nuevo), lint y build aprobados.
+  Usuario confirmo prueba guiada en las cuatro pantallas con EP-20, EP-16 y
+  EP-18/orden #15; busquedas, filtros, limpieza y metricas conservadas, sin
+  crear registros. [Resultados](LOCAL_DEMO_CHECK.md). Commit/publicacion
+  autorizados el 17 de octubre; resultado remoto en la [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
+  Consultar antes de nuevas pruebas directas. Tras cerrar la entrega, acordar
+  la siguiente necesidad concreta del demo.
 - Ciclo de alertas comprobado manualmente en EP-20: generacion, reconocimiento
   y escalamiento por Enfermeria, resolucion por Medico, consulta por Supervisor
   y cierre final del caso ficticio. Historial y autores conservados; permisos
-  confirmados. [Resultados](LOCAL_DEMO_CHECK.md). Cierre documental validado;
-  commit/publicacion autorizados el 17 de octubre. Resultado remoto en la
-  [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
-  No hay otro bloque funcional priorizado.
-  Conservar las validaciones aprobadas y consultar antes de nuevas pruebas directas.
+  confirmados. [Resultados](LOCAL_DEMO_CHECK.md). Cierre publicado en `ebc433b`;
+  CI [39076266889](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39076266889)
+  aprobada. Conservar sus validaciones sin repetirlas por documentacion.
 - Lenguaje de interfaz publicado en `07050fc`; CI
   [39064241240](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39064241240)
   aprobada: backend, frontend, lint y build. Catalogo compartido de etiquetas sin

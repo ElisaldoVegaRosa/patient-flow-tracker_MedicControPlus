@@ -1,5 +1,7 @@
 import type { HistoryData } from "../types/clinical";
 import { clinicalLabel } from "../presentation/clinicalLabels";
+import PatientSearch from "../components/PatientSearch";
+import { usePatientSearch } from "../hooks/usePatientSearch";
 
 type EpisodeHistoryPageProps = {
   historyData: HistoryData;
@@ -12,6 +14,8 @@ export default function EpisodeHistoryPage({
   onRefresh,
   onOpenEpisode,
 }: EpisodeHistoryPageProps) {
+  const search = usePatientSearch();
+  const episodes = historyData.episodes.filter(episode => search.matches(episode.name, episode.id));
   return (
   <main className="container">
     <div className="page-title">
@@ -36,6 +40,7 @@ export default function EpisodeHistoryPage({
     </section>
 
     <section className="panel history-table">
+      <PatientSearch query={search.query} onChange={search.setQuery} count={episodes.length} total={historyData.episodes.length} unit="episodios" />
       {historyData.episodes.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">✓</div>
@@ -44,6 +49,8 @@ export default function EpisodeHistoryPage({
             Los pacientes dados de alta aparecerán aquí.
           </p>
         </div>
+      ) : episodes.length === 0 ? (
+        <p>No hay coincidencias con la búsqueda.</p>
       ) : (
         <table>
           <thead>
@@ -61,7 +68,7 @@ export default function EpisodeHistoryPage({
           </thead>
 
           <tbody>
-            {historyData.episodes.map((closedEpisode) => (
+            {episodes.map((closedEpisode) => (
               <tr key={closedEpisode.id}>
                 <td>
                   <strong>{closedEpisode.name}</strong>

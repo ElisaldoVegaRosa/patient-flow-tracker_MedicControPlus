@@ -985,3 +985,33 @@ Acciones principales de una pantalla
 .admission-review input[type="radio"] {
   width: auto;
 }
+
+.patient-search {
+  margin: 1rem 0;
+}
+
+.patient-search-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.patient-search-controls input {
+  flex: 1;
+  min-width: 0;
+}
+
+.patient-search-controls button {
+  flex-shrink: 0;
+}
+
+.lab-results-group[hidden],
+.lab-order[hidden] {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .patient-search-controls {
+    flex-direction: column;
+  }
+}

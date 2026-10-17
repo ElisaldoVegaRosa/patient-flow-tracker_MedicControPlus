@@ -2,15 +2,33 @@
 
 ## Estado actual (leer primero)
 
+- Buscador compartido validado sobre `ebc433b` y esta entrega en Centro de
+  control, Historial, Supervisor y Laboratorio: palabras del nombre sin acentos
+  ni distincion de mayusculas y EP exacto con o sin prefijo (20 o EP-20).
+  Combina filtros, muestra coincidencias, limpia la consulta y conserva las
+  metricas generales. Laboratorio oculta sin desmontar campos sin guardar;
+  conserva resultados, correcciones y advertencias. Consulta local por pantalla,
+  sin nuevas peticiones, persistencia de busqueda ni cambios de API o identidad.
+  Validacion: 35 pruebas dirigidas y suite frontend 487/487 en 47 archivos
+  aprobadas. Ajuste posterior del mensaje de Supervisor sin pacientes y un
+  caso nuevo: 15/15 pruebas afectadas, lint y build aprobados; no se repitio
+  la suite sin cambios. TEMP/TMP en `.tmp/vitest-search`.
+  Backend sin cambios; conserva CI previa aprobada.
+  Usuario confirmo prueba manual guiada como Supervisor: Historial con EP-20,
+  Centro de control y filtros del Supervisor con EP-16, Laboratorio con EP-18
+  y orden #15. Busquedas, ausencia de coincidencias, limpieza, metricas y
+  conservacion de filtros comprobadas sin crear registros. Detalle en
+  [LOCAL_DEMO_CHECK](LOCAL_DEMO_CHECK.md). Commit/publicacion autorizados el
+  17 de octubre; resultado remoto en la [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
+  Consultar antes de nuevas pruebas directas. Tras cerrar esta entrega,
+  acordar otra necesidad concreta del demo.
 - Prueba manual guiada de alertas completada por el usuario en EP-20:
   Enfermeria genero alerta critica por SpO2 ficticia de 90, reconocio y escalo;
   Medico resolvio; Supervisor confirmo tres transiciones y eventos con autores
   y fechas. Medico cerro EP-20 con nota de prueba. Resultado: Cerrado.
-  Detalle en [LOCAL_DEMO_CHECK](LOCAL_DEMO_CHECK.md). Cierre documental validado;
-  commit/publicacion autorizados el 17 de octubre. Resultado remoto en la
-  [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
-  Siguiente decision: acordar otra necesidad concreta del demo.
-  Consultar antes de nuevas pruebas directas.
+  Detalle en [LOCAL_DEMO_CHECK](LOCAL_DEMO_CHECK.md). Cierre publicado en
+  `ebc433b`; CI [39076266889](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39076266889)
+  aprobada: backend, frontend, lint y build.
 - Lenguaje de interfaz en espanol publicado en `07050fc`; CI
   [39064241240](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39064241240)
   aprobada: backend, frontend, lint y build. Catalogo compartido para estados,

@@ -63,6 +63,12 @@ describe("Bandeja de laboratorio", () => {
     const field = await screen.findByRole("textbox", { name: "Resultado de laboratorio" });
     expect(fetchMock.mock.calls.filter(([, init]) => init?.method === "PATCH")).toHaveLength(0);
     await user.type(field, "Resultado ficticio escrito desde la bandeja");
+    const beforeSearch = fetchMock.mock.calls.length;
+    await user.type(screen.getByRole("searchbox", { name: "Buscar por nombre o episodio" }), "No coincide");
+    expect(field).not.toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Limpiar búsqueda" }));
+    expect(field).toHaveValue("Resultado ficticio escrito desde la bandeja");
+    expect(fetchMock.mock.calls).toHaveLength(beforeSearch);
     await user.click(screen.getByRole("button", { name: "Publicar resultado y completar" }));
     expect(await screen.findByRole("heading", { name: "No hay órdenes en este filtro" })).toBeVisible();
     const patches = fetchMock.mock.calls.filter(([, init]) => init?.method === "PATCH");

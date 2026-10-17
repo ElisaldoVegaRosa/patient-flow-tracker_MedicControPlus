@@ -1,4 +1,6 @@
 import type { DashboardData, Episode } from "../types/clinical";
+import PatientSearch from "../components/PatientSearch";
+import { usePatientSearch } from "../hooks/usePatientSearch";
 
 type DashboardPageProps = {
   dashboard: DashboardData;
@@ -11,6 +13,8 @@ export default function DashboardPage({
   onRefresh,
   onOpenEpisode,
 }: DashboardPageProps) {
+  const search = usePatientSearch();
+  const patients = dashboard.patients.filter(patient => search.matches(patient.name, patient.id));
   return (
     <main className="container">
       <div className="page-title">
@@ -61,9 +65,12 @@ export default function DashboardPage({
 
       <section className="panel">
         <h2>Pacientes activos</h2>
+        <PatientSearch query={search.query} onChange={search.setQuery} count={patients.length} total={dashboard.patients.length} unit="pacientes" />
 
         {dashboard.patients.length === 0 ? (
           <p>No hay pacientes activos.</p>
+        ) : patients.length === 0 ? (
+          <p>No hay coincidencias con la búsqueda.</p>
         ) : (
           <table>
             <thead>
@@ -77,7 +84,7 @@ export default function DashboardPage({
             </thead>
 
             <tbody>
-              {dashboard.patients.map((patient: Episode) => (
+              {patients.map((patient: Episode) => (
                 <tr key={patient.id}>
                   <td>
                     <strong>{patient.name}</strong>
