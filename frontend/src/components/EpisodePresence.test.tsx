@@ -29,7 +29,7 @@ const puts = (mock: ReturnType<typeof vi.fn>) => mock.mock.calls.filter(([, opti
 
 it("muestra otras sesiones sin enviar texto clínico ni crear referencias de escritura", async () => {
   const { fetchMock } = await setup(colleague);
-  expect(screen.getByRole("region", { name: "Presencia en el episodio" })).toHaveTextContent("colega · NURSE · 2 pestañas en 2 sesiones · 1 con cambios sin guardar");
+  expect(screen.getByRole("region", { name: "Presencia en el episodio" })).toHaveTextContent("colega · Enfermería · 2 pestañas en 2 sesiones · 1 con cambios sin guardar");
   expect(JSON.parse(puts(fetchMock)[0][1].body)).toEqual({ mode: "VIEW", sequence: 1 });
   expect(new Headers(puts(fetchMock)[0][1].headers).has("Idempotency-Key")).toBe(false);
   expect(localStorage.length).toBe(1);

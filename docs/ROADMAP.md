@@ -2,16 +2,24 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Respaldo/restauracion del demo acordados y validados. La copia
-  consistente, su SHA-256 y la restauracion aislada se verificaron con 18
-  pacientes y 19 episodios. Backend completo 196/196 aprobado, incluidas las
-  cinco pruebas nuevas. Bloqueo de ejecucion resuelto con permisos para el socket
-  interno de Python y un temporal nuevo; [diagnostico](LOCAL_VALIDATION.md).
-  Commit/publicacion autorizados el 17 de octubre. Resultado remoto en la
-  [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
-  Siguiente decision: otra necesidad del demo o un destino externo para copias.
-  Procedimiento en
-  [DEMO_DATABASE_BACKUP](DEMO_DATABASE_BACKUP.md). La base activa no se sustituyo.
+- Bloque actual autorizado: unificar etiquetas de dominio en espanol mediante
+  un catalogo frontend compartido. Implementado y validado; 66 pruebas dirigidas,
+  lint y build aprobados. Frontend: 469 pruebas aprobadas en suite completa y
+  otras dos aprobadas tras ajustar su expectativa de presencia, 471 comprobadas
+  en 45 archivos. Alcance: presentacion de
+  estados, roles, servicios, decisiones, alertas, historial y correcciones.
+  Excluye API, permisos, datos y reescritura de notas originales. Usuario confirmo
+  prueba guiada de cabecera, historial, eventos/correcciones de EP-18 y orden
+  LAB #15, con contenido original conservado. Commit/publicacion autorizados
+  el 17 de octubre; resultado remoto en la [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
+  Consultar antes de nuevas pruebas directas. Tras cerrar esta entrega,
+  acordar la siguiente necesidad concreta del demo.
+- Respaldo/restauracion publicados en `dcf2d7a`; CI
+  [39062489007](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39062489007)
+  aprobada. Copia y ensayo verificados con 18 pacientes y 19 episodios; copia
+  externa y SHA-256 verificados en `D:\MedicControlPlus\backups` sin sustituir la
+  base activa. [Procedimiento](DEMO_DATABASE_BACKUP.md) y
+  [diagnostico del ejecutor Windows](LOCAL_VALIDATION.md).
 - Bloque LAB y ciclo de vida publicado en
   `9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
   [39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711)

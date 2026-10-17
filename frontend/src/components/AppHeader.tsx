@@ -1,4 +1,5 @@
 import type { User } from "../types/clinical";
+import { clinicalLabel } from "../presentation/clinicalLabels";
 
 type AppHeaderProps = {
   user: User;
@@ -61,7 +62,7 @@ export default function AppHeader({
 
         <div className="user">
           <strong>{user.username}</strong>
-          <span>{user.role}</span>
+          <span>{clinicalLabel("role", user.role)}</span>
           <button onClick={onLogout}>Salir</button>
         </div>
       </header>

@@ -21,7 +21,7 @@ function prepare(data = episode, role = "DOCTOR") {
   const showError = vi.fn();
   const props = { episode: data, user: { username: "demo", role, access_token: "test-token" }, updateEpisode, showError };
   const view = render(<EpisodePage {...props} />);
-  const row = (id: number) => within(screen.getByText(`HIGH \u00b7 Alerta ficticia ${id}`).closest("article")!);
+  const row = (id: number) => within(screen.getByText(`Alta \u00b7 Alerta ficticia ${id}`).closest("article")!);
   return { fetchMock, updateEpisode, showError, row, view, props };
 }
 afterEach(() => vi.unstubAllGlobals());
@@ -62,7 +62,7 @@ describe("Bloqueo por alerta 49A", () => {
     fireEvent.click(button);
     await waitFor(() => expect(button).toBeEnabled());
     expect(row(1).queryByRole("status")).not.toBeInTheDocument();
-    expect(row(1).getByText("ACTIVE")).toBeVisible();
+    expect(row(1).getByText("Activa")).toBeVisible();
     expect(updateEpisode).not.toHaveBeenCalled();
     expect(fetchMock).toHaveBeenCalledTimes(1);
     if (failure === "401") {
@@ -113,13 +113,13 @@ describe("Bloqueo por alerta 49A", () => {
 
 describe("Errores por alerta 52A", () => {
   it.each([
-    ["Reconocer", "ACTIVE", "API"],
-    ["Reconocer", "ACTIVE", "red"],
-    ["Escalar", "ACKNOWLEDGED", "API"],
-    ["Escalar", "ACKNOWLEDGED", "red"],
-    ["Resolver", "ESCALATED", "API"],
-    ["Resolver", "ESCALATED", "red"],
-  ])("%s conserva el estado ante fallo de %s/%s y limpia al reintentar", async (action, initial, failure) => {
+    ["Reconocer", "ACTIVE", "API", "Activa"],
+    ["Reconocer", "ACTIVE", "red", "Activa"],
+    ["Escalar", "ACKNOWLEDGED", "API", "Reconocida"],
+    ["Escalar", "ACKNOWLEDGED", "red", "Reconocida"],
+    ["Resolver", "ESCALATED", "API", "Escalada"],
+    ["Resolver", "ESCALATED", "red", "Escalada"],
+  ])("%s conserva el estado ante fallo de %s/%s y limpia al reintentar", async (action, initial, failure, label) => {
     const data = { ...episode, alerts: [alert(1, initial), alert(2)] };
     const { fetchMock, row, showError } = prepare(data);
     if (failure === "red") fetchMock.mockRejectedValueOnce(new Error("Primer error 52A"));
@@ -127,7 +127,7 @@ describe("Errores por alerta 52A", () => {
     const button = row(1).getByRole("button", { name: action });
     fireEvent.click(button);
     expect(await row(1).findByRole("alert")).toHaveTextContent("Primer error 52A");
-    expect(row(1).getByText(initial)).toBeVisible();
+    expect(row(1).getByText(label)).toBeVisible();
     expect(row(2).queryByRole("alert")).not.toBeInTheDocument();
     let resolve!: (value: Response) => void;
     fetchMock.mockReturnValueOnce(new Promise<Response>((done) => { resolve = done; }));

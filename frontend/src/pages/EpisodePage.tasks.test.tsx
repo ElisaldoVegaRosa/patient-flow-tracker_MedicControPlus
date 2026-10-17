@@ -98,7 +98,7 @@ describe("Bloqueo por tarea 50A", () => {
     fireEvent.click(row(1).getByRole("button", { name: "Completar" }));
     await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(updated));
     view.rerender(<EpisodePage {...props} episode={updated} />);
-    expect(row(1).getByText("COMPLETED", { exact: false })).toBeVisible();
+    expect(row(1).getByText("Completada", { exact: false })).toBeVisible();
     expect(row(1).queryByRole("button", { name: "Completar" })).not.toBeInTheDocument();
     expect(row(2).getByRole("button", { name: "Completar" })).toBeEnabled();
   });
@@ -152,7 +152,7 @@ describe("Errores por tarea 51A", () => {
     resolveRetry(response(updated));
     await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(updated));
     view.rerender(<EpisodePage {...props} episode={updated} />);
-    expect(row(1).getByText("COMPLETED", { exact: false })).toBeVisible();
+    expect(row(1).getByText("Completada", { exact: false })).toBeVisible();
     expect(row(1).queryByRole("button", { name: "Completar" })).not.toBeInTheDocument();
     expect(row(2).getByRole("alert")).toHaveTextContent("Error tarea 2");
   });
@@ -202,7 +202,7 @@ describe("Ordenes LAB desde el episodio", () => {
   it("una orden LAB completada no reaparece como pendiente", () => {
     const { onOpenLaboratory } = prepare({ ...labEpisode, tasks: [{ ...labEpisode.tasks[0], status: "COMPLETED" }] }, "LAB");
     expect(screen.getByText("Tarea ficticia 7")).toBeVisible();
-    expect(screen.getByText("#7 · COMPLETED")).toBeVisible();
+    expect(screen.getByText("#7 · Completada")).toBeVisible();
     expect(onOpenLaboratory).not.toHaveBeenCalled();
   });
   it.each(["NURSING", "MEDICAL"])("conserva la finalizacion existente de %s junto a una orden LAB", async service => {

@@ -5,12 +5,12 @@ import AppHeader from "./AppHeader";
 
 describe("Cabecera por rol", () => {
   it.each([
-    ["RECEPTION", ["Centro de control", "Escanear pulsera", "Historial de episodios", "Nuevo ingreso", "Salir"]],
-    ["NURSE", ["Centro de control", "Escanear pulsera", "Salir"]],
-    ["DOCTOR", ["Centro de control", "Escanear pulsera", "Historial de episodios", "Salir"]],
-    ["LAB", ["Centro de control", "Escanear pulsera", "Bandeja de laboratorio", "Salir"]],
-    ["SUPERVISOR", ["Centro de control", "Panel de supervisor", "Escanear pulsera", "Historial de episodios", "Bandeja de laboratorio", "Salir"]],
-  ])("conserva botones, identidad y acciones para %s", async (role, buttons) => {
+    ["RECEPTION", "Recepción", ["Centro de control", "Escanear pulsera", "Historial de episodios", "Nuevo ingreso", "Salir"]],
+    ["NURSE", "Enfermería", ["Centro de control", "Escanear pulsera", "Salir"]],
+    ["DOCTOR", "Médico", ["Centro de control", "Escanear pulsera", "Historial de episodios", "Salir"]],
+    ["LAB", "Laboratorio", ["Centro de control", "Escanear pulsera", "Bandeja de laboratorio", "Salir"]],
+    ["SUPERVISOR", "Supervisor", ["Centro de control", "Panel de supervisor", "Escanear pulsera", "Historial de episodios", "Bandeja de laboratorio", "Salir"]],
+  ])("conserva botones, identidad y acciones para %s", async (role, label, buttons) => {
     const callbacks = {
       onDashboard: vi.fn(), onSupervisor: vi.fn().mockResolvedValue(undefined),
       onScan: vi.fn(), onHistory: vi.fn().mockResolvedValue(undefined),
@@ -29,7 +29,7 @@ describe("Cabecera por rol", () => {
     const user = userEvent.setup();
     render(<AppHeader user={{ username: "usuario-ficticio", role: String(role), access_token: "token-ficticio" }} {...callbacks} />);
     expect(screen.getByText("usuario-ficticio")).toBeVisible();
-    expect(screen.getByText(String(role))).toBeVisible();
+    expect(screen.getByText(label)).toBeVisible();
     expect(screen.getAllByRole("button").map((button) => button.textContent?.trim())).toEqual(buttons);
     for (const [label, callback] of Object.entries(actions)) {
       if (buttons.includes(label)) {

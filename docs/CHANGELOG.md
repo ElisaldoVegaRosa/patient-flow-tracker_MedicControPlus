@@ -5,7 +5,25 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Respaldo y restauracion del demo local (validado)
+## Lenguaje de interfaz en espanol (validado)
+
+- Catalogo comun de etiquetas para episodios, tareas, alertas y transiciones,
+  severidad, roles, servicios, decisiones, eventos y correcciones. Se utiliza
+  tambien en presencia, revision de conflictos y borradores conservados.
+- Historial muestra Ver linea de tiempo. Los estados de reapertura/anulacion
+  se presentan en espanol; notas, resultados, motivos y originales conservan
+  literalmente su contenido. Los codigos desconocidos se muestran como tales.
+- Los valores de formularios, filtros, solicitudes API, permisos y datos no
+  cambian. Validacion sobre `dcf2d7a` y cambios locales: 66 pruebas dirigidas,
+  lint y build aprobados. Suite frontend de 45 archivos: 469/471 aprobadas;
+  las dos restantes buscaban NURSE en lugar de Enfermeria. Ajustada solo esa
+  expectativa, ambas aprobaron en ejecucion dirigida: 471 comprobadas, sin
+  repetir las 469 sin cambios. TEMP/TMP en `.tmp/vitest-labels`.
+- Prueba manual guiada confirmada por el usuario como Supervisor: cabecera,
+  historial y estado de EP-18, eventos, correcciones/reapertura y orden LAB #15
+  completada con su historial. Resultado, originales y motivos conservados.
+
+## Respaldo y restauracion del demo local (publicado)
 
 - Nueva herramienta para crear una copia consistente de `backend/clinical.db`
   mediante la API de respaldo de SQLite, con SHA-256 e inspeccion de integridad,
@@ -18,6 +36,9 @@ las verificaciones realizadas y el estado de cada etapa.
   detenia `socketpair` antes de iniciar la app. Reproducido con Python solo y
   resuelto ejecutando con los permisos adecuados y un temporal nuevo, sin
   modificar la app ni dependencias. [Procedimiento](LOCAL_VALIDATION.md).
+- Publicado en `dcf2d7a`, CI `39062489007` aprobada. Respaldo y SHA-256 copiados
+  y verificados en `D:\MedicControlPlus\backups`, disco extraible distinto del
+  principal, con 18 pacientes y 19 episodios. Base activa conservada.
 
 ## Consulta y correcciones de registros (publicada)
 

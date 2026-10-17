@@ -79,7 +79,7 @@ it("conserva evaluación y nota de alta cuando otra sesión cierra el episodio",
   fireEvent.change(screen.getByLabelText("Nota de alta"), { target: { value: "Nota local pendiente" } });
   app.update({ status: "CLOSED", closed_at: initial.started_at });
   await refresh();
-  expect(screen.getByText("Episodio EP-42 · CLOSED")).toBeVisible();
+  expect(screen.getByText("Episodio EP-42 · Cerrado")).toBeVisible();
   expect(within(screen.getByRole("region", { name: "Texto local conservado" })).getByText("LAB", { exact: true })).toBeVisible();
   expect(screen.getByRole("region", { name: "Texto local conservado" })).toHaveTextContent("Nota local pendiente");
   expect(screen.queryByRole("button", { name: "Guardar evaluación médica" })).not.toBeInTheDocument();

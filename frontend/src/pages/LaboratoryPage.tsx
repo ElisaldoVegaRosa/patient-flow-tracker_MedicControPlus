@@ -1,6 +1,7 @@
 import type { FormEvent } from "react";
 import type { LaboratoryQueue } from "../types/clinical";
 import RecordCorrectionForm from "../components/RecordCorrectionForm";
+import { clinicalLabel } from "../presentation/clinicalLabels";
 
 type LaboratoryPageProps = {
   laboratoryQueue: LaboratoryQueue;
@@ -118,7 +119,7 @@ export default function LaboratoryPage({
 
               <div>
                 <dt>Estado</dt>
-                <dd>{order.status}</dd>
+                <dd>{clinicalLabel("taskStatus", order.status)}</dd>
               </div>
             </dl>
 
@@ -126,7 +127,7 @@ export default function LaboratoryPage({
               <p>Resultado vigente: {order.status === "ANNULLED" ? "Anulado" : order.result || "Sin resultado"}</p>
               {(order.record_changes ?? []).length > 0 && <details><summary>Ver correcciones y resultados anteriores</summary>
                 {(order.record_changes ?? []).map(change => <article key={change.id}>
-                  <p>{change.action} · Motivo: {change.reason}</p>
+                  <p>{clinicalLabel("changeAction", change.action)} · Motivo: {change.reason}</p>
                   <p>Anterior: {change.old_value ?? "Sin texto"}</p>
                   <p>Nuevo: {change.new_value ?? "Sin texto vigente"}</p>
                   <small>{change.username} · {new Date(change.created_at).toLocaleString()}</small>

@@ -111,7 +111,7 @@ describe("Bandeja de laboratorio", () => {
     await user.click(screen.getByRole("button", { name: "Bandeja de laboratorio" }));
     const title = await screen.findByRole("heading", { name: "Hemograma" });
     const card = within(title.closest("article")!);
-    ["ORDEN #71", "Paciente ficticio laboratorio", "EP-91", "P2", "Observación", "PENDING"]
+    ["ORDEN #71", "Paciente ficticio laboratorio", "EP-91", "P2", "Observación", "Pendiente"]
       .forEach((text) => expect(card.getByText(text)).toBeVisible());
     const result = card.getByRole("textbox", { name: "Resultado de laboratorio" });
     expect(result).toBeRequired();

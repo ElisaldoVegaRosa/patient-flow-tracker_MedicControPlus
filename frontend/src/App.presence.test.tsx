@@ -24,7 +24,7 @@ async function setup(role = "DOCTOR") {
   render(<App />);
   fireEvent.click(await screen.findByRole("button", { name: "Abrir" }));
   await screen.findByRole("region", { name: "Presencia en el episodio" });
-  await screen.findByText(/colega · NURSE/);
+  await screen.findByText(/colega · Enfermería/);
   return { fetchMock, close: () => { episode = { ...episode, status: "CLOSED", closed_at: initial.started_at }; } };
 }
 it("integra presencia con cambios locales y conserva el control de versiones al guardar", async () => {
@@ -45,7 +45,7 @@ it("al cerrar el episodio remoto retira presencia y conserva el texto pendiente"
   fireEvent.change(screen.getByLabelText("Diagnóstico o impresión clínica"), { target: { value: "Pendiente local" } });
   close();
   await act(async () => window.dispatchEvent(new Event("focus")));
-  await screen.findByText("Episodio EP-42 · CLOSED");
+  await screen.findByText("Episodio EP-42 · Cerrado");
   expect(screen.queryByRole("region", { name: "Presencia en el episodio" })).not.toBeInTheDocument();
   expect(screen.getByRole("region", { name: "Texto local conservado" })).toHaveTextContent("Pendiente local");
   expect(fetchMock.mock.calls.some(([path, options]) => String(path).includes("/presence/") && options?.method === "DELETE")).toBe(true);

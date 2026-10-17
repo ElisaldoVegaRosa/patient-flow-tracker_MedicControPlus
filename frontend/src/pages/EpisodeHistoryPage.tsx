@@ -1,4 +1,5 @@
 import type { HistoryData } from "../types/clinical";
+import { clinicalLabel } from "../presentation/clinicalLabels";
 
 type EpisodeHistoryPageProps = {
   historyData: HistoryData;
@@ -66,7 +67,7 @@ export default function EpisodeHistoryPage({
                   <strong>{closedEpisode.name}</strong>
                   <small>EP-{closedEpisode.id}</small>
                 </td>
-                <td>{closedEpisode.status}</td>
+                <td>{clinicalLabel("episodeStatus", closedEpisode.status)}</td>
 
                 <td>{closedEpisode.document}</td>
 
@@ -112,7 +113,7 @@ export default function EpisodeHistoryPage({
                   <button
                     onClick={() => onOpenEpisode(closedEpisode.id)}
                   >
-                    Ver timeline
+                    Ver línea de tiempo
                   </button>
                 </td>
               </tr>

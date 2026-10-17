@@ -11,6 +11,7 @@ import ReasonActionForm from "../components/ReasonActionForm";
 import { QRCodeSVG } from "qrcode.react";
 import { isSessionInterruption, WRITE_CONFIRMED_EVENT } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
+import { clinicalLabel } from "../presentation/clinicalLabels";
 
 type EpisodePageProps = {
   pendingOperations?: PendingOperations;
@@ -334,7 +335,7 @@ async function createClinicalOrder(
         <div>
           <h1>{episode.name}</h1>
           <p>
-            Episodio EP-{episode.id} · {episode.status}
+            Episodio EP-{episode.id} · {clinicalLabel("episodeStatus", episode.status)}
           </p>
         </div>
 
@@ -617,15 +618,15 @@ async function createClinicalOrder(
           defaultValue="CONTINUE_OBSERVATION"
         >
           <option value="CONTINUE_OBSERVATION">
-            Continuar en observación
+            {clinicalLabel("disposition", "CONTINUE_OBSERVATION")}
           </option>
 
           <option value="ORDER_TESTS">
-            Solicitar pruebas u órdenes
+            {clinicalLabel("disposition", "ORDER_TESTS")}
           </option>
 
           <option value="READY_FOR_DISCHARGE">
-            Preparar para alta
+            {clinicalLabel("disposition", "READY_FOR_DISCHARGE")}
           </option>
         </select>
       </label>
@@ -685,9 +686,9 @@ async function createClinicalOrder(
         Servicio responsable
 
         <select name="service" disabled={creatingOrder} defaultValue="LAB">
-          <option value="LAB">Laboratorio</option>
-          <option value="NURSING">Enfermería</option>
-          <option value="MEDICAL">Equipo médico</option>
+          <option value="LAB">{clinicalLabel("service", "LAB")}</option>
+          <option value="NURSING">{clinicalLabel("service", "NURSING")}</option>
+          <option value="MEDICAL">{clinicalLabel("service", "MEDICAL")}</option>
         </select>
       </label>
 
@@ -720,10 +721,10 @@ async function createClinicalOrder(
     .map((alert) => (
       <article key={alert.id}>
         <strong>
-          {alert.severity} · {alert.reason}
+          {clinicalLabel("severity", alert.severity)} · {alert.reason}
         </strong>
 
-        <span>{alert.status}</span>
+        <span>{clinicalLabel("alertStatus", alert.status)}</span>
 
         <div>
           {!isClosed && alert.status === "ACTIVE" &&
@@ -792,8 +793,8 @@ async function createClinicalOrder(
                       }
                     >
                       <strong>
-                        {transition.old_status ?? "CREATED"} →{" "}
-                        {transition.new_status}
+                        {clinicalLabel("alertStatus", transition.old_status ?? "CREATED")} →{" "}
+                        {clinicalLabel("alertStatus", transition.new_status)}
                       </strong>
 
                       <small>
@@ -837,10 +838,10 @@ async function createClinicalOrder(
             className="resolved-alert"
           >
             <strong>
-              {alert.severity} · {alert.reason}
+              {clinicalLabel("severity", alert.severity)} · {alert.reason}
             </strong>
 
-            <span>{alert.status}</span>
+            <span>{clinicalLabel("alertStatus", alert.status)}</span>
 
             <details className="alert-history">
               <summary>
@@ -871,9 +872,8 @@ async function createClinicalOrder(
                           }
                         >
                           <strong>
-                            {transition.old_status ??
-                              "CREATED"}{" "}
-                            → {transition.new_status}
+                            {clinicalLabel("alertStatus", transition.old_status ?? "CREATED")}{" "}
+                            → {clinicalLabel("alertStatus", transition.new_status)}
                           </strong>
 
                           <small>
@@ -906,8 +906,8 @@ async function createClinicalOrder(
               <article className="task" key={task.id}>
                 <div>
                   <strong>{task.title}</strong>
-                  <small>{task.service}</small>
-                  <small>#{task.id} · {task.status}</small>
+                  <small>{clinicalLabel("service", task.service)}</small>
+                  <small>#{task.id} · {clinicalLabel("taskStatus", task.status)}</small>
                   {task.status !== "PENDING" && <p>Resultado: {task.status === "ANNULLED" ? "Publicación anulada" : task.result || "Sin resultado"}</p>}
                 </div>
 
@@ -935,7 +935,7 @@ async function createClinicalOrder(
 
           {episode.events.map((event) => (
             <article key={event.id}>
-              <strong>{event.type.replaceAll("_", " ")}</strong>
+              <strong>{clinicalLabel("eventType", event.type)}</strong>
               <p>{event.annulled ? "Nota anulada" : event.current_note ?? event.note}</p>
               {(event.annulled || (event.current_note !== undefined && event.current_note !== event.note)) && <details><summary>Ver texto original</summary><p>{event.note}</p></details>}
               <small>
@@ -951,10 +951,10 @@ async function createClinicalOrder(
         {(episode.record_changes ?? []).length > 0 && <section className="panel">
           <h2>Historial de correcciones</h2>
           {(episode.record_changes ?? []).map(change => <article key={change.id}>
-            <strong>{change.target_type} #{change.target_id} · {change.action}</strong>
+            <strong>{clinicalLabel("recordTarget", change.target_type)} #{change.target_id} · {clinicalLabel("changeAction", change.action)}</strong>
             <p>Motivo: {change.reason}</p>
-            <p>Anterior: {change.old_value ?? "Sin texto"}</p>
-            <p>Nuevo: {change.new_value ?? "Sin texto vigente"}</p>
+            <p>Anterior: {change.target_type === "EPISODE" && change.old_value !== null ? clinicalLabel("episodeStatus", change.old_value) : change.old_value ?? "Sin texto"}</p>
+            <p>Nuevo: {change.target_type === "EPISODE" && change.new_value !== null ? clinicalLabel("episodeStatus", change.new_value) : change.new_value ?? "Sin texto vigente"}</p>
             <small>{change.username} · {new Date(change.created_at).toLocaleString()}</small>
           </article>)}
         </section>}

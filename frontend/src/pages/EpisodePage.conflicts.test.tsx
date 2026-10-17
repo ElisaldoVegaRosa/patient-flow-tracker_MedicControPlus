@@ -30,6 +30,7 @@ describe('Revisión de datos concurrentes en el episodio', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Consultar cambios actuales' }));
     const accept = await screen.findByRole('button', { name: 'He revisado los cambios; continuar editando' });
     expect(screen.getByText(/Responsable remoto/)).toBeVisible();
+    expect(screen.getByText(/Estado actual: Activo\./)).toBeVisible();
     fireEvent.click(accept);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(screen.getByLabelText('Personal responsable')).toHaveValue('Responsable local');
@@ -49,6 +50,7 @@ describe('Revisión de datos concurrentes en el episodio', () => {
     await screen.findByRole('region', { name: 'Cambios de otra sesión' });
     fireEvent.click(screen.getByRole('button', { name: 'Consultar cambios actuales' }));
     await screen.findByText(/Este recurso ya no admite/);
+    expect(screen.getByText(/Estado actual: Cerrado\./)).toBeVisible();
     expect(screen.queryByRole('button', { name: 'He revisado los cambios; continuar editando' })).not.toBeInTheDocument();
     expect(screen.getByLabelText('Nota de alta')).toHaveValue('Nota local ficticia');
     expect(new Headers(fetchMock.mock.calls[0][1].headers).get('If-Match')).toBe('"old-clinical"');

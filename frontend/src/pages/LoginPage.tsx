@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { clinicalLabel } from "../presentation/clinicalLabels";
 
 type LoginPageProps = {
   submitting?: boolean;
@@ -31,11 +32,11 @@ if (restoringSession) {
             <label>
               Usuario
               <select disabled={submitting} name="username">
-                <option value="recepcion">Recepción</option>
-                <option value="enfermeria">Enfermería</option>
-                <option value="medico">Médico</option>
-                <option value="laboratorio">Laboratorio</option>
-                <option value="supervisor">Supervisor</option>
+                <option value="recepcion">{clinicalLabel("role", "RECEPTION")}</option>
+                <option value="enfermeria">{clinicalLabel("role", "NURSE")}</option>
+                <option value="medico">{clinicalLabel("role", "DOCTOR")}</option>
+                <option value="laboratorio">{clinicalLabel("role", "LAB")}</option>
+                <option value="supervisor">{clinicalLabel("role", "SUPERVISOR")}</option>
               </select>
             </label>
 

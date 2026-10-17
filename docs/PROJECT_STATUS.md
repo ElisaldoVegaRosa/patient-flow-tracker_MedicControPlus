@@ -2,21 +2,33 @@
 
 ## Estado actual (leer primero)
 
-- Respaldo de la base demo validado: copia consistente con SQLite,
-  SHA-256, verificaciones de integridad y restauracion a un archivo nuevo sin
-  sustituir `backend/clinical.db`. La copia y su ensayo restaurado conservan
-  18 pacientes y 19 episodios; instrucciones en
-  [DEMO_DATABASE_BACKUP](DEMO_DATABASE_BACKUP.md). Validacion actual sobre
-  `1b70ee0` y este bloque local: backend 196/196 aprobado en 310,14 s, incluidas
-  las cinco pruebas nuevas. Frontend sin cambios; conserva su validacion previa.
-  Bloqueo local resuelto: el aislamiento impedia crear el socket interno de
-  asyncio antes del arranque de la app. Fuera del aislamiento y con un temporal
-  nuevo, la suite completa paso sin cambiar dependencias ni pruebas.
-  Evidencia y procedimiento en [LOCAL_VALIDATION](LOCAL_VALIDATION.md).
-  Commit y publicacion autorizados el 17 de octubre. El resultado remoto de
-  esta entrega se consulta en la [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
-  La base activa no se sustituyo. Siguiente decision: otra necesidad concreta
-  del demo o conservar tambien el respaldo en un destino externo acordado.
+- Lenguaje de interfaz en espanol validado sobre `dcf2d7a` y esta entrega:
+  catalogo compartido para estados, roles, servicios, decisiones, severidad,
+  eventos y correcciones. Incluye historial, laboratorio, presencia, conflictos
+  y borradores; Ver timeline pasa a Ver linea de tiempo. API, permisos y notas
+  originales conservados; los codigos desconocidos se identifican explicitamente.
+  Validacion: 66 pruebas dirigidas, lint y build aprobados. Suite frontend de
+  45 archivos: 469/471 aprobadas inicialmente; las dos restantes fallaron por
+  esperar NURSE en lugar de Enfermeria. Tras ajustar solo esa expectativa,
+  ambas aprobaron en ejecucion dirigida. Las 471 quedan comprobadas; no se
+  repitieron las 469 sin cambios. TEMP/TMP en `.tmp/vitest-labels`.
+  Backend sin cambios: conserva 196 pruebas y CI previa aprobada.
+  Usuario confirmo la prueba manual guiada en consulta como Supervisor:
+  cabecera, estado Cerrado y Ver linea de tiempo de EP-18; eventos, acciones
+  de correccion y estados de reapertura; orden LAB #15 completada y su historial,
+  con resultado, textos anteriores y motivos conservados.
+  Commit/publicacion autorizados el 17 de octubre. Resultado remoto de esta
+  entrega en la [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
+  Consultar antes de nuevas pruebas directas. Tras cerrar la entrega, acordar
+  otra necesidad concreta del demo.
+- Respaldo publicado en `dcf2d7a`; CI
+  [39062489007](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39062489007)
+  aprobada: backend, frontend, lint y build. Copia consistente y restauracion
+  aislada verificadas con 18 pacientes y 19 episodios. Copia adicional y SHA-256
+  verificados en `D:\MedicControlPlus\backups`, unidad extraible en disco distinto
+  del principal. La base activa no se sustituyo. Guias:
+  [DEMO_DATABASE_BACKUP](DEMO_DATABASE_BACKUP.md) y
+  [LOCAL_VALIDATION](LOCAL_VALIDATION.md).
 - Bloque LAB y ciclo de vida publicado en
   `9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
   [39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711)
