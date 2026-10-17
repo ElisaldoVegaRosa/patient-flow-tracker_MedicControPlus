@@ -1560,7 +1560,8 @@ Revisión incluida en la publicación autorizada de la Etapa 62.
 - Prueba directa aprobada por el usuario: separación de órdenes ejecutables
   y pendientes cerrados; cierre desde otra sesión mientras se escribe, con
   retirada del botón Publicar y resultado preservado en Texto local conservado.
-- Publicación autorizada: commit, push y comprobación de CI. La detención previa
+- Entrega publicada: `6c739569e4815d4396dffe936dee727f0cef3aff`;
+  CI `38993035968` aprobada. Etapa 63 cerrada dentro del alcance. La detención previa
   por AGENTS.md se levantó con la autorización del usuario para diagnosticar;
   validación completa aprobada tras el reinicio.
-  CI del commit de implementación pendiente de comprobación.
+  Cierre documental incluido en la publicación autorizada.

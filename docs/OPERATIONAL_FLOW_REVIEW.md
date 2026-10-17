@@ -161,4 +161,5 @@ Comando: npm.cmd run test --prefix frontend -- --maxWorkers=1.
 La carga local pudo influir; no se atribuye a un proceso concreto sin evidencia.
 Lint/build aprobados previamente siguen vigentes; backend sin cambios (173 pruebas
 previas). La detención anterior queda resuelta. Prueba directa aprobada por el usuario: separación de pendientes cerrados
-y conservación del resultado local tras un cierre remoto. Publicación autorizada: commit, push y comprobación de CI. CI del commit de implementación pendiente de comprobación.
+y conservación del resultado local tras un cierre remoto. Entrega publicada: `6c739569e4815d4396dffe936dee727f0cef3aff`;
+  CI `38993035968` aprobada. Etapa 63 cerrada dentro del alcance. Cierre documental incluido en la publicación autorizada.

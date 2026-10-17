@@ -2,8 +2,8 @@
 
 ## Última etapa
 
-Etapa 63 implementada localmente: separación de pendientes de laboratorio.
-Validación frontend aprobada: 413/413 en 39 archivos, lint/build. Prueba directa aprobada; sin commit ni push.
+Etapa 63 publicada y cerrada: separación de pendientes de laboratorio.
+Validación frontend aprobada: 413/413 en 39 archivos, lint/build. Prueba directa aprobada. Commit `6c73956`; CI `38993035968` aprobada.
 
 Etapa 62 publicada y cerrada: validación transversal de entradas; commit `99dac23`, CI `38328571734` aprobada.
 Validación aprobada: 173 backend, 409 frontend, lint/build; prueba directa de ingreso aprobada.
@@ -1631,7 +1631,8 @@ Revisión incluida en la publicación autorizada de la Etapa 62.
 - Prueba directa aprobada por el usuario: separación de órdenes ejecutables
   y pendientes cerrados; cierre desde otra sesión mientras se escribe, con
   retirada del botón Publicar y resultado preservado en Texto local conservado.
-- Publicación autorizada: commit, push y comprobación de CI. La detención previa
+- Entrega publicada: `6c739569e4815d4396dffe936dee727f0cef3aff`;
+  CI `38993035968` aprobada. Etapa 63 cerrada dentro del alcance. La detención previa
   por AGENTS.md se levantó con la autorización del usuario para diagnosticar;
   validación completa aprobada tras el reinicio.
-  CI del commit de implementación pendiente de comprobación.
+  Cierre documental incluido en la publicación autorizada.
