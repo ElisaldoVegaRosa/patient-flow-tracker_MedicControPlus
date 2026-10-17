@@ -1,8 +1,10 @@
-# Política implementada localmente: consulta e historial de correcciones
+# Política publicada: consulta e historial de correcciones
 
-Autorizada por el usuario tras revisar esta propuesta. El código local cubre
-los casos y permisos siguientes; backend 191/191, frontend 457/457, lint y
-build aprobados. Prueba directa y publicación siguen pendientes.
+Autorizada por el usuario tras revisar esta propuesta. El codigo publicado
+cubre los casos y permisos siguientes; backend 191/191, frontend 457/457,
+lint y build aprobados. Prueba manual guiada completada en EP-18 y EP-19.
+Commit `9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
+[39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711) aprobada.
 Los formularios nuevos avisan antes de navegar o recargar con texto sin guardar;
 su restauración tras confirmar salida/recarga no forma parte de esta entrega.
 
@@ -23,8 +25,8 @@ completadas con su identificacion y resultado.
 Antes de este bloque no había rutas de rectificación de notas/resultados,
 reapertura de alta ni anulación de ingreso. Las evaluaciones existentes son eventos
 textuales con diagnostico, nota y decision concatenados; no son fichas editables
-independientes. La correccion previa del acceso LAB esta validada localmente
-(454 frontend, lint/build y prueba directa del usuario), aun sin commit/push.
+independientes. La correccion previa del acceso LAB se valido con 454 pruebas frontend,
+lint/build y prueba directa del usuario; se publico en el mismo bloque.
 
 ## Alcance autorizado
 

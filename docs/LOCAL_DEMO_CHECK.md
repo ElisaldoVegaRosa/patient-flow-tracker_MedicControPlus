@@ -79,7 +79,7 @@ segun cuanto tarde el recorrido; su presencia no acredita por si sola un fallo.
 - Laboratorio: prueba corregida de resultado escrito confirmada por el usuario.
   La primera orden fue completada desde el acceso generico; se conserva. El
   usuario observo falta de consulta visible de completadas y pidio correcciones;
-  ambos flujos estan implementados localmente y validados en pruebas automaticas.
+  ambos flujos estan publicados y validados en pruebas automaticas.
   Consulta directa de Completadas confirmada: ordenes #13 y #14 de EP-17 visibles
   con sus resultados originales, sin editarlos.
 - Supervisor: comprobado directamente en EP-17. El panel muestra triaje, signos,
@@ -119,7 +119,9 @@ recibio las confirmaciones. No se modifico EP-17 para estas pruebas.
 
 Validacion automatica previa del bloque: backend 191/191, frontend 457/457
 en 43 archivos, lint y build aprobados; las pruebas manuales no cambiaron
-codigo. Commit/push del bloque local pendientes de autorizacion.
+codigo. Bloque publicado en
+`9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
+[39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711) aprobada.
 
 ## Observacion y correccion durante EP-17
 
@@ -128,7 +130,7 @@ tras encontrar solo Completar y sin cuadro de resultado. Ese handler enviaba
 Completada sin novedades; la orden dejo de figurar en pendientes. Se conserva ese
 registro. No se completa ni se modifica ninguna orden desde herramientas.
 
-Correccion autorizada e implementada localmente: tarea LAB lleva a la bandeja
+Correccion autorizada y publicada: tarea LAB lleva a la bandeja
 para que Laboratorio escriba y publique el resultado; Supervisor consulta sin publicar;
 recepcion, enfermeria y medico reciben indicacion. Handler generico excluye LAB.
 API y finalizacion de NURSING/MEDICAL conservan sus contratos.

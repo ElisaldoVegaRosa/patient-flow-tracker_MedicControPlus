@@ -5,7 +5,7 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Consulta y correcciones de registros (local)
+## Consulta y correcciones de registros (publicada)
 
 - Órdenes LAB pendientes, completadas y todas consultables con número, EP,
   resultado vigente y resultados anteriores. El episodio muestra también tareas
@@ -40,9 +40,12 @@ las verificaciones realizadas y el estado de cada etapa.
   dirigidas posteriores aprobadas. Aviso de salida/recarga: 53 pruebas dirigidas
   y lint/build aprobados. Suite frontend final 457/457 con TEMP/TMP en
   .tmp/vitest tras ENOENT del temporal del sandbox en el primer intento.
-  Pruebas manuales guiadas completadas; commit/push pendientes.
+  Pruebas manuales guiadas completadas. Publicado en
+  `9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
+  [39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711)
+  aprobada (backend, frontend, lint y build).
 
-## Correccion: resultado LAB desde el episodio (local)
+## Correccion: resultado LAB desde el episodio (publicada)
 
 - Detectada en el circuito directo de EP-17: Completar en el detalle enviaba
   Completada sin novedades tambien para tareas LAB, retirandolas de pendientes
@@ -59,9 +62,9 @@ las verificaciones realizadas y el estado de cada etapa.
   Dirigidas: 55 aprobadas; suite frontend: 454 en 41 archivos, lint/build aprobados.
   Backend conserva validacion publicada (185 pruebas), sin cambios.
 - Incluye guia del circuito local y resultados confirmados hasta la orden.
-  Prueba directa corregida confirmada por el usuario; commit/push pendientes de
-  autorizacion. Las observaciones posteriores de historial y correcciones se
-  abordan en el bloque local descrito arriba.
+  Prueba directa corregida confirmada por el usuario e integrada en el commit
+  publicado arriba. Las observaciones posteriores de historial y correcciones
+  se abordan en ese mismo bloque.
 
 ## Etapa 65: borradores tras recarga (publicada)
 

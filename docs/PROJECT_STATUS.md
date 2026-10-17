@@ -2,6 +2,13 @@
 
 ## Estado actual (leer primero)
 
+- Bloque LAB y ciclo de vida publicado en
+  `9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
+  [39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711)
+  aprobada (backend, frontend, lint y build). Publicacion verificada en origin/main.
+- Siguiente decision: acordar otra necesidad concreta del demo local o una copia
+  consistente de la base de pruebas; no iniciar despliegue productivo por defecto.
+
 - Etapa 65 publicada y cerrada: recuperacion explicita de borradores tras recarga
   para los siete formularios, con aislamiento por API/usuario/rol, 30 minutos
   desde ultima edicion y descarte al guardar, descartar o cerrar sesion.
@@ -24,7 +31,7 @@
   orden dejo de figurar pendiente. El usuario ya confirmo la prueba corregida de
   resultado escrito; Supervisor, alta e historial comprobados. Circuito manual
   de EP-17 completo dentro del alcance del demo local.
-- Correccion LAB autorizada e implementada localmente: Laboratorio abre la bandeja
+- Correccion LAB publicada en el bloque conjunto: Laboratorio abre la bandeja
   desde la tarea con Registrar resultado en laboratorio; Supervisor consulta;
   recepcion/enfermeria/medico reciben indicacion sin acceso de publicacion LAB.
   Handler generico excluye LAB. NURSING/MEDICAL conservan su comportamiento.
@@ -33,10 +40,9 @@
   dirigidos y 454 frontend en 41 archivos aprobados; lint y build aprobados.
   Comando de suite: npm.cmd run test --prefix frontend -- --maxWorkers=1.
   Backend sin cambios: conserva 185 pruebas y CI publicada.
-  Commit/push de la correccion y guia requieren autorizacion propia.
-- Prueba directa de la correccion LAB confirmada por el usuario. Commit/push
-  del conjunto local aun no autorizados.
-- Bloque conjunto de ciclo de vida autorizado e implementado localmente:
+  Integrada en el commit publicado del bloque conjunto.
+- Prueba directa de la correccion LAB confirmada por el usuario.
+- Bloque conjunto de ciclo de vida autorizado y publicado:
   consulta de ordenes LAB pendientes/completadas/todas y todas las tareas en
   episodio; historial de correcciones con original/motivo/autor/fecha; LAB
   corrige o anula resultados, medico rectifica/anula evaluaciones y notas de
@@ -56,7 +62,7 @@
   EP-17 no se altero desde herramientas; el usuario lo cerro manualmente.
   Consulta LAB y supervision comprobadas directamente. Las pruebas manuales
   guiadas del bloque se completaron en EP-18 y EP-19; detalle en
-  [LOCAL_DEMO_CHECK](LOCAL_DEMO_CHECK.md). Commit/push pendientes.
+  [LOCAL_DEMO_CHECK](LOCAL_DEMO_CHECK.md). Publicado con CI aprobada.
   Despliegue productivo fuera del objetivo actual.
 - Bandeja LAB comprobada directamente con el rol Laboratorio: el filtro
   Completadas devuelve las órdenes #13 y #14 de EP-17 y conserva ambos
@@ -85,7 +91,7 @@
   EP-17 permanece CLOSED, sin cambios de prueba.
 - Preferencia del usuario: consultar antes de iniciar pruebas directas en la app.
   El usuario opero EP-18 y EP-19; el agente no ejecuto esas acciones.
-  Commit/push del bloque local continuan sin autorizacion.
+  El bloque se publico con autorizacion expresa del usuario y CI aprobada.
 - Forma de trabajo: un solo agente; no crear un revisor adicional.
 - Servidores comprobados para esta prueba: frontend 5173 y API /health 8000,
   HTTP 200. Verificar al retomar; no asumir continuidad tras reinicio ni modificar datos demo.

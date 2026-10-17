@@ -2,7 +2,14 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Etapas 30-65 publicadas y cerradas. Ultima: `bb02208`, CI `39000263862`
+- Bloque LAB y ciclo de vida publicado en
+  `9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
+  [39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711)
+  aprobada. Siguiente decision: elegir una necesidad concreta del demo o
+  acordar respaldo/restauracion de la base local.
+
+- Etapas 30-65 publicadas y cerradas. Ultima etapa numerada: 65, commit
+  `bb02208`, CI `39000263862`
   aprobada. Estado y validaciones en [PROJECT_STATUS](PROJECT_STATUS.md).
 - Identidad del paciente (64) y recuperacion de borradores tras recarga (65)
   resueltas dentro de su alcance acordado. El borrador temporal de la pestana
@@ -20,15 +27,15 @@
   La inspeccion no encontro un procedimiento versionado de respaldo/restauracion;
   acordarlo despues si se quiere conservar una base de pruebas de referencia.
   Despliegue, TLS y cuentas reales quedan fuera del objetivo inmediato.
-- Correccion LAB autorizada e implementada localmente: reemplazar finalizacion
+- Correccion LAB autorizada y publicada en el bloque conjunto: reemplazar finalizacion
   generica LAB en episodio por acceso a bandeja; Laboratorio escribe/publica,
   Supervisor consulta y otros roles reciben indicacion sin publicar. Conservar
   NURSING/MEDICAL, permisos API, versiones y bloqueo compartido. En esta
   correccion inicial no se modifico la orden ya completada de EP-17. Pruebas
   dirigidas 55/55; suite frontend 454 en
-  41 archivos, lint/build y prueba directa aprobados. Pendiente autorizacion de
-  commit/push del conjunto.
-- Bloque conjunto de consulta/correcciones aprobado e implementado localmente;
+  41 archivos, lint/build y prueba directa aprobados. Integrada en el commit
+  publicado del bloque conjunto.
+- Bloque conjunto de consulta/correcciones aprobado y publicado;
   [politica y criterios](RECORD_LIFECYCLE_DESIGN.md). Incluye historial visible
   de ordenes completadas, rectificacion/anulacion de resultados y notas, alta
   reabierta e ingreso sin actividad anulado logicamente. Backend 191/191,
@@ -42,9 +49,9 @@
   la linea de tiempo y su presencia ANNULLED en Historial de episodios.
   EP-17 conserva su circuito cerrado. Consultar al usuario
   antes de abrir la app para nuevas pruebas directas. No hay autorizacion de
-  commit/push ni de borrado definitivo.
+  borrado definitivo ni de una nueva entrega.
 - Cierre documental de 65 y evaluacion de recibos publicados en `797678e`,
-  CI `39035455474` aprobada. Guia y resultados de prueba preparados localmente.
+  CI `39035455474` aprobada. Guia y resultados incluidos en el bloque publicado.
   Conservar validaciones aprobadas sin repetir suites por cambios documentales.
 - Fuente historica: [revision integral](OPERATIONAL_FLOW_REVIEW.md); sus hallazgos
   de entradas, laboratorio, identidad y borradores ya fueron abordados en 62-65.
