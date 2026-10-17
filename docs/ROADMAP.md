@@ -2,18 +2,19 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Bloque actual autorizado: unificar etiquetas de dominio en espanol mediante
-  un catalogo frontend compartido. Implementado y validado; 66 pruebas dirigidas,
-  lint y build aprobados. Frontend: 469 pruebas aprobadas en suite completa y
-  otras dos aprobadas tras ajustar su expectativa de presencia, 471 comprobadas
-  en 45 archivos. Alcance: presentacion de
-  estados, roles, servicios, decisiones, alertas, historial y correcciones.
-  Excluye API, permisos, datos y reescritura de notas originales. Usuario confirmo
-  prueba guiada de cabecera, historial, eventos/correcciones de EP-18 y orden
-  LAB #15, con contenido original conservado. Commit/publicacion autorizados
-  el 17 de octubre; resultado remoto en la [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
-  Consultar antes de nuevas pruebas directas. Tras cerrar esta entrega,
-  acordar la siguiente necesidad concreta del demo.
+- Ciclo de alertas comprobado manualmente en EP-20: generacion, reconocimiento
+  y escalamiento por Enfermeria, resolucion por Medico, consulta por Supervisor
+  y cierre final del caso ficticio. Historial y autores conservados; permisos
+  confirmados. [Resultados](LOCAL_DEMO_CHECK.md). Cierre documental validado;
+  commit/publicacion autorizados el 17 de octubre. Resultado remoto en la
+  [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
+  No hay otro bloque funcional priorizado.
+  Conservar las validaciones aprobadas y consultar antes de nuevas pruebas directas.
+- Lenguaje de interfaz publicado en `07050fc`; CI
+  [39064241240](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39064241240)
+  aprobada: backend, frontend, lint y build. Catalogo compartido de etiquetas sin
+  cambios de API, permisos ni notas originales. Consulta manual de EP-18 y orden
+  LAB #15 confirmada por el usuario; frontend 471 pruebas en 45 archivos.
 - Respaldo/restauracion publicados en `dcf2d7a`; CI
   [39062489007](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39062489007)
   aprobada. Copia y ensayo verificados con 18 pacientes y 19 episodios; copia

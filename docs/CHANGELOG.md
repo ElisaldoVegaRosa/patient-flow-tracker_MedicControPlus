@@ -5,7 +5,16 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Lenguaje de interfaz en espanol (validado)
+## Prueba manual del ciclo de alertas (cierre documental)
+
+- Usuario confirmo en EP-20 la alerta critica por saturacion ficticia de 90:
+  Activa, Reconocida, Escalada y Resuelta; Enfermeria reconoce/escala sin acceso
+  a Resolver; Medico resuelve; Supervisor consulta historial y eventos con
+  autores y fechas. Caso ficticio cerrado por Medico al terminar.
+- Sin cambios de codigo ni repeticion de suites. Se conserva la CI aprobada
+  `39064241240` del commit `07050fc`. [Detalle](LOCAL_DEMO_CHECK.md).
+
+## Lenguaje de interfaz en espanol (publicado)
 
 - Catalogo comun de etiquetas para episodios, tareas, alertas y transiciones,
   severidad, roles, servicios, decisiones, eventos y correcciones. Se utiliza
@@ -22,6 +31,7 @@ las verificaciones realizadas y el estado de cada etapa.
 - Prueba manual guiada confirmada por el usuario como Supervisor: cabecera,
   historial y estado de EP-18, eventos, correcciones/reapertura y orden LAB #15
   completada con su historial. Resultado, originales y motivos conservados.
+- Publicado en `07050fc`; CI `39064241240` aprobada: backend, frontend, lint y build.
 
 ## Respaldo y restauracion del demo local (publicado)
 

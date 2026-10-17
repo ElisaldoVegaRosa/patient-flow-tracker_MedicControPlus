@@ -99,6 +99,33 @@ y las dos órdenes LAB en el detalle cerrado. Circuito manual completo.
 Si falla una fase, registrar rol, EP, accion y mensaje, conservar campos y
 revisar la causa compartida antes de proponer parches individuales por formulario.
 
+## Prueba manual guiada del ciclo de alertas en EP-20
+
+Realizada sobre `07050fc`, CI `39064241240` aprobada. El usuario opero la app
+y confirmo los pasos; el agente solo proporciono instrucciones. Sin nuevas
+implementaciones ni repeticion de suites automaticas.
+
+- Recepcion creo Paciente Alertas Demo 01, documento DEMO-ALERTAS-1710-01,
+  nacimiento 1990-01-01, P3, Recepcion. Usuario confirmo EP-20 Activo.
+- Enfermeria registro valores ficticios: temperatura 37, frecuencia cardiaca
+  80, presion 120/80, SpO2 90 y frecuencia respiratoria 16. Usuario aporto captura
+  de Critica - Saturacion de oxigeno baja, Activa, con Reconocer y Escalar.
+- Reconocer cambio a Reconocida, retiro ese boton y agrego Activa a Reconocida
+  con usuario y fecha. Escalar siguio disponible; Resolver no se ofrecio a
+  Enfermeria. Usuario confirmo los cuatro puntos.
+- Escalar cambio a Escalada y agrego Reconocida a Escalada sin perder el cambio
+  anterior. Enfermeria ya no tenia botones de transicion. Confirmado.
+- Medico encontro la alerta Escalada con Resolver y la paso a Resuelta.
+  Aparecio en Alertas resueltas; historial con las tres transiciones, medico
+  y fecha conservados. Confirmado.
+- Supervisor verifico las tres transiciones y los eventos Alerta reconocida,
+  Alerta escalada y Alerta resuelta con autores y fechas. Confirmado.
+- Medico cerro el caso con la nota Cierre ficticio tras validar el ciclo de
+  alertas. Usuario confirmo Episodio EP-20 - Cerrado. EP-17 a EP-19 no se usaron
+  para esta prueba.
+
+Estos valores solo prueban la interfaz del demo; no representan un caso real.
+
 ## Prueba manual guiada de correcciones y anulaciones
 
 El usuario opero los casos ficticios en la app; el agente solo dio pasos y

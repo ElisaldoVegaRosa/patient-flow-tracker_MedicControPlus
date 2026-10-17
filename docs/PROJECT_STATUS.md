@@ -2,25 +2,22 @@
 
 ## Estado actual (leer primero)
 
-- Lenguaje de interfaz en espanol validado sobre `dcf2d7a` y esta entrega:
-  catalogo compartido para estados, roles, servicios, decisiones, severidad,
-  eventos y correcciones. Incluye historial, laboratorio, presencia, conflictos
-  y borradores; Ver timeline pasa a Ver linea de tiempo. API, permisos y notas
-  originales conservados; los codigos desconocidos se identifican explicitamente.
-  Validacion: 66 pruebas dirigidas, lint y build aprobados. Suite frontend de
-  45 archivos: 469/471 aprobadas inicialmente; las dos restantes fallaron por
-  esperar NURSE en lugar de Enfermeria. Tras ajustar solo esa expectativa,
-  ambas aprobaron en ejecucion dirigida. Las 471 quedan comprobadas; no se
-  repitieron las 469 sin cambios. TEMP/TMP en `.tmp/vitest-labels`.
-  Backend sin cambios: conserva 196 pruebas y CI previa aprobada.
-  Usuario confirmo la prueba manual guiada en consulta como Supervisor:
-  cabecera, estado Cerrado y Ver linea de tiempo de EP-18; eventos, acciones
-  de correccion y estados de reapertura; orden LAB #15 completada y su historial,
-  con resultado, textos anteriores y motivos conservados.
-  Commit/publicacion autorizados el 17 de octubre. Resultado remoto de esta
-  entrega en la [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
-  Consultar antes de nuevas pruebas directas. Tras cerrar la entrega, acordar
-  otra necesidad concreta del demo.
+- Prueba manual guiada de alertas completada por el usuario en EP-20:
+  Enfermeria genero alerta critica por SpO2 ficticia de 90, reconocio y escalo;
+  Medico resolvio; Supervisor confirmo tres transiciones y eventos con autores
+  y fechas. Medico cerro EP-20 con nota de prueba. Resultado: Cerrado.
+  Detalle en [LOCAL_DEMO_CHECK](LOCAL_DEMO_CHECK.md). Cierre documental validado;
+  commit/publicacion autorizados el 17 de octubre. Resultado remoto en la
+  [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
+  Siguiente decision: acordar otra necesidad concreta del demo.
+  Consultar antes de nuevas pruebas directas.
+- Lenguaje de interfaz en espanol publicado en `07050fc`; CI
+  [39064241240](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39064241240)
+  aprobada: backend, frontend, lint y build. Catalogo compartido para estados,
+  roles, servicios, decisiones, severidad, eventos y correcciones, incluidos
+  conflictos y borradores. Conserva API y notas originales. Validaciones previas:
+  196 backend y 471 frontend en 45 archivos. Usuario confirmo consulta como
+  Supervisor de cabecera, historial, eventos/correcciones de EP-18 y LAB #15.
 - Respaldo publicado en `dcf2d7a`; CI
   [39062489007](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39062489007)
   aprobada: backend, frontend, lint y build. Copia consistente y restauracion
