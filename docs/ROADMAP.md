@@ -2,39 +2,29 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Etapas 30-64 publicadas y cerradas. CI de 64 aprobada; cierre documental
-  posterior incluido en los cambios locales de 65. Estado vigente en [PROJECT_STATUS](PROJECT_STATUS.md).
-- Mantenimiento incorporado: reglas de trabajo, lecturas y
-  reutilizacion de validaciones. Este mantenimiento es documental; no cambia
-  configuracion de modelos, agentes, permisos ni funcionamiento clinico.
-- Antes de una nueva entrega funcional, acordar problema y criterios de
-  aceptacion. La revision integral identifica estas decisiones aun abiertas:
-  - Identidad del paciente (64) resuelta: cotejo, apertura del episodio activo y
-    reingreso con ficha seleccionada. Sin fusion automatica de historiales.
-  - Etapa 65 autorizada e implementada localmente. Borradores tras recarga,
-    alcance conjunto: ingreso, triaje, signos, evaluacion, orden,
-    resultado de laboratorio y alta, reutilizando la recuperacion compartida.
-    Politica acordada: guardar texto temporalmente en sessionStorage
-    de la pestana, separado por API, usuario y rol, hasta 30 minutos desde la ultima
-    edicion; borrar al guardar, descartar, cerrar sesion o cambiar de usuario.
-    Ofrecer recuperacion explicita tras verificar permisos, estado y version;
-    no enviar automaticamente ni reintentar operaciones pendientes al recuperar.
-    Excluir persistencia entre dispositivos, garantia de recuperacion tras cerrar
-    navegador/reiniciar PC y uso de localStorage para contenido clinico. Mantener
-    separadas las referencias de operaciones por confirmar. Criterios: recarga
-    conserva borrador valido, usuario distinto no lo ve, caducidad y descarte
-    funcionan, conflictos y episodios cerrados no restauran un guardado inseguro.
-    Validacion: 442 frontend en 41 archivos, lint/build aprobados. Recuperacion
-    y descarte tras recarga de ingreso confirmados directamente por el usuario.
-    Commit/push del conjunto autorizados por el usuario; comprobar CI al publicar.
-  - Recibos: definir archivo/retencion conservando la reserva de claves para
-    impedir duplicados; no basta borrar recibos vencidos.
-- La validacion transversal de entradas (62) y la separacion de pendientes
-  cerrados en laboratorio (63) ya estan resueltas; no proponerlas como pendientes.
-- Fuente de detalle: [revision integral](OPERATIONAL_FLOW_REVIEW.md).
-  Ninguna prioridad funcional nueva queda autorizada por este listado.
-- No duplicar el historial en el bloque actual. Consultar etapas antiguas con
-  busquedas dirigidas cuando expliquen una decision vigente.
+- Etapas 30-65 publicadas y cerradas. Ultima: `bb02208`, CI `39000263862`
+  aprobada. Estado y validaciones en [PROJECT_STATUS](PROJECT_STATUS.md).
+- Identidad del paciente (64) y recuperacion de borradores tras recarga (65)
+  resueltas dentro de su alcance acordado. El borrador temporal de la pestana
+  caduca tras 30 minutos desde ultima edicion y requiere restauracion explicita;
+  se conserva la proteccion por versiones y la separacion de envios por confirmar.
+- Recibos: evaluacion del 17 de octubre completada sin modificar la base. Hay 14
+  recibos locales, 12 vencidos; consulta por indice compuesto. Recomendacion:
+  posponer archivo/limpieza mientras no haya evidencia de crecimiento o impacto
+  medido que lo justifique. Mantener reservas de claves y consulta de resultados,
+  aun vencidos. Un futuro archivo necesita politica de plazo/volumen, estrategia
+  de reserva, compatibilidad de consulta y pruebas de concurrencia; no ejecutar
+  borrados de recibos como mantenimiento. Detalle en [WRITE_OPERATIONS](WRITE_OPERATIONS.md).
+- Siguiente decision: acordar un objetivo funcional u operacional verificable.
+  Si se plantea uso fuera del demo, revisar requisitos de despliegue, respaldo y
+  restauracion, acceso y manejo de datos antes de afirmar preparacion productiva.
+  Esta propuesta no autoriza implementacion ni establece que esos controles falten.
+- Cierre documental de 65 y evaluacion de recibos revisados; commit/push
+  autorizados por el usuario. Comprobar CI tras publicar; conservar validaciones
+  locales aprobadas sin repetir suites por cambios documentales.
+- Fuente historica: [revision integral](OPERATIONAL_FLOW_REVIEW.md); sus hallazgos
+  de entradas, laboratorio, identidad y borradores ya fueron abordados en 62-65.
+  Consultar etapas antiguas por busqueda dirigida, sin tratarlas como pendientes.
 
 ## Plan e historial de etapas (consulta por demanda)
 

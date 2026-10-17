@@ -2,36 +2,28 @@
 
 ## Estado actual (leer primero)
 
-- Etapa 65 implementada localmente con autorizacion: recuperacion explicita de
-  borradores tras recarga para ingreso, triaje, signos, evaluacion, orden,
-  resultado de laboratorio y alta; una solucion compartida para los siete flujos.
-- Politica acordada: contenido temporal en sessionStorage de la pestana, separado
-  por API, usuario y rol; caduca por formulario a los 30 minutos de su ultima
-  edicion. Consultar/restaurar no renueva el plazo. Borrar al guardar, descartar,
-  cerrar sesion o cambiar de usuario; cierre desde otra pestana tambien lo retira.
-- Antes de ofrecer/restaurar, comprobar permisos y estado actual de episodios y
-  tareas. Conservar versiones originales; avisar si cambiaron y mantener If-Match
-  al guardar. Recuperar campos no envia ni reintenta operaciones por confirmar.
-- No almacenar tokens ni la seleccion de ficha de ingreso; no usar localStorage
-  para contenido clinico. Si falla el almacenamiento, avisar y conservar los
-  campos actuales en memoria. Sin garantia tras cerrar navegador o reiniciar PC.
-- Validacion de 65 sobre `0a85b5c` y cambios locales: 442 pruebas frontend en
-  41 archivos, lint y build aprobados. Comando: npm.cmd run test --prefix frontend
-  -- --maxWorkers=1. Backend sin cambios: conserva 185 pruebas y CI de 64.
-  Primera suite 440/441: respuesta tardia tras desmontaje; se corrigio cancelacion
-  por instancia sin borrar persistencia. Dirigida 33/33 y suite final 442/442.
-  Pruebas directas de ingreso confirmadas por el usuario: recuperar campos tras
-  recarga sin crear episodio y descartar, sin nueva oferta ni campos al recargar.
-  Commit/push de 65, incluido cierre documental de 64, autorizados por el usuario.
-  Comprobar CI de la revision publicada.
-- Base publicada: 64 cerrada, commit `0a85b5c7513b76aac6d2d27c0fb9bdaaec0ea4e7`.
-  CI [38998701169](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/38998701169)
-  aprobada; 417 frontend, 185 backend, lint/build y tres pruebas directas aprobadas.
-  Cierre documental de 64 incluido en los cambios locales de esta entrega.
-- Siguiente paso: publicar el conjunto revisado de 65 y comprobar CI; con CI
-  aprobada, cerrar la entrega y acordar el siguiente alcance.
+- Etapa 65 publicada y cerrada: recuperacion explicita de borradores tras recarga
+  para los siete formularios, con aislamiento por API/usuario/rol, 30 minutos
+  desde ultima edicion y descarte al guardar, descartar o cerrar sesion.
+- Commit: `bb0220880f857d79f95e9ee7f5c1ec6e3ece18e0`.
+  CI [39000263862](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39000263862)
+  aprobada: backend, frontend, lint y build. Validacion local: 442 frontend en 41
+  archivos, lint/build; backend sin cambios, 185 pruebas previas confirmadas en CI.
+  Usuario confirmo recuperacion y descarte tras recarga del ingreso sin crearlo.
+- Recibos revisados el 17 de octubre en modo solo lectura: 14 en base local,
+  12 vencidos; busqueda indexada por usuario/clave. Archivo SQLite principal:
+  114688 bytes en total. No hay evidencia local para priorizar un archivo ahora.
+  Recomendacion: conservar recibos y reserva de claves; revisar retencion cuando
+  volumen/mediciones o requisitos de operacion lo justifiquen. Detalle en
+  [WRITE_OPERATIONS](WRITE_OPERATIONS.md). Sin cambios de API, datos ni esquema.
+- Git limpio al retomar sobre `bb02208`; cierre documental y evaluacion de recibos
+  preparados localmente. Commit/push de este cierre autorizados por el usuario;
+  comprobar CI de la revision publicada.
+- Siguiente decision: acordar objetivo funcional u operacional; no iniciar una
+  etapa de archivo de recibos solo por el numero de entregas. La preparacion para
+  produccion requiere revision propia; estas pruebas no certifican ese alcance.
 - Forma de trabajo: un solo agente; no crear un revisor adicional.
-- Servidores 8000/5173 comprobados por HTTP 200 durante 65. Verificar
+- Ultima comprobacion de servidores: HTTP 200 en 8000/5173 durante 65. Verificar
   al retomar; no asumir continuidad tras reinicio ni modificar datos demo.
 
 Este bloque es la entrada al proyecto; el resto conserva antecedentes. Consultar

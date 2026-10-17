@@ -1,5 +1,30 @@
 # Contrato común de escrituras y recuperación (53–59)
 
+## Evaluacion de retencion: 17 de octubre de 2026
+
+Inspeccion de codigo y lectura agregada de la base local con SQLite mode=ro y
+query_only; no se inicio la API ni se modificaron datos. Resultado puntual:
+14 recibos, 12 vencidos; 0 caracteres de resumen almacenado. Archivo principal
+SQLite completo: 114688 bytes. EXPLAIN QUERY PLAN confirma busqueda mediante el
+indice compuesto de write_receipts por username y operation_key. Estas cifras
+son del demo local y no estiman volumen, latencia ni carga de produccion.
+
+El plazo de 24 horas limita la repeticion de una escritura con la misma clave.
+Despues se rechaza su reutilizacion con 409, mientras GET /write-result sigue
+permitiendo consultar el resultado con usuario/rol vigentes. Los recibos vencidos
+mantienen la reserva de claves. El codigo y las pruebas existentes
+(test_key_conflicts_expiry_and_current_permissions y
+test_expired_receipt_can_be_consulted_without_reusing_key) cubren este contrato.
+No se repitieron suites aprobadas para esta revision exclusivamente documental.
+
+Recomendacion: conservar el comportamiento actual y posponer archivo/limpieza;
+no hay evidencia local de necesidad inmediata. Para retomarlo, medir volumen,
+crecimiento, almacenamiento y consultas bajo carga representativa, o establecer
+un requisito operacional concreto. Un diseno posterior debe conservar la reserva
+de claves y acordar disponibilidad de resultados historicos, migracion y pruebas
+de concurrencia antes de ejecutar cualquier limpieza. Sin plazo nuevo impuesto,
+script de borrado, migracion ni implementacion autorizada por esta evaluacion.
+
 ## Contrato
 
 Las escrituras de ingreso, evaluaciones, órdenes, signos, triaje, alta, tareas,

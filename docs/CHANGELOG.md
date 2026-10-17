@@ -5,7 +5,7 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Etapa 65: borradores tras recarga (local)
+## Etapa 65: borradores tras recarga (publicada)
 
 - Politica autorizada por el usuario: guardar temporalmente campos de los siete
   formularios en sessionStorage de la pestana, sin tokens ni seleccion de ficha.
@@ -30,8 +30,10 @@ las verificaciones realizadas y el estado de cada etapa.
 - Pruebas directas de ingreso confirmadas por el usuario: recarga ofrece
   recuperar los valores sin crear episodio; descartar elimina la oferta y los
   campos en una recarga posterior. Los otros flujos tienen cobertura automatizada.
-- Incluye cierre documental de 64. Commit/push del conjunto autorizados por el
-  usuario; comprobar CI de la revision publicada.
+- Incluye cierre documental de 64. Publicada en
+  `bb0220880f857d79f95e9ee7f5c1ec6e3ece18e0`; CI
+  [39000263862](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39000263862)
+  aprobada. Etapa 65 cerrada.
 
 ## Etapa 64: identidad del paciente e ingreso (publicada)
 

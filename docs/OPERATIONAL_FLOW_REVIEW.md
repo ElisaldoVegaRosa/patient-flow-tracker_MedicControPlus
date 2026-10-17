@@ -1,15 +1,14 @@
 # Revisión integral del flujo operacional tras la Etapa 61
 
-## Actualizacion tras la Etapa 64
+## Actualizacion tras la Etapa 65
 
 Este informe conserva la fotografia de la Etapa 61 y sus recomendaciones originales.
-Los hallazgos de entradas, laboratorio e identidad ya se resolvieron en 62, 63 y
-64, respectivamente; no son pendientes actuales. Etapa 64 publicada en `0a85b5c`,
-CI `38998701169` y tres pruebas directas aprobadas. Recuperacion tras recarga
-autorizada e implementada localmente en 65, con pruebas directas de recuperacion
-y descarte de ingreso aprobadas; pendiente de publicacion. La retencion de recibos sigue como decision posterior. Consultar [ROADMAP](ROADMAP.md)
-y [PROJECT_STATUS](PROJECT_STATUS.md) antes de reutilizar el informe historico.
-
+Entradas, laboratorio, identidad y borradores tras recarga se abordaron en 62-65.
+Etapa 65 publicada en `bb02208`, CI `39000263862` y pruebas directas de recuperacion
+y descarte aprobadas. Recibos revisados el 17 de octubre: recomendacion de posponer
+archivo, conservar reservas y medir necesidad antes de implementar. Evidencia en
+[WRITE_OPERATIONS](WRITE_OPERATIONS.md). Pendientes vigentes en
+[ROADMAP](ROADMAP.md) y [PROJECT_STATUS](PROJECT_STATUS.md).
 
 Revisión del 12 de octubre de 2026 autorizada por el usuario. Inspección del
 código y pruebas; no modifica contratos, comportamiento ni datos clínicos.
