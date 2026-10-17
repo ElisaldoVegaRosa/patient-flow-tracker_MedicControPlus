@@ -275,3 +275,39 @@ cuando correspondan al dominio/API.
 Si aparecen archivos desconocidos, modificaciones inesperadas, conflictos de
 estado o resultados de validacion no explicados, detenerse y pedir instrucciones
 antes de continuar.
+
+## Eficiencia Y Continuidad
+
+- Al retomar, revisar Git y leer solo el bloque inicial de estado actual en
+  docs/PROJECT_STATUS.md y de decisiones pendientes en docs/ROADMAP.md.
+  Consultar el historial por busqueda dirigida cuando una decision lo necesite;
+  no releer documentos completos ni CHANGELOG por rutina.
+- Antes de implementar, definir problema, alcance, exclusiones y criterios de
+  aceptacion breves. Agrupar correcciones por causa compartida entre modulos;
+  evitar entregas repetidas por formulario cuando exista una solucion comun.
+- Buscar primero con rg; leer rangos concretos. Resumir salidas extensas y abrir
+  el detalle de errores necesario, sin volcar archivos o logs completos por rutina.
+- Durante el desarrollo, ejecutar pruebas dirigidas. Al estabilizar los cambios,
+  ejecutar una vez la validacion completa aplicable. Repetir solo lo afectado por
+  nuevos cambios, fallos o evidencia nueva; conservar el resultado y commit/base
+  de las validaciones anteriores. No presentar resultados antiguos como actuales.
+- Ante un fallo, registrar comando, error y punto alcanzado. Si apunta al arranque
+  del runner o a carga local, comprobar ese entorno antes de cambiar la aplicacion.
+  Reintentar solo con una hipotesis o condicion distinta comprobable; tras un
+  reintento igual, no encadenar suites completas sin evidencia nueva. No ampliar
+  tiempos ni alterar runners para conseguir aprobacion sin justificarlo. Si el
+  resultado sigue sin explicacion, aplicar la regla de detencion anterior.
+- Consultar procesos largos en intervalos razonables; informar cambios relevantes
+  y las incertidumbres, respetando las actualizaciones exigidas por la sesion.
+- Mantener el estado actual y la siguiente decision en los bloques iniciales de
+  PROJECT_STATUS y ROADMAP; no copiar otra vez el historial de etapas anteriores.
+  Mantener alli pendientes, validacion vigente y publicaciones verificadas.
+- Conservar las autorizaciones explicitas dentro de su alcance; no pedir otra vez
+  una aprobacion ya dada. Commit/push nuevos siguen requiriendo autorizacion.
+- Mantener el modelo elegido por el usuario. Recomendar un esfuerzo mayor solo
+  por complejidad concreta; las reglas no cambian automaticamente el selector.
+  No crear agentes por defecto: delegar solo cuando lo autorice el usuario o una
+  instruccion aplicable, con tarea independiente, contexto acotado y salida breve.
+- Para cambios exclusivamente documentales, revisar diff, enlaces locales,
+  codificacion y consistencia. No repetir suites de aplicacion aprobadas si no
+  cambian codigo, contratos ni comandos de ejecucion o validacion.

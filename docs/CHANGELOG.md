@@ -2634,3 +2634,14 @@ existentes y no modifica dependencias de frontend o backend.
   por AGENTS.md se levantó con la autorización del usuario para diagnosticar;
   validación completa aprobada tras el reinicio.
   Cierre documental incluido en la publicación autorizada.
+
+## Mantenimiento del flujo de trabajo y contexto
+
+- Reglas en AGENTS.md para lecturas dirigidas, alcance comun entre modulos,
+  reutilizacion de validaciones, diagnostico con evidencia y delegacion acotada.
+- Bloques iniciales breves en PROJECT_STATUS y ROADMAP: estado, decisiones y
+  fuentes. El historial existente se conserva; no se crean agentes ni se cambia
+  el modelo, sus parametros, permisos, codigo de aplicacion o datos demo.
+- Validacion documental: diff, estructura, enlaces locales y UTF-8. Las suites
+  de 63 no se repiten porque no cambia codigo, contratos ni comandos.
+- Mantenimiento y publicacion autorizados: commit, push y comprobacion de CI.

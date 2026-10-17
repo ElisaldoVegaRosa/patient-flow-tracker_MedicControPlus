@@ -1,5 +1,29 @@
 # Plan de MedicControl+
 
+## Decisiones pendientes (leer primero)
+
+- Etapas 30-63: consultar el estado vigente en
+  [PROJECT_STATUS](PROJECT_STATUS.md); 63 esta publicada y cerrada.
+- Mantenimiento incorporado: reglas de trabajo, lecturas y
+  reutilizacion de validaciones. Este mantenimiento es documental; no cambia
+  configuracion de modelos, agentes, permisos ni funcionamiento clinico.
+- Antes de una nueva entrega funcional, acordar problema y criterios de
+  aceptacion. La revision integral identifica estas decisiones aun abiertas:
+  - Identidad del paciente: cuando reutilizar un paciente y como tratar otro
+    ingreso con el mismo documento. No fusionar ni imponer unicidad sin acuerdo.
+  - Borradores tras recarga: decidir persistencia, alcance y tratamiento de texto
+    clinico antes de almacenarlo fuera de memoria.
+  - Recibos: definir archivo/retencion conservando la reserva de claves para
+    impedir duplicados; no basta borrar recibos vencidos.
+- La validacion transversal de entradas (62) y la separacion de pendientes
+  cerrados en laboratorio (63) ya estan resueltas; no proponerlas como pendientes.
+- Fuente de detalle: [revision integral](OPERATIONAL_FLOW_REVIEW.md).
+  Ninguna prioridad funcional nueva queda autorizada por este listado.
+- No duplicar el historial en el bloque actual. Consultar etapas antiguas con
+  busquedas dirigidas cuando expliquen una decision vigente.
+
+## Plan e historial de etapas (consulta por demanda)
+
 Plan reconstruido propuesto; no recuperado del chat original
 
 ## Estado y autorización

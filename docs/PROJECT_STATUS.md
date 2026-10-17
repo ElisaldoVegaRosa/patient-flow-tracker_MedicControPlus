@@ -1,6 +1,33 @@
 # Estado del proyecto MedicControl+
 
-## Última etapa
+## Estado actual (leer primero)
+
+- Etapa 63 publicada y cerrada: laboratorio separa ordenes ejecutables y
+  pendientes de episodios cerrados; conserva texto local ante cierre remoto.
+- Implementacion: `6c739569e4815d4396dffe936dee727f0cef3aff`.
+  CI `38993035968` aprobada.
+- Cierre documental: `e529e9835b27b1d605382b218e28f6ce87cd39a4`.
+  CI `38993249849` aprobada.
+- Validacion de 63: 413 pruebas frontend en 39 archivos, lint y build aprobados;
+  prueba directa confirmada por el usuario. Backend sin cambios: conserva 173
+  pruebas previas; la CI de 63 tambien comprobo backend.
+- Tras reinicio, actualizacion de Windows y cierre de programas, los cuatro
+  archivos antes fallidos pasaron (16/16) y la suite habitual paso en 154 s.
+  No quedaron cambios de runner, configuracion o tiempos. La causa especifica
+  de la lentitud anterior no se atribuyo a un proceso concreto.
+- Mantenimiento incorporado: mejora del flujo de trabajo y lectura de
+  contexto, exclusivamente documental. Sin funcionalidad clinica nueva.
+  Publicacion autorizada. Comprobar en GitHub la CI del commit de mantenimiento.
+- Siguiente decision: evaluar estas reglas antes de agregar perfiles o agentes;
+  prioridades funcionales pendientes en [ROADMAP](ROADMAP.md).
+- Servidores: se iniciaron para la prueba directa. Verificar procesos al retomar;
+  no asumir que siguen activos tras reinicio. No reiniciar ni modificar datos demo
+  como parte de las comprobaciones.
+
+Este bloque es la entrada al proyecto; el resto conserva antecedentes. Consultar
+secciones concretas por necesidad y CHANGELOG solo para antecedentes relevantes.
+
+## Historial y antecedentes (consulta por demanda)
 
 Etapa 63 publicada y cerrada: separación de pendientes de laboratorio.
 Validación frontend aprobada: 413/413 en 39 archivos, lint/build. Prueba directa aprobada. Commit `6c73956`; CI `38993035968` aprobada.
