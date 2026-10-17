@@ -2,12 +2,26 @@
 
 ## Estado actual (leer primero)
 
+- Respaldo de la base demo validado: copia consistente con SQLite,
+  SHA-256, verificaciones de integridad y restauracion a un archivo nuevo sin
+  sustituir `backend/clinical.db`. La copia y su ensayo restaurado conservan
+  18 pacientes y 19 episodios; instrucciones en
+  [DEMO_DATABASE_BACKUP](DEMO_DATABASE_BACKUP.md). Validacion actual sobre
+  `1b70ee0` y este bloque local: backend 196/196 aprobado en 310,14 s, incluidas
+  las cinco pruebas nuevas. Frontend sin cambios; conserva su validacion previa.
+  Bloqueo local resuelto: el aislamiento impedia crear el socket interno de
+  asyncio antes del arranque de la app. Fuera del aislamiento y con un temporal
+  nuevo, la suite completa paso sin cambiar dependencias ni pruebas.
+  Evidencia y procedimiento en [LOCAL_VALIDATION](LOCAL_VALIDATION.md).
+  Commit y publicacion autorizados el 17 de octubre. El resultado remoto de
+  esta entrega se consulta en la [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
+  La base activa no se sustituyo. Siguiente decision: otra necesidad concreta
+  del demo o conservar tambien el respaldo en un destino externo acordado.
 - Bloque LAB y ciclo de vida publicado en
   `9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
   [39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711)
-  aprobada (backend, frontend, lint y build). Publicacion verificada en origin/main.
-- Siguiente decision: acordar otra necesidad concreta del demo local o una copia
-  consistente de la base de pruebas; no iniciar despliegue productivo por defecto.
+  aprobada (backend, frontend, lint y build). Cierre documental posterior en
+  `1b70ee0`, CI `39060586831` aprobada. Ambos en origin/main.
 
 - Etapa 65 publicada y cerrada: recuperacion explicita de borradores tras recarga
   para los siete formularios, con aislamiento por API/usuario/rol, 30 minutos

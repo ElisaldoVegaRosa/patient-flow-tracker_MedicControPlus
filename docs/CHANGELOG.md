@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Respaldo y restauracion del demo local (validado)
+
+- Nueva herramienta para crear una copia consistente de `backend/clinical.db`
+  mediante la API de respaldo de SQLite, con SHA-256 e inspeccion de integridad,
+  referencias y tablas del demo. Permite verificarla y restaurarla solo en una
+  ruta nueva; nunca sobrescribe un archivo existente.
+- Copia local y ensayo de restauracion verificados con 18 pacientes y 19
+  episodios. Backend completo 196/196 aprobado en 310,14 s sobre `1b70ee0`
+  y este bloque local, incluidas las cinco pruebas nuevas. Frontend sin cambios.
+- Diagnosticado el bloqueo local de `TestClient`: el aislamiento de ejecucion
+  detenia `socketpair` antes de iniciar la app. Reproducido con Python solo y
+  resuelto ejecutando con los permisos adecuados y un temporal nuevo, sin
+  modificar la app ni dependencias. [Procedimiento](LOCAL_VALIDATION.md).
+
 ## Consulta y correcciones de registros (publicada)
 
 - Órdenes LAB pendientes, completadas y todas consultables con número, EP,

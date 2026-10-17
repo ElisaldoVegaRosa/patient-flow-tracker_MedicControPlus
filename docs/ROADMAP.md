@@ -2,11 +2,20 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Respaldo/restauracion del demo acordados y validados. La copia
+  consistente, su SHA-256 y la restauracion aislada se verificaron con 18
+  pacientes y 19 episodios. Backend completo 196/196 aprobado, incluidas las
+  cinco pruebas nuevas. Bloqueo de ejecucion resuelto con permisos para el socket
+  interno de Python y un temporal nuevo; [diagnostico](LOCAL_VALIDATION.md).
+  Commit/publicacion autorizados el 17 de octubre. Resultado remoto en la
+  [CI de main](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/workflows/ci.yml?query=branch%3Amain).
+  Siguiente decision: otra necesidad del demo o un destino externo para copias.
+  Procedimiento en
+  [DEMO_DATABASE_BACKUP](DEMO_DATABASE_BACKUP.md). La base activa no se sustituyo.
 - Bloque LAB y ciclo de vida publicado en
   `9a5bc84b3bcb12c6e63de7faeb6202ea255d09d3`; CI
   [39060204711](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39060204711)
-  aprobada. Siguiente decision: elegir una necesidad concreta del demo o
-  acordar respaldo/restauracion de la base local.
+  aprobada. Cierre documental en `1b70ee0`, CI `39060586831` aprobada.
 
 - Etapas 30-65 publicadas y cerradas. Ultima etapa numerada: 65, commit
   `bb02208`, CI `39000263862`
@@ -24,8 +33,8 @@
   borrados de recibos como mantenimiento. Detalle en [WRITE_OPERATIONS](WRITE_OPERATIONS.md).
 - Objetivo elegido el 17 de octubre: seguir probando el demo en esta PC.
   Circuito EP-17 y pruebas guiadas EP-18/EP-19 completados; [guia y resultados](LOCAL_DEMO_CHECK.md).
-  La inspeccion no encontro un procedimiento versionado de respaldo/restauracion;
-  acordarlo despues si se quiere conservar una base de pruebas de referencia.
+  El procedimiento de respaldo/restauracion se preparo localmente tras acordarlo
+  con el usuario; validacion backend completa aprobada y publicacion autorizada.
   Despliegue, TLS y cuentas reales quedan fuera del objetivo inmediato.
 - Correccion LAB autorizada y publicada en el bloque conjunto: reemplazar finalizacion
   generica LAB en episodio por acceso a bandeja; Laboratorio escribe/publica,
