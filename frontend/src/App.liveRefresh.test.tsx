@@ -135,3 +135,20 @@ it("descarta texto retenido al expirar la sesión y no lo muestra a otro usuario
 
 // Isolate existing clinical flows; presence composition has its own integration tests.
 vi.mock("./components/EpisodePresence", () => ({ default: () => null }));
+
+
+it.each(["automática", "manual"])("retiene resultado al cerrarse el episodio con actualización %s", async mode => {
+  const app = prepare("LAB");
+  fireEvent.click(await screen.findByRole("button", { name: "Bandeja de laboratorio" }));
+  fireEvent.change(await screen.findByLabelText("Resultado de laboratorio"), { target: { value: "Resultado local antes del cierre" } });
+  app.queue({ total: 1, status_filter: "PENDING", requested_by: "qa57", orders: [{ id: 8, episode_id: 42, title: "Hemograma", service: "LAB", status: "PENDING", result: null, created_at: initial.started_at, patient_name: initial.name, priority: 3, location: initial.location, episode_status: "CLOSED", version: '"lab-closed"' }] });
+  if (mode === "automática") await refresh();
+  else { fireEvent.click(screen.getByRole("button", { name: "Actualizar bandeja" })); await act(async () => { await Promise.resolve(); }); }
+  expect(await screen.findByRole("region", { name: "Pendientes de episodios cerrados" })).toHaveTextContent("El episodio está cerrado");
+  expect(screen.getByRole("region", { name: "Texto local conservado" })).toHaveTextContent("Resultado local antes del cierre");
+  expect(screen.queryByLabelText("Resultado de laboratorio")).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Publicar resultado y completar" })).not.toBeInTheDocument();
+  expect(app.fetchMock.mock.calls.filter(([, options]) => options?.method === "PATCH")).toHaveLength(0);
+  await refresh();
+  expect(screen.getByRole("region", { name: "Texto local conservado" })).toHaveTextContent("Resultado local antes del cierre");
+});

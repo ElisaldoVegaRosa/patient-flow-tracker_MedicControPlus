@@ -2,6 +2,9 @@
 
 ## Última etapa
 
+Etapa 63 implementada localmente: separación de pendientes de laboratorio.
+Validación frontend aprobada: 413/413 en 39 archivos, lint/build. Prueba directa aprobada; sin commit ni push.
+
 Etapa 62 publicada y cerrada: validación transversal de entradas; commit `99dac23`, CI `38328571734` aprobada.
 Validación aprobada: 173 backend, 409 frontend, lint/build; prueba directa de ingreso aprobada.
 
@@ -1595,3 +1598,40 @@ Revisión incluida en la publicación autorizada de la Etapa 62.
   Entrega publicada: `99dac23ca7373a99fe5513e7bc2414d008baf4a9`;
   CI `38328571734` aprobada. Etapa 62 cerrada dentro del alcance.
   Cierre documental incluido en la publicación autorizada.
+
+
+## Etapa 63: pendientes de laboratorio tras el cierre
+
+- Implementación local autorizada al retomar el trabajo el 16 de octubre de 2026.
+- La bandeja distingue órdenes ejecutables (PENDING + ACTIVE) y pendientes de
+  episodios cerrados. Los segundos permanecen visibles para consulta sin ofrecer
+  publicación. Supervisor consulta; únicamente LAB puede publicar.
+- Se usa episode_status del contrato existente: sin cambios de API, migraciones,
+  cancelación automática de tareas ni condiciones nuevas para dar el alta.
+- Actualización automática, manual y consulta de conflictos comparten la captura
+  del texto local: si deja de ser ejecutable se conserva para copiar en la pantalla.
+  Al salir o cambiar de identidad se mantiene el descarte existente. No se persiste
+  contenido clínico adicional. Una publicación exitosa no genera un falso borrador
+  retenido al refrescar la bandeja.
+- Pruebas nuevas de separación, consulta supervisor y cierre remoto con texto en
+  actualizaciones manuales/automáticas; estos casos pasan. Lint/build aprobados.
+  Suite frontend habitual: 409/413 (39 archivos), con cuatro fallos en arranque
+  de sesión/espera de pantalla. Reintento de cuatro archivos: 14/16; persisten
+  dos fallos de inicio anteriores a la bandeja. El pool VM produjo fallos
+  adicionales y se interrumpió. Preparación experimental de WebCrypto: 15/16,
+  sin eliminar el problema; ajuste retirado. No se ampliaron tiempos ni se
+  modificaron pruebas de otros módulos. Backend conserva su aprobación previa
+  de 173 pruebas, al no modificar código backend.
+- Diagnóstico retomado tras reiniciar, actualizar Windows y cerrar programas,
+  según confirmó el usuario. Sin cambiar código, configuración ni tiempos:
+  cuatro archivos antes fallidos aprobados (16/16, 42 s); suite habitual completa
+  aprobada después (413/413, 39 archivos, 153,66 s frente a 955,25 s del intento
+  anterior). Esto respalda influencia de la carga local, sin identificar un
+  proceso específico como causa. Lint/build previos siguen vigentes.
+- Prueba directa aprobada por el usuario: separación de órdenes ejecutables
+  y pendientes cerrados; cierre desde otra sesión mientras se escribe, con
+  retirada del botón Publicar y resultado preservado en Texto local conservado.
+- Publicación autorizada: commit, push y comprobación de CI. La detención previa
+  por AGENTS.md se levantó con la autorización del usuario para diagnosticar;
+  validación completa aprobada tras el reinicio.
+  CI del commit de implementación pendiente de comprobación.

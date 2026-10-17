@@ -95,6 +95,16 @@ function App() {
     }));
   }
 
+  function applyLaboratoryQueue(result: LaboratoryQueue) {
+    const drafts = visibleDrafts().filter(draft => draft.kind === "lab");
+    const executable = (draft: FormDraft) => result.orders.some(order => order.id === draft.taskId && order.episode_id === draft.episodeId && order.status === "PENDING" && order.episode_status === "ACTIVE");
+    const removed = drafts.filter(draft => !executable(draft) && Object.values(draft.fields).some(value => value.trim()));
+    setRetainedDrafts(previous => [...previous.filter(draft => !removed.some(item => item.taskId === draft.taskId)), ...removed]);
+    applyRestoration.current = true;
+    setRestoredForms(drafts.filter(executable));
+    setLaboratoryQueue(result);
+  }
+
   const liveReady = page === "dashboard" ? dashboard : page === "supervisor" ? supervisorData : page === "laboratory" ? laboratoryQueue : page === "episode" ? episode : null;
   const liveContext = user && liveReady
     ? `${getSessionRevision()}:${user.username}:${user.role}:${page}:${page === "episode" ? episode?.id ?? "" : ""}` : null;
@@ -112,14 +122,7 @@ function App() {
       }
       if (page === "laboratory") {
         const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING", { signal });
-        return () => {
-          const drafts = visibleDrafts();
-          const removed = drafts.filter(draft => draft.kind === "lab" && !result.orders.some(order => order.id === draft.taskId) && Object.values(draft.fields).some(value => value.trim()));
-          setRetainedDrafts(previous => [...previous.filter(draft => !removed.some(item => item.taskId === draft.taskId)), ...removed]);
-          applyRestoration.current = true;
-          setRestoredForms(drafts.filter(draft => result.orders.some(order => order.id === draft.taskId)));
-          setLaboratoryQueue(result);
-        };
+        return () => applyLaboratoryQueue(result);
       }
       if (page === "episode" && episode) {
         const result = await api<Episode>(`/episodes/${episode.id}`, { signal });
@@ -211,10 +214,10 @@ function App() {
     applyRestoration.current = true;
     setRestoredForms(drafts);
     if (page === "episode") updateEpisode(latest);
-    if (page === "laboratory") setLaboratoryQueue(previous => previous ? { ...previous, orders: previous.orders.map(order => {
+    if (page === "laboratory" && laboratoryQueue) applyLaboratoryQueue({ ...laboratoryQueue, orders: laboratoryQueue.orders.map(order => {
       const task = latest.tasks.find(item => item.id === order.id);
-      return order.episode_id === latest.id && task ? { ...order, ...task, episode_status: latest.status } : order;
-    }) } : previous);
+      return order.episode_id === latest.id ? { ...order, ...task, episode_status: latest.status } : order;
+    }) });
   }
 
   function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
@@ -584,7 +587,7 @@ async function openLaboratoryQueue() {
   try {
     const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING");
 
-    setLaboratoryQueue(result);
+    applyLaboratoryQueue(result);
     setPage("laboratory");
   } catch (exception) {
     if (isSessionInterruption(exception)) return;
@@ -602,13 +605,15 @@ async function completeLaboratoryOrder(
 ) {
   event.preventDefault();
 
-  const form = new FormData(event.currentTarget);
+  const order = laboratoryQueue?.orders.find(item => item.id === taskId);
+  if (!order || order.status !== "PENDING" || order.episode_status !== "ACTIVE" || user?.role !== "LAB") return;
+  const formElement = event.currentTarget;
+  const form = new FormData(formElement);
 
   const release = operations.start(`task:${taskId}`);
   if (!release) return;
 
   try {
-    const order = laboratoryQueue?.orders.find(item => item.id === taskId);
     const completed = await writes.write(`/tasks/${taskId}/complete`, {
       method: "PATCH",
       body: JSON.stringify({
@@ -616,6 +621,7 @@ async function completeLaboratoryOrder(
       }),
     }, order?.episode_id ?? 0, order?.version);
 
+    formElement.reset();
     recovery.remove("lab", completed.id, taskId);
     setRestoredForms(previous => previous.filter(draft => draft.taskId !== taskId));
     await openLaboratoryQueue();
@@ -774,6 +780,7 @@ async function logout() {
       {page === "laboratory" && laboratoryQueue && (
         <LaboratoryPage
           laboratoryQueue={laboratoryQueue}
+          canPublish={user.role === "LAB"}
           onRefresh={live.refresh}
           isCompleting={(id) => operations.isPending(`task:${id}`)}
           onCompleteOrder={completeLaboratoryOrder}

@@ -3,6 +3,7 @@ import type { LaboratoryQueue } from "../types/clinical";
 
 type LaboratoryPageProps = {
   laboratoryQueue: LaboratoryQueue;
+  canPublish?: boolean;
   isCompleting?: (taskId: number) => boolean;
   onRefresh: () => Promise<void>;
   onCompleteOrder: (event: FormEvent<HTMLFormElement>, taskId: number) => Promise<void>;
@@ -13,7 +14,10 @@ export default function LaboratoryPage({
   onRefresh,
   onCompleteOrder,
   isCompleting = () => false,
+  canPublish = true,
 }: LaboratoryPageProps) {
+  const active = laboratoryQueue.orders.filter(order => order.episode_status === "ACTIVE" && order.status === "PENDING");
+  const closed = laboratoryQueue.orders.filter(order => order.episode_status === "CLOSED");
   return (
   <main className="container">
     <div className="page-title">
@@ -32,8 +36,12 @@ export default function LaboratoryPage({
 
     <section className="lab-summary">
       <article>
-        <strong>{laboratoryQueue.total}</strong>
-        <span>Órdenes pendientes</span>
+        <strong>{active.length}</strong>
+        <span>Órdenes ejecutables</span>
+      </article>
+      <article>
+        <strong>{closed.length}</strong>
+        <span>Pendientes de episodios cerrados</span>
       </article>
     </section>
 
@@ -46,8 +54,13 @@ export default function LaboratoryPage({
         </p>
       </section>
     ) : (
-      <section className="lab-grid">
-        {laboratoryQueue.orders.map((order) => (
+      <>
+      {[{ title: "Órdenes ejecutables", orders: active }, { title: "Pendientes de episodios cerrados", orders: closed }].map(group => (
+      <section key={group.title} aria-label={group.title}>
+        <h2>{group.title}</h2>
+        {group.orders.length === 0 && <p>No hay órdenes en este grupo.</p>}
+        <div className="lab-grid">
+        {group.orders.map((order) => (
           <article className="panel lab-order" key={order.id}>
             <div className="lab-order-header">
               <div>
@@ -85,7 +98,7 @@ export default function LaboratoryPage({
               </div>
             </dl>
 
-            <form data-draft-kind="lab" data-episode-id={order.episode_id} data-task-id={order.id} data-draft-version={order.version}
+            {order.episode_status === "CLOSED" ? <p>El episodio está cerrado. Esta orden pendiente se conserva para consulta; no se puede publicar un resultado.</p> : !canPublish ? <p>Consulta de laboratorio. Solo laboratorio puede publicar resultados.</p> : <form data-draft-kind="lab" data-episode-id={order.episode_id} data-task-id={order.id} data-draft-version={order.version}
               className="lab-result-form"
               onSubmit={(event) =>
                 onCompleteOrder(event, order.id)
@@ -110,10 +123,12 @@ export default function LaboratoryPage({
               <button type="submit" disabled={isCompleting(order.id)}>
                 {isCompleting(order.id) ? "Publicando resultado…" : "Publicar resultado y completar"}
               </button>
-            </form>
+            </form>}
           </article>
         ))}
-      </section>
+        </div>
+      </section>))}
+      </>
     )}
   </main>
   );

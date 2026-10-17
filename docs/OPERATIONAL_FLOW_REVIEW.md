@@ -125,3 +125,40 @@ Entrega publicada: `99dac23`; CI `38328571734` aprobada. Etapa 62 cerrada.
 Los valores límite, llamadas directas API y corrección seguida de un envío válido
 están cubiertos por pruebas automatizadas con bases temporales. No hace falta
 probar manualmente cada formulario ni guardar registros nuevos para estos puntos.
+
+
+## Etapa 63 autorizada al retomar el 16 de octubre
+
+Separación de ejecutables y pendientes de episodios cerrados implementada
+localmente usando episode_status. Los pendientes cerrados siguen en consulta,
+sin formulario de publicación; no se altera la política de alta ni se cancelan
+tareas. Texto local conservado al actualizar una orden que deja de ser ejecutable.
+Primer intento dirigido: dos errores de arranque de trabajadores de Vitest
+antes de ejecutar sus archivos; componente nuevo aprobado. Suite habitual 409/413 (39 archivos, 955 s); cuatro fallos de restauración
+de sesión/espera inicial. Reintento de esos archivos 14/16. Pool VM descartado
+tras fallos adicionales e interrupción. WebCrypto preparado antes de las
+pruebas: 15/16; ajuste experimental retirado al no resolver todos los fallos.
+Sin aumento de tiempos ni cambios permanentes de configuración. Validación
+completa pendiente; se detiene el trabajo conforme a AGENTS.md y se solicitan
+instrucciones para el diagnóstico. Sin nuevas validaciones backend necesarias al no
+modificar su código ni contrato. Lint/build aprobados; sin commit ni push.
+
+Prueba directa pendiente: abrir la bandeja como laboratorio y comprobar que un
+pendiente de episodio ficticio cerrado se muestra solo para consulta. En dos
+sesiones, escribir un resultado de una orden activa sin enviarlo y cerrar ese
+episodio ficticio como médico; al actualizar la bandeja, el texto debe quedar
+conservado para copiar y desaparecer la acción Publicar. No usar pacientes reales
+ni cerrar episodios que se quieran conservar activos para otras demostraciones.
+
+
+### Diagnóstico posterior al reinicio
+
+El usuario confirmó reinicio, actualización de Windows y cierre de otros
+programas. Sin cambios de código, pool, configuración ni tiempos, los cuatro
+archivos antes fallidos pasan: 16/16 en 42,25 s. Suite frontend habitual completa
+aprobada: 413/413 en 39 archivos y 153,66 s, frente a 955,25 s del intento anterior.
+Comando: npm.cmd run test --prefix frontend -- --maxWorkers=1.
+La carga local pudo influir; no se atribuye a un proceso concreto sin evidencia.
+Lint/build aprobados previamente siguen vigentes; backend sin cambios (173 pruebas
+previas). La detención anterior queda resuelta. Prueba directa aprobada por el usuario: separación de pendientes cerrados
+y conservación del resultado local tras un cierre remoto. Publicación autorizada: commit, push y comprobación de CI. CI del commit de implementación pendiente de comprobación.

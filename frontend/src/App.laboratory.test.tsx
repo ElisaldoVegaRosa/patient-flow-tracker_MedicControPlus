@@ -76,6 +76,7 @@ describe("Bandeja de laboratorio", () => {
     await user.type(result, "Resultado simulado normal");
     await user.click(card.getByRole("button", { name: "Publicar resultado y completar" }));
     expect(await screen.findByRole("heading", { name: "No hay órdenes pendientes" })).toBeVisible();
+    expect(screen.queryByRole("region", { name: "Texto local conservado" })).not.toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith("http://localhost:8000/tasks/71/complete", expect.objectContaining({
       method: "PATCH", body: JSON.stringify({ result: "Resultado simulado normal" }),
       headers: expect.objectContaining({ Authorization: "Bearer token-de-prueba" }),
