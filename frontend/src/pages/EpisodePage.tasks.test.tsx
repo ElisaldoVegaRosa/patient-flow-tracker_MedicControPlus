@@ -18,10 +18,11 @@ function prepare(data = episode, role = "DOCTOR") {
   vi.stubGlobal("fetch", fetchMock);
   const updateEpisode = vi.fn();
   const showError = vi.fn();
-  const props = { episode: data, user: { username: "demo", role, access_token: "test-token" }, updateEpisode, showError };
+  const onOpenLaboratory = vi.fn();
+  const props = { episode: data, user: { username: "demo", role, access_token: "test-token" }, updateEpisode, showError, onOpenLaboratory };
   const view = render(<EpisodePage {...props} />);
   const row = (id: number) => within(screen.getByText(`Tarea ficticia ${id}`).closest("article")!);
-  return { fetchMock, updateEpisode, showError, row, view, props };
+  return { fetchMock, updateEpisode, showError, onOpenLaboratory, row, view, props };
 }
 afterEach(() => vi.unstubAllGlobals());
 
@@ -97,7 +98,8 @@ describe("Bloqueo por tarea 50A", () => {
     fireEvent.click(row(1).getByRole("button", { name: "Completar" }));
     await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(updated));
     view.rerender(<EpisodePage {...props} episode={updated} />);
-    expect(screen.queryByText("Tarea ficticia 1")).not.toBeInTheDocument();
+    expect(row(1).getByText("COMPLETED", { exact: false })).toBeVisible();
+    expect(row(1).queryByRole("button", { name: "Completar" })).not.toBeInTheDocument();
     expect(row(2).getByRole("button", { name: "Completar" })).toBeEnabled();
   });
 
@@ -150,7 +152,8 @@ describe("Errores por tarea 51A", () => {
     resolveRetry(response(updated));
     await waitFor(() => expect(updateEpisode).toHaveBeenCalledWith(updated));
     view.rerender(<EpisodePage {...props} episode={updated} />);
-    expect(screen.queryByText("Tarea ficticia 1")).not.toBeInTheDocument();
+    expect(row(1).getByText("COMPLETED", { exact: false })).toBeVisible();
+    expect(row(1).queryByRole("button", { name: "Completar" })).not.toBeInTheDocument();
     expect(row(2).getByRole("alert")).toHaveTextContent("Error tarea 2");
   });
 
@@ -167,5 +170,46 @@ describe("Errores por tarea 51A", () => {
     expect(row(1).queryByRole("alert")).not.toBeInTheDocument();
     expect(showError).not.toHaveBeenCalled();
     expect(localStorage.getItem("token")).toBeNull();
+  });
+});
+
+
+describe("Ordenes LAB desde el episodio", () => {
+  const labEpisode = { ...episode, tasks: [{ ...task(7), service: "LAB" }] };
+  it.each([
+    ["LAB", "Registrar resultado en laboratorio"],
+    ["SUPERVISOR", "Consultar laboratorio"],
+  ])("%s abre la bandeja sin completar ni enviar resultado generico", (role, label) => {
+    const { row, onOpenLaboratory, fetchMock, updateEpisode } = prepare(labEpisode, role);
+    expect(row(7).queryByRole("button", { name: "Completar" })).not.toBeInTheDocument();
+    fireEvent.click(row(7).getByRole("button", { name: label }));
+    expect(onOpenLaboratory).toHaveBeenCalledTimes(1);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(updateEpisode).not.toHaveBeenCalled();
+  });
+  it.each(["RECEPTION", "NURSE", "DOCTOR"])("%s consulta la orden sin acceso de publicacion LAB", role => {
+    const { row, onOpenLaboratory, fetchMock } = prepare(labEpisode, role);
+    expect(row(7).getByText("Laboratorio debe registrar el resultado desde su bandeja.")).toBeVisible();
+    expect(row(7).queryByRole("button")).not.toBeInTheDocument();
+    expect(onOpenLaboratory).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it("un episodio cerrado no ofrece registrar ni consultar desde la tarea", () => {
+    const { row, onOpenLaboratory } = prepare({ ...labEpisode, status: "CLOSED" }, "LAB");
+    expect(row(7).queryByRole("button")).not.toBeInTheDocument();
+    expect(onOpenLaboratory).not.toHaveBeenCalled();
+  });
+  it("una orden LAB completada no reaparece como pendiente", () => {
+    const { onOpenLaboratory } = prepare({ ...labEpisode, tasks: [{ ...labEpisode.tasks[0], status: "COMPLETED" }] }, "LAB");
+    expect(screen.getByText("Tarea ficticia 7")).toBeVisible();
+    expect(screen.getByText("#7 · COMPLETED")).toBeVisible();
+    expect(onOpenLaboratory).not.toHaveBeenCalled();
+  });
+  it.each(["NURSING", "MEDICAL"])("conserva la finalizacion existente de %s junto a una orden LAB", async service => {
+    const { row, fetchMock, updateEpisode } = prepare({ ...labEpisode, tasks: [...labEpisode.tasks, { ...task(8), service }] }, "LAB");
+    fetchMock.mockResolvedValueOnce(response(episode));
+    fireEvent.click(row(8).getByRole("button", { name: "Completar" }));
+    await waitFor(() => expect(updateEpisode).toHaveBeenCalled());
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/tasks/8/complete");
   });
 });

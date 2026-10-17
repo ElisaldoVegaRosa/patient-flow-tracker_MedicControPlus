@@ -16,15 +16,79 @@
   Recomendacion: conservar recibos y reserva de claves; revisar retencion cuando
   volumen/mediciones o requisitos de operacion lo justifiquen. Detalle en
   [WRITE_OPERATIONS](WRITE_OPERATIONS.md). Sin cambios de API, datos ni esquema.
-- Git limpio al retomar sobre `bb02208`; cierre documental y evaluacion de recibos
-  preparados localmente. Commit/push de este cierre autorizados por el usuario;
-  comprobar CI de la revision publicada.
-- Siguiente decision: acordar objetivo funcional u operacional; no iniciar una
-  etapa de archivo de recibos solo por el numero de entregas. La preparacion para
-  produccion requiere revision propia; estas pruebas no certifican ese alcance.
+- Cierre documental y evaluacion de recibos publicados: `797678e375ad2d274cc031448bfa279d52b7d8d9`,
+  CI `39035455474` aprobada. Git limpio al retomar sobre ese commit.
+- Objetivo confirmado: demo en esta PC. Circuito directo en EP-17: ingreso,
+  enfermeria/signos y evaluacion/orden confirmados. Laboratorio encontro un acceso
+  que completaba LAB con texto generico desde el detalle; usuario lo pulso y la
+  orden dejo de figurar pendiente. El usuario ya confirmo la prueba corregida de
+  resultado escrito; Supervisor, alta e historial comprobados. Circuito manual
+  de EP-17 completo dentro del alcance del demo local.
+- Correccion LAB autorizada e implementada localmente: Laboratorio abre la bandeja
+  desde la tarea con Registrar resultado en laboratorio; Supervisor consulta;
+  recepcion/enfermeria/medico reciben indicacion sin acceso de publicacion LAB.
+  Handler generico excluye LAB. NURSING/MEDICAL conservan su comportamiento.
+  Sin cambios de API, permisos servidor, datos ni orden ya completada.
+- Validacion de la correccion sobre `797678e` y cambios locales: 55 casos
+  dirigidos y 454 frontend en 41 archivos aprobados; lint y build aprobados.
+  Comando de suite: npm.cmd run test --prefix frontend -- --maxWorkers=1.
+  Backend sin cambios: conserva 185 pruebas y CI publicada.
+  Commit/push de la correccion y guia requieren autorizacion propia.
+- Prueba directa de la correccion LAB confirmada por el usuario. Commit/push
+  del conjunto local aun no autorizados.
+- Bloque conjunto de ciclo de vida autorizado e implementado localmente:
+  consulta de ordenes LAB pendientes/completadas/todas y todas las tareas en
+  episodio; historial de correcciones con original/motivo/autor/fecha; LAB
+  corrige o anula resultados, medico rectifica/anula evaluaciones y notas de
+  alta; medico o supervisor reabre altas; recepcion o supervisor anula ingresos
+  sin actividad clinica. Anulacion logica, sin borrado fisico. CLOSED admite
+  rectificaciones historicas sin reapertura implicita. Contratos nuevos exigen
+  identificador de operacion e If-Match. Validacion final: backend 191/191;
+  frontend 457/457 en 43 archivos; lint/build aprobados. Ajuste posterior de
+  compatibilidad de versiones antiguas: 14 pruebas dirigidas aprobadas.
+  Aviso de salida/recarga para correcciones sin guardar: 53 pruebas dirigidas,
+  lint/build aprobados tras ese ajuste. Antes de publicar, suite frontend
+  completa 457/457 en 43 archivos sobre el arbol actual: el primer intento
+  fallo al cargar suites por ENOENT en temporales del sandbox; con TEMP/TMP
+  en .tmp/vitest, una prueba dirigida y la suite completa aprobaron.
+  Politica en
+  [RECORD_LIFECYCLE_DESIGN](RECORD_LIFECYCLE_DESIGN.md).
+  EP-17 no se altero desde herramientas; el usuario lo cerro manualmente.
+  Consulta LAB y supervision comprobadas directamente. Las pruebas manuales
+  guiadas del bloque se completaron en EP-18 y EP-19; detalle en
+  [LOCAL_DEMO_CHECK](LOCAL_DEMO_CHECK.md). Commit/push pendientes.
+  Despliegue productivo fuera del objetivo actual.
+- Bandeja LAB comprobada directamente con el rol Laboratorio: el filtro
+  Completadas devuelve las órdenes #13 y #14 de EP-17 y conserva ambos
+  resultados. Se corrigió la presentación local para mostrar «Completadas y
+  anuladas» justo bajo el filtro, sin bloques vacíos de pendientes delante.
+  Suite frontend 457/457 en 43 archivos, lint y build aprobados después del
+  ajuste. La consulta fue de solo lectura.
+- Supervisor comprobado directamente en EP-17: ve triaje, signos, evaluación,
+  las dos órdenes LAB completadas y sus eventos. En la bandeja Completadas
+  consulta resultados sin controles de escritura. En esa inspección inicial,
+  Médico tenía visible la nota y el botón de alta, y EP-17 seguía ACTIVE. El
+  historial de otro episodio CLOSED se consultó sin cambios.
+- El usuario repitió manualmente el alta de EP-17 y confirmó el encabezado
+  CLOSED y el evento DISCHARGE con «Cierre ficticio del circuito local» en la
+  línea de tiempo. La inspección anterior en modo lectura había encontrado
+  ACTIVE, sin fecha, evento ni recibo de alta; no se reenviaron operaciones desde
+  herramientas. El usuario confirmó después EP-17 en el listado histórico y
+  ambas órdenes LAB visibles en su detalle cerrado.
+- Prueba manual guiada de EP-18: evaluacion #117 corregida; orden LAB #15
+  publicada, corregida, anulada, devuelta a PENDING y publicada de nuevo.
+  Alta CLOSED, nota DISCHARGE #121 corregida en CLOSED, reapertura ACTIVE con
+  evento auditable y cierre final CLOSED confirmados por el usuario.
+- Prueba manual guiada de EP-19: ingreso sin actividad clinica anulado por
+  recepcion; estado ANNULLED y evento ARRIVAL ANNULLED con motivo original
+  y su presencia en Historial de episodios confirmados por el usuario.
+  EP-17 permanece CLOSED, sin cambios de prueba.
+- Preferencia del usuario: consultar antes de iniciar pruebas directas en la app.
+  El usuario opero EP-18 y EP-19; el agente no ejecuto esas acciones.
+  Commit/push del bloque local continuan sin autorizacion.
 - Forma de trabajo: un solo agente; no crear un revisor adicional.
-- Ultima comprobacion de servidores: HTTP 200 en 8000/5173 durante 65. Verificar
-  al retomar; no asumir continuidad tras reinicio ni modificar datos demo.
+- Servidores comprobados para esta prueba: frontend 5173 y API /health 8000,
+  HTTP 200. Verificar al retomar; no asumir continuidad tras reinicio ni modificar datos demo.
 
 Este bloque es la entrada al proyecto; el resto conserva antecedentes. Consultar
 secciones concretas por necesidad y CHANGELOG solo para antecedentes relevantes.

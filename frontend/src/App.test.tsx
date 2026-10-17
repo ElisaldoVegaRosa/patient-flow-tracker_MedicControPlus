@@ -190,13 +190,13 @@ describe("Historial de episodios", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(await screen.findByRole("button", { name: "Historial de episodios" }));
-    await screen.findByRole("heading", { name: "Episodios cerrados" });
+    await screen.findByRole("heading", { name: "Episodios cerrados y anulados" });
     return { user, fetchMock, historyResponse };
   }
 
   it("muestra el estado vacío del historial", async () => {
     const { historyResponse } = await openHistory();
-    expect(screen.getByRole("heading", { name: "No existen episodios cerrados" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "No existen episodios históricos" })).toBeVisible();
     expect(screen.getByText("Los pacientes dados de alta aparecerán aquí.")).toBeVisible();
     expect(screen.getByText("0", { selector: "strong" })).toBeVisible();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
@@ -224,7 +224,7 @@ describe("Historial de episodios", () => {
       })],
     ]);
     expect(historyResponse).toHaveBeenCalledTimes(2);
-    expect(screen.queryByRole("heading", { name: "No existen episodios cerrados" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "No existen episodios históricos" })).not.toBeInTheDocument();
     expect(screen.getByRole("table")).toBeVisible();
     expect(screen.getByText("1", { selector: "strong" })).toBeVisible();
     expect(screen.getByText("QA-HISTORY")).toBeVisible();
@@ -618,7 +618,7 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
     return { user, fetchMock, episode };
   }
 
-  it.each(roles)("CLOSED es solo lectura para %s y conserva la auditoría", async (role) => {
+  it.each(roles)("CLOSED impide acciones operativas para %s y conserva la auditoría", async (role) => {
     const { user, fetchMock } = await openEpisode(role, "CLOSED");
     // Incluye controles dentro de details cerrados: tampoco deben existir en el DOM.
     expect.soft(screen.queryByText("Registrar nuevos signos")).not.toBeInTheDocument();
@@ -626,8 +626,9 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
     for (const name of writeButtons) {
       expect.soft(screen.queryAllByRole("button", { name, hidden: true })).toHaveLength(0);
     }
-    expect.soft(document.querySelectorAll("main form, main input, main select, main textarea")).toHaveLength(0);
-    expect.soft(screen.queryByRole("status")).toHaveTextContent("Episodio cerrado — solo lectura");
+    if (["DOCTOR", "SUPERVISOR"].includes(role)) expect(screen.getByRole("button", { name: "Reabrir este episodio" })).toBeVisible();
+    else expect(document.querySelectorAll("main form, main input, main select, main textarea")).toHaveLength(0);
+    expect.soft(screen.queryByRole("status")).toHaveTextContent("Episodio cerrado; las correcciones se agregan al historial");
     expect(screen.getByText("Episodio EP-42 · CLOSED")).toBeVisible();
     expect(screen.getByRole("heading", { name: "Línea de tiempo auditable" })).toBeVisible();
     expect(screen.getByText("38.2 °C")).toBeVisible();
@@ -691,7 +692,7 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
     await user.click(screen.getByRole("button", { name: "Cerrar episodio · Alta médica" }));
     expect(fetchMock).toHaveBeenLastCalledWith("http://localhost:8000/episodes/42/discharge",
       expect.objectContaining({ method: "POST", body: JSON.stringify({ note }) }));
-    expect(await screen.findByRole("status")).toHaveTextContent("solo lectura");
+    expect(await screen.findByRole("status")).toHaveTextContent("Episodio cerrado");
     expect(screen.getByText("DISCHARGE")).toBeVisible();
     expect(screen.getByText(/Seguimiento ambulatorio indicado/)).toHaveTextContent("Control en consulta.");
     expect(screen.queryByLabelText("Nota de alta")).not.toBeInTheDocument();

@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
-import type { LaboratoryQueue } from "./types/clinical";
+import type { Episode, LaboratoryQueue } from "./types/clinical";
 
 const empty: LaboratoryQueue = {
   total: 0, orders: [], status_filter: "PENDING", requested_by: "lab",
@@ -16,19 +16,27 @@ const populated: LaboratoryQueue = {
   }],
 };
 
+const episode: Episode = {
+  id: 91, name: "Paciente ficticio laboratorio", birth_date: "1990-01-01", document: "TEST-LAB",
+  qr_token: "qr-lab", status: "ACTIVE", priority: 2, location: "Observación",
+  started_at: "2026-10-07T12:00:00Z", vitals: [], alerts: [], events: [],
+  tasks: [{ id: 71, episode_id: 91, title: "Hemograma", service: "LAB", status: "PENDING", result: null, version: '"lab-original"' }],
+};
+
 describe("Bandeja de laboratorio", () => {
   beforeEach(() => localStorage.setItem("token", "token-de-prueba"));
   afterEach(() => vi.unstubAllGlobals());
 
-  async function setup(role = "LAB", initial = populated, reject = false) {
+  async function setup(role = "LAB", initial = populated, reject = false, withEpisode = false) {
     const queue = vi.fn().mockResolvedValue(initial);
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = new URL(String(input));
       let data: unknown;
       if (url.pathname === "/auth/me") data = { username: "demo", role };
       else if (url.pathname === "/dashboard") {
-        data = { active: 0, open_alerts: 0, patients: [], requested_by: "demo" };
-      } else if (url.pathname === "/lab/orders") {
+        data = { active: withEpisode ? 1 : 0, open_alerts: 0, patients: withEpisode ? [episode] : [], requested_by: "demo" };
+      } else if (url.pathname === "/episodes/91") data = episode;
+      else if (url.pathname === "/lab/orders") {
         expect(url.search).toBe("?status=PENDING");
         data = await queue();
       } else if (url.pathname === "/tasks/71/complete" && init?.method === "PATCH") {
@@ -47,10 +55,45 @@ describe("Bandeja de laboratorio", () => {
     return { user, queue, fetchMock };
   }
 
+  it("desde el episodio abre el formulario y solo publica el resultado escrito con su version", async () => {
+    const queueData = { ...populated, orders: populated.orders.map(order => ({ ...order, version: '"lab-original"' })) };
+    const { user, fetchMock } = await setup("LAB", queueData, false, true);
+    await user.click(screen.getByRole("button", { name: "Abrir" }));
+    await user.click(await screen.findByRole("button", { name: "Registrar resultado en laboratorio" }));
+    const field = await screen.findByRole("textbox", { name: "Resultado de laboratorio" });
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === "PATCH")).toHaveLength(0);
+    await user.type(field, "Resultado ficticio escrito desde la bandeja");
+    await user.click(screen.getByRole("button", { name: "Publicar resultado y completar" }));
+    expect(await screen.findByRole("heading", { name: "No hay órdenes en este filtro" })).toBeVisible();
+    const patches = fetchMock.mock.calls.filter(([, init]) => init?.method === "PATCH");
+    expect(patches).toHaveLength(1);
+    expect(JSON.parse(String(patches[0][1]?.body))).toEqual({ result: "Resultado ficticio escrito desde la bandeja" });
+    expect(new Headers(patches[0][1]?.headers).get("If-Match")).toBe('"lab-original"');
+  });
+
+  it("supervisor puede consultar desde el episodio sin formulario ni publicacion", async () => {
+    const { user, fetchMock } = await setup("SUPERVISOR", populated, false, true);
+    await user.click(screen.getByRole("button", { name: "Abrir" }));
+    await user.click(await screen.findByRole("button", { name: "Consultar laboratorio" }));
+    expect(await screen.findByText("Consulta de laboratorio. Solo laboratorio puede publicar resultados.")).toBeVisible();
+    expect(screen.queryByRole("textbox", { name: "Resultado de laboratorio" })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === "PATCH")).toHaveLength(0);
+  });
+
+  it("si el episodio se cierra antes de abrir la bandeja conserva consulta sin publicar", async () => {
+    const closed = { ...populated, orders: populated.orders.map(order => ({ ...order, episode_status: "CLOSED" })) };
+    const { user, fetchMock } = await setup("LAB", closed, false, true);
+    await user.click(screen.getByRole("button", { name: "Abrir" }));
+    await user.click(await screen.findByRole("button", { name: "Registrar resultado en laboratorio" }));
+    expect(await screen.findByText(/El episodio está cerrado. Esta orden pendiente/)).toBeVisible();
+    expect(screen.queryByRole("textbox", { name: "Resultado de laboratorio" })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === "PATCH")).toHaveLength(0);
+  });
+
   it.each(["LAB", "SUPERVISOR"])("permite abrir y actualizar la bandeja vacía para %s", async (role) => {
     const { user, queue } = await setup(role, empty);
     await user.click(screen.getByRole("button", { name: "Bandeja de laboratorio" }));
-    expect(await screen.findByRole("heading", { name: "No hay órdenes pendientes" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "No hay órdenes en este filtro" })).toBeVisible();
     queue.mockResolvedValue(populated);
     await user.click(screen.getByRole("button", { name: "Actualizar bandeja" }));
     expect(await screen.findByRole("heading", { name: "Hemograma" })).toBeVisible();
@@ -75,7 +118,7 @@ describe("Bandeja de laboratorio", () => {
     expect(result).toHaveAttribute("minlength", "3");
     await user.type(result, "Resultado simulado normal");
     await user.click(card.getByRole("button", { name: "Publicar resultado y completar" }));
-    expect(await screen.findByRole("heading", { name: "No hay órdenes pendientes" })).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "No hay órdenes en este filtro" })).toBeVisible();
     expect(screen.queryByRole("region", { name: "Texto local conservado" })).not.toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith("http://localhost:8000/tasks/71/complete", expect.objectContaining({
       method: "PATCH", body: JSON.stringify({ result: "Resultado simulado normal" }),

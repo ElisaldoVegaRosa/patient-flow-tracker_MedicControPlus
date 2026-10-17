@@ -98,6 +98,7 @@ def create_router(
                 tasks.status,
                 tasks.result,
                 tasks.created_at,
+                (SELECT MAX(id) FROM record_changes WHERE target_type = 'TASK' AND target_id = tasks.id) AS last_change_id,
                 patients.name AS patient_name,
                 episodes.priority,
                 episodes.location,
@@ -105,7 +106,7 @@ def create_router(
             FROM tasks
             JOIN episodes ON episodes.id = tasks.episode_id
             JOIN patients ON patients.id = episodes.patient_id
-            WHERE tasks.service = 'LAB'
+            WHERE tasks.service = 'LAB' AND episodes.status != 'ANNULLED'
         """
 
         parameters: tuple[str, ...] = ()
@@ -124,6 +125,10 @@ def create_router(
         orders = [dict(row) for row in rows]
         for order in orders:
             order["version"] = task_version(order)
+            order["record_changes"] = [dict(change) for change in connection.execute(
+                "SELECT * FROM record_changes WHERE target_type = 'TASK' AND target_id = ? ORDER BY id DESC",
+                (order["id"],),
+            )]
         connection.close()
 
         return {

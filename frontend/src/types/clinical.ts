@@ -47,6 +47,7 @@ export type ClinicalAlert = {
 
 export type ClinicalTask = {
   version?: string;
+  last_change_id?: number | null;
   id: number;
   episode_id: number;
   title: string;
@@ -58,6 +59,9 @@ export type ClinicalTask = {
 };
 
 export type TimelineEvent = {
+  version?: string;
+  current_note?: string | null;
+  annulled?: boolean;
   id: number;
   episode_id: number;
   type: string;
@@ -85,6 +89,20 @@ export type Episode = {
   alerts: ClinicalAlert[];
   tasks: ClinicalTask[];
   events: TimelineEvent[];
+  record_changes?: RecordChange[];
+};
+
+export type RecordChange = {
+  id: number;
+  episode_id: number;
+  target_type: "TASK" | "EVENT" | "EPISODE";
+  target_id: number;
+  action: string;
+  old_value: string | null;
+  new_value: string | null;
+  reason: string;
+  username: string;
+  created_at: string;
 };
 
 export type DashboardData = {
@@ -155,6 +173,8 @@ export type TimeRulesEvaluationResponse = {
 
 export type LaboratoryOrder = {
   version?: string;
+  last_change_id?: number | null;
+  record_changes?: RecordChange[];
   id: number;
   episode_id: number;
   title: string;

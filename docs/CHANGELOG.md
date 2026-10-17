@@ -5,6 +5,64 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Consulta y correcciones de registros (local)
+
+- Órdenes LAB pendientes, completadas y todas consultables con número, EP,
+  resultado vigente y resultados anteriores. El episodio muestra también tareas
+  completadas, sin ofrecer completarlas de nuevo.
+- En la bandeja, el filtro Completadas muestra inmediatamente el grupo
+  «Completadas y anuladas»; los grupos vacíos de pendientes dejan de ocupar la
+  pantalla. Comprobado en el demo local con las dos órdenes terminadas de EP-17.
+- Historial aditivo `record_changes`: LAB corrige o anula publicaciones; médico
+  rectifica o anula evaluaciones y notas de alta; médico/supervisor reabre el
+  mismo episodio cerrado; recepción/supervisor anula ingresos sin actividad
+  clínica. Cada acción exige motivo, versión e identificador de operación.
+- Las correcciones históricas en CLOSED no lo reabren ni reactivan tareas. Los
+  originales, eventos y recibos se conservan. Ingresos anulados salen de la
+  operación activa y se consultan en historial. Sin borrado físico ni cambios
+  intencionales en EP-17.
+- Formularios nuevos de corrección/motivo advierten al cambiar de vista o recargar
+  con campos sin guardar. Confirmar la salida descarta esos campos; la recuperación
+  temporal de la etapa 65 sigue limitada a sus siete formularios.
+- Tras el ajuste visual de Completadas: suite frontend 457/457 en 43 archivos,
+  lint y build aprobados; la consulta se verificó en la interfaz local.
+- Circuito manual de EP-17 completado por los cinco roles: alta CLOSED,
+  evento DISCHARGE, presencia en historial y ordenes LAB #13/#14 conservadas.
+- Prueba manual guiada del ciclo de vida: EP-18 conserva evaluacion y resultado
+  originales tras rectificacion, devuelve LAB #15 a PENDING al anular el
+  resultado y permite publicarlo de nuevo; corrige nota de alta en CLOSED,
+  reabre con evento auditable y vuelve a cerrar. EP-19, sin actividad clinica,
+  pasa a ANNULLED, conserva motivo y evento ARRIVAL ANNULLED, y aparece
+  como anulado en Historial de episodios.
+- Pruebas de migración, permisos, versiones, idempotencia, consulta y flujos de
+  interfaz aprobadas. Backend 191/191; frontend 457/457 en 43 archivos;
+  lint/build aprobados. Compatibilidad de versiones previas: 14 pruebas
+  dirigidas posteriores aprobadas. Aviso de salida/recarga: 53 pruebas dirigidas
+  y lint/build aprobados. Suite frontend final 457/457 con TEMP/TMP en
+  .tmp/vitest tras ENOENT del temporal del sandbox en el primer intento.
+  Pruebas manuales guiadas completadas; commit/push pendientes.
+
+## Correccion: resultado LAB desde el episodio (local)
+
+- Detectada en el circuito directo de EP-17: Completar en el detalle enviaba
+  Completada sin novedades tambien para tareas LAB, retirandolas de pendientes
+  sin introducir resultado. Usuario autorizo corregir ese flujo.
+- Para LAB, la tarea pendiente ofrece Registrar resultado en laboratorio y abre
+  la bandeja con su formulario existente. Navegar no completa ni envia resultado.
+  Supervisor tiene Consultar laboratorio en modo lectura; otros roles reciben
+  indicacion del responsable. El handler generico rechaza tareas LAB.
+- NURSING/MEDICAL conservan su finalizacion existente. Sin cambios de API, reglas
+  de permisos servidor, datos ni orden ya completada de EP-17. No se prohibe un
+  texto especifico en API: el resultado lo escribe Laboratorio en el formulario.
+- Pruebas de acceso por los cinco roles, episodio cerrado y orden completada,
+  publicacion del texto escrito con If-Match y bloqueo compartido al navegar.
+  Dirigidas: 55 aprobadas; suite frontend: 454 en 41 archivos, lint/build aprobados.
+  Backend conserva validacion publicada (185 pruebas), sin cambios.
+- Incluye guia del circuito local y resultados confirmados hasta la orden.
+  Prueba directa corregida confirmada por el usuario; commit/push pendientes de
+  autorizacion. Las observaciones posteriores de historial y correcciones se
+  abordan en el bloque local descrito arriba.
+
 ## Etapa 65: borradores tras recarga (publicada)
 
 - Politica autorizada por el usuario: guardar temporalmente campos de los siete

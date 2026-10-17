@@ -38,7 +38,7 @@ def transaction_factory(factory):
     return lambda: active_connection() or factory()
 
 
-def atomic_write(connection_factory, detail=None):
+def atomic_write(connection_factory, detail=None, *, require_key=False):
     """Dependencies (including current authorization) run before this wrapper."""
     def decorate(endpoint):
         signature = inspect.signature(endpoint)
@@ -47,6 +47,8 @@ def atomic_write(connection_factory, detail=None):
         def execute(*args, **kwargs):
             request = kwargs.pop("operation_request")
             key = request.headers.get("Idempotency-Key")
+            if require_key and key is None:
+                raise HTTPException(428, "Esta acción requiere un identificador de operación")
             if key is not None and not re.fullmatch(r"[A-Za-z0-9_-]{16,128}", key):
                 raise HTTPException(400, "Clave de idempotencia no válida")
             user = kwargs["user"]

@@ -57,7 +57,7 @@ def create_router(
                 ) AS task_count
             FROM episodes
             JOIN patients ON patients.id = episodes.patient_id
-            WHERE episodes.status = 'CLOSED'
+            WHERE episodes.status IN ('CLOSED', 'ANNULLED')
             ORDER BY episodes.closed_at DESC, episodes.id DESC
             """
         ).fetchall()

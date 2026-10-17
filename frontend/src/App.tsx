@@ -49,6 +49,7 @@ function App() {
   const [episode, setEpisode] = useState<Episode | null>(null);
   const [laboratoryQueue, setLaboratoryQueue] =
     useState<LaboratoryQueue | null>(null);
+  const [laboratoryFilter, setLaboratoryFilter] = useState<"PENDING" | "COMPLETED" | "ALL">("PENDING");
   const [supervisorData, setSupervisorData] =
     useState<SupervisorData | null>(null);
   const [supervisorFilter, setSupervisorFilter] = useState("ALL");
@@ -80,6 +81,24 @@ function App() {
   const [recoveredNote, setRecoveredNote] = useState("");
   const draftRoot = useRef<HTMLDivElement>(null);
   const [retainedDrafts, setRetainedDrafts] = useState<FormDraft[]>([]);
+  const lifecycleDirty = useCallback(() => {
+    return [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-record-correction]") ?? [])]
+      .some(form => [...form.querySelectorAll("input, textarea")].some(field =>
+        (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) && Boolean(field.value.trim())));
+  }, []);
+  function guardLifecycle(action: () => void) {
+    if (lifecycleDirty() && !window.confirm("Hay una corrección o motivo sin guardar. ¿Descartar esos campos y salir?")) return;
+    action();
+  }
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => {
+      if (!lifecycleDirty()) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [lifecycleDirty]);
 
   function visibleDrafts(): VisibleDraft[] {
     return [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-draft-kind]") ?? [])].filter(form => [...form.elements].some(element => {
@@ -107,10 +126,10 @@ function App() {
 
   const liveReady = page === "dashboard" ? dashboard : page === "supervisor" ? supervisorData : page === "laboratory" ? laboratoryQueue : page === "episode" ? episode : null;
   const liveContext = user && liveReady
-    ? `${getSessionRevision()}:${user.username}:${user.role}:${page}:${page === "episode" ? episode?.id ?? "" : ""}` : null;
+    ? `${getSessionRevision()}:${user.username}:${user.role}:${page}:${page === "episode" ? episode?.id ?? "" : page === "laboratory" ? laboratoryFilter : ""}` : null;
   const live = useLiveRefresh({
     context: liveContext,
-    paused: () => operations.hasPending() || leave.confirming || recovery.status === "checking",
+    paused: () => operations.hasPending() || leave.confirming || recovery.status === "checking" || lifecycleDirty(),
     load: async signal => {
       if (page === "dashboard") {
         const result = await api<DashboardData>("/dashboard", { signal });
@@ -121,7 +140,7 @@ function App() {
         return () => setSupervisorData(result);
       }
       if (page === "laboratory") {
-        const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING", { signal });
+        const result = await api<LaboratoryQueue>(`/lab/orders?status=${laboratoryFilter}`, { signal });
         return () => applyLaboratoryQueue(result);
       }
       if (page === "episode" && episode) {
@@ -216,7 +235,8 @@ function App() {
     if (page === "episode") updateEpisode(latest);
     if (page === "laboratory" && laboratoryQueue) applyLaboratoryQueue({ ...laboratoryQueue, orders: laboratoryQueue.orders.map(order => {
       const task = latest.tasks.find(item => item.id === order.id);
-      return order.episode_id === latest.id ? { ...order, ...task, episode_status: latest.status } : order;
+      return order.episode_id === latest.id ? { ...order, ...task, episode_status: latest.status,
+        record_changes: (latest.record_changes ?? []).filter(change => change.target_type === "TASK" && change.target_id === order.id) } : order;
     }) });
   }
 
@@ -249,7 +269,7 @@ function App() {
       void loadDashboard();
     } else if ((page === "episode" && episode?.id === updated.id) || page === "laboratory") {
       reviewChanges(updated, savedForm);
-      if (page === "laboratory") setLaboratoryQueue(previous => previous ? { ...previous, orders: previous.orders.filter(order => !updated.tasks.some(task => task.id === order.id && task.status === "COMPLETED")) } : previous);
+      if (page === "laboratory" && laboratoryFilter === "PENDING") setLaboratoryQueue(previous => previous ? { ...previous, orders: previous.orders.filter(order => !updated.tasks.some(task => task.id === order.id && task.status === "COMPLETED")) } : previous);
     }
   }
 
@@ -586,17 +606,35 @@ async function evaluateTemporalRules() {
   }
 }
 
-async function openLaboratoryQueue() {
+async function openLaboratoryQueue(filter: "PENDING" | "COMPLETED" | "ALL" = laboratoryFilter) {
   if (page !== "laboratory") { clearRecovery(); setRecoveredNote(""); }
   try {
-    const result = await api<LaboratoryQueue>("/lab/orders?status=PENDING");
+    const result = await api<LaboratoryQueue>(`/lab/orders?status=${filter}`);
 
     applyLaboratoryQueue(result);
+    setLaboratoryFilter(filter);
     setPage("laboratory");
   } catch (exception) {
     if (isSessionInterruption(exception)) return;
     setError((exception as Error).message);
   }
+}
+
+async function changeLaboratoryResult(taskId: number, action: "CORRECT" | "ANNUL", reason: string, value?: string): Promise<boolean> {
+  const order = laboratoryQueue?.orders.find(item => item.id === taskId);
+  if (!order || order.status !== "COMPLETED" || user?.role !== "LAB") return false;
+  const release = operations.start(`task:${taskId}`);
+  if (!release) return false;
+  try {
+    await writes.write(`/tasks/${taskId}/result`, {
+      method: "PATCH", body: JSON.stringify({ action, reason, ...(value ? { value } : {}) }),
+    }, order.episode_id, order.version);
+    await openLaboratoryQueue();
+    return true;
+  } catch (exception) {
+    if (!isSessionInterruption(exception)) setError((exception as Error).message);
+    return false;
+  } finally { release(); }
 }
 
 /**
@@ -681,16 +719,16 @@ async function logout() {
       onSubmitCapture={event => { if (event.target instanceof HTMLFormElement && !validateOperationalForm(event.target)) { event.preventDefault(); event.stopPropagation(); } }}>
       <AppHeader
         user={user}
-        onDashboard={() => page === "dashboard" ? void live.refresh() : leave.run(() => {
+        onDashboard={() => page === "dashboard" ? void live.refresh() : guardLifecycle(() => leave.run(() => {
           navigate("dashboard");
           void loadDashboard();
-        })}
-        onSupervisor={async () => page === "supervisor" ? await live.refresh() : leave.run(() => { void openSupervisorDashboard(); })}
-        onScan={() => leave.run(() => navigate("scan"))}
-        onHistory={async () => leave.run(() => { void openEpisodeHistory(); })}
-        onLaboratory={async () => page === "laboratory" ? await live.refresh() : leave.run(() => { void openLaboratoryQueue(); })}
-        onNewEpisode={() => leave.run(() => navigate("new"))}
-        onLogout={async () => leave.run(() => { void logout(); })}
+        }))}
+        onSupervisor={async () => page === "supervisor" ? await live.refresh() : guardLifecycle(() => leave.run(() => { void openSupervisorDashboard(); }))}
+        onScan={() => guardLifecycle(() => leave.run(() => navigate("scan")))}
+        onHistory={async () => guardLifecycle(() => leave.run(() => { void openEpisodeHistory(); }))}
+        onLaboratory={async () => page === "laboratory" ? await live.refresh() : guardLifecycle(() => leave.run(() => { void openLaboratoryQueue(); }))}
+        onNewEpisode={() => guardLifecycle(() => leave.run(() => navigate("new")))}
+        onLogout={async () => guardLifecycle(() => leave.run(() => { void logout(); }))}
       />
 
       {leave.confirming && (
@@ -728,7 +766,7 @@ async function logout() {
           {error} ×
         </div>
       )}
-      <WriteConflicts writes={writes} onReviewed={reviewChanges} />
+      <WriteConflicts writes={writes} onReviewed={latest => { reviewChanges(latest); if (page === "laboratory") void openLaboratoryQueue(); }} />
       <RecoveredWrites user={user} operations={operations} onConfirmed={() => {
         setWriteNotice("El servidor confirmó un envío anterior. No se ha reenviado ni se han borrado los campos actuales; consulta los registros actualizados.");
         void live.refresh();
@@ -736,7 +774,7 @@ async function logout() {
       <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
         setError(exception.message);
         if (exception instanceof VersionConflictError) {
-          const id = Number(path.match(/^\/episodes\/(\d+)/)?.[1]) || (page === "episode" ? episode?.id : laboratoryQueue?.orders.find(order => path === `/tasks/${order.id}/complete`)?.episode_id);
+          const id = Number(path.match(/^\/episodes\/(\d+)/)?.[1]) || (page === "episode" ? episode?.id : laboratoryQueue?.orders.find(order => path === `/tasks/${order.id}/complete` || path === `/tasks/${order.id}/result`)?.episode_id);
           if (id) writes.reportConflict(path, id, exception);
         }
       }} />
@@ -753,7 +791,7 @@ async function logout() {
         <DashboardPage
           dashboard={dashboard}
           onRefresh={live.refresh}
-          onOpenEpisode={async (id) => leave.run(() => { void openEpisode(id); })}
+          onOpenEpisode={async (id) => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))}
         />
       )}
 
@@ -765,7 +803,7 @@ async function logout() {
         <EpisodeHistoryPage
           historyData={historyData}
           onRefresh={openEpisodeHistory}
-          onOpenEpisode={async (id) => leave.run(() => { void openEpisode(id); })}
+          onOpenEpisode={async (id) => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))}
         />
       )}
 
@@ -780,7 +818,7 @@ async function logout() {
           onEvaluateRules={evaluateTemporalRules}
           onRefresh={live.refresh}
           onFilterChange={setSupervisorFilter}
-          onOpenEpisode={async (id) => leave.run(() => { void openEpisode(id); })}
+          onOpenEpisode={async (id) => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))}
         />
       )}
 
@@ -791,6 +829,12 @@ async function logout() {
           onRefresh={live.refresh}
           isCompleting={(id) => operations.isPending(`task:${id}`)}
           onCompleteOrder={completeLaboratoryOrder}
+          onFilterChange={async (filter) => {
+            if ((lifecycleDirty() || visibleDrafts().some(draft => draft.kind === "lab")) &&
+                !window.confirm("Hay campos sin guardar. ¿Cambiar el filtro y conservarlos solo para revisión?")) return;
+            await openLaboratoryQueue(filter);
+          }}
+          onChangeResult={changeLaboratoryResult}
         />
       )}
 
@@ -799,6 +843,7 @@ async function logout() {
       {page === "episode" && episode && (
         <EpisodePage
           key={`${user.username}:${episode.id}`}
+          onOpenLaboratory={() => guardLifecycle(() => leave.run(() => { void openLaboratoryQueue(); }))}
           onDraftSaved={(kind) => { recovery.remove(kind, episode.id); setRestoredForms(previous => previous.filter(draft => draft.kind !== kind)); }}
           pendingOperations={operations}
           versionedWrites={writes}

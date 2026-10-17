@@ -16,9 +16,9 @@ export default function EpisodeHistoryPage({
     <div className="page-title">
       <div>
         <span>CONSULTA HISTÓRICA</span>
-        <h1>Episodios cerrados</h1>
+        <h1>Episodios cerrados y anulados</h1>
         <p>
-          Pacientes dados de alta y episodios finalizados.
+          Pacientes dados de alta e ingresos anulados, conservados para consulta.
         </p>
       </div>
 
@@ -30,7 +30,7 @@ export default function EpisodeHistoryPage({
     <section className="history-summary">
       <article>
         <strong>{historyData.total}</strong>
-        <span>Episodios cerrados</span>
+        <span>Episodios históricos</span>
       </article>
     </section>
 
@@ -38,7 +38,7 @@ export default function EpisodeHistoryPage({
       {historyData.episodes.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">✓</div>
-          <h2>No existen episodios cerrados</h2>
+          <h2>No existen episodios históricos</h2>
           <p>
             Los pacientes dados de alta aparecerán aquí.
           </p>
@@ -48,6 +48,7 @@ export default function EpisodeHistoryPage({
           <thead>
             <tr>
               <th>Paciente</th>
+              <th>Estado</th>
               <th>Documento</th>
               <th>Prioridad</th>
               <th>Ubicación final</th>
@@ -65,6 +66,7 @@ export default function EpisodeHistoryPage({
                   <strong>{closedEpisode.name}</strong>
                   <small>EP-{closedEpisode.id}</small>
                 </td>
+                <td>{closedEpisode.status}</td>
 
                 <td>{closedEpisode.document}</td>
 

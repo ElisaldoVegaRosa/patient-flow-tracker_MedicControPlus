@@ -6,6 +6,8 @@ import type { DraftKind } from "../session/formDrafts";
 import { resourceVersion, useVersionedWrites } from "../hooks/useVersionedWrites";
 import type { VersionedWrites } from "../hooks/useVersionedWrites";
 import WriteConflicts from "../components/WriteConflicts";
+import RecordCorrectionForm from "../components/RecordCorrectionForm";
+import ReasonActionForm from "../components/ReasonActionForm";
 import { QRCodeSVG } from "qrcode.react";
 import { isSessionInterruption, WRITE_CONFIRMED_EVENT } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
@@ -14,6 +16,7 @@ type EpisodePageProps = {
   pendingOperations?: PendingOperations;
   versionedWrites?: VersionedWrites;
   onDraftSaved?: (kind: DraftKind) => void;
+  onOpenLaboratory?: () => void;
   episode: Episode;
   user: User;
   updateEpisode: (episode: Episode) => void;
@@ -32,12 +35,13 @@ export default function EpisodePage({
   pendingOperations,
   versionedWrites,
   onDraftSaved,
+  onOpenLaboratory,
   initialDischargeNote = "",
   onDischargeNoteChange,
   onMedicalEvaluationChange,
   onClinicalOrderChange,
 }: EpisodePageProps) {
-  const isClosed = episode.status === "CLOSED";
+  const isClosed = episode.status !== "ACTIVE";
   const latestVitals = episode.vitals[0];
   const [dischargeNote, setDischargeNote] = useState(initialDischargeNote);
   const [dischargeError, setDischargeError] = useState("");
@@ -144,7 +148,7 @@ export default function EpisodePage({
 
   async function completeTask(taskId: number) {
     const task = episode.tasks.find((item) => item.id === taskId);
-    if (isClosed || task?.status !== "PENDING") return;
+    if (isClosed || task?.status !== "PENDING" || task.service === "LAB") return;
     const release = operations.start(`task:${taskId}`);
     if (!release) return;
     setTaskErrors((previous) => {
@@ -160,6 +164,38 @@ export default function EpisodePage({
     } finally {
       release();
     }
+  }
+
+  async function changeNote(eventId: number, action: "CORRECT" | "ANNUL", reason: string, value?: string): Promise<boolean> {
+    const original = episode.events.find(item => item.id === eventId);
+    if (user.role !== "DOCTOR" || !original || !["MEDICAL_EVALUATION", "DISCHARGE"].includes(original.type) || original.annulled) return false;
+    const release = operations.start(`event:${eventId}`);
+    if (!release) return false;
+    try {
+      updateEpisode(await writes.write(`/events/${eventId}/note`, {
+        method: "PATCH", body: JSON.stringify({ action, reason, ...(value ? { value } : {}) }),
+      }, episode.id, original.version));
+      return true;
+    } catch (exception) {
+      if (!isSessionInterruption(exception)) showError((exception as Error).message);
+      return false;
+    } finally { release(); }
+  }
+
+  async function changeEpisodeState(action: "reopen" | "annul", reason: string): Promise<boolean> {
+    if ((action === "reopen" && (episode.status !== "CLOSED" || !["DOCTOR", "SUPERVISOR"].includes(user.role))) ||
+        (action === "annul" && (episode.status !== "ACTIVE" || !["RECEPTION", "SUPERVISOR"].includes(user.role)))) return false;
+    const release = operations.start(episodeKey(action));
+    if (!release) return false;
+    try {
+      updateEpisode(await writes.write(`/episodes/${episode.id}/${action}`, {
+        method: "POST", body: JSON.stringify({ reason }),
+      }, episode.id, episode.clinical_version));
+      return true;
+    } catch (exception) {
+      if (!isSessionInterruption(exception)) showError((exception as Error).message);
+      return false;
+    } finally { release(); }
   }
 
   async function registerTriage(event: FormEvent<HTMLFormElement>) {
@@ -309,9 +345,22 @@ async function createClinicalOrder(
 
       {isClosed && (
         <p role="status" className="panel">
-          Episodio cerrado — solo lectura
+          {episode.status === "ANNULLED" ? "Ingreso anulado; registro conservado para consulta" : "Episodio cerrado; las correcciones se agregan al historial"}
         </p>
       )}
+
+      {episode.status === "CLOSED" && ["DOCTOR", "SUPERVISOR"].includes(user.role) &&
+        <section className="panel"><h2>Reabrir alta registrada por error</h2>
+          <p>Se conservará el alta original y la reapertura quedará registrada.</p>
+          <ReasonActionForm label="Reabrir este episodio" onAction={reason => changeEpisodeState("reopen", reason)} />
+        </section>}
+      {episode.status === "ACTIVE" && ["RECEPTION", "SUPERVISOR"].includes(user.role) &&
+        episode.events.every(item => ["EPISODE_CREATED", "QR_SCANNED"].includes(item.type)) &&
+        episode.vitals.length === 0 && episode.tasks.length === 0 && episode.alerts.length === 0 &&
+        <section className="panel"><h2>Ingreso creado por error</h2>
+          <p>Anula este ingreso sin actividad clínica. La ficha quedará consultable en historial.</p>
+          <ReasonActionForm label="Anular ingreso" onAction={reason => changeEpisodeState("annul", reason)} />
+        </section>}
 
       <div className="clinical-grid">
         <section className="panel">
@@ -850,25 +899,32 @@ async function createClinicalOrder(
 </section>
 
         <section className="panel">
-          <h2>Tareas pendientes</h2>
+          <h2>Órdenes y tareas del episodio</h2>
 
           {episode.tasks
-            .filter((task) => task.status === "PENDING")
             .map((task) => (
               <article className="task" key={task.id}>
                 <div>
                   <strong>{task.title}</strong>
                   <small>{task.service}</small>
+                  <small>#{task.id} · {task.status}</small>
+                  {task.status !== "PENDING" && <p>Resultado: {task.status === "ANNULLED" ? "Publicación anulada" : task.result || "Sin resultado"}</p>}
                 </div>
 
-                {!isClosed && (
-                <button
-                  disabled={operations.isPending(`task:${task.id}`)}
-                  onClick={() => completeTask(task.id)}
-                >
-                  {operations.isPending(`task:${task.id}`) ? "Completando…" : "Completar"}
-                </button>
-                )}
+                {!isClosed && task.status === "PENDING" && (task.service === "LAB" ? (
+                  user.role === "LAB" || user.role === "SUPERVISOR" ? (
+                    <button disabled={!onOpenLaboratory} onClick={onOpenLaboratory}>
+                      {user.role === "LAB" ? "Registrar resultado en laboratorio" : "Consultar laboratorio"}
+                    </button>
+                  ) : <p>Laboratorio debe registrar el resultado desde su bandeja.</p>
+                ) : (
+                  <button
+                    disabled={operations.isPending(`task:${task.id}`)}
+                    onClick={() => completeTask(task.id)}
+                  >
+                    {operations.isPending(`task:${task.id}`) ? "Completando…" : "Completar"}
+                  </button>
+                ))}
                 {taskErrors[task.id] && <p role="alert">{taskErrors[task.id]}</p>}
               </article>
             ))}
@@ -880,14 +936,28 @@ async function createClinicalOrder(
           {episode.events.map((event) => (
             <article key={event.id}>
               <strong>{event.type.replaceAll("_", " ")}</strong>
-              <p>{event.note}</p>
+              <p>{event.annulled ? "Nota anulada" : event.current_note ?? event.note}</p>
+              {(event.annulled || (event.current_note !== undefined && event.current_note !== event.note)) && <details><summary>Ver texto original</summary><p>{event.note}</p></details>}
               <small>
                 {new Date(event.created_at).toLocaleString()} ·{" "}
                 {event.username}
               </small>
+              {["MEDICAL_EVALUATION", "DISCHARGE"].includes(event.type) && !event.annulled && user.role === "DOCTOR" &&
+                <RecordCorrectionForm label={event.type === "DISCHARGE" ? "Texto corregido del alta" : "Texto corregido de la evaluación"} onAction={(action, reason, value) => changeNote(event.id, action, reason, value)} />}
             </article>
           ))}
         </section>
+
+        {(episode.record_changes ?? []).length > 0 && <section className="panel">
+          <h2>Historial de correcciones</h2>
+          {(episode.record_changes ?? []).map(change => <article key={change.id}>
+            <strong>{change.target_type} #{change.target_id} · {change.action}</strong>
+            <p>Motivo: {change.reason}</p>
+            <p>Anterior: {change.old_value ?? "Sin texto"}</p>
+            <p>Nuevo: {change.new_value ?? "Sin texto vigente"}</p>
+            <small>{change.username} · {new Date(change.created_at).toLocaleString()}</small>
+          </article>)}
+        </section>}
       </div>
 
       {user.role === "DOCTOR" && episode.status === "ACTIVE" && (

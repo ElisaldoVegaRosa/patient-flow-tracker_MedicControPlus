@@ -53,11 +53,16 @@ it("comparte el bloqueo de laboratorio al abrir el episodio", async () => {
   fireEvent.change(screen.getByPlaceholderText("Token de la pulsera"), { target: { value: episode.qr_token } });
   fireEvent.click(screen.getByRole("button", { name: "Identificar paciente" }));
   await screen.findByRole("heading", { name: episode.name });
-  expect(screen.getByRole("button", { name: "Completando\u2026" })).toBeDisabled();
-  expect(screen.getByRole("button", { name: "Completar" })).toBeEnabled();
+  expect(screen.queryByRole("button", { name: "Completar" })).not.toBeInTheDocument();
+  const links = screen.getAllByRole("button", { name: "Registrar resultado en laboratorio" });
+  expect(links).toHaveLength(2);
+  expect(writes).toHaveBeenCalledTimes(1);
+  fireEvent.click(links[0]);
+  expect(await screen.findByRole("button", { name: "Publicando resultado\u2026" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Publicar resultado y completar" })).toBeEnabled();
   expect(writes).toHaveBeenCalledTimes(1);
   resolve(response({ detail: "Error ficticio" }, 422));
-  await waitFor(() => expect(screen.getAllByRole("button", { name: "Completar" })).toHaveLength(2));
+  await waitFor(() => expect(screen.getAllByRole("button", { name: "Publicar resultado y completar" })).toHaveLength(2));
 });
 
 it("cerrar sesion bloquea dos eventos antes del siguiente render", async () => {

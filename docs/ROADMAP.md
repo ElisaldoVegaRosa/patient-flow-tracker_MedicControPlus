@@ -15,13 +15,37 @@
   aun vencidos. Un futuro archivo necesita politica de plazo/volumen, estrategia
   de reserva, compatibilidad de consulta y pruebas de concurrencia; no ejecutar
   borrados de recibos como mantenimiento. Detalle en [WRITE_OPERATIONS](WRITE_OPERATIONS.md).
-- Siguiente decision: acordar un objetivo funcional u operacional verificable.
-  Si se plantea uso fuera del demo, revisar requisitos de despliegue, respaldo y
-  restauracion, acceso y manejo de datos antes de afirmar preparacion productiva.
-  Esta propuesta no autoriza implementacion ni establece que esos controles falten.
-- Cierre documental de 65 y evaluacion de recibos revisados; commit/push
-  autorizados por el usuario. Comprobar CI tras publicar; conservar validaciones
-  locales aprobadas sin repetir suites por cambios documentales.
+- Objetivo elegido el 17 de octubre: seguir probando el demo en esta PC.
+  Circuito EP-17 y pruebas guiadas EP-18/EP-19 completados; [guia y resultados](LOCAL_DEMO_CHECK.md).
+  La inspeccion no encontro un procedimiento versionado de respaldo/restauracion;
+  acordarlo despues si se quiere conservar una base de pruebas de referencia.
+  Despliegue, TLS y cuentas reales quedan fuera del objetivo inmediato.
+- Correccion LAB autorizada e implementada localmente: reemplazar finalizacion
+  generica LAB en episodio por acceso a bandeja; Laboratorio escribe/publica,
+  Supervisor consulta y otros roles reciben indicacion sin publicar. Conservar
+  NURSING/MEDICAL, permisos API, versiones y bloqueo compartido. En esta
+  correccion inicial no se modifico la orden ya completada de EP-17. Pruebas
+  dirigidas 55/55; suite frontend 454 en
+  41 archivos, lint/build y prueba directa aprobados. Pendiente autorizacion de
+  commit/push del conjunto.
+- Bloque conjunto de consulta/correcciones aprobado e implementado localmente;
+  [politica y criterios](RECORD_LIFECYCLE_DESIGN.md). Incluye historial visible
+  de ordenes completadas, rectificacion/anulacion de resultados y notas, alta
+  reabierta e ingreso sin actividad anulado logicamente. Backend 191/191,
+  frontend 457/457, lint/build y compatibilidad dirigida 14/14 aprobados.
+  Aviso posterior de recarga/salida: 53 pruebas dirigidas y lint/build aprobados.
+  Circuito de EP-17 confirmado: consulta LAB y supervision, alta CLOSED, evento
+  DISCHARGE, listado historico y ambas ordenes LAB conservadas en el detalle.
+  Pruebas manuales guiadas completadas: EP-18 cubrio correccion de evaluacion,
+  resultado LAB y alta, anulacion/republicacion LAB, reapertura y cierre final;
+  EP-19 cubrio anulacion de ingreso sin actividad y conservacion del motivo en
+  la linea de tiempo y su presencia ANNULLED en Historial de episodios.
+  EP-17 conserva su circuito cerrado. Consultar al usuario
+  antes de abrir la app para nuevas pruebas directas. No hay autorizacion de
+  commit/push ni de borrado definitivo.
+- Cierre documental de 65 y evaluacion de recibos publicados en `797678e`,
+  CI `39035455474` aprobada. Guia y resultados de prueba preparados localmente.
+  Conservar validaciones aprobadas sin repetir suites por cambios documentales.
 - Fuente historica: [revision integral](OPERATIONAL_FLOW_REVIEW.md); sus hallazgos
   de entradas, laboratorio, identidad y borradores ya fueron abordados en 62-65.
   Consultar etapas antiguas por busqueda dirigida, sin tratarlas como pendientes.

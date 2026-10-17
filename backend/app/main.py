@@ -18,6 +18,7 @@ from .routes.episode_queries import create_router as create_episode_queries_rout
 from .routes.tasks import create_router as create_tasks_router
 from .routes.nursing import create_router as create_nursing_router
 from .routes.medical import create_router as create_medical_router
+from .routes.record_lifecycle import create_router as create_record_lifecycle_router
 from .routes.rules import create_router as create_rules_router
 from .routes.demo import create_router as create_demo_router
 from .routes.episode_registration import create_router as create_episode_registration_router
@@ -415,6 +416,24 @@ def episode_detail(
         )
     ]
 
+    result["record_changes"] = [
+        dict(row) for row in connection.execute(
+            "SELECT * FROM record_changes WHERE episode_id = ? ORDER BY id DESC",
+            (episode_id,),
+        )
+    ]
+    for task in result["tasks"]:
+        task["last_change_id"] = next((change["id"] for change in result["record_changes"]
+                                       if change["target_type"] == "TASK" and change["target_id"] == task["id"]), None)
+
+    for event in result["events"]:
+        changes = [change for change in reversed(result["record_changes"])
+                   if change["target_type"] == "EVENT" and change["target_id"] == event["id"]]
+        event["current_note"] = changes[-1]["new_value"] if changes else event["note"]
+        event["annulled"] = bool(changes and changes[-1]["action"] == "ANNUL")
+        from .concurrency import event_version
+        event["version"] = event_version(event, changes)
+
     from .concurrency import annotate_versions
     return annotate_versions(result)
 
@@ -475,4 +494,8 @@ app.include_router(create_tasks_router(
 
 app.include_router(create_medical_router(
     get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
+))
+
+app.include_router(create_record_lifecycle_router(
+    get_connection, utc_now, episode_detail, add_event, require_roles,
 ))

@@ -179,7 +179,7 @@ describe('Recuperación de nota tras reautenticación', () => {
     await screen.findByLabelText('Nota de alta');
     server.dischargeAccepted = true;
     await user.click(screen.getByRole('button', { name: 'Cerrar episodio · Alta médica' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('solo lectura');
+    expect(await screen.findByRole('status')).toHaveTextContent('Episodio cerrado');
     expect(screen.queryByLabelText('Nota de alta')).not.toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Recuperación de nota de alta' })).not.toBeInTheDocument();
   });
@@ -467,7 +467,7 @@ describe('Protección de nota de alta sin enviar', () => {
     const { user, server } = await prepare();
     server.dischargeAccepted = true;
     await user.click(screen.getByRole('button', { name: 'Cerrar episodio · Alta médica' }));
-    expect(await screen.findByRole('status')).toHaveTextContent('solo lectura');
+    expect(await screen.findByRole('status')).toHaveTextContent('Episodio cerrado');
     expect(window.dispatchEvent(new Event('beforeunload', { cancelable: true }))).toBe(true);
     await user.click(screen.getByRole('button', { name: 'Centro de control' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

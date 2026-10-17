@@ -19,10 +19,10 @@ def current_versions_for_existing_flows(monkeypatch):
         if resource and not any(key.lower() == "if-match" for key in headers):
             kind, identifier = resource
             episode_id = identifier
-            if kind in ("task", "alert"):
+            if kind in ("task", "task_result", "alert", "event_note"):
                 connection = main.get_connection()
                 try:
-                    table = "tasks" if kind == "task" else "alerts"
+                    table = "tasks" if kind in ("task", "task_result") else "events" if kind == "event_note" else "alerts"
                     row = connection.execute(f"SELECT episode_id FROM {table} WHERE id = ?", (identifier,)).fetchone()
                     episode_id = row["episode_id"] if row else None
                 finally:
@@ -31,10 +31,11 @@ def current_versions_for_existing_flows(monkeypatch):
                 response = original(client, "GET", f"/episodes/{episode_id}", headers=headers)
                 if response.status_code == 200:
                     episode = response.json()
-                    if kind in ("triage", "discharge"):
+                    if kind in ("triage", "discharge", "reopen", "annul"):
                         version = episode["triage_version" if kind == "triage" else "clinical_version"]
                     else:
-                        version = next(item["version"] for item in episode["tasks" if kind == "task" else "alerts"] if item["id"] == identifier)
+                        collection = "tasks" if kind in ("task", "task_result") else "events" if kind == "event_note" else "alerts"
+                        version = next(item["version"] for item in episode[collection] if item["id"] == identifier)
                     kwargs["headers"] = {**headers, "If-Match": version}
         return original(client, method, url, **kwargs)
 

@@ -4,11 +4,19 @@ import type { Episode } from "../types/clinical";
 export default function WriteConflicts({ writes, onReviewed }: { writes: VersionedWrites; onReviewed?: (episode: Episode) => void }) {
   return <>{Object.values(writes.conflicts).map(conflict => {
     const latest = conflict.latest;
-    const taskId = conflict.path.match(/^\/tasks\/(\d+)\/complete$/)?.[1];
+    const taskId = conflict.path.match(/^\/tasks\/(\d+)\/(complete|result)$/)?.[1];
     const task = latest?.tasks.find(item => item.id === Number(taskId));
     const alertId = conflict.path.match(/^\/alerts\/(\d+)$/)?.[1];
     const alert = latest?.alerts.find(item => item.id === Number(alertId));
-    const actionable = latest?.status === "ACTIVE" && (!taskId || task?.status === "PENDING") && (!alertId || (alert && alert.status !== "RESOLVED"));
+    const eventId = conflict.path.match(/^\/events\/(\d+)\/note$/)?.[1];
+    const event = latest?.events.find(item => item.id === Number(eventId));
+    const historical = /\/result$|\/note$|\/reopen$/.test(conflict.path);
+    const actionable = latest?.status !== "ANNULLED" && (latest?.status === "ACTIVE" || historical)
+      && (!conflict.path.endsWith("/reopen") || latest?.status === "CLOSED")
+      && (!taskId || task?.status === (conflict.path.endsWith("/result") ? "COMPLETED" : "PENDING"))
+      && (!alertId || (alert && alert.status !== "RESOLVED"))
+      && (!eventId || (event && !event.annulled && ["MEDICAL_EVALUATION", "DISCHARGE"].includes(event.type)))
+      && (!conflict.path.endsWith("/annul") || (latest?.vitals.length === 0 && latest.tasks.length === 0 && latest.alerts.length === 0 && latest.events.every(item => ["EPISODE_CREATED", "QR_SCANNED"].includes(item.type))));
     return <section className="panel" role="region" aria-label="Cambios de otra sesión" key={conflict.path}>
       <h2>Datos modificados durante la edición</h2>
       <p>{conflict.message} Tus campos locales se conservan.</p>

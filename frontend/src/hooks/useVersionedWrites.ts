@@ -4,9 +4,11 @@ import type { Episode } from "../types/clinical";
 
 export function resourceVersion(path: string, episode: Episode): string | undefined {
   if (path.endsWith("/triage")) return episode.triage_version;
-  if (path.endsWith("/discharge")) return episode.clinical_version;
-  const task = path.match(/^\/tasks\/(\d+)\/complete$/);
+  if (/^\/episodes\/\d+\/(discharge|reopen|annul)$/.test(path)) return episode.clinical_version;
+  const task = path.match(/^\/tasks\/(\d+)\/(complete|result)$/);
   if (task) return episode.tasks.find(item => item.id === Number(task[1]))?.version;
+  const event = path.match(/^\/events\/(\d+)\/note$/);
+  if (event) return episode.events.find(item => item.id === Number(event[1]))?.version;
   const alert = path.match(/^\/alerts\/(\d+)$/);
   if (alert) return episode.alerts.find(item => item.id === Number(alert[1]))?.version;
 }
@@ -65,9 +67,20 @@ export function useVersionedWrites() {
     }
   }, []);
   const accept = useCallback((conflict: Conflict) => {
-    if (!conflict.latest || conflict.latest.status !== "ACTIVE") return false;
+    if (!conflict.latest || conflict.latest.status === "ANNULLED") return false;
+    const isHistorical = /\/result$|\/note$|\/reopen$/.test(conflict.path);
+    if (conflict.latest.status !== "ACTIVE" && !isHistorical) return false;
+    if (conflict.path.endsWith("/reopen") && conflict.latest.status !== "CLOSED") return false;
+    if (conflict.path.endsWith("/annul") && conflict.latest.status !== "ACTIVE") return false;
+    if (conflict.path.endsWith("/annul") &&
+      (conflict.latest.vitals.length > 0 || conflict.latest.tasks.length > 0 || conflict.latest.alerts.length > 0 ||
+       conflict.latest.events.some(item => !["EPISODE_CREATED", "QR_SCANNED"].includes(item.type)))) return false;
     const task = conflict.path.match(/^\/tasks\/(\d+)\/complete$/);
     if (task && !conflict.latest.tasks.some(item => item.id === Number(task[1]) && item.status === "PENDING")) return false;
+    const result = conflict.path.match(/^\/tasks\/(\d+)\/result$/);
+    if (result && !conflict.latest.tasks.some(item => item.id === Number(result[1]) && item.service === "LAB" && item.status === "COMPLETED")) return false;
+    const event = conflict.path.match(/^\/events\/(\d+)\/note$/);
+    if (event && !conflict.latest.events.some(item => item.id === Number(event[1]) && ["MEDICAL_EVALUATION", "DISCHARGE"].includes(item.type) && !item.annulled)) return false;
     const alert = conflict.path.match(/^\/alerts\/(\d+)$/);
     if (alert && !conflict.latest.alerts.some(item => item.id === Number(alert[1]) && item.status !== "RESOLVED")) return false;
     const version = resourceVersion(conflict.path, conflict.latest);
