@@ -1,3 +1,6 @@
+import { FormDraftRecovery } from "./formDrafts";
+import { TabDraftStorage } from "./tabDraftStorage";
+import { RECOVERY_DURATION_MS } from "./dischargeDraft";
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { establishSession, invalidateSession } from '../api/client';
@@ -63,4 +66,51 @@ describe('Comprobación actual de recuperación común', () => {
     establishSession('otra');
     await act(async () => { finish(response(episode)); expect(await checking).toBeNull(); });
   });
+  it('recarga conserva la versión original y avisa antes de restaurar datos modificados', async () => {
+    const now = Date.now();
+    const nurse = { username: 'enfermeria', role: 'NURSE' };
+    const journal = new TabDraftStorage('http://localhost:8000');
+    new FormDraftRecovery(journal).track(nurse, { kind: 'triage', episodeId: 42, baseVersion: '"old"', fields: { location: 'Triaje' } }, true, now);
+    establishSession('actual');
+    vi.stubGlobal('fetch', vi.fn(async () => response({ ...episode, triage_version: '"new"' })));
+    const { result, unmount } = renderHook(() => useFormRecovery());
+    await act(async () => { await result.current.check(nurse); });
+    expect(result.current.versionNotice).toContain('Otra sesión modificó');
+    await act(async () => {
+      expect(await result.current.check(nurse, true)).toMatchObject({ drafts: [{ baseVersion: '"old"', editedAt: now }] });
+    });
+    unmount();
+    expect(new FormDraftRecovery(journal).forUser(nurse)?.drafts[0].editedAt).toBe(now);
+  });
+  it('retira el contenido caducado mientras la pestaña permanece abierta', () => {
+    vi.useFakeTimers();
+    try {
+      const { result } = renderHook(() => useFormRecovery());
+      act(() => result.current.trackForm(lab, { kind: 'lab', episodeId: 42, taskId: 71, fields: { result: 'Prueba' } }));
+      expect(sessionStorage.length).toBe(1);
+      act(() => vi.advanceTimersByTime(RECOVERY_DURATION_MS));
+      expect(sessionStorage.length).toBe(0);
+    } finally { vi.useRealTimers(); }
+  });
+  it('el cierre de sesión en otra pestaña borra también el borrador local', () => {
+    const { result } = renderHook(() => useFormRecovery());
+    act(() => result.current.trackForm(lab, { kind: 'lab', episodeId: 42, taskId: 71, fields: { result: 'Prueba' } }));
+    act(() => window.dispatchEvent(new StorageEvent('storage', { key: 'token', newValue: null })));
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it('no restaura una respuesta que llega después de caducar el borrador', async () => {
+    const now = Date.now();
+    vi.spyOn(Date, 'now').mockReturnValue(now);
+    const { result, fetchMock } = setup();
+    let finish!: (value: Response) => void;
+    fetchMock.mockImplementationOnce(() => new Promise<Response>(resolve => { finish = resolve; }));
+    let checking!: ReturnType<typeof result.current.check>;
+    act(() => { checking = result.current.check(lab, true); });
+    vi.mocked(Date.now).mockReturnValue(now + RECOVERY_DURATION_MS);
+    await act(async () => { finish(response(episode)); expect(await checking).toBeNull(); });
+    expect(result.current.status).toBe('idle');
+    expect(sessionStorage.length).toBe(0);
+  });
+
 });

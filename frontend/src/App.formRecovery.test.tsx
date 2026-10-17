@@ -6,7 +6,7 @@ import type { Episode, LaboratoryQueue } from './types/clinical';
 
 const episode: Episode = {
   id: 42, name: 'Paciente ficticio 54', birth_date: '1990-01-01', document: 'TEST-54',
-  qr_token: 'qr54', status: 'ACTIVE', priority: 3, location: 'Observación',
+  qr_token: 'qr54', status: 'ACTIVE', triage_version: '"triage-old"', priority: 3, location: 'Observación',
   started_at: '2026-10-12T12:00:00Z', vitals: [], alerts: [], events: [],
   tasks: [{ id: 71, episode_id: 42, title: 'Hemograma', service: 'LAB', status: 'PENDING', result: null }],
 };
@@ -35,7 +35,7 @@ describe('Recuperación de todos los formularios en App', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
     const user = userEvent.setup();
-    render(<App />);
+    const view = render(<App />);
     await screen.findByRole('heading', { name: 'Centro de control' });
     async function openEpisode() {
       await user.click(screen.getByRole('button', { name: 'Escanear pulsera' }));
@@ -53,7 +53,7 @@ describe('Recuperación de todos los formularios en App', () => {
       const restoreButton = await screen.findByRole('button', { name: 'Restaurar formularios' });
       await user.click(restoreButton);
     }
-    return { server, fetchMock, user, openEpisode, relogin, restore };
+    return { server, fetchMock, user, openEpisode, relogin, restore, ...view };
   }
   function change(kind: string, field: string, value: string) {
     const form = document.querySelector<HTMLFormElement>(`form[data-draft-kind="${kind}"]`)!;
@@ -63,6 +63,72 @@ describe('Recuperación de todos los formularios en App', () => {
   function writes(fetchMock: ReturnType<typeof vi.fn>) {
     return fetchMock.mock.calls.filter(([, init]) => init?.method && !String(init?.body).includes('password'));
   }
+
+  it.each([
+    ['arrival', 'RECEPTION', 'recepcion', 'name', 'Ingreso tras recarga'],
+    ['triage', 'NURSE', 'enfermeria', 'location', 'Sala de espera'],
+    ['vitals', 'NURSE', 'enfermeria', 'temperature', '38.2'],
+    ['evaluation', 'DOCTOR', 'medico', 'clinical_note', 'Nota tras recarga'],
+    ['order', 'DOCTOR', 'medico', 'title', 'Orden tras recarga'],
+    ['lab', 'LAB', 'laboratorio', 'result', 'Resultado tras recarga'],
+    ['discharge', 'DOCTOR', 'medico', 'note', 'Alta tras recarga'],
+  ])('recarga %s y ofrece restauración explícita sin enviar', async (kind, role, username, field, value) => {
+    const { user, openEpisode, unmount, fetchMock } = await setup(role, username);
+    if (kind === 'arrival') await user.click(screen.getByRole('button', { name: 'Nuevo ingreso' }));
+    else if (kind === 'lab') { await user.click(screen.getByRole('button', { name: 'Bandeja de laboratorio' })); await screen.findByLabelText('Resultado de laboratorio'); }
+    else await openEpisode();
+    change(kind, field, value);
+    expect(sessionStorage.length).toBe(1);
+    unmount();
+    render(<App />);
+    const restore = await screen.findByRole('button', { name: kind === 'discharge' ? 'Restaurar nota de alta' : 'Restaurar formularios' });
+    expect(document.querySelector(`form[data-draft-kind="${kind}"]`)).not.toBeInTheDocument();
+    await user.click(restore);
+    await waitFor(() => {
+      const form = document.querySelector<HTMLFormElement>(`form[data-draft-kind="${kind}"]`)!;
+      expect(form.elements.namedItem(field)).toHaveValue(kind === 'vitals' ? Number(value) : value);
+    });
+    expect(writes(fetchMock)).toHaveLength(0);
+    expect(sessionStorage.length).toBe(1);
+  });
+
+  it('revalida el estado tras recargar y descarta un episodio ya cerrado', async () => {
+    const { openEpisode, unmount, fetchMock } = await setup();
+    await openEpisode();
+    change('evaluation', 'clinical_note', 'Texto sin enviar');
+    unmount();
+    const original = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input, init) => new URL(String(input)).pathname === '/episodes/42' ? response({ ...episode, status: 'CLOSED' }) : original(input, init));
+    render(<App />);
+    await screen.findByRole('heading', { name: 'Centro de control' });
+    await waitFor(() => expect(sessionStorage.length).toBe(0));
+    expect(screen.queryByRole('button', { name: 'Restaurar formularios' })).not.toBeInTheDocument();
+    expect(writes(fetchMock)).toHaveLength(0);
+  });
+
+  it('tras recarga envía If-Match original y exige revisión ante conflicto', async () => {
+    const { openEpisode, unmount, fetchMock, user } = await setup('NURSE', 'enfermeria');
+    await openEpisode();
+    change('triage', 'location', 'Triaje');
+    change('triage', 'assigned_to', 'Prueba ficticia');
+    unmount();
+    const original = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input, init) => {
+      const path = new URL(String(input)).pathname;
+      if (path === '/episodes/42') return response({ ...episode, triage_version: '"triage-new"' });
+      if (path.endsWith('/triage')) {
+        expect(new Headers(init?.headers).get('If-Match')).toBe('"triage-old"');
+        return response({ detail: { code: 'version_conflict', message: 'Otra sesión modificó estos datos.' } }, 409);
+      }
+      return original(input, init);
+    });
+    render(<App />);
+    await user.click(await screen.findByRole('button', { name: 'Restaurar formularios' }));
+    submit('triage');
+    expect(await screen.findByText('Datos modificados durante la edición')).toBeVisible();
+    expect(writes(fetchMock)).toHaveLength(1);
+    expect(sessionStorage.length).toBe(1);
+  });
 
   it.each([
     ['triage', 'NURSE', 'enfermeria', 'location', 'Sala de espera'],
@@ -81,7 +147,7 @@ describe('Recuperación de todos los formularios en App', () => {
     await waitFor(() => expect(form.elements.namedItem(field)).toHaveValue(kind === 'vitals' ? Number(value) : value));
     expect(writes(fetchMock)).toHaveLength(1);
     expect(localStorage.length).toBe(1);
-    expect(sessionStorage.length).toBe(0);
+    expect(sessionStorage.length).toBe(1);
   });
 
   it('restaura ingreso y retira el borrador al confirmar el alta de ingreso antes de un GET 401', async () => {

@@ -64,7 +64,7 @@ function App() {
   const recovery = useFormRecovery();
   const writes = useVersionedWrites();
   const { clear: clearWrites, remember: rememberVersion } = writes;
-  const { clear: clearDraft, suspend: suspendRecovery } = recovery;
+  const { clear: clearDraft, suspend: suspendRecovery, check: checkRecovery } = recovery;
   const leave = useUnsavedDischargeNote();
   const { clear: clearLeave, track: trackLeave } = leave;
   const [restoredForms, setRestoredForms] = useState<VisibleDraft[]>([]);
@@ -286,6 +286,7 @@ function App() {
     if (result) {
       setEpisode(result.episode);
       setRecoveredNote(result.note);
+      if (result.versionNotice) setWriteNotice(result.versionNotice);
       applyRestoration.current = true;
       setRestoredForms(result.drafts);
       for (const draft of result.drafts) {
@@ -358,6 +359,7 @@ useEffect(() => {
           role: session.role,
           access_token: storedToken,
         });
+        await checkRecovery(session);
       }
     })
     .catch((exception: unknown) => {
@@ -377,7 +379,7 @@ useEffect(() => {
   return () => {
     cancelled = true;
   };
-}, []);
+}, [checkRecovery]);
 
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -700,13 +702,15 @@ async function logout() {
         </section>
       )}
 
+      {recovery.storageWarning && <p role="alert" className="error-banner">{recovery.storageWarning}</p>}
+
       {recovery.status !== "idle" && recovery.status !== "waiting" && (
         <section className="panel" aria-label={recovery.noteOnly ? "Recuperación de nota de alta" : "Recuperación de formularios"}>
           {recovery.status === "checking" ? (
             <p role="status">{recovery.noteOnly ? "Comprobando el episodio para recuperar la nota…" : "Comprobando los formularios pendientes…"}</p>
           ) : (
             <>
-              <p>{recovery.error || (recovery.noteOnly ? "Hay una nota de alta pendiente de recuperar tras expirar la sesión." : "Hay formularios pendientes de recuperar tras expirar la sesión.")}</p>
+              <p>{recovery.error || (recovery.noteOnly ? "Hay una nota de alta pendiente de recuperar tras una recarga o interrupción de sesión." : "Hay formularios pendientes de recuperar tras una recarga o interrupción de sesión.")}</p>
               {recovery.status === "offer" ? (
                 <button type="button" onClick={restoreNote}>{recovery.noteOnly ? "Restaurar nota de alta" : "Restaurar formularios"}</button>
               ) : (
@@ -714,6 +718,7 @@ async function logout() {
               )}
             </>
           )}
+          {recovery.versionNotice && <p role="status">{recovery.versionNotice}</p>}
           <button type="button" onClick={clearRecovery}>Descartar</button>
         </section>
       )}

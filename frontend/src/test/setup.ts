@@ -8,4 +8,5 @@ afterEach(() => {
   invalidateSession();
   acknowledgeInterruptedWrites();
   localStorage.clear();
+  sessionStorage.clear();
 });

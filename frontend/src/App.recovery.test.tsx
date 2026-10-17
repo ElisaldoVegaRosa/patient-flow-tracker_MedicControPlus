@@ -80,7 +80,7 @@ describe('Recuperación de nota tras reautenticación', () => {
     expect(fetchMock.mock.calls.filter(([url]) => String(url).endsWith('/episodes/42'))).toHaveLength(2);
     expect(localStorage.getItem('token')).toBe('nueva');
     expect(localStorage.length).toBe(1);
-    expect(sessionStorage.length).toBe(0);
+    expect(sessionStorage.length).toBe(1);
   });
 
   it('un login fallido conserva el borrador sin exponerlo', async () => {
@@ -156,20 +156,15 @@ describe('Recuperación de nota tras reautenticación', () => {
     expect(screen.queryByRole('region', { name: 'Recuperación de nota de alta' })).not.toBeInTheDocument();
   });
 
-  it.each(['descartar', 'navegar', 'logout', 'recargar'])(
+  it.each(['descartar', 'navegar', 'logout'])(
     'elimina la recuperación al %s', async (action) => {
-      const { expire, login, user, view } = await prepare();
+      const { expire, login, user } = await prepare();
       await expire();
       await login();
       await screen.findByRole('button', { name: 'Restaurar nota de alta' });
       if (action === 'descartar') await user.click(screen.getByRole('button', { name: 'Descartar' }));
       if (action === 'navegar') await user.click(screen.getByRole('button', { name: 'Escanear pulsera' }));
       if (action === 'logout') await user.click(screen.getByRole('button', { name: 'Salir' }));
-      if (action === 'recargar') {
-        view.unmount();
-        render(<App />);
-        await screen.findByRole('heading', { name: 'Centro de control' });
-      }
       expect(screen.queryByRole('region', { name: 'Recuperación de nota de alta' })).not.toBeInTheDocument();
       expect(screen.queryByLabelText('Nota de alta')).not.toBeInTheDocument();
       if (action === 'logout') expect(localStorage.getItem('token')).toBeNull();

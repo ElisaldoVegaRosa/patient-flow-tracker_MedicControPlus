@@ -2,24 +2,31 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Etapas 30-63 publicadas; 64 validada localmente y con publicacion
-  autorizada por el usuario. Estado vigente en [PROJECT_STATUS](PROJECT_STATUS.md).
+- Etapas 30-64 publicadas y cerradas. CI de 64 aprobada; cierre documental
+  posterior incluido en los cambios locales de 65. Estado vigente en [PROJECT_STATUS](PROJECT_STATUS.md).
 - Mantenimiento incorporado: reglas de trabajo, lecturas y
   reutilizacion de validaciones. Este mantenimiento es documental; no cambia
   configuracion de modelos, agentes, permisos ni funcionamiento clinico.
 - Antes de una nueva entrega funcional, acordar problema y criterios de
   aceptacion. La revision integral identifica estas decisiones aun abiertas:
-  - Identidad del paciente (64): alcance autorizado e implementado localmente.
-    El ingreso busca por documento y coteja nombre y nacimiento antes de ofrecer
-    abrir un episodio activo o seleccionar ficha para reingreso. Discrepancias
-    requieren correccion/revision; varias fichas se revisan individualmente.
-    Una transaccion protege incluso intenciones simultaneas con claves distintas.
-    Sin fusion historica, correccion automatica ni excepcion para ignorar
-    discrepancias. Validacion completa y tres pruebas directas aprobadas por el
-    usuario. Commit/push autorizados; comprobar CI al publicar. Resultados en
-    PROJECT_STATUS.
-  - Borradores tras recarga: decidir persistencia, alcance y tratamiento de texto
-    clinico antes de almacenarlo fuera de memoria.
+  - Identidad del paciente (64) resuelta: cotejo, apertura del episodio activo y
+    reingreso con ficha seleccionada. Sin fusion automatica de historiales.
+  - Etapa 65 autorizada e implementada localmente. Borradores tras recarga,
+    alcance conjunto: ingreso, triaje, signos, evaluacion, orden,
+    resultado de laboratorio y alta, reutilizando la recuperacion compartida.
+    Politica acordada: guardar texto temporalmente en sessionStorage
+    de la pestana, separado por API, usuario y rol, hasta 30 minutos desde la ultima
+    edicion; borrar al guardar, descartar, cerrar sesion o cambiar de usuario.
+    Ofrecer recuperacion explicita tras verificar permisos, estado y version;
+    no enviar automaticamente ni reintentar operaciones pendientes al recuperar.
+    Excluir persistencia entre dispositivos, garantia de recuperacion tras cerrar
+    navegador/reiniciar PC y uso de localStorage para contenido clinico. Mantener
+    separadas las referencias de operaciones por confirmar. Criterios: recarga
+    conserva borrador valido, usuario distinto no lo ve, caducidad y descarte
+    funcionan, conflictos y episodios cerrados no restauran un guardado inseguro.
+    Validacion: 442 frontend en 41 archivos, lint/build aprobados. Recuperacion
+    y descarte tras recarga de ingreso confirmados directamente por el usuario.
+    Commit/push del conjunto autorizados por el usuario; comprobar CI al publicar.
   - Recibos: definir archivo/retencion conservando la reserva de claves para
     impedir duplicados; no basta borrar recibos vencidos.
 - La validacion transversal de entradas (62) y la separacion de pendientes

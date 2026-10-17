@@ -2,37 +2,37 @@
 
 ## Estado actual (leer primero)
 
-- Etapa 64 implementada localmente con autorizacion: cotejo de identidad al
-  ingresar, seleccion explicita de ficha existente y reingreso tras cierre.
-  Documento, nombre y nacimiento deben coincidir. Ante episodio activo se ofrece
-  abrirlo; una transaccion evita nuevos ingresos activos concurrentes.
-- Comparacion: documento sensible a mayusculas; nombre sin distinguirlas;
-  ambos ignoran espacios exteriores. No se modifican identidades almacenadas.
-  Discrepancias requieren revision/correccion. Fichas historicas no se fusionan.
-- Validacion de 64 sobre base `2807595` y cambios locales: 185 pruebas backend
-  aprobadas (1 aviso), 417 frontend en 40 archivos, lint y build aprobados.
-  Backend: pytest backend/tests con --basetemp .tmp/pytest64-full; frontend:
-  npm.cmd run test --prefix frontend -- --maxWorkers=1. Sin cambios de runner.
-  Se valido fuera del sandbox tras un ENOENT de temporales al cargar dos archivos
-  frontend y el arranque sin progreso de pytest aislado (interrumpido).
-  Pruebas directas confirmadas por el usuario: episodio activo sin duplicado,
-  discrepancia de identidad y reingreso reutilizando ficha con episodio previo
-  cerrado. Commit y push de 64 autorizados por el usuario; comprobar CI tras
-  publicar. El resultado de publicacion se verifica contra Git y GitHub Actions.
-- Base publicada: `280759559541aba1da9146e9694bda9446f484a6`, mantenimiento
-  documental; CI `38994932816` aprobada. Etapa 63 publicada y cerrada:
-  `6c739569e4815d4396dffe936dee727f0cef3aff`, CI `38993035968` aprobada;
-  cierre documental `e529e9835b27b1d605382b218e28f6ce87cd39a4`, CI
-  `38993249849` aprobada. Validacion de 63: 413 frontend, 173 backend, lint,
-  build y prueba directa aprobados. No confundirla con la validacion de 64.
-  Tras reinicio de Windows pasaron las pruebas antes afectadas por lentitud; no
-  quedaron ajustes de runner o tiempos. Causa concreta de esa lentitud sin aislar.
+- Etapa 65 implementada localmente con autorizacion: recuperacion explicita de
+  borradores tras recarga para ingreso, triaje, signos, evaluacion, orden,
+  resultado de laboratorio y alta; una solucion compartida para los siete flujos.
+- Politica acordada: contenido temporal en sessionStorage de la pestana, separado
+  por API, usuario y rol; caduca por formulario a los 30 minutos de su ultima
+  edicion. Consultar/restaurar no renueva el plazo. Borrar al guardar, descartar,
+  cerrar sesion o cambiar de usuario; cierre desde otra pestana tambien lo retira.
+- Antes de ofrecer/restaurar, comprobar permisos y estado actual de episodios y
+  tareas. Conservar versiones originales; avisar si cambiaron y mantener If-Match
+  al guardar. Recuperar campos no envia ni reintenta operaciones por confirmar.
+- No almacenar tokens ni la seleccion de ficha de ingreso; no usar localStorage
+  para contenido clinico. Si falla el almacenamiento, avisar y conservar los
+  campos actuales en memoria. Sin garantia tras cerrar navegador o reiniciar PC.
+- Validacion de 65 sobre `0a85b5c` y cambios locales: 442 pruebas frontend en
+  41 archivos, lint y build aprobados. Comando: npm.cmd run test --prefix frontend
+  -- --maxWorkers=1. Backend sin cambios: conserva 185 pruebas y CI de 64.
+  Primera suite 440/441: respuesta tardia tras desmontaje; se corrigio cancelacion
+  por instancia sin borrar persistencia. Dirigida 33/33 y suite final 442/442.
+  Pruebas directas de ingreso confirmadas por el usuario: recuperar campos tras
+  recarga sin crear episodio y descartar, sin nueva oferta ni campos al recargar.
+  Commit/push de 65, incluido cierre documental de 64, autorizados por el usuario.
+  Comprobar CI de la revision publicada.
+- Base publicada: 64 cerrada, commit `0a85b5c7513b76aac6d2d27c0fb9bdaaec0ea4e7`.
+  CI [38998701169](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/38998701169)
+  aprobada; 417 frontend, 185 backend, lint/build y tres pruebas directas aprobadas.
+  Cierre documental de 64 incluido en los cambios locales de esta entrega.
+- Siguiente paso: publicar el conjunto revisado de 65 y comprobar CI; con CI
+  aprobada, cerrar la entrega y acordar el siguiente alcance.
 - Forma de trabajo: un solo agente; no crear un revisor adicional.
-- Siguiente paso: publicar 64 y comprobar su CI; con CI aprobada, cerrar la
-  entrega y acordar el siguiente alcance antes de otra implementacion.
-- Servidores 8000/5173 escuchando al comprobar esta entrega. Verificar al retomar;
-  no asumir que siguen activos tras reinicio. No reiniciar ni modificar datos demo
-  como parte de las comprobaciones.
+- Servidores 8000/5173 comprobados por HTTP 200 durante 65. Verificar
+  al retomar; no asumir continuidad tras reinicio ni modificar datos demo.
 
 Este bloque es la entrada al proyecto; el resto conserva antecedentes. Consultar
 secciones concretas por necesidad y CHANGELOG solo para antecedentes relevantes.

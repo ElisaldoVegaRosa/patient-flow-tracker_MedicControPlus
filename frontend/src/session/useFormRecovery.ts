@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { resourceVersion } from "../hooks/useVersionedWrites";
+import { TabDraftStorage } from "./tabDraftStorage";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError, getSessionRevision, isSessionInterruption } from "../api/client";
 import type { Episode, LaboratoryQueue, SessionUser } from "../types/clinical";
 import { allowsDraft, FormDraftRecovery } from "./formDrafts";
@@ -6,26 +8,45 @@ import type { DraftKind, FormDraft } from "./formDrafts";
 
 type Status = "idle" | "waiting" | "checking" | "offer" | "retry";
 export function useFormRecovery() {
-  const [store] = useState(() => new FormDraftRecovery());
+  const lifetime = useRef(0);
+  const [store] = useState(() => new FormDraftRecovery(new TabDraftStorage(import.meta.env.VITE_API_URL ?? "http://localhost:8000")));
+  const [storageWarning, setStorageWarning] = useState(store.storageWarning);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [versionNotice, setVersionNotice] = useState("");
   const [noteOnly, setNoteOnly] = useState(true);
-  const clear = useCallback(() => { store.clear(); setStatus("idle"); setError(""); }, [store]);
-  const suspend = useCallback((resolveVersion?: (draft: FormDraft) => string | undefined) => { store.suspend(resolveVersion); setStatus(store.remainingMs() ? "waiting" : "idle"); setError(""); }, [store]);
-  useEffect(() => () => store.clear(), [store]);
+  const clear = useCallback(() => { store.clear(); setVersionNotice(""); setStatus("idle"); setError(""); setStorageWarning(store.storageWarning); }, [store]);
+  const suspend = useCallback((resolveVersion?: (draft: FormDraft) => string | undefined) => { store.suspend(resolveVersion); setStatus(store.remainingMs() ? "waiting" : "idle"); setError(""); setStorageWarning(store.storageWarning); }, [store]);
   useEffect(() => {
-    if (status === "idle") return;
-    const timer = window.setTimeout(clear, store.remainingMs());
-    return () => window.clearTimeout(timer);
-  }, [store, status, clear]);
+    lifetime.current += 1;
+    const timer = window.setInterval(() => {
+      store.expire();
+      setStorageWarning(store.storageWarning);
+      if (!store.remainingMs()) setStatus("idle");
+    }, 1000);
+    function otherSessionClosed(event: StorageEvent) {
+      if (event.key === "token" && event.newValue === null) clear();
+    }
+    window.addEventListener("storage", otherSessionClosed);
+    return () => { lifetime.current += 1; window.clearInterval(timer); window.removeEventListener("storage", otherSessionClosed); };
+  }, [store, clear]);
 
   const check = useCallback(async (user: SessionUser, restore = false) => {
     const pending = store.forUser(user);
-    if (!pending) { clear(); return null; }
+    if (!pending) { setStatus("idle"); setError(""); setStorageWarning(store.storageWarning); return null; }
     setNoteOnly(pending.drafts.every(draft => draft.kind === "discharge"));
     setStatus("checking"); setError("");
     const revision = getSessionRevision();
-    const current = () => revision === getSessionRevision() && store.version === pending.version && !!store.forUser(user);
+    const instance = lifetime.current;
+    const current = () => {
+      if (instance !== lifetime.current || revision !== getSessionRevision()) return false;
+      const available = store.forUser(user);
+      if (!available || store.version !== pending.version) {
+        setStatus(available ? "retry" : "idle");
+        return false;
+      }
+      return true;
+    };
     try {
       const episodes = new Map<number, Episode>();
       const valid: FormDraft[] = [];
@@ -56,12 +77,19 @@ export function useFormRecovery() {
       }
       if (!current()) return null;
       if (!valid.length) { clear(); return null; }
+      const changed = valid.some(draft => {
+        const episode = episodes.get(draft.episodeId ?? -1);
+        const path = draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
+        return episode && path && draft.baseVersion !== resourceVersion(path, episode);
+      });
+      const notice = changed ? "Otra sesión modificó datos de estos formularios. Se conservará la versión original del borrador; revisa los cambios antes de guardar." : "";
+      setVersionNotice(notice);
       if (!restore) { setStatus("offer"); return null; }
       clear();
-      for (const draft of valid) store.track(user, draft);
+      for (const draft of valid) store.track(user, draft, true, draft.editedAt);
       const episode = episodes.get(valid[0].episodeId ?? -1) ?? null;
       const note = valid.find(draft => draft.kind === "discharge")?.fields.note ?? "";
-      return { drafts: valid, episode, note, laboratoryQueue };
+      return { drafts: valid, episode, note, laboratoryQueue, versionNotice: notice };
     } catch (exception) {
       if (isSessionInterruption(exception) || !current()) return null;
       if (exception instanceof ApiError && [403, 404].includes(exception.status)) clear();
@@ -69,8 +97,8 @@ export function useFormRecovery() {
       return null;
     }
   }, [store, clear]);
-  const trackForm = useCallback((user: SessionUser, draft: FormDraft, dirty = true) => store.track(user, draft, dirty), [store]);
-  const track = useCallback((username: string, episodeId: number, note: string, baseVersion?: string) => store.track({ username, role: "DOCTOR" }, { kind: "discharge", episodeId, baseVersion, fields: { note } }, !!note.trim()), [store]);
+  const trackForm = useCallback((user: SessionUser, draft: FormDraft, dirty = true) => { store.track(user, draft, dirty); setStorageWarning(store.storageWarning); }, [store]);
+  const track = useCallback((username: string, episodeId: number, note: string, baseVersion?: string) => { store.track({ username, role: "DOCTOR" }, { kind: "discharge", episodeId, baseVersion, fields: { note } }, !!note.trim()); setStorageWarning(store.storageWarning); }, [store]);
   const remove = useCallback((kind: DraftKind, episodeId?: number, taskId?: number) => store.remove(kind, episodeId, taskId), [store]);
-  return { status, error, noteOnly, clear, suspend, check, track, trackForm, remove };
+  return { status, error, storageWarning, versionNotice, noteOnly, clear, suspend, check, track, trackForm, remove };
 }

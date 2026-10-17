@@ -5,7 +5,35 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Etapa 64: identidad del paciente e ingreso (local)
+## Etapa 65: borradores tras recarga (local)
+
+- Politica autorizada por el usuario: guardar temporalmente campos de los siete
+  formularios en sessionStorage de la pestana, sin tokens ni seleccion de ficha.
+  Separacion por API/usuario/rol y caducidad por formulario de 30 minutos desde
+  ultima edicion. Recargar, consultar y restaurar no extienden el plazo.
+- Recuperacion explicita tras autenticar y consultar estado vigente de episodio
+  y tarea. Se conservan versiones de edicion y se avisa de cambios; un guardado
+  posterior sigue enviando If-Match original y exige revision ante conflicto.
+  Restaurar no envia ni reintenta operaciones; referencias de recibos separadas.
+- Guardado confirmado, descarte, cierre de sesion y cambio de identidad retiran
+  borradores. Se detecta cierre de sesion desde otra pestana. Caducidad retira
+  contenido temporal aun con la pagina abierta, sin borrar los campos visibles.
+- Contenido temporal corrupto/incompatible se descarta sin mostrar sus valores.
+  Cuota agotada o almacenamiento bloqueado avisan y mantienen copia en memoria;
+  si es posible, retiran copias viejas para no ofrecer contenido desactualizado.
+- Pruebas de recarga para los siete flujos, permisos/propietario, caducidad,
+  fallos de almacenamiento, cierre remoto y version original tras recarga.
+  Validacion: 442 pruebas frontend en 41 archivos, lint/build aprobados.
+  Corregida cancelacion de consultas tardias tras desmontar, conservando la copia
+  temporal para recarga; sin modificar runner ni tiempos de espera.
+  Backend sin cambios: se conserva validacion publicada de 64 (185 pruebas).
+- Pruebas directas de ingreso confirmadas por el usuario: recarga ofrece
+  recuperar los valores sin crear episodio; descartar elimina la oferta y los
+  campos en una recarga posterior. Los otros flujos tienen cobertura automatizada.
+- Incluye cierre documental de 64. Commit/push del conjunto autorizados por el
+  usuario; comprobar CI de la revision publicada.
+
+## Etapa 64: identidad del paciente e ingreso (publicada)
 
 - Ingreso coteja documento, nombre y nacimiento. Las fichas existentes exigen
   revision explicita: abrir episodio activo coincidente o seleccionar ficha para
@@ -27,8 +55,10 @@ las verificaciones realizadas y el estado de cada etapa.
   errores de temporales/arranque del entorno aislado; sin ajustar runner ni tiempos.
 - Pruebas directas confirmadas por el usuario: apertura del episodio activo sin
   duplicado, bloqueo ante discrepancia y reingreso con seleccion de ficha, nuevo
-  episodio y conservacion del cierre anterior. Commit/push autorizados por el
-  usuario; comprobar CI de la revision publicada en GitHub Actions.
+  episodio y conservacion del cierre anterior.
+- Publicada: `0a85b5c7513b76aac6d2d27c0fb9bdaaec0ea4e7`; CI
+  [38998701169](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/38998701169)
+  aprobada. Etapa 64 cerrada; Git limpio y sincronizado al comprobar publicacion.
 
 ## Etapa 61: presencia compartida por episodio
 

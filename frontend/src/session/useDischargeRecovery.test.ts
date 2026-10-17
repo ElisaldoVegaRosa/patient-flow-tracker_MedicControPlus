@@ -38,5 +38,6 @@ describe('Eliminación de recuperación pendiente', () => {
       restored = await checking;
     });
     expect(restored!).toBeNull();
+    expect(sessionStorage.length).toBe(action === 'desmontar' ? 1 : 0);
   });
 });
