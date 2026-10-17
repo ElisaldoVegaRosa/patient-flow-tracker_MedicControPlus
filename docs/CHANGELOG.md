@@ -5,6 +5,31 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Etapa 64: identidad del paciente e ingreso (local)
+
+- Ingreso coteja documento, nombre y nacimiento. Las fichas existentes exigen
+  revision explicita: abrir episodio activo coincidente o seleccionar ficha para
+  crear un nuevo episodio tras el cierre anterior. Los campos del formulario se
+  conservan; editar identidad invalida la seleccion. No hay reenvio automatico.
+- Documento sensible a mayusculas y nombre sin distinguirlas; se ignoran espacios
+  exteriores sin alterar los datos originales. Las discrepancias bloquean la
+  seleccion. Varias fichas se revisan individualmente; no se fusionan historiales.
+- POST /episodes admite patient_id opcional y devuelve 409 patient_identity_review
+  con candidatos cuando hace falta cotejo. Mantiene permisos RECEPTION/SUPERVISOR.
+  La seleccion y la ausencia de episodios activos coincidentes se comprueban
+  dentro de la transaccion de escritura, aun con claves de operacion distintas.
+- Conserva la huella de recibos anteriores sin patient_id; un reintento confirmado
+  devuelve el episodio original. No cambia el esquema ni los datos demo locales.
+- Pruebas de discrepancias, seleccion obsoleta, reutilizacion tras cierre,
+  duplicados historicos, concurrencia, recibos y permisos; integracion de interfaz
+  y cliente HTTP. Frontend: 417 pruebas en 40 archivos; lint/build aprobados.
+  Backend: 185 pruebas aprobadas (1 aviso). Ejecucion fuera del sandbox tras
+  errores de temporales/arranque del entorno aislado; sin ajustar runner ni tiempos.
+- Pruebas directas confirmadas por el usuario: apertura del episodio activo sin
+  duplicado, bloqueo ante discrepancia y reingreso con seleccion de ficha, nuevo
+  episodio y conservacion del cierre anterior. Commit/push autorizados por el
+  usuario; comprobar CI de la revision publicada en GitHub Actions.
+
 ## Etapa 61: presencia compartida por episodio
 
 - Implementación local autorizada: indicador de otras sesiones/pestañas en el

@@ -2,25 +2,35 @@
 
 ## Estado actual (leer primero)
 
-- Etapa 63 publicada y cerrada: laboratorio separa ordenes ejecutables y
-  pendientes de episodios cerrados; conserva texto local ante cierre remoto.
-- Implementacion: `6c739569e4815d4396dffe936dee727f0cef3aff`.
-  CI `38993035968` aprobada.
-- Cierre documental: `e529e9835b27b1d605382b218e28f6ce87cd39a4`.
-  CI `38993249849` aprobada.
-- Validacion de 63: 413 pruebas frontend en 39 archivos, lint y build aprobados;
-  prueba directa confirmada por el usuario. Backend sin cambios: conserva 173
-  pruebas previas; la CI de 63 tambien comprobo backend.
-- Tras reinicio, actualizacion de Windows y cierre de programas, los cuatro
-  archivos antes fallidos pasaron (16/16) y la suite habitual paso en 154 s.
-  No quedaron cambios de runner, configuracion o tiempos. La causa especifica
-  de la lentitud anterior no se atribuyo a un proceso concreto.
-- Mantenimiento incorporado: mejora del flujo de trabajo y lectura de
-  contexto, exclusivamente documental. Sin funcionalidad clinica nueva.
-  Publicacion autorizada. Comprobar en GitHub la CI del commit de mantenimiento.
-- Siguiente decision: evaluar estas reglas antes de agregar perfiles o agentes;
-  prioridades funcionales pendientes en [ROADMAP](ROADMAP.md).
-- Servidores: se iniciaron para la prueba directa. Verificar procesos al retomar;
+- Etapa 64 implementada localmente con autorizacion: cotejo de identidad al
+  ingresar, seleccion explicita de ficha existente y reingreso tras cierre.
+  Documento, nombre y nacimiento deben coincidir. Ante episodio activo se ofrece
+  abrirlo; una transaccion evita nuevos ingresos activos concurrentes.
+- Comparacion: documento sensible a mayusculas; nombre sin distinguirlas;
+  ambos ignoran espacios exteriores. No se modifican identidades almacenadas.
+  Discrepancias requieren revision/correccion. Fichas historicas no se fusionan.
+- Validacion de 64 sobre base `2807595` y cambios locales: 185 pruebas backend
+  aprobadas (1 aviso), 417 frontend en 40 archivos, lint y build aprobados.
+  Backend: pytest backend/tests con --basetemp .tmp/pytest64-full; frontend:
+  npm.cmd run test --prefix frontend -- --maxWorkers=1. Sin cambios de runner.
+  Se valido fuera del sandbox tras un ENOENT de temporales al cargar dos archivos
+  frontend y el arranque sin progreso de pytest aislado (interrumpido).
+  Pruebas directas confirmadas por el usuario: episodio activo sin duplicado,
+  discrepancia de identidad y reingreso reutilizando ficha con episodio previo
+  cerrado. Commit y push de 64 autorizados por el usuario; comprobar CI tras
+  publicar. El resultado de publicacion se verifica contra Git y GitHub Actions.
+- Base publicada: `280759559541aba1da9146e9694bda9446f484a6`, mantenimiento
+  documental; CI `38994932816` aprobada. Etapa 63 publicada y cerrada:
+  `6c739569e4815d4396dffe936dee727f0cef3aff`, CI `38993035968` aprobada;
+  cierre documental `e529e9835b27b1d605382b218e28f6ce87cd39a4`, CI
+  `38993249849` aprobada. Validacion de 63: 413 frontend, 173 backend, lint,
+  build y prueba directa aprobados. No confundirla con la validacion de 64.
+  Tras reinicio de Windows pasaron las pruebas antes afectadas por lentitud; no
+  quedaron ajustes de runner o tiempos. Causa concreta de esa lentitud sin aislar.
+- Forma de trabajo: un solo agente; no crear un revisor adicional.
+- Siguiente paso: publicar 64 y comprobar su CI; con CI aprobada, cerrar la
+  entrega y acordar el siguiente alcance antes de otra implementacion.
+- Servidores 8000/5173 escuchando al comprobar esta entrega. Verificar al retomar;
   no asumir que siguen activos tras reinicio. No reiniciar ni modificar datos demo
   como parte de las comprobaciones.
 

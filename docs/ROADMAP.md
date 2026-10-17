@@ -2,15 +2,22 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Etapas 30-63: consultar el estado vigente en
-  [PROJECT_STATUS](PROJECT_STATUS.md); 63 esta publicada y cerrada.
+- Etapas 30-63 publicadas; 64 validada localmente y con publicacion
+  autorizada por el usuario. Estado vigente en [PROJECT_STATUS](PROJECT_STATUS.md).
 - Mantenimiento incorporado: reglas de trabajo, lecturas y
   reutilizacion de validaciones. Este mantenimiento es documental; no cambia
   configuracion de modelos, agentes, permisos ni funcionamiento clinico.
 - Antes de una nueva entrega funcional, acordar problema y criterios de
   aceptacion. La revision integral identifica estas decisiones aun abiertas:
-  - Identidad del paciente: cuando reutilizar un paciente y como tratar otro
-    ingreso con el mismo documento. No fusionar ni imponer unicidad sin acuerdo.
+  - Identidad del paciente (64): alcance autorizado e implementado localmente.
+    El ingreso busca por documento y coteja nombre y nacimiento antes de ofrecer
+    abrir un episodio activo o seleccionar ficha para reingreso. Discrepancias
+    requieren correccion/revision; varias fichas se revisan individualmente.
+    Una transaccion protege incluso intenciones simultaneas con claves distintas.
+    Sin fusion historica, correccion automatica ni excepcion para ignorar
+    discrepancias. Validacion completa y tres pruebas directas aprobadas por el
+    usuario. Commit/push autorizados; comprobar CI al publicar. Resultados en
+    PROJECT_STATUS.
   - Borradores tras recarga: decidir persistencia, alcance y tratamiento de texto
     clinico antes de almacenarlo fuera de memoria.
   - Recibos: definir archivo/retencion conservando la reserva de claves para

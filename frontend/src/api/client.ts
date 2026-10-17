@@ -1,5 +1,5 @@
+import type { AdmissionCandidate, SessionUser } from "../types/clinical";
 const API = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
-import type { SessionUser } from "../types/clinical";
 import { WriteReferences, writeKind, writeReferenceOwner } from "../session/writeReferences";
 import type { WriteReference } from "../session/writeReferences";
 import { requestLifetime } from "./requestLifetime";
@@ -173,6 +173,14 @@ export class ApiError extends Error {
   }
 }
 
+export class AdmissionReviewError extends ApiError {
+  readonly candidates: AdmissionCandidate[];
+  constructor(message: string, candidates: AdmissionCandidate[]) {
+    super(message, 409);
+    this.candidates = candidates;
+  }
+}
+
 export class VersionConflictError extends ApiError {}
 
 export const getSessionRevision = () => sessionRevision;
@@ -283,7 +291,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
       window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
       throw new SessionInterruptedError();
     }
-    const result = (await request.wait(() => response.json())) as T & { detail?: string | { code?: string; message?: string } };
+    const result = (await request.wait(() => response.json())) as T & { detail?: string | { code?: string; message?: string; candidates?: AdmissionCandidate[] } };
     if (!isCurrent()) throw new SessionInterruptedError();
     if (intent && response.status < 500) {
       const key = headers.get("Idempotency-Key")!;
@@ -301,6 +309,7 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
         ? detail.map((issue: { loc?: string[]; msg?: string }) => `${issue.loc?.slice(1).join(".") || "Datos"}: ${issue.msg || "Valor inválido"}`).join("; ")
         : typeof detail === "string" ? detail : detail?.message || "Ocurrió un error";
       if (response.status === 409 && typeof detail === "object" && detail.code === "version_conflict") throw new VersionConflictError(message, 409);
+      if (response.status === 409 && typeof detail === "object" && detail.code === "patient_identity_review" && Array.isArray(detail.candidates)) throw new AdmissionReviewError(message, detail.candidates);
       throw new ApiError(message, response.status);
     }
     return result;

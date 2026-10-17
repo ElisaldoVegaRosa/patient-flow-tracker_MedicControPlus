@@ -10,7 +10,7 @@ import UncertainWrites from "./components/UncertainWrites";
 import RetainedDrafts from "./components/RetainedDrafts";
 import RecoveredWrites from "./components/RecoveredWrites";
 import {
-  api, bindWriteRecovery, establishSession, getSessionRevision, invalidateSession,
+  AdmissionReviewError, api, bindWriteRecovery, establishSession, getSessionRevision, invalidateSession,
   isSessionInterruption, SESSION_EXPIRED_EVENT, VersionConflictError,
 } from "./api/client";
 import { useFormRecovery } from "./session/useFormRecovery";
@@ -421,6 +421,7 @@ useEffect(() => {
       const result = await api<Episode>("/episodes", {
         method: "POST",
         body: JSON.stringify({
+          ...(form.get("patient_id") ? { patient_id: Number(form.get("patient_id")) } : {}),
           name: form.get("name"),
           birth_date: form.get("birth_date"),
           document: form.get("document"),
@@ -436,6 +437,7 @@ useEffect(() => {
       loadDashboard();
     } catch (exception) {
       if (isSessionInterruption(exception)) return;
+      if (exception instanceof AdmissionReviewError) throw exception;
       setError((exception as Error).message);
     } finally {
       release();
@@ -750,7 +752,7 @@ async function logout() {
         />
       )}
 
-      {page === "new" && <NewEpisodePage submitting={operations.isPending("arrival")} onSubmit={createEpisode} />}
+      {page === "new" && <NewEpisodePage onOpenEpisode={openEpisode} submitting={operations.isPending("arrival")} onSubmit={createEpisode} />}
 
       {page === "scan" && <ScanPage onSubmit={scanEpisode} />}
 

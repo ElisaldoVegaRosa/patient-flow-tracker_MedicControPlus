@@ -974,3 +974,14 @@ Acciones principales de una pantalla
     width: 100%;
   }
 }
+.admission-review {
+  grid-column: 1 / -1;
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.admission-review input[type="radio"] {
+  width: auto;
+}

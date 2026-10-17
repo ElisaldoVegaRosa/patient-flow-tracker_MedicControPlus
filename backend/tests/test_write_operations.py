@@ -198,7 +198,8 @@ def test_invalid_key_and_closed_episode_do_not_record_receipts(setup):
 def test_same_key_is_scoped_to_current_identity(setup):
     client, users, episode = setup
     payload = {"name": "Ficticio independiente", "birth_date": "1990-01-01", "document": "TEST-IDENTITY"}
-    ids = [client.post("/episodes", headers=keyed(users[name]), json=payload).json()["id"] for name in ["recepcion", "supervisor"]]
+    # Different patients: active identity admission is now guarded independently of keys.
+    ids = [client.post("/episodes", headers=keyed(users[name]), json=payload | {"document": f"TEST-IDENTITY-{name}"}).json()["id"] for name in ["recepcion", "supervisor"]]
     assert ids[0] != ids[1]
     assert len(rows("SELECT * FROM write_receipts")) == 2
 

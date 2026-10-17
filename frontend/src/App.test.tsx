@@ -54,6 +54,24 @@ describe("Nuevo ingreso", () => {
     return { user, fetchMock, episode };
   }
 
+  it("coteja la ficha sin reenviar automáticamente y envía la selección confirmada", async () => {
+    const { user, fetchMock, episode } = await prepareAdmission();
+    fetchMock.mockResolvedValueOnce({ ok: false, status: 409, json: async () => ({ detail: {
+      code: "patient_identity_review", message: "Revisa la identidad",
+      candidates: [{ id: 52, name: episode.name, document: episode.document,
+        birth_date: episode.birth_date, matches: true, active_episode_ids: [] }],
+    } }) } as Response);
+    await user.click(screen.getByRole("button", { name: "Crear episodio y pulsera" }));
+    await user.click(await screen.findByRole("radio"));
+    expect(fetchMock.mock.calls.filter(([, init]) => init?.method === "POST")).toHaveLength(1);
+    await user.click(screen.getByRole("button", { name: "Crear episodio y pulsera" }));
+    expect(await screen.findByRole("heading", { name: episode.name })).toBeVisible();
+    const posts = fetchMock.mock.calls.filter(([, init]) => init?.method === "POST");
+    expect(JSON.parse(String(posts[1][1]?.body))).toEqual({ patient_id: 52, name: episode.name,
+      birth_date: episode.birth_date, document: episode.document, priority: 3, location: "Recepción" });
+    expect(new Headers(posts[1][1]?.headers).get("Idempotency-Key")).not.toBe(new Headers(posts[0][1]?.headers).get("Idempotency-Key"));
+  });
+
   it("rechaza espacios sin enviar ni borrar y permite corregir el ingreso", async () => {
     const { fetchMock, episode } = await prepareAdmission();
     const field = screen.getByLabelText("Nombre completo");

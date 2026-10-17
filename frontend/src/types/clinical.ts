@@ -185,3 +185,12 @@ export type EpisodePresenceData = {
   ttl_seconds: number;
   members: { username: string; role: string; tabs: number; sessions: number; editing_tabs: number }[];
 };
+
+export type AdmissionCandidate = {
+  id: number;
+  name: string;
+  birth_date: string;
+  document: string;
+  matches: boolean;
+  active_episode_ids: number[];
+};
