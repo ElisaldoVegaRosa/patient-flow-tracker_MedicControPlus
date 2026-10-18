@@ -2,6 +2,26 @@
 
 ## Estado actual (leer primero)
 
+- Demo de urgencias planificado para una tableta y piloto local de cinco hasta
+  treinta: [alcance y decisiones](URGENCIAS_PILOT_PLAN.md). Complemento del
+  expediente existente; laboratorio externo, fusion y expediente oficial
+  requieren evaluacion separada.
+- Subpaquete A autorizado con cont e implementado localmente: scripts/demo.ps1,
+  demo_control.py, tareas VS Code Demo start/status/stop y [guia](DEMO_OPERATIONS.md).
+  Solo loopback; identifica procesos por PID/creacion/ejecutable, no adopta
+  servidores externos y conserva referencias ante errores. Start comprueba
+  ambos puertos y revierte solo procesos creados en su intento. Stop fuerza
+  terminacion del arbol propio: terminar/revisar guardados antes de usarlo.
+  23 pruebas dirigidas aprobadas, con HTTP/procesos simulados y comprobaciones
+  nativas de identidad/bloqueo Windows; suite backend 216/216 aprobada (439,95 s).
+  Usuario completo prueba guiada: puerto ocupado rechazado sin adopcion,
+  Start/Status propios y con respuesta, Stop, puertos libres, nuevo Start/Status
+  y pantalla de acceso confirmada con captura. Servidores quedan iniciados
+  segun ultima salida aportada. Sin pruebas clinicas adicionales ni commit/push.
+  Camara, identidad provisional e impresion no implementadas en este bloque.
+  Inspeccion reviso el circuito completo a 84-168 h preliminares; detalle en
+  el plan. Conservadas las modificaciones documentales previas.
+
 - Buscador compartido validado sobre `ebc433b` y esta entrega en Centro de
   control, Historial, Supervisor y Laboratorio: palabras del nombre sin acentos
   ni distincion de mayusculas y EP exacto con o sin prefijo (20 o EP-20).

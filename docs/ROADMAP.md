@@ -2,6 +2,20 @@
 
 ## Decisiones pendientes (leer primero)
 
+- [Plan de urgencias](URGENCIAS_PILOT_PLAN.md): demo ficticio con una tableta,
+  piloto local de cinco y ampliacion gradual hasta treinta. Inspeccion tecnica
+  separa operacion PC, camara/HTTPS, identidad provisional sin fusion y emision.
+  Circuito completo 84-168 h preliminares, sujeto a equipos y diseno detallado;
+  sustituye las 36-72 h iniciales.
+- Subpaquete A autorizado con cont e implementado localmente: operacion
+  del demo en PC mediante [guia y tareas visibles](DEMO_OPERATIONS.md).
+  23 pruebas dirigidas aprobadas; suite backend 216/216 aprobada (439,95 s).
+  prueba guiada completada por el usuario: arranque, estado, parada, puertos
+  libres y nuevo arranque con acceso visible. Siguiente: cierre y publicacion
+  solo con autorizacion explicita; consultar antes de nuevas pruebas directas.
+  Camara/tableta, identidad provisional e impresion siguen pendientes.
+  No hay autorizacion nueva de commit ni push.
+
 - Bloque priorizado y autorizado: buscador comun por nombre o EP para las
   cuatro bandejas. Implementado y validado: combina filtros, mantiene metricas
   generales y conserva campos sin guardar de laboratorio al ocultar ordenes.

@@ -5,6 +5,20 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Control local del demo en Windows (18 de octubre de 2026)
+
+- Start, Status y Stop desde scripts/demo.ps1 o tareas de VS Code; procesos
+  ocultos y salida/logs accesibles, sin cambiar el circuito clinico.
+- Gestion por PID, fecha de creacion y ejecutable; no adopta procesos
+  externos. Verifica puertos, evita operaciones concurrentes y conserva
+  referencias cuando no puede verificar o detener. Fallo parcial revierte
+  solo procesos nuevos. Stop fuerza arboles propios, sin drenaje de solicitudes.
+- Backend sin reload ni access log; frontend con puerto estricto; solo PC local.
+  [Guia](DEMO_OPERATIONS.md) y [plan](URGENCIAS_PILOT_PLAN.md).
+- 23 pruebas dirigidas aprobadas. Suite backend 216/216 aprobada (439,95 s). Prueba
+  guiada completada por el usuario: rechazo de puerto ocupado, arranque, estado,
+  parada, puertos libres y nuevo arranque con pantalla de acceso. Sin commit ni push.
+
 ## Busqueda compartida de pacientes y episodios (validada)
 
 - Buscador por palabras del nombre, sin distincion de acentos/mayusculas, o
