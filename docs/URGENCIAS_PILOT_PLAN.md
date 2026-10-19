@@ -1,8 +1,8 @@
 # Plan de demo y piloto de urgencias
 
 Fecha de consolidacion: 18 de octubre de 2026.
-Estado: decisiones funcionales acordadas; subpaquete A implementado localmente.
-Las demas capacidades propuestas siguen pendientes de implementacion. Este documento no autoriza compras, implementacion, commit ni
+Estado: subpaquete A publicado; lector con camara preparado localmente y
+validado por software. Ensayo fisico y demas capacidades siguen pendientes. Este documento no autoriza compras, implementacion, commit ni
 push. Las decisiones describen el sistema deseado, no capacidades ya disponibles.
 
 ## Objetivo y limites
@@ -209,9 +209,49 @@ requiriendo consulta previa al usuario. A implementado localmente tras autorizac
 usuario: arranque, estado propio, parada, puertos libres y nuevo arranque con
 pantalla de acceso. Sin validacion de tableta ni impresion.
 
+## Preparacion de camara sin tableta disponible
+
+Usuario confirma que todavia no dispone de tableta. El subpaquete A ya esta
+publicado en `361d33c`, con CI `39164657470` aprobada. La preparacion del lector
+fue autorizada con cont e implementada localmente: [comportamiento y limites](QR_CAMERA_DEMO.md).
+No representa validacion de camara fisica ni instalacion en tableta.
+
+Problema: ScanPage solo acepta pegar token. El QR existente es una referencia
+opaca, no una URL: abrir la camara nativa de un dispositivo no demuestra que
+pueda navegar al episodio. La lectura debe integrarse con la sesion de la app.
+
+Alcance de software implementado localmente:
+
+- Activacion voluntaria de camara; nunca pedir permisos al abrir la pantalla.
+- Vista previa, cancelacion y alternativa manual conservada.
+- Una lectura captura un token para revisar/confirmar; no consultar por fotograma.
+- Una confirmacion en curso bloquea otra; sin repetir automaticamente el GET
+  que actualmente registra QR_SCANNED. Validar y codificar el segmento de ruta.
+- Liberar camara al cancelar, salir, cerrar sesion o desmontar la pantalla;
+  resolver tambien permisos que llegan despues de cancelar.
+- Informar permiso denegado, camara ausente, contexto inseguro y lectura fallida.
+- Mantener cliente HTTP, permisos y navegacion centralizados; no completar tareas.
+- Elegir decodificador compatible sin depender exclusivamente de APIs nativas
+  que no esten disponibles en todos los navegadores objetivo.
+
+Pruebas automatizadas: medios y lector simulados, confirmacion unica, rechazos,
+respuesta tardia, cambio de sesion, liberacion de recursos y formulario manual.
+Estas pruebas no acreditan enfoque, calidad de pulsera ni compatibilidad fisica.
+
+Exclusiones: compra, seleccion de modelo, HTTPS instalado en dispositivos,
+red de campo, impresion e identidad provisional. No cambiar el controlador
+local para exponer servidores a la red sin un alcance especifico.
+
+Prueba fisica parcial completada por el usuario en Redmi Note 11 / Android 13
+con Chrome: camara, cancelacion, captura unica y confirmacion del paciente y
+episodio correctos desde QR en pantalla. Conexion temporal por ADB Wi-Fi y
+reverse de los puertos locales, sin cambios LAN/HTTPS del servidor. Ver
+[resultado y limites](QR_CAMERA_DEMO.md). Quedan tableta, pulsera impresa y
+pruebas de campo; no estimar compras ni prometer fechas sin equipamiento.
+
 ## Pendientes y siguiente decision
 
-- Inventario de tableta, sistema operativo, navegador, red y equipos de impresion.
+- Tableta todavia no disponible: inventario de sistema, navegador, red e impresion pendiente.
 - Presupuesto y seleccion compatibles de impresora, pulseras y consumibles.
 - Administrador de cuentas y limites del permiso de coordinacion.
 - Fuente oficial por dato y traslado al expediente existente.
@@ -220,8 +260,9 @@ pantalla de acceso. Sin validacion de tableta ni impresion.
 - Protocolo ante urgencia evidente desde llegada y fallos de red, energia o equipos.
 - Objetivos medibles de carga, tiempos de respuesta y recuperacion.
 
-Subpaquete A autorizado con cont e implementado localmente. Siguiente paso:
-cerrar la entrega validada tras ensayo guiado completado por el usuario.
-Commit y push siguen requiriendo autorizacion explicita.
-Identidad provisional, camara y emision requieren los subpaquetes adicionales;
-no se implementan ni se compran equipos por inferencia de este plan.
+Subpaquete A publicado en 361d33c con CI aprobada y prueba guiada completada.
+Lector con camara preparado localmente, conservando lectura manual. Siguiente:
+revisar cierre de entrega (frontend 521/521, lint y build aprobados;
+prueba guiada en Android confirmada). Identidad provisional y
+emision corresponden a entregas adicionales. Nuevos commit/push y compras
+requieren autorizacion; consultar antes de pruebas directas.

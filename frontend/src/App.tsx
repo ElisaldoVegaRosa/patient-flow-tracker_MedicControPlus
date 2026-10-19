@@ -478,14 +478,11 @@ useEffect(() => {
     }
   }
 
-  async function scanEpisode(event: FormEvent<HTMLFormElement>) {
+  async function scanEpisode(token: string) {
     clearRecovery();
     setRecoveredNote("");
-    event.preventDefault();
-    const token = new FormData(event.currentTarget).get("token");
-
     try {
-      setEpisode(await api<Episode>(`/scan/${token}`));
+      setEpisode(await api<Episode>(`/scan/${encodeURIComponent(token)}`));
       setPage("episode");
     } catch (exception) {
       if (isSessionInterruption(exception)) return;

@@ -105,4 +105,5 @@ conservacion ante errores del sistema: 23/23 pruebas dirigidas de la version
 final (0,70 s). Sintaxis PowerShell, JSON de tareas, diff, UTF-8 y enlaces locales
 revisados. Frontend sin cambios; no se repitieron sus suites. Prueba guiada
 de servidores completada posteriormente por el usuario, como se describe arriba.
-Sin publicacion.
+Publicado en `361d33c`; [CI 39164657470](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39164657470)
+aprobada: backend, frontend, lint y build.

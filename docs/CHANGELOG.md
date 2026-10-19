@@ -5,6 +5,23 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Preparacion del lector QR con camara (18 de octubre de 2026)
+
+- Escanear pulsera permite solicitar camara, cancelar y confirmar un QR antes
+  de consultar. Conserva entrada manual, permisos API y contrato QR_SCANNED.
+- Decodificador jsQR 1.4.0 local y carga diferida, sin subir ni guardar imagenes;
+  bloquea confirmaciones simultaneas y rechaza URL/ruta como token.
+- Libera camara ante cancelacion, salida, visibilidad o cambio de sesion;
+  gestiona concesion tardia de permisos y errores sin reactivar automaticamente.
+- 31 pruebas dirigidas iniciales; suite final 521/521 en 50 archivos (258,94 s),
+  lint y build aprobados. Dos casos adicionales de cancelacion incluidos en la
+  suite completa. Hook de pruebas y tipos de simulacion corregidos sin ampliar
+  tiempos ni modificar el runner. Usuario confirma prueba fisica guiada con
+  Redmi Note 11, Android 13 y Chrome: camara, cancelacion, captura unica y
+  consulta explicita del paciente/episodio correctos. QR en pantalla de PC;
+  tableta e impresion pendientes. [Limites](QR_CAMERA_DEMO.md). Commit autorizado;
+  publicacion pendiente de autorizacion explicita.
+
 ## Control local del demo en Windows (18 de octubre de 2026)
 
 - Start, Status y Stop desde scripts/demo.ps1 o tareas de VS Code; procesos
@@ -17,7 +34,9 @@ las verificaciones realizadas y el estado de cada etapa.
   [Guia](DEMO_OPERATIONS.md) y [plan](URGENCIAS_PILOT_PLAN.md).
 - 23 pruebas dirigidas aprobadas. Suite backend 216/216 aprobada (439,95 s). Prueba
   guiada completada por el usuario: rechazo de puerto ocupado, arranque, estado,
-  parada, puertos libres y nuevo arranque con pantalla de acceso. Sin commit ni push.
+  parada, puertos libres y nuevo arranque con pantalla de acceso. Publicado en
+  `361d33c`; [CI 39164657470](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39164657470)
+  aprobada: backend, frontend, lint y build.
 
 ## Busqueda compartida de pacientes y episodios (validada)
 

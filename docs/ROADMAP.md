@@ -2,6 +2,15 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Preparacion del lector autorizada con cont e implementada localmente;
+  [detalle](QR_CAMERA_DEMO.md). Camara solo por solicitud, captura sin consulta
+  automatica y confirmacion unica mientras espera API. Entrada manual preservada.
+  Frontend 521/521, lint y build aprobados. Prueba guiada confirmada por usuario
+  en Android/Chrome con QR en pantalla, camara/cancelacion/captura y consulta
+  del episodio correcto. Acceso temporal por ADB reverse; sin exponer el
+  servidor a LAN. Proximo: cierre/commit solo con autorizacion. Tableta,
+  pulsera impresa y configuracion de campo siguen pendientes.
+
 - [Plan de urgencias](URGENCIAS_PILOT_PLAN.md): demo ficticio con una tableta,
   piloto local de cinco y ampliacion gradual hasta treinta. Inspeccion tecnica
   separa operacion PC, camara/HTTPS, identidad provisional sin fusion y emision.
@@ -11,9 +20,12 @@
   del demo en PC mediante [guia y tareas visibles](DEMO_OPERATIONS.md).
   23 pruebas dirigidas aprobadas; suite backend 216/216 aprobada (439,95 s).
   prueba guiada completada por el usuario: arranque, estado, parada, puertos
-  libres y nuevo arranque con acceso visible. Siguiente: cierre y publicacion
-  solo con autorizacion explicita; consultar antes de nuevas pruebas directas.
-  Camara/tableta, identidad provisional e impresion siguen pendientes.
+  libres y nuevo arranque con acceso visible. Cierre y publicacion
+  completado en `361d33c`, CI `39164657470` aprobada. Consultar antes de nuevas
+  pruebas directas. Usuario sin tableta; siguiente alcance de lector separado
+  en preparacion de software y ensayo fisico pendiente de equipo.
+  Camara preparada localmente en la entrega posterior; ensayo de tableta,
+  identidad provisional e impresion siguen pendientes.
   No hay autorizacion nueva de commit ni push.
 
 - Bloque priorizado y autorizado: buscador comun por nombre o EP para las

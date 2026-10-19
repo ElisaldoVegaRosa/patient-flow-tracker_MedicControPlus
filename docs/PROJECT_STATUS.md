@@ -2,11 +2,27 @@
 
 ## Estado actual (leer primero)
 
+- Lector QR con camara implementado localmente tras cont: activacion voluntaria,
+  captura unica, confirmacion antes de consultar y entrada manual conservada.
+  jsQR 1.4.0 decodifica localmente; cancela permisos tardios y libera recursos
+  al salir/ocultar/cambiar sesion. Sin cambios backend ni red de campo.
+  [Alcance y limites](QR_CAMERA_DEMO.md). 31 pruebas dirigidas iniciales y
+  suite frontend final 521/521 en 50 archivos aprobadas (258,94 s), incluidos
+  dos casos adicionales de cancelacion; lint, comprobacion dirigida tras
+  ajuste de tipos en test y build aprobados. Usuario completo prueba fisica
+  guiada en Redmi Note 11 / Android 13 / Chrome mediante ADB Wi-Fi y reverse
+  de puertos: permiso, vista previa, cancelacion, captura unica con camara
+  apagada y confirmacion explicita del mismo paciente/episodio activo.
+  QR mostrado en pantalla de PC; tableta y pulsera impresa pendientes.
+  Agente no opero la app. Commit autorizado tras prueba guiada; publicacion
+  pendiente de autorizacion explicita.
+
 - Demo de urgencias planificado para una tableta y piloto local de cinco hasta
   treinta: [alcance y decisiones](URGENCIAS_PILOT_PLAN.md). Complemento del
   expediente existente; laboratorio externo, fusion y expediente oficial
   requieren evaluacion separada.
-- Subpaquete A autorizado con cont e implementado localmente: scripts/demo.ps1,
+- Subpaquete A publicado en `361d33c`; CI [39164657470](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39164657470)
+  aprobada: backend, frontend, lint y build. Scripts/demo.ps1,
   demo_control.py, tareas VS Code Demo start/status/stop y [guia](DEMO_OPERATIONS.md).
   Solo loopback; identifica procesos por PID/creacion/ejecutable, no adopta
   servidores externos y conserva referencias ante errores. Start comprueba
@@ -17,8 +33,11 @@
   Usuario completo prueba guiada: puerto ocupado rechazado sin adopcion,
   Start/Status propios y con respuesta, Stop, puertos libres, nuevo Start/Status
   y pantalla de acceso confirmada con captura. Servidores quedan iniciados
-  segun ultima salida aportada. Sin pruebas clinicas adicionales ni commit/push.
-  Camara, identidad provisional e impresion no implementadas en este bloque.
+  segun ultima salida aportada. Sin pruebas clinicas adicionales.
+  Usuario confirma que todavia no tiene tableta. Lector preparado en la
+  entrega local posterior descrita arriba; prueba fisica pendiente.
+  Identidad provisional e impresion siguen pendientes; no comprar equipos
+  por inferencia.
   Inspeccion reviso el circuito completo a 84-168 h preliminares; detalle en
   el plan. Conservadas las modificaciones documentales previas.
 
