@@ -11,6 +11,7 @@ import sqlite3
 from fastapi import HTTPException, Request
 from pydantic import BaseModel
 from .concurrency import check_version
+from .auth import validate_session
 
 _active = ContextVar("write_connection", default=None)
 
@@ -38,7 +39,7 @@ def transaction_factory(factory):
     return lambda: active_connection() or factory()
 
 
-def atomic_write(connection_factory, detail=None, *, require_key=False):
+def atomic_write(connection_factory, detail=None, *, require_key=False, authorize=None, fingerprint_payload=None):
     """Dependencies (including current authorization) run before this wrapper."""
     def decorate(endpoint):
         signature = inspect.signature(endpoint)
@@ -55,12 +56,20 @@ def atomic_write(connection_factory, detail=None, *, require_key=False):
             scope = f"{request.method}:{request.url.path}"
             payload = {name: value.model_dump(mode="json") if isinstance(value, BaseModel) else value
                        for name, value in kwargs.items() if name != "user"}
-            fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+            intent = fingerprint_payload(payload, key) if fingerprint_payload else payload
+            fingerprint = hashlib.sha256(json.dumps(intent, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
             connection = connection_factory()
             context = None
             try:
                 connection.execute("BEGIN IMMEDIATE")
                 context = _active.set(TransactionConnection(connection))
+                if authorize:
+                    authorize(connection, request, user)
+                else:
+                    current = validate_session(request.headers.get("Authorization"),
+                        lambda: active_connection(), lambda: datetime.now(timezone.utc).isoformat())
+                    if current["username"] != user["username"] or current["role"] != user["role"]:
+                        raise HTTPException(403, "La autorizacion cambio antes de guardar")
                 now = datetime.now(timezone.utc)
                 if key:
                     receipt = connection.execute(

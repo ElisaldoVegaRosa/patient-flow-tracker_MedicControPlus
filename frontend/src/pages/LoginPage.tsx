@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { useState } from "react";
 import { clinicalLabel } from "../presentation/clinicalLabels";
 
 type LoginPageProps = {
@@ -9,6 +10,7 @@ type LoginPageProps = {
 };
 
 export default function LoginPage({ restoringSession, error, onSubmit, submitting = false }: LoginPageProps) {
+const [personal, setPersonal] = useState(false);
 if (restoringSession) {
   return (
     <main className="login-page">
@@ -28,17 +30,24 @@ if (restoringSession) {
           <h1>Seguimiento clínico</h1>
           <p>Acceso al episodio activo del paciente</p>
 
-          <form onSubmit={onSubmit}>
+          <label>Acceso
+            <select aria-label="Tipo de acceso" disabled={submitting} value={personal ? "personal" : "demo"}
+              onChange={event => setPersonal(event.target.value === "personal")}>
+              <option value="demo">Demostración por perfil</option>
+              <option value="personal">Cuenta personal / administrador de cuentas</option>
+            </select>
+          </label>
+          <form key={String(personal)} onSubmit={onSubmit}>
             <label>
               Usuario
-              <select disabled={submitting} name="username">
+              {personal ? <input name="username" required autoComplete="username" disabled={submitting} maxLength={40} /> : <select disabled={submitting} name="username">
                 <option value="recepcion">{clinicalLabel("role", "RECEPTION")}</option>
                 <option value="archivo">{clinicalLabel("role", "ADMISSION")}</option>
                 <option value="enfermeria">{clinicalLabel("role", "NURSE")}</option>
                 <option value="medico">{clinicalLabel("role", "DOCTOR")}</option>
                 <option value="laboratorio">{clinicalLabel("role", "LAB")}</option>
                 <option value="supervisor">{clinicalLabel("role", "SUPERVISOR")}</option>
-              </select>
+              </select>}
             </label>
 
             <label>
@@ -47,7 +56,9 @@ if (restoringSession) {
                 disabled={submitting}
                 name="password"
                 type="password"
-                defaultValue="demo123"
+                required
+                autoComplete="current-password"
+                defaultValue={personal ? "" : "demo123"}
               />
             </label>
 
@@ -55,7 +66,7 @@ if (restoringSession) {
           </form>
 
           {error && <p className="error">{error}</p>}
-          <small>Contraseña de demostración: demo123</small>
+          {!personal && <small>Contraseña de demostración: demo123. Solo datos ficticios.</small>}
         </section>
       </main>
   );

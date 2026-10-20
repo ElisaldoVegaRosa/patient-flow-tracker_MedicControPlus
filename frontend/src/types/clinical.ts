@@ -1,13 +1,25 @@
 export type User = {
+  display_name?: string;
   username: string;
   role: string;
   access_token: string;
 };
 
 export type SessionUser = {
+  display_name?: string;
   username: string;
   role: string;
 };
+
+export type Account = {
+  id: number; username: string; display_name: string; role: string; active: number;
+  created_at: string; account_revision: number; version: string;
+};
+export type AccountChange = {
+  id: number; user_id: number; actor: string; action: string; old_value: string;
+  new_value: string; reason: string; created_at: string;
+};
+export type AccountsData = { accounts: Account[]; changes: AccountChange[]; requested_by: string };
 
 export type VitalSigns = {
   id: number;

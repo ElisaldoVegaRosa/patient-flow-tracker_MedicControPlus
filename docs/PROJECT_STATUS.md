@@ -2,7 +2,29 @@
 
 ## Estado actual (leer primero)
 
-- Vista imprimible de pulsera implementada localmente sobre e04be5f, autorizada
+- Cuentas personales implementadas localmente sobre ce16ed8: administrador
+  separado ACCOUNT_ADMIN sin acceso clinico, alta local interactiva,
+  crear/activar/desactivar/restablecer con auditoria, versiones, recibos y
+  revocacion de sesiones. [Guia y limites](PERSONAL_ACCOUNTS.md).
+  Cobertura backend 252 casos (19 conservados + 233 afectados/pendientes,
+  384,52 s); frontend 560/560 en 54 archivos (361,50 s), lint y build aprobados.
+  Dirigidas iniciales 31 backend/45 frontend; 21 dirigidas posteriores
+  (5 nuevas de CLI + 16 cuentas) tras mejorar mensajes del alta inicial.
+  Migracion ensayada en copia, preservando todas las filas; base activa
+  migrada durante prueba autorizada. admin.demo activo, una sola alta
+  BOOTSTRAP auditada; integridad/referencias correctas y 20 pacientes/21
+  episodios conservados al comprobar alta. Respaldo previo:
+  backups/clinical-20261020T021408Z-afc4d296.sqlite3.
+  Usuario confirma prueba manual: interfaz administrativa separada, alta de
+  medico.demo1 con auditoria, acceso medico sin gestion de cuentas;
+  desactivacion revoca su sesion, reactivacion no revive tokens anteriores y
+  permite nuevo acceso; restablecimiento revoca sesion, rechaza clave anterior
+  y acepta la nueva. Chrome medico / Edge administrador. Demo iniciado.
+  Commit autorizado para cerrar el bloque validado; push pendiente de
+  autorizacion explicita.
+
+- Vista imprimible de pulsera publicada en `ce16ed8`; CI [39354682995](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39354682995)
+  aprobada: backend, frontend, lint y build. Implementada sobre e04be5f, autorizada
   con prueba PDF sin impresora. Enfermeria/supervisor, episodio activo y triaje
   persistido; consulta identidad vigente al preparar e imprimir, mismo QR y
   aviso provisional. Sin registrar entrega ni mutar datos. [Guia y limites](WRISTBAND_PDF_DEMO.md).
@@ -16,8 +38,10 @@
   tras Identificar paciente abre Paciente Identidad Demo 21 / EP-21.
   ADB reconnect y reverse de 5173/8000 restablecidos; sin exponer a LAN.
   Impresion fisica pendiente por falta de equipo.
-  Agente no opero la app. Commit autorizado para este bloque; push pendiente
-  de autorizacion explicita.
+  Agente no opero la app. Publicacion comprobada con main limpia y sincronizada.
+  Siguiente bloque propuesto: [cuentas personales](PERSONAL_ACCOUNTS_PLAN.md).
+  Usuario eligio administrador separado con permiso propio, sin facultades
+  clinicas por inferencia. Implementacion local y validacion en el bloque inicial.
 
 - Identidad provisional publicada en `e04be5f`; CI [39349014853](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39349014853)
   aprobada: backend, frontend, lint y build. Implementada sobre 46a18b8:

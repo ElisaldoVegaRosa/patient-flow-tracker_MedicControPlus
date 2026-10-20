@@ -6,6 +6,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.responses import JSONResponse
 
 from .security import hash_session_token, hash_password, verify_password
 from . import auth, database
@@ -23,6 +26,7 @@ from .routes.rules import create_router as create_rules_router
 from .routes.demo import create_router as create_demo_router
 from .routes.episode_registration import create_router as create_episode_registration_router
 from .routes.identity import create_router as create_identity_router
+from .routes.accounts import create_router as create_accounts_router
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
     DATABASE_PATH,
@@ -51,16 +55,24 @@ async def lifespan(app: FastAPI):
     initialize_database()
     yield
 
-def authenticated_user(
+def session_user(
     authorization: str | None = Header(default=None),
 ) -> dict[str, str]:
     """Valida una sesión persistente y comprueba su expiración."""
     return auth.validate_session(authorization, get_connection, utc_now)
 
 
+def authenticated_user(authorization: str | None = Header(default=None)):
+    # Account administration alone never grants access to clinical reads.
+    user = session_user(authorization)
+    if user["role"] == "ACCOUNT_ADMIN":
+        raise HTTPException(403, "Administrar cuentas no permite consultar datos clinicos")
+    return user
+
+
 def require_roles(*allowed_roles: str):
     def dependency(
-        user: dict[str, str] = Depends(authenticated_user),
+        user: dict[str, str] = Depends(session_user),
     ) -> dict[str, str]:
         return auth.authorize_role(user, allowed_roles)
 
@@ -450,6 +462,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+@app.exception_handler(RequestValidationError)
+async def safe_account_validation(request, exception):
+    if request.url.path.startswith("/accounts") or request.url.path == "/auth/login":
+        # Pydantic's default errors include submitted input, including passwords.
+        return JSONResponse(status_code=422, content={"detail": [
+            {key: error[key] for key in ("loc", "msg", "type") if key in error}
+            for error in exception.errors()
+        ]})
+    return await request_validation_exception_handler(request, exception)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -463,9 +486,10 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 # Composición de rutas por área; el orden de registro se conserva.
-app.include_router(create_router(get_connection, utc_now, authenticated_user))
+app.include_router(create_router(get_connection, utc_now, session_user))
+app.include_router(create_accounts_router(get_connection, utc_now, require_roles))
 app.include_router(create_presence_router(get_connection, authenticated_user))
-app.include_router(create_write_results_router(get_connection, episode_detail, authenticated_user))
+app.include_router(create_write_results_router(get_connection, episode_detail, session_user))
 app.include_router(create_dashboard_router(
     get_connection, utc_now, episode_detail, authenticated_user, require_roles,
 ))

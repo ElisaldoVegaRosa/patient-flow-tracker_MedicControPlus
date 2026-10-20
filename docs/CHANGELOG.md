@@ -5,6 +5,38 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Cuentas personales y administrador separado (entrega local)
+
+- Perfil ACCOUNT_ADMIN separado de supervisor, sin consulta/acciones clinicas;
+  acceso personal y nombre visible conservando autoria por username estable.
+- Crear, activar/desactivar y restablecer con motivo, auditoria de metadatos,
+  version y recibos compartidos sin episodio. No almacena claves en auditoria
+  ni errores de validacion. [Guia](PERSONAL_ACCOUNTS.md).
+- Desactivacion/restablecimiento revocan sesiones. Login y escrituras comprueban
+  autorizacion bajo transaccion; sin autodesactivacion ni perdida del ultimo
+  administrador activo. Alta inicial local interactiva; sin clave sembrada.
+- Migracion aislada conserva todas las filas anteriores: 20 pacientes,
+  21 episodios y 6 usuarios, con integridad y referencias correctas.
+  Base activa intacta; servidores detenidos para impedir migracion por reload.
+- Dirigidas 31 backend y 45 frontend aprobadas. Cobertura completa backend:
+  252 casos (19 conservados + 233 afectados/pendientes en 384,52 s). Corregida
+  compatibilidad de llamada directa a autenticacion detectada por la suite.
+  Frontend 560/560 en 54 archivos (361,50 s), lint y build aprobados. Caso
+  final confirma errores y representaciones sin claves, sin advertencia nueva
+  de Pydantic; permanece deprecacion de dependencia Starlette/AnyIO en tests.
+  Usuario autorizo prueba y ejecuto alta local: migracion aplicada, cero
+  administradores creados y usuario admin.demo libre; integridad correcta.
+  Mensaje generico corregido por causas seguras, validacion antes de migrar
+  y usuario ocupado comprobado en transaccion. 21 dirigidas posteriores
+  aprobadas, incluidas 5 nuevas de CLI. Usuario confirma reintento correcto;
+  admin.demo activo y un BOOTSTRAP auditado, sin duplicados e integridad correcta.
+  Usuario confirma prueba completa: acceso administrativo separado, creacion
+  auditada de medico.demo1, acceso por perfil, baja con revocacion, reactivacion
+  sin recuperar token anterior y restablecimiento con revocacion, rechazo de
+  clave antigua y acceso con nueva. Chrome medico / Edge administrador.
+  Demo iniciado; commit autorizado tras prueba completa. Publicacion pendiente
+  de autorizacion explicita.
+
 ## Vista imprimible de pulsera para PDF (entrega local)
 
 - Enfermeria/supervisor pueden preparar vista de episodios activos con triaje
@@ -20,8 +52,8 @@ las verificaciones realizadas y el estado de cada etapa.
   ni historia. Encabezados del navegador visibles; se indico desactivarlos.
   Usuario confirma lectura QR desde PDF en Android y consulta del mismo
   paciente/EP-21 tras confirmacion. Reconexion ADB y reverse locales recuperados.
-  Impresion fisica pendiente. Commit autorizado; push pendiente de autorizacion.
-  Sin cambios backend.
+  Impresion fisica pendiente. Publicado en `ce16ed8`; CI [39354682995](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39354682995)
+  aprobada: backend, frontend, lint y build. Sin cambios backend.
 
 ## Identidad provisional y admision/archivo (19 de octubre de 2026)
 

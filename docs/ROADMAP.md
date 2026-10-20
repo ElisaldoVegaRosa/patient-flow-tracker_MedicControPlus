@@ -2,16 +2,33 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Usuario autorizo vista imprimible y prueba PDF sin impresora. Implementada
-  localmente: [guia](WRISTBAND_PDF_DEMO.md). Solo enfermeria/supervisor despues
+- Cuentas personales implementadas y probadas localmente: [guia](PERSONAL_ACCOUNTS.md).
+  Administrador exclusivo sin consulta clinica, alta inicial local, auditoria,
+  revocacion, versiones y recibos compartidos. Turnos/areas/colas excluidos.
+  Cobertura backend 252, frontend 560/560, lint/build aprobados; 21 dirigidas
+  posteriores por diagnostico del alta inicial, incluidas 5 nuevas de CLI.
+  Migracion aplicada y admin.demo creado una sola vez durante prueba autorizada.
+  Usuario confirma alta medico.demo1, acceso por perfil, baja con revocacion,
+  reactivacion sin recuperar sesion y restablecimiento (revoca, clave antigua
+  rechazada, nueva aceptada). Demo iniciado, prueba manual completada.
+  Commit autorizado para este bloque. Push y comprobacion CI pendientes de
+  autorizacion explicita.
+
+- Vista imprimible publicada en `ce16ed8`, CI [39354682995](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39354682995)
+  aprobada. [Guia](WRISTBAND_PDF_DEMO.md). Solo enfermeria/supervisor despues
   de triaje guardado, con detalle vigente y revision ante cambios. Sin entrega,
   cambio de QR ni estados clinicos. 37 dirigidas, frontend 553/553 en 53
   archivos, 18 casos tras ajuste final, lint y build aprobados. Usuario
   confirmo vista previa EP-21 y aporto PDF abierto en captura, completo
   y legible; encabezado de navegador aun visible. Usuario confirma lectura
   QR desde PDF en Android y apertura de Paciente Identidad Demo 21 / EP-21.
-  Commit autorizado para el bloque validado. Impresion fisica pendiente.
-  Push y comprobacion CI pendientes de autorizacion; sin pruebas automaticas directas.
+  Impresion fisica pendiente; sin nuevas pruebas automaticas directas.
+  Siguiente alcance propuesto: [cuentas personales](PERSONAL_ACCOUNTS_PLAN.md),
+  administrador separado con permiso propio elegido por usuario. Crear cuentas,
+  activar/desactivar, restablecer y auditar sin privilegios clinicos implicitos.
+  Turnos, areas, coordinacion y colas se implementarian despues de esa base.
+  Implementacion autorizada posteriormente; estado local y validacion en el
+  bloque inicial. Sin autorizacion nueva de commit ni push.
 
 - Identidad provisional publicada en `e04be5f`, CI [39349014853](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39349014853)
   aprobada. [Detalle](PROVISIONAL_IDENTITY.md).

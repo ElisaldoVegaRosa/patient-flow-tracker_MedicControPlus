@@ -2,7 +2,8 @@
 
 Entrega local sobre e04be5f. Usuario autorizo implementar y probar mediante PDF;
 no dispone de impresora fisica. Prueba PDF y lectura QR de EP-21 confirmadas;
-commit autorizado, publicacion pendiente de autorizacion explicita.
+publicada en `ce16ed8`, CI [39354682995](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39354682995)
+aprobada: backend, frontend, lint y build.
 
 ## Problema y alcance
 

@@ -31,7 +31,8 @@ def validate_session(
             sessions.expires_at,
             users.username,
             users.role,
-            users.active
+            users.active,
+            users.display_name
         FROM sessions
         JOIN users ON users.id = sessions.user_id
         WHERE sessions.token_hash = ?
@@ -83,6 +84,8 @@ def validate_session(
         "role": session["role"],
     }
 
+    if session["display_name"]:
+        user["display_name"] = session["display_name"]
     connection.close()
 
     return user
@@ -103,76 +106,37 @@ def login(
     connection_factory: Callable[[], sqlite3.Connection],
 ) -> dict[str, str]:
     connection = connection_factory()
-
-    user = connection.execute(
-        """
-        SELECT
-            id,
-            username,
-            password_hash,
-            password_salt,
-            role,
-            active
-        FROM users
-        WHERE username = ?
-        """,
-        (username,),
-    ).fetchone()
-
-    credentials_are_valid = (
-        user is not None
-        and user["active"] == 1
-        and verify_password(
-            password,
-            user["password_salt"],
-            user["password_hash"],
+    try:
+        # Serialize credential validation + token insertion against deactivation/reset.
+        connection.execute("BEGIN IMMEDIATE")
+        user = connection.execute(
+            "SELECT id, username, display_name, password_hash, password_salt, role, active FROM users WHERE username = ?",
+            (username,),
+        ).fetchone()
+        if user is None or user["active"] != 1 or not verify_password(password, user["password_salt"], user["password_hash"]):
+            raise HTTPException(401, "Credenciales inválidas")
+        token = secrets.token_urlsafe(32)
+        created_at = datetime.now(timezone.utc)
+        expires_at = created_at + timedelta(hours=SESSION_DURATION_HOURS)
+        connection.execute(
+            "INSERT INTO sessions (user_id, token_hash, created_at, expires_at, revoked_at) VALUES (?, ?, ?, ?, NULL)",
+            (user["id"], hash_session_token(token), created_at.isoformat(), expires_at.isoformat()),
         )
-    )
-
-    if not credentials_are_valid:
+        connection.commit()
+        result = {"access_token": token, "username": user["username"], "role": user["role"]}
+        if user["display_name"]:
+            result["display_name"] = user["display_name"]
+        return result
+    except BaseException:
+        connection.rollback()
+        raise
+    finally:
         connection.close()
-        raise HTTPException(
-            status_code=401,
-            detail="Credenciales inválidas",
-        )
 
-    token = secrets.token_urlsafe(32)
-    created_at = datetime.now(timezone.utc)
-    expires_at = created_at + timedelta(
-        hours=SESSION_DURATION_HOURS
-    )
-
-    connection.execute(
-        """
-        INSERT INTO sessions (
-            user_id,
-            token_hash,
-            created_at,
-            expires_at,
-            revoked_at
-        )
-        VALUES (?, ?, ?, ?, NULL)
-        """,
-        (
-            user["id"],
-            hash_session_token(token),
-            created_at.isoformat(),
-            expires_at.isoformat(),
-        ),
-    )
-
-    connection.commit()
-    connection.close()
-
-    return {
-        "access_token": token,
-        "username": user["username"],
-        "role": user["role"],
-    }
 
 
 def session_user(user: dict[str, str]) -> dict[str, str]:
-    return {"username": user["username"], "role": user["role"]}
+    return {key: user[key] for key in ("username", "role", "display_name") if key in user}
 
 
 def logout(

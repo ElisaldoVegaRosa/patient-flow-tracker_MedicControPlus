@@ -102,6 +102,18 @@ def test_invalid_schema_is_not_accepted_as_demo_backup(tmp_path):
     assert not (tmp_path / "backup.sqlite3").exists()
 
 
+def test_account_schema_requires_its_audit_table(tmp_path):
+    source = tmp_path / "accounts-incomplete.db"
+    demo_database(source)
+    with sqlite3.connect(source) as connection:
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(users)")}
+        if "account_revision" not in columns:
+            connection.execute("ALTER TABLE users ADD COLUMN account_revision INTEGER NOT NULL DEFAULT 0")
+        connection.execute("DROP TABLE IF EXISTS account_changes")
+    with pytest.raises(BackupError, match="account_changes"):
+        create_backup(source, tmp_path / "backup-accounts.sqlite3")
+
+
 def test_broken_foreign_key_is_not_backed_up(tmp_path):
     source = tmp_path / "clinical.db"
     output = tmp_path / "backup.sqlite3"

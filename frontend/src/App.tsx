@@ -27,6 +27,7 @@ import LaboratoryPage from "./pages/LaboratoryPage";
 import SupervisorPage from "./pages/SupervisorPage";
 import EpisodePage from "./pages/EpisodePage";
 import LoginPage from "./pages/LoginPage";
+import AccountsPage from "./pages/AccountsPage";
 import EpisodePresence from "./components/EpisodePresence";
 import AppHeader from "./components/AppHeader";
 import type {
@@ -334,7 +335,7 @@ function App() {
   }
 
 useEffect(() => {
-  if (!user) {
+  if (!user || user.role === "ACCOUNT_ADMIN") {
     return;
   }
 
@@ -378,10 +379,11 @@ useEffect(() => {
       if (!cancelled) {
         setUser({
           username: session.username,
+          display_name: session.display_name,
           role: session.role,
           access_token: storedToken,
         });
-        await checkRecovery(session);
+        if (session.role !== "ACCOUNT_ADMIN") await checkRecovery(session);
       }
     })
     .catch((exception: unknown) => {
@@ -424,7 +426,7 @@ useEffect(() => {
       establishSession(result.access_token);
       await bindWriteRecovery(result);
       setUser(result);
-      await recovery.check(result);
+      if (result.role !== "ACCOUNT_ADMIN") await recovery.check(result);
     } catch (exception) {
       if (isSessionInterruption(exception)) return;
       setError((exception as Error).message);
@@ -712,6 +714,9 @@ async function logout() {
       />
     );
   }
+
+  if (user.role === "ACCOUNT_ADMIN") return <AccountsPage key={`${user.username}:${getSessionRevision()}`}
+    user={user} operations={operations} onLogout={logout} />;
 
   return (
     <div style={{ display: "contents" }} ref={draftRoot} onChangeCapture={captureDraft}

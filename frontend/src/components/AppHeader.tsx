@@ -66,7 +66,7 @@ export default function AppHeader({
         </nav>
 
         <div className="user">
-          <strong>{user.username}</strong>
+          <strong>{user.display_name ? `${user.display_name} (${user.username})` : user.username}</strong>
           <span>{clinicalLabel("role", user.role)}</span>
           <button onClick={onLogout}>Salir</button>
         </div>

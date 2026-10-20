@@ -299,7 +299,7 @@ confirmada. Identidad provisional y confirmacion auditable publicadas en e04be5f
 con CI aprobada y prueba guiada de EP-21 completada. Emision fisica pendiente.
 Nuevos commit/push y compras requieren autorizacion; consultar antes de pruebas directas.
 
-### Vista imprimible del demo: implementacion local autorizada
+### Vista imprimible del demo: publicada
 
 Problema: el detalle muestra QR, pero no ofrece plantilla ni confirma entrega.
 Propuesta inicial sin equipos: vista imprimible con datos de identidad vigentes,
@@ -321,5 +321,28 @@ finales y validacion fisica dependen de elegir impresora, pulsera y consumibles.
 Usuario confirmo vista previa EP-21 y aporto captura del PDF guardado/abierto
 en una pagina, con identidad y QR completos. Encabezados del navegador aun
 visibles. Usuario confirma lectura QR desde PDF en Android y consulta del
-mismo paciente/EP-21. Impresion fisica pendiente. Commit autorizado para este
-bloque; push pendiente de autorizacion explicita.
+mismo paciente/EP-21. Impresion fisica pendiente. Publicado en ce16ed8, CI
+[39354682995](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39354682995) aprobada.
+
+### Cuentas personales: implementacion local autorizada
+
+Usuario eligio un administrador de cuentas separado con permiso propio.
+[Primer alcance y criterios](PERSONAL_ACCOUNTS_PLAN.md): crear cuentas,
+activar/desactivar y restablecer con auditoria, revocacion de sesiones y
+proteccion del ultimo administrador, sin otorgar funciones clinicas. Turnos,
+areas, coordinacion y colas quedan para bloques dependientes. Es una propuesta
+concreta que el usuario autorizo implementar. [Guia del bloque local](PERSONAL_ACCOUNTS.md):
+ACCOUNT_ADMIN separado, alta inicial interactiva, versiones/recibos, revocacion
+y auditoria. Dirigidas 31 backend/45 frontend, cobertura backend 252 casos,
+frontend 560/560, lint y build aprobados.
+Migracion en copia conserva 20 pacientes/21 episodios/6 usuarios y todas las
+filas anteriores. Prueba manual autorizada: primer intento migro esquema
+pero no creo administrador. Integridad correcta y admin.demo libre. Mensajes
+del alta corregidos por causa y validados con 21 dirigidas posteriores.
+Reintento confirmado correcto y verificado: admin.demo activo, un BOOTSTRAP
+auditado e integridad correcta. Usuario confirma acceso administrativo
+separado, alta auditada de medico.demo1, acceso medico por perfil, baja con
+revocacion, reactivacion sin token previo y restablecimiento con clave anterior
+rechazada/nueva aceptada. Demo iniciado; prueba manual completada. Proximo:
+crear commit autorizado del bloque validado.
+Publicacion pendiente de autorizacion explicita.

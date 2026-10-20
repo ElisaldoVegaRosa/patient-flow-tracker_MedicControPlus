@@ -5,7 +5,7 @@ import type { WriteKind, WriteReference } from "../session/writeReferences";
 import type { PendingOperations } from "../hooks/usePendingOperations";
 import type { SessionUser } from "../types/clinical";
 
-const labels: Record<WriteKind, string> = { identity: "Identidad", arrival: "Ingreso", triage: "Triaje", vitals: "Signos vitales", evaluation: "Evaluación", order: "Orden", task: "Resultado de tarea", alert: "Cambio de alerta", discharge: "Alta", demo: "Datos de demostración", rules: "Reglas", operation: "Operación" };
+const labels: Record<WriteKind, string> = { account: "Cuenta de usuario", identity: "Identidad", arrival: "Ingreso", triage: "Triaje", vitals: "Signos vitales", evaluation: "Evaluación", order: "Orden", task: "Resultado de tarea", alert: "Cambio de alerta", discharge: "Alta", demo: "Datos de demostración", rules: "Reglas", operation: "Operación" };
 const operationKey = (key: string) => `recovered-write:${key}`;
 
 export default function RecoveredWrites({ user, operations, onConfirmed }: {
