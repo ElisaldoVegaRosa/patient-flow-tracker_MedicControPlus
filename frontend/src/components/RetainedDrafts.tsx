@@ -1,7 +1,7 @@
 import type { DraftKind, FormDraft } from "../session/formDrafts";
 import { clinicalLabel } from "../presentation/clinicalLabels";
 
-const kinds: Record<DraftKind, string> = { triage: "Triaje", vitals: "Signos vitales", evaluation: "Evaluación", order: "Orden", lab: "Laboratorio", discharge: "Nota de alta", arrival: "Ingreso" };
+const kinds: Record<DraftKind, string> = { identity: "Identidad", triage: "Triaje", vitals: "Signos vitales", evaluation: "Evaluación", order: "Orden", lab: "Laboratorio", discharge: "Nota de alta", arrival: "Ingreso" };
 const fields: Record<string, string> = { priority: "Prioridad", location: "Ubicación", assigned_to: "Personal responsable", diagnosis: "Diagnóstico", clinical_note: "Nota de evaluación", disposition: "Decisión médica", title: "Descripción de la orden", service: "Servicio", result: "Resultado", note: "Nota de alta", temperature: "Temperatura", heart_rate: "Frecuencia cardíaca", systolic: "Presión sistólica", diastolic: "Presión diastólica", spo2: "Saturación", respiratory_rate: "Frecuencia respiratoria" };
 
 export default function RetainedDrafts({ drafts }: { drafts: FormDraft[] }) {

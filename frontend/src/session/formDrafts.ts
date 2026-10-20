@@ -2,9 +2,10 @@ import type { TabDraftStorage } from "./tabDraftStorage";
 import type { SessionUser } from "../types/clinical";
 import { RECOVERY_DURATION_MS } from "./dischargeDraft";
 
-export type DraftKind = "arrival" | "triage" | "vitals" | "evaluation" | "order" | "lab" | "discharge";
+export type DraftKind = "arrival" | "identity" | "triage" | "vitals" | "evaluation" | "order" | "lab" | "discharge";
 export type FormDraft = { kind: DraftKind; episodeId?: number; taskId?: number; baseVersion?: string; fields: Record<string, string>; editedAt?: number };
 const roles: Record<DraftKind, string[]> = {
+  identity: ["ADMISSION"],
   arrival: ["RECEPTION", "SUPERVISOR"], triage: ["NURSE", "SUPERVISOR"],
   vitals: ["NURSE", "DOCTOR"], evaluation: ["DOCTOR"], order: ["DOCTOR"],
   lab: ["LAB"], discharge: ["DOCTOR"],

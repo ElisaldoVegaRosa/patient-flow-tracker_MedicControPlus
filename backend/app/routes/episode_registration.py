@@ -5,16 +5,26 @@ import secrets
 import sqlite3
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field, model_serializer
+from pydantic import BaseModel, Field, model_serializer, model_validator
+from ..patient_identity import find_candidates
 
 
 class EpisodeCreate(BaseModel):
-    name: Name
-    birth_date: BirthDate
-    document: Document
+    name: Name | None = None
+    birth_date: BirthDate | None = None
+    document: Document | None = None
+    provisional: bool = False
     priority: int = Field(default=3, ge=1, le=5)
     location: Location = "Recepción"
     patient_id: int | None = Field(default=None, gt=0)
+
+    @model_validator(mode="after")
+    def validate_identity(self):
+        if not self.provisional and any(value is None for value in (self.name, self.birth_date, self.document)):
+            raise ValueError("Completa la identidad o indica ingreso provisional.")
+        if self.provisional and self.patient_id is not None:
+            raise ValueError("Una identidad provisional no puede seleccionar otra ficha.")
+        return self
 
     @model_serializer(mode="wrap")
     def serialize_intent(self, handler):
@@ -22,6 +32,8 @@ class EpisodeCreate(BaseModel):
         result = handler(self)
         if self.patient_id is None:
             result.pop("patient_id", None)
+        if not self.provisional:
+            result.pop("provisional", None)
         return result
 
 
@@ -48,14 +60,18 @@ def create_router(
         # atomic_write holds BEGIN IMMEDIATE across lookup, selection and insertion.
         # Documents compare exactly after outer whitespace; names ignore case and
         # outer whitespace only. Stored identities are never normalized or merged.
-        connection.create_function("admission_document", 1, lambda value: value.strip(), deterministic=True)
-        patients = connection.execute(
-            "SELECT id, name, birth_date, document FROM patients WHERE admission_document(document) = ? ORDER BY id",
-            (data.document.strip(),),
-        ).fetchall()
+        if data.provisional:
+            patients = find_candidates(connection, data.document, data.name, data.birth_date)
+        else:
+            connection.create_function("admission_document", 1, lambda value: value.strip() if value else None, deterministic=True)
+            patients = connection.execute(
+                "SELECT id, name, birth_date, document, identity_status FROM patients WHERE admission_document(document) = ? ORDER BY id",
+                (data.document.strip(),),
+            ).fetchall()
         candidates = []
         for patient in patients:
-            matches = (patient["name"].strip().casefold() == data.name.strip().casefold()
+            matches = (not data.provisional and patient["identity_status"] != "PROVISIONAL"
+                       and patient["name"].strip().casefold() == data.name.strip().casefold()
                        and patient["birth_date"] == data.birth_date)
             active = connection.execute(
                 "SELECT id FROM episodes WHERE patient_id = ? AND status = 'ACTIVE' ORDER BY id",
@@ -79,9 +95,12 @@ def create_router(
             patient_id = selected["id"]
         else:
             patient_id = connection.execute(
-                "INSERT INTO patients (name, birth_date, document) VALUES (?, ?, ?)",
-                (data.name, data.birth_date, data.document),
+                "INSERT INTO patients (name, birth_date, document, identity_status) VALUES (?, ?, ?, ?)",
+                (data.name or "Paciente sin identificar", data.birth_date, data.document,
+                 "PROVISIONAL" if data.provisional else "REGISTERED"),
             ).lastrowid
+            if data.name is None:
+                connection.execute("UPDATE patients SET name = ? WHERE id = ?", (f"Paciente desconocido {patient_id}", patient_id))
 
         episode_cursor = connection.execute(
             """

@@ -1,3 +1,4 @@
+import { IdentityBadge } from "../components/PatientIdentity";
 import type { DashboardData, Episode } from "../types/clinical";
 import PatientSearch from "../components/PatientSearch";
 import { usePatientSearch } from "../hooks/usePatientSearch";
@@ -87,7 +88,7 @@ export default function DashboardPage({
               {patients.map((patient: Episode) => (
                 <tr key={patient.id}>
                   <td>
-                    <strong>{patient.name}</strong>
+                    <strong>{patient.name}</strong><IdentityBadge status={patient.identity_status} />
                     <small>EP-{patient.id}</small>
                   </td>
                   <td>

@@ -100,6 +100,7 @@ def create_router(
                 tasks.created_at,
                 (SELECT MAX(id) FROM record_changes WHERE target_type = 'TASK' AND target_id = tasks.id) AS last_change_id,
                 patients.name AS patient_name,
+                patients.identity_status AS patient_identity_status,
                 episodes.priority,
                 episodes.location,
                 episodes.status AS episode_status

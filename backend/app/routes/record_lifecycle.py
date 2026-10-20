@@ -106,13 +106,15 @@ def create_router(
         if episode["status"] != "CLOSED":
             raise HTTPException(409, "Solo puede reabrirse un episodio dado de alta")
         candidates = connection.execute(
-            "SELECT episodes.id, patients.name, patients.birth_date, patients.document FROM episodes "
+            "SELECT episodes.id, episodes.patient_id, patients.name, patients.birth_date, patients.document FROM episodes "
             "JOIN patients ON patients.id = episodes.patient_id WHERE episodes.status = 'ACTIVE'"
         ).fetchall()
-        if any(item["document"].strip() == episode["document"].strip()
+        if any(item["patient_id"] == episode["patient_id"] or
+               (item["document"] is not None and episode["document"] is not None
+               and item["document"].strip() == episode["document"].strip()
                and item["birth_date"] == episode["birth_date"]
                and item["name"].strip().casefold() == episode["name"].strip().casefold()
-               for item in candidates):
+               ) for item in candidates):
             raise HTTPException(409, "Existe otro episodio activo de la misma identidad")
         connection.execute("UPDATE episodes SET status = 'ACTIVE', closed_at = NULL WHERE id = ?", (episode_id,))
         record(connection, episode_id, "EPISODE", episode_id, "REOPEN", "CLOSED", "ACTIVE", data.reason.strip(), user)
@@ -129,7 +131,7 @@ def create_router(
         if episode["status"] != "ACTIVE":
             raise HTTPException(409, "Solo puede anularse un ingreso activo")
         activity = connection.execute(
-            "SELECT 1 FROM events WHERE episode_id = ? AND type NOT IN ('EPISODE_CREATED', 'QR_SCANNED') "
+            "SELECT 1 FROM events WHERE episode_id = ? AND type NOT IN ('EPISODE_CREATED', 'QR_SCANNED', 'IDENTITY_VERIFIED') "
             "UNION SELECT 1 FROM vitals WHERE episode_id = ? "
             "UNION SELECT 1 FROM tasks WHERE episode_id = ? "
             "UNION SELECT 1 FROM alerts WHERE episode_id = ? LIMIT 1",

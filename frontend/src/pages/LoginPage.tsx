@@ -33,6 +33,7 @@ if (restoringSession) {
               Usuario
               <select disabled={submitting} name="username">
                 <option value="recepcion">{clinicalLabel("role", "RECEPTION")}</option>
+                <option value="archivo">{clinicalLabel("role", "ADMISSION")}</option>
                 <option value="enfermeria">{clinicalLabel("role", "NURSE")}</option>
                 <option value="medico">{clinicalLabel("role", "DOCTOR")}</option>
                 <option value="laboratorio">{clinicalLabel("role", "LAB")}</option>

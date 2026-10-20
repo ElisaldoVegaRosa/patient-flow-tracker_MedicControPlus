@@ -2,13 +2,31 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Preparacion del lector autorizada con cont e implementada localmente;
+- Bloque identidad provisional implementado localmente: [detalle](PROVISIONAL_IDENTITY.md).
+  Confirma solo archivo/ADMISSION; supervisor consulta pendientes. Conserva
+  episodio e historial, bloquea coincidencias y no fusiona. Borradores y
+  recibos integrados en controles compartidos. Cobertura completa aprobada:
+  235 backend entre tramo inicial y pendientes; 535 frontend tras corregir
+  el unico fallo y aprobar los 11 casos afectados. Lint/build aprobados.
+  Dirigidas 33 backend/67 frontend aprobadas. Migracion comprobada en copia
+  aislada de respaldo verificado. Usuario autorizo prueba manual: demo
+  iniciado y base migrada conservando 19 pacientes/20 episodios; integridad
+  y referencias correctas, perfil archivo disponible. Usuario confirma prueba
+  completa en EP-21: ingreso provisional, verificacion, auditoria, mismo
+  episodio activo y salida de pendientes. Commit autorizado para cerrar
+  el bloque validado; publicacion y comprobacion de CI pendientes de
+  autorizacion explicita.
+
+- Lector publicado en `46a18b8`, CI `39195510597` aprobada;
   [detalle](QR_CAMERA_DEMO.md). Camara solo por solicitud, captura sin consulta
   automatica y confirmacion unica mientras espera API. Entrada manual preservada.
   Frontend 521/521, lint y build aprobados. Prueba guiada confirmada por usuario
   en Android/Chrome con QR en pantalla, camara/cancelacion/captura y consulta
   del episodio correcto. Acceso temporal por ADB reverse; sin exponer el
-  servidor a LAN. Proximo: cierre/commit solo con autorizacion. Tableta,
+  servidor a LAN. Retoma del 19 de octubre: demo detenido tras reinicio.
+  Siguiente propuesta: identidad provisional y confirmacion auditable por
+  admision/archivo; inspeccion confirma identidad obligatoria en API/esquema
+  y ausencia de ese perfil. Sin fusion ni nuevas pruebas directas. Tableta,
   pulsera impresa y configuracion de campo siguen pendientes.
 
 - [Plan de urgencias](URGENCIAS_PILOT_PLAN.md): demo ficticio con una tableta,

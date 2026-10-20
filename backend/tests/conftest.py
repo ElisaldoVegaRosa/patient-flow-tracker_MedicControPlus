@@ -31,8 +31,8 @@ def current_versions_for_existing_flows(monkeypatch):
                 response = original(client, "GET", f"/episodes/{episode_id}", headers=headers)
                 if response.status_code == 200:
                     episode = response.json()
-                    if kind in ("triage", "discharge", "reopen", "annul"):
-                        version = episode["triage_version" if kind == "triage" else "clinical_version"]
+                    if kind in ("triage", "discharge", "reopen", "annul", "identity"):
+                        version = episode["identity_version" if kind == "identity" else "triage_version" if kind == "triage" else "clinical_version"]
                     else:
                         collection = "tasks" if kind in ("task", "task_result") else "events" if kind == "event_note" else "alerts"
                         version = next(item["version"] for item in episode[collection] if item["id"] == identifier)

@@ -1,6 +1,7 @@
 from collections.abc import Callable, Mapping
 import sqlite3
 from pathlib import Path
+from .patient_identity import migrate_patients
 
 
 def get_connection(database_path: Path) -> sqlite3.Connection:
@@ -57,8 +58,12 @@ def initialize_database(
         CREATE TABLE IF NOT EXISTS patients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            birth_date TEXT NOT NULL,
-            document TEXT NOT NULL
+            birth_date TEXT,
+            document TEXT,
+            identity_status TEXT NOT NULL DEFAULT 'REGISTERED'
+                CHECK (identity_status IN ('REGISTERED', 'PROVISIONAL', 'VERIFIED')),
+            identity_revision INTEGER NOT NULL DEFAULT 0,
+            CHECK (identity_status = 'PROVISIONAL' OR (birth_date IS NOT NULL AND document IS NOT NULL))
         );
 
         CREATE TABLE IF NOT EXISTS episodes (
@@ -152,8 +157,23 @@ def initialize_database(
         ON record_changes (episode_id, id);
         CREATE INDEX IF NOT EXISTS idx_record_changes_target
         ON record_changes (target_type, target_id, id);
+
+        CREATE TABLE IF NOT EXISTS patient_identity_changes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            patient_id INTEGER NOT NULL REFERENCES patients(id),
+            episode_id INTEGER NOT NULL REFERENCES episodes(id),
+            old_value TEXT NOT NULL,
+            new_value TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            verification_source TEXT NOT NULL,
+            username TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_patient_identity_changes ON patient_identity_changes(patient_id, id);
         """
     )
+
+    migrate_patients(connection)
 
     for username, demo_user in demo_users.items():
         existing_user = connection.execute(

@@ -40,6 +40,7 @@ def create_router(
                 patients.name,
                 patients.birth_date,
                 patients.document,
+                patients.identity_status,
                 (
                     SELECT COUNT(*)
                     FROM events

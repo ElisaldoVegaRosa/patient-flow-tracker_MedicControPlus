@@ -10,6 +10,21 @@ const journal = (api = "http://localhost:8000") => new TabDraftStorage(api);
 afterEach(() => vi.restoreAllMocks());
 
 describe("Borradores temporales de la pestaña", () => {
+  it("conserva modo provisional y campos de verificación solo para archivo", () => {
+    const archive = { username: "archivo", role: "ADMISSION" };
+    const store = new FormDraftRecovery(journal());
+    store.track(archive, { kind: "identity", episodeId: 81, baseVersion: '"identity-old"',
+      fields: { name: "Nombre cotejado", reason: "Verificación", verification_source: "Documento ficticio", token: "no-guardar" } });
+    const recovered = new FormDraftRecovery(journal());
+    expect(recovered.forUser(archive)?.drafts[0]).toMatchObject({ kind: "identity", baseVersion: '"identity-old"',
+      fields: { name: "Nombre cotejado", verification_source: "Documento ficticio" } });
+    expect(sessionStorage.getItem(journal().key)).not.toContain("no-guardar");
+    expect(recovered.forUser({ username: "archivo", role: "SUPERVISOR" })).toBeNull();
+    const arrival = new FormDraftRecovery(journal());
+    const reception = { username: "recepcion", role: "RECEPTION" };
+    arrival.track(reception, { kind: "arrival", fields: { provisional: "true", name: "", birth_date: "", document: "" } });
+    expect(new FormDraftRecovery(journal()).forUser(reception)?.drafts[0].fields.provisional).toBe("true");
+  });
   it("recupera tras recrear el almacén con identidad, texto y versión originales", () => {
     const store = new FormDraftRecovery(journal());
     store.track(doctor, { ...draft, baseVersion: '"original"' });

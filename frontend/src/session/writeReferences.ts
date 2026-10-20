@@ -2,7 +2,7 @@ import type { SessionUser } from "../types/clinical";
 
 export const WRITE_REFERENCE_PREFIX = "mediccontrol:write-reference:v1:";
 export const WRITE_REFERENCE_LIMIT = 256;
-export const WRITE_KINDS = ["arrival", "triage", "vitals", "evaluation", "order", "task", "alert", "discharge", "demo", "rules", "operation"] as const;
+export const WRITE_KINDS = ["arrival", "identity", "triage", "vitals", "evaluation", "order", "task", "alert", "discharge", "demo", "rules", "operation"] as const;
 export type WriteKind = typeof WRITE_KINDS[number];
 export type WriteReference = { key: string; owner: string; kind: WriteKind; createdAt: number; reviewed: boolean };
 const validKey = (key: string) => /^[A-Za-z0-9_-]{16,128}$/.test(key);
@@ -14,6 +14,7 @@ export async function writeReferenceOwner(api: string, user: SessionUser) {
 
 export function writeKind(path: string): WriteKind {
   if (path === "/episodes") return "arrival";
+  if (/^\/episodes\/\d+\/identity$/.test(path)) return "identity";
   if (/^\/tasks\/\d+\/complete$/.test(path)) return "task";
   if (/^\/alerts\/\d+$/.test(path)) return "alert";
   if (path === "/demo/seed") return "demo";

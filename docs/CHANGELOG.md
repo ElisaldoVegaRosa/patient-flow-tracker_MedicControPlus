@@ -5,6 +5,29 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Identidad provisional y admision/archivo (19 de octubre de 2026)
+
+- Ingreso provisional con campos desconocidos NULL y etiqueta unica si falta
+  nombre; conserva informacion parcial y muestra avisos en las bandejas.
+- Perfil demo archivo/ADMISSION y bandeja; confirmacion con fuente/motivo,
+  auditoria de valores, versiones e idempotencia. Sin fusion ni nuevos episodios
+  al verificar; datos previos quedan registrados, no verificados retroactivamente.
+- Borradores, conflictos y envios inciertos integrados; admite identidad sin
+  documento al reabrir y distingue verificacion de actividad clinica al anular.
+- Migracion preserva IDs, secuencia y referencias; respaldo exige auditoria
+  en esquema nuevo. Ensayo aislado sobre copia local de 19 pacientes/20 episodios
+  aprobado. Posteriormente, con autorizacion de prueba guiada, base activa
+  migrada con integridad y referencias correctas. [Detalle](PROVISIONAL_IDENTITY.md).
+- Dirigidas 33 backend y 67 frontend aprobadas. Cobertura completa: 235 backend
+  (118 iniciales + 117 pendientes aprobadas en 217,63 s); 535 frontend
+  (534 aprobadas y un fallo de espacio en tabla, corregido y comprobado
+  con 11 casos afectados aprobados). Actualizado test de usuarios a seis
+  perfiles, conservando comprobacion de hashes y de inicializacion repetida.
+  Lint y build aprobados. Usuario confirma prueba manual en EP-21: ingreso
+  provisional, verificacion por archivo, mismo episodio activo, auditoria
+  y salida de pendientes tras actualizar. Commit autorizado; publicacion
+  pendiente de autorizacion explicita.
+
 ## Preparacion del lector QR con camara (18 de octubre de 2026)
 
 - Escanear pulsera permite solicitar camara, cancelar y confirmar un QR antes
@@ -19,8 +42,9 @@ las verificaciones realizadas y el estado de cada etapa.
   tiempos ni modificar el runner. Usuario confirma prueba fisica guiada con
   Redmi Note 11, Android 13 y Chrome: camara, cancelacion, captura unica y
   consulta explicita del paciente/episodio correctos. QR en pantalla de PC;
-  tableta e impresion pendientes. [Limites](QR_CAMERA_DEMO.md). Commit autorizado;
-  publicacion pendiente de autorizacion explicita.
+  tableta e impresion pendientes. [Limites](QR_CAMERA_DEMO.md). Publicado en
+  `46a18b8`; [CI 39195510597](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39195510597)
+  aprobada: backend, frontend, lint y build.
 
 ## Control local del demo en Windows (18 de octubre de 2026)
 

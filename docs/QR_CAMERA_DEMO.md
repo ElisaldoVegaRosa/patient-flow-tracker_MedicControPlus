@@ -70,8 +70,9 @@ Resultado sobre 361d33c y esta entrega local: 31 pruebas dirigidas aprobadas;
 suite frontend final 521/521 en 50 archivos, 258,94 s, incluye dos casos
 adicionales de cancelacion. Lint y build aprobados; tras ajustar solo tipos de
 simulacion, lint dirigido del archivo y build aprobados de nuevo. Backend sin
-cambios; conserva validacion CI previa, no se repitio. Commit autorizado tras
-prueba guiada; publicacion pendiente de autorizacion explicita.
+cambios; conserva validacion CI previa, no se repitio. Publicado en `46a18b8`;
+[CI 39195510597](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39195510597)
+aprobada: backend, frontend, lint y build.
 
 ## Conexion temporal usada y cierre
 

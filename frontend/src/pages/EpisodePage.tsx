@@ -8,6 +8,7 @@ import type { VersionedWrites } from "../hooks/useVersionedWrites";
 import WriteConflicts from "../components/WriteConflicts";
 import RecordCorrectionForm from "../components/RecordCorrectionForm";
 import ReasonActionForm from "../components/ReasonActionForm";
+import PatientIdentity from "../components/PatientIdentity";
 import { QRCodeSVG } from "qrcode.react";
 import { isSessionInterruption, WRITE_CONFIRMED_EVENT } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
@@ -356,7 +357,7 @@ async function createClinicalOrder(
           <ReasonActionForm label="Reabrir este episodio" onAction={reason => changeEpisodeState("reopen", reason)} />
         </section>}
       {episode.status === "ACTIVE" && ["RECEPTION", "SUPERVISOR"].includes(user.role) &&
-        episode.events.every(item => ["EPISODE_CREATED", "QR_SCANNED"].includes(item.type)) &&
+        episode.events.every(item => ["EPISODE_CREATED", "QR_SCANNED", "IDENTITY_VERIFIED"].includes(item.type)) &&
         episode.vitals.length === 0 && episode.tasks.length === 0 && episode.alerts.length === 0 &&
         <section className="panel"><h2>Ingreso creado por error</h2>
           <p>Anula este ingreso sin actividad clínica. La ficha quedará consultable en historial.</p>
@@ -367,8 +368,8 @@ async function createClinicalOrder(
         <section className="panel">
           <h2>Identidad y ubicación</h2>
           <p><strong>Ubicación:</strong> {episode.location}</p>
-          <p><strong>Documento:</strong> {episode.document}</p>
-          <p><strong>Nacimiento:</strong> {episode.birth_date}</p>
+          <p><strong>Documento:</strong> {episode.document ?? "No registrado"}</p>
+          <p><strong>Nacimiento:</strong> {episode.birth_date ?? "No registrado"}</p>
           <p>
             <strong>Asignado:</strong>{" "}
             {episode.assigned_to || "Sin asignar"}
@@ -383,6 +384,8 @@ async function createClinicalOrder(
           </details>
         </section>
 
+        <PatientIdentity episode={episode} user={user} operations={operations} writes={writes}
+          onUpdated={updateEpisode} onSaved={() => onDraftSaved?.("identity")} />
         {!isClosed && (user.role === "NURSE" || user.role === "SUPERVISOR") && (
   <section className="panel triage-panel">
     <h2>Triaje y asignación</h2>

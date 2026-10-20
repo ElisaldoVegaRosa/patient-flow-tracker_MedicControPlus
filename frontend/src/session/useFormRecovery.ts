@@ -61,7 +61,7 @@ export function useFormRecovery() {
             if (!current()) return null;
             episodes.set(draft.episodeId, episode);
           }
-          if (episode.id !== draft.episodeId || episode.status !== "ACTIVE") continue;
+          if (episode.id !== draft.episodeId || (draft.kind === "identity" ? episode.identity_status !== "PROVISIONAL" : episode.status !== "ACTIVE")) continue;
           if (draft.kind === "lab" && !episode.tasks?.some(task => task.id === draft.taskId && task.service === "LAB" && task.status === "PENDING")) continue;
         }
         valid.push(draft);
@@ -79,7 +79,7 @@ export function useFormRecovery() {
       if (!valid.length) { clear(); return null; }
       const changed = valid.some(draft => {
         const episode = episodes.get(draft.episodeId ?? -1);
-        const path = draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
+        const path = draft.kind === "identity" ? `/episodes/${draft.episodeId}/identity` : draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
         return episode && path && draft.baseVersion !== resourceVersion(path, episode);
       });
       const notice = changed ? "Otra sesión modificó datos de estos formularios. Se conservará la versión original del borrador; revisa los cambios antes de guardar." : "";

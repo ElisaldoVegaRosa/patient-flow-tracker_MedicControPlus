@@ -1,3 +1,4 @@
+import { IdentityBadge } from "../components/PatientIdentity";
 import type { HistoryData } from "../types/clinical";
 import { clinicalLabel } from "../presentation/clinicalLabels";
 import PatientSearch from "../components/PatientSearch";
@@ -71,12 +72,12 @@ export default function EpisodeHistoryPage({
             {episodes.map((closedEpisode) => (
               <tr key={closedEpisode.id}>
                 <td>
-                  <strong>{closedEpisode.name}</strong>
+                  <strong>{closedEpisode.name}<IdentityBadge status={closedEpisode.identity_status} /></strong>
                   <small>EP-{closedEpisode.id}</small>
                 </td>
                 <td>{clinicalLabel("episodeStatus", closedEpisode.status)}</td>
 
-                <td>{closedEpisode.document}</td>
+                <td>{closedEpisode.document ?? "No registrado"}</td>
 
                 <td>
                   <span

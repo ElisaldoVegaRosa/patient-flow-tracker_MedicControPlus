@@ -24,6 +24,10 @@ export function validateOperationalForm(form: HTMLFormElement): boolean {
   for (const field of form.elements) {
     if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement)) continue;
     if (field.disabled) continue;
+    if (field instanceof HTMLInputElement && field.dataset.identityOptional === "true" && !field.value.trim()) {
+      field.setCustomValidity("");
+      continue;
+    }
     // The existing discharge handler supplies its focused empty-note message.
     const error = form.dataset.draftKind === "discharge" && !field.value.trim() ? "" : inputError(field.name, field.value);
     field.setCustomValidity(error);

@@ -22,6 +22,7 @@ from .routes.record_lifecycle import create_router as create_record_lifecycle_ro
 from .routes.rules import create_router as create_rules_router
 from .routes.demo import create_router as create_demo_router
 from .routes.episode_registration import create_router as create_episode_registration_router
+from .routes.identity import create_router as create_identity_router
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
     DATABASE_PATH,
@@ -336,7 +337,9 @@ def episode_detail(
             episodes.*,
             patients.name,
             patients.birth_date,
-            patients.document
+            patients.document,
+            patients.identity_status,
+            patients.identity_revision
         FROM episodes
         JOIN patients ON patients.id = episodes.patient_id
         WHERE episodes.id = ?
@@ -348,6 +351,9 @@ def episode_detail(
         raise HTTPException(status_code=404, detail="Episodio no encontrado")
 
     result = dict(episode)
+    result["identity_changes"] = [dict(row) for row in connection.execute(
+        "SELECT * FROM patient_identity_changes WHERE patient_id = ? ORDER BY id DESC", (result["patient_id"],)
+    )]
 
     result["vitals"] = [
         dict(row)
@@ -473,6 +479,10 @@ app.include_router(create_rules_router(
 ))
 
 app.include_router(create_episode_registration_router(
+    get_connection, utc_now, episode_detail, add_event, require_roles,
+))
+
+app.include_router(create_identity_router(
     get_connection, utc_now, episode_detail, add_event, require_roles,
 ))
 

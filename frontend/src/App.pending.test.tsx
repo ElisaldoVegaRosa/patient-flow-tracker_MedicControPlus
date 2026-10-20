@@ -4,7 +4,7 @@ import App from "./App";
 import { establishSession } from "./api/client";
 import type { Episode, LaboratoryQueue } from "./types/clinical";
 
-const episode: Episode = { id: 53, name: "Paciente ficticio 53A", birth_date: "1990-01-01", document: "TEST-53A", qr_token: "qr-53a", status: "ACTIVE", priority: 3, location: "Recepci\u00f3n", started_at: "2026-10-11T12:00:00Z", vitals: [], alerts: [], tasks: [], events: [] };
+const episode: Episode & { birth_date: string; document: string } = { id: 53, name: "Paciente ficticio 53A", birth_date: "1990-01-01", document: "TEST-53A", qr_token: "qr-53a", status: "ACTIVE", priority: 3, location: "Recepci\u00f3n", started_at: "2026-10-11T12:00:00Z", vitals: [], alerts: [], tasks: [], events: [] };
 const queue: LaboratoryQueue = { total: 2, status_filter: "PENDING", requested_by: "demo", orders: [1, 2].map(id => ({ id, episode_id: 53, title: `Orden ficticia ${id}`, service: "LAB", status: "PENDING", result: null, created_at: "2026-10-11T12:00:00Z", patient_name: episode.name, priority: 3, location: "Triaje", episode_status: "ACTIVE" })) };
 const response = (data: unknown, status = 200) => ({ ok: status < 400, status, json: async () => data }) as Response;
 const flows = [

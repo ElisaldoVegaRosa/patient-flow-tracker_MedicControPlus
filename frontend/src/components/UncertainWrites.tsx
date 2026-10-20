@@ -12,6 +12,7 @@ function operationKey(path: string) {
 }
 
 function label(path: string) {
+  if (path.endsWith("/identity")) return `Identidad · EP-${path.split("/")[2]}`;
   if (path === "/episodes") return "Ingreso";
   if (path.startsWith("/tasks/")) return `Resultado de tarea ${path.split("/")[2]}`;
   if (path.startsWith("/alerts/")) return `Cambio de alerta ${path.split("/")[2]}`;

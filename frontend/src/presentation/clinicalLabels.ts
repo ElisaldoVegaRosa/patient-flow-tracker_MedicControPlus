@@ -8,6 +8,7 @@ const labels = {
   },
   severity: { HIGH: "Alta", CRITICAL: "Crítica" },
   role: {
+    ADMISSION: "Admisión/archivo",
     RECEPTION: "Recepción", NURSE: "Enfermería", DOCTOR: "Médico",
     LAB: "Laboratorio", SUPERVISOR: "Supervisor",
   },
@@ -17,6 +18,7 @@ const labels = {
     ORDER_TESTS: "Solicitar pruebas u órdenes", READY_FOR_DISCHARGE: "Preparar para alta",
   },
   eventType: {
+    IDENTITY_VERIFIED: "Identidad verificada",
     EPISODE_CREATED: "Ingreso registrado", TRIAGE: "Triaje",
     VITALS_RECORDED: "Signos vitales registrados", QR_SCANNED: "Pulsera escaneada",
     MEDICAL_EVALUATION: "Evaluación médica", TASK_CREATED: "Orden creada",

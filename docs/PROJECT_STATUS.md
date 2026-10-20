@@ -2,7 +2,28 @@
 
 ## Estado actual (leer primero)
 
-- Lector QR con camara implementado localmente tras cont: activacion voluntaria,
+- Identidad provisional implementada localmente tras cont, sobre 46a18b8:
+  ingreso con datos desconocidos NULL, perfil archivo/ADMISSION, bandeja y
+  confirmacion auditable conservando paciente/episodio/QR. Estados REGISTERED,
+  PROVISIONAL y VERIFIED; no atribuye verificacion a datos anteriores.
+  Reutiliza versiones, idempotencia, envios inciertos y borradores; sin fusion.
+  [Alcance y limites](PROVISIONAL_IDENTITY.md). 33 pruebas backend y 67 frontend
+  dirigidas aprobadas. Cobertura completa: 235 backend (118 + 117 pendientes),
+  535 frontend (534 aprobadas en suite y fallo corregido, 11 casos afectados
+  aprobados despues); lint y build aprobados. Respaldo local verificado
+  y migracion aislada con 19 pacientes/20 episodios conservados. Usuario
+  autorizo prueba manual guiada: demo iniciado, base activa migrada; integridad
+  SQLite y referencias correctas, 19 pacientes/20 episodios conservados y
+  archivo/ADMISSION disponible. Backend/frontend propios responden. Respaldo
+  previo actualizado: backups/clinical-20261020T001127Z-b802453d.sqlite3,
+  mismo SHA-256 que el ensayo. Usuario confirma prueba manual completa en
+  EP-21: ingreso provisional sin datos inventados, identidad verificada por
+  archivo, mismo episodio activo, auditoria con anterior/nuevo/fuente/motivo
+  y autor; ya no aparece al actualizar pendientes. Commit autorizado;
+  publicacion pendiente de autorizacion explicita.
+
+- Lector QR publicado en `46a18b8`; CI [39195510597](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39195510597)
+  aprobada en la publicacion: backend, frontend, lint y build. Activacion voluntaria,
   captura unica, confirmacion antes de consultar y entrada manual conservada.
   jsQR 1.4.0 decodifica localmente; cancela permisos tardios y libera recursos
   al salir/ocultar/cambiar sesion. Sin cambios backend ni red de campo.
@@ -14,8 +35,12 @@
   de puertos: permiso, vista previa, cancelacion, captura unica con camara
   apagada y confirmacion explicita del mismo paciente/episodio activo.
   QR mostrado en pantalla de PC; tableta y pulsera impresa pendientes.
-  Agente no opero la app. Commit autorizado tras prueba guiada; publicacion
-  pendiente de autorizacion explicita.
+  Agente no opero la app. Retoma del 19 de octubre tras reinicio: Git limpio
+  sobre 46a18b8 antes de actualizar estos documentos, sin diferencia con la
+  referencia local origin/main; Status informa puertos 8000 y 5173 libres,
+  sin respuesta HTTP. No se iniciaron servicios ni repitieron pruebas.
+  Siguiente propuesta: identidad provisional y confirmacion auditable por
+  admision/archivo, sin fusion; alcance en el plan del piloto.
 
 - Demo de urgencias planificado para una tableta y piloto local de cinco hasta
   treinta: [alcance y decisiones](URGENCIAS_PILOT_PLAN.md). Complemento del

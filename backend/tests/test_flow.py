@@ -1053,9 +1053,10 @@ def test_demo_users_are_stored_with_password_hashes(
 
     connection.close()
 
-    assert len(users) == 5
+    assert len(users) == 6
 
     expected_usernames = {
+        "archivo",
         "recepcion",
         "enfermeria",
         "medico",
@@ -1067,6 +1068,7 @@ def test_demo_users_are_stored_with_password_hashes(
         user["username"]
         for user in users
     } == expected_usernames
+    assert next(user for user in users if user["username"] == "archivo")["role"] == "ADMISSION"
 
     for user in users:
         assert user["password_hash"] != "demo123"
@@ -1099,7 +1101,7 @@ def test_demo_users_are_stored_with_password_hashes(
 
     verification_connection.close()
 
-    assert final_user_count == 5
+    assert final_user_count == 6
     
 def test_persistent_session_storage_and_expiration(
     tmp_path: Path,

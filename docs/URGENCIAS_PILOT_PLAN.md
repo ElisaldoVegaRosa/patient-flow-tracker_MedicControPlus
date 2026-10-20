@@ -249,6 +249,39 @@ reverse de los puertos locales, sin cambios LAN/HTTPS del servidor. Ver
 [resultado y limites](QR_CAMERA_DEMO.md). Quedan tableta, pulsera impresa y
 pruebas de campo; no estimar compras ni prometer fechas sin equipamiento.
 
+## Siguiente propuesta tras retoma del 19 de octubre
+
+Lector publicado en 46a18b8 con CI 39195510597 aprobada. Tras reiniciar PC,
+Status informa ambos puertos libres; no iniciar demo ni recuperar ADB para
+continuar el diseno. Tableta e impresora todavia son dependencias de pruebas
+fisicas, no de esta propuesta.
+
+Problema confirmado en codigo: EpisodeCreate y NewEpisodePage exigen documento
+y fecha de nacimiento; patients los declara NOT NULL. No existe perfil de
+admision/archivo. No simular datos desconocidos con fechas o documentos falsos.
+
+Alcance implementado localmente tras cont: [identidad provisional](PROVISIONAL_IDENTITY.md).
+Validacion completa en curso; base activa sin migrar. Acordar prueba antes del
+primer arranque. Alcance:
+
+- Identidad provisional explicita y campos desconocidos representados sin
+  confundirlos con datos verificados; conservar informacion parcial real.
+- Crear ingreso con etiqueta provisional e identificador interno unico.
+- Perfil demo de admision/archivo con permisos propios de verificacion, sin
+  conceder por ello acciones clinicas ni fusion automatica.
+- Confirmar identidad con motivo, autoria y valores anteriores; conservar
+  paciente, episodio, QR y toda su actividad.
+- Si hay ficha previa candidata, detener esa confirmacion y derivar a revision;
+  no crear otro episodio ni vincular historiales automaticamente.
+- Migracion compatible con registros existentes; revisar consultas, tipos,
+  busqueda, borradores y comparacion de identidad por causa compartida.
+
+Exclusiones: fusion, administracion completa de cuentas, impresion, turnos y
+colas. Criterios: ingresar sin documento/nacimiento inventados, confirmar solo
+con perfil autorizado, preservar referencias y auditoria, impedir duplicados y
+conflictos y mantener el circuito conocido. Validacion con bases temporales;
+consultar antes de pruebas directas o de actuar sobre la base demo.
+
 ## Pendientes y siguiente decision
 
 - Tableta todavia no disponible: inventario de sistema, navegador, red e impresion pendiente.
@@ -261,8 +294,7 @@ pruebas de campo; no estimar compras ni prometer fechas sin equipamiento.
 - Objetivos medibles de carga, tiempos de respuesta y recuperacion.
 
 Subpaquete A publicado en 361d33c con CI aprobada y prueba guiada completada.
-Lector con camara preparado localmente, conservando lectura manual. Siguiente:
-revisar cierre de entrega (frontend 521/521, lint y build aprobados;
-prueba guiada en Android confirmada). Identidad provisional y
-emision corresponden a entregas adicionales. Nuevos commit/push y compras
+Lector publicado en 46a18b8, conservando lectura manual y con prueba Android
+confirmada. Identidad provisional y confirmacion auditable implementadas localmente
+segun alcance anterior. Siguiente: cerrar suites y acordar ensayo guiado. Emision fisica sigue pendiente. Nuevos commit/push y compras
 requieren autorizacion; consultar antes de pruebas directas.

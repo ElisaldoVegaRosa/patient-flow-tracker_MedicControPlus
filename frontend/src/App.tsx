@@ -20,6 +20,7 @@ type VisibleDraft = FormDraft & { defaults?: Record<string, string> };
 import { useUnsavedDischargeNote } from "./session/useUnsavedDischargeNote";
 import EpisodeHistoryPage from "./pages/EpisodeHistoryPage";
 import ScanPage from "./pages/ScanPage";
+import IdentityQueuePage from "./pages/IdentityQueuePage";
 import NewEpisodePage from "./pages/NewEpisodePage";
 import DashboardPage from "./pages/DashboardPage";
 import LaboratoryPage from "./pages/LaboratoryPage";
@@ -82,9 +83,10 @@ function App() {
   const draftRoot = useRef<HTMLDivElement>(null);
   const [retainedDrafts, setRetainedDrafts] = useState<FormDraft[]>([]);
   const lifecycleDirty = useCallback(() => {
-    return [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-record-correction]") ?? [])]
+    return [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-record-correction], form[data-draft-kind='identity']") ?? [])]
       .some(form => [...form.querySelectorAll("input, textarea")].some(field =>
-        (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) && Boolean(field.value.trim())));
+        (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
+        (form.dataset.draftKind === "identity" ? field.value !== field.defaultValue : Boolean(field.value.trim()))));
   }, []);
   function guardLifecycle(action: () => void) {
     if (lifecycleDirty() && !window.confirm("Hay una corrección o motivo sin guardar. ¿Descartar esos campos y salir?")) return;
@@ -179,7 +181,7 @@ function App() {
     });
     const episodeId = form.dataset.episodeId ? Number(form.dataset.episodeId) : undefined;
     const taskId = form.dataset.taskId ? Number(form.dataset.taskId) : undefined;
-    const path = kind === "triage" ? `/episodes/${episodeId}/triage` : kind === "lab" ? `/tasks/${taskId}/complete` : null;
+    const path = kind === "identity" ? `/episodes/${episodeId}/identity` : kind === "triage" ? `/episodes/${episodeId}/triage` : kind === "lab" ? `/tasks/${taskId}/complete` : null;
     if (path && !dirty) writes.forget(path);
     const baseVersion = path && dirty ? writes.remember(path, form.dataset.draftVersion) : undefined;
     recovery.trackForm(user, { kind, episodeId, taskId, baseVersion, fields }, dirty);
@@ -243,7 +245,7 @@ function App() {
   function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
     setWriteNotice("Operación confirmada por el servidor. No se ha creado otro registro.");
     setError(previous => previous.includes("Resultado por confirmar") || previous.includes("envío anterior por confirmar") ? "" : previous);
-    const kind = path === "/episodes" ? "arrival" : path.endsWith("/triage") ? "triage" : path.endsWith("/vitals") ? "vitals" : path.endsWith("/medical-evaluation") ? "evaluation" : path.endsWith("/tasks") ? "order" : path.startsWith("/tasks/") ? "lab" : undefined;
+    const kind = path === "/episodes" ? "arrival" : path.endsWith("/identity") ? "identity" : path.endsWith("/triage") ? "triage" : path.endsWith("/vitals") ? "vitals" : path.endsWith("/medical-evaluation") ? "evaluation" : path.endsWith("/tasks") ? "order" : path.startsWith("/tasks/") ? "lab" : undefined;
     const updated = result as Episode;
     if (!updated || typeof updated.id !== "number") { writes.forget(path); return; }
     const payload = typeof body === "string" ? JSON.parse(body) as Record<string, unknown> : {};
@@ -254,7 +256,7 @@ function App() {
       matchesSubmittedFields(new FormData(form), payload));
     // A receipt can return later changes by another session. Do not silently
     // adopt their triage version underneath local edits still awaiting review.
-    if (kind !== "triage" || savedForm || Object.entries(payload).every(([name, value]) => String((updated as unknown as Record<string, unknown>)[name] ?? "") === String(value ?? ""))) writes.forget(path);
+    if (!["triage", "identity"].includes(kind ?? "") || savedForm || Object.entries(payload).every(([name, value]) => String((updated as unknown as Record<string, unknown>)[name] ?? "") === String(value ?? ""))) writes.forget(path);
     if (savedForm && kind) {
       savedForm.reset();
       recovery.remove(kind, kind === "arrival" ? undefined : updated.id, savedForm.dataset.taskId ? Number(savedForm.dataset.taskId) : undefined);
@@ -276,7 +278,7 @@ function App() {
   useEffect(() => {
     function sessionExpired() {
       suspendRecovery(draft => {
-        const path = draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
+        const path = draft.kind === "identity" ? `/episodes/${draft.episodeId}/identity` : draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
         return path ? rememberVersion(path, draft.baseVersion) : undefined;
       });
       clearWrites();
@@ -310,7 +312,7 @@ function App() {
       applyRestoration.current = true;
       setRestoredForms(result.drafts);
       for (const draft of result.drafts) {
-        const path = draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
+        const path = draft.kind === "identity" ? `/episodes/${draft.episodeId}/identity` : draft.kind === "triage" ? `/episodes/${draft.episodeId}/triage` : draft.kind === "discharge" ? `/episodes/${draft.episodeId}/discharge` : draft.kind === "lab" ? `/tasks/${draft.taskId}/complete` : null;
         if (path) writes.remember(path, draft.baseVersion ?? '"unversioned-draft"');
       }
       trackLeave(result.note);
@@ -444,9 +446,10 @@ useEffect(() => {
         method: "POST",
         body: JSON.stringify({
           ...(form.get("patient_id") ? { patient_id: Number(form.get("patient_id")) } : {}),
-          name: form.get("name"),
-          birth_date: form.get("birth_date"),
-          document: form.get("document"),
+          ...(form.get("provisional") === "true" ? { provisional: true } : {}),
+          name: form.get("provisional") === "true" && !String(form.get("name") ?? "").trim() ? null : form.get("name"),
+          birth_date: form.get("provisional") === "true" && !form.get("birth_date") ? null : form.get("birth_date"),
+          document: form.get("provisional") === "true" && !String(form.get("document") ?? "").trim() ? null : form.get("document"),
           priority: Number(form.get("priority")),
           location: form.get("location"),
         }),
@@ -715,6 +718,7 @@ async function logout() {
       onInputCapture={event => { const target = event.target; if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) target.setCustomValidity(""); }}
       onSubmitCapture={event => { if (event.target instanceof HTMLFormElement && !validateOperationalForm(event.target)) { event.preventDefault(); event.stopPropagation(); } }}>
       <AppHeader
+        onIdentity={() => guardLifecycle(() => leave.run(() => navigate("identity")))}
         user={user}
         onDashboard={() => page === "dashboard" ? void live.refresh() : guardLifecycle(() => leave.run(() => {
           navigate("dashboard");
@@ -792,9 +796,13 @@ async function logout() {
         />
       )}
 
-      {page === "new" && <NewEpisodePage onOpenEpisode={openEpisode} submitting={operations.isPending("arrival")} onSubmit={createEpisode} />}
+      {page === "new" && <NewEpisodePage key={`arrival:${restoredForms.find(draft => draft.kind === "arrival")?.fields.provisional ?? "false"}`}
+        initialProvisional={restoredForms.some(draft => draft.kind === "arrival" && draft.fields.provisional === "true")}
+        onOpenEpisode={openEpisode} submitting={operations.isPending("arrival")} onSubmit={createEpisode} />}
 
       {page === "scan" && <ScanPage onSubmit={scanEpisode} />}
+      {page === "identity" && <IdentityQueuePage user={user}
+        onOpenEpisode={async id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
 
       {page === "history" && historyData && (
         <EpisodeHistoryPage

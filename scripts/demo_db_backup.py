@@ -60,6 +60,8 @@ def inspect_database(path: Path) -> dict[str, int]:
                 "SELECT name FROM sqlite_master WHERE type = 'table'"
             )}
             missing = REQUIRED_TABLES - tables
+            if any(row[1] == "identity_status" for row in connection.execute("PRAGMA table_info(patients)")):
+                missing |= {"patient_identity_changes"} - tables
             if missing:
                 raise BackupError("Faltan tablas del demo: " + ", ".join(sorted(missing)))
             return {

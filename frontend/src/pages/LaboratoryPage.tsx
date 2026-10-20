@@ -1,3 +1,4 @@
+import { IdentityBadge } from "../components/PatientIdentity";
 import type { FormEvent } from "react";
 import type { LaboratoryQueue } from "../types/clinical";
 import RecordCorrectionForm from "../components/RecordCorrectionForm";
@@ -112,7 +113,7 @@ export default function LaboratoryPage({
             <dl className="lab-details">
               <div>
                 <dt>Paciente</dt>
-                <dd>{order.patient_name}</dd>
+                <dd>{order.patient_name}<IdentityBadge status={order.patient_identity_status} /></dd>
               </div>
 
               <div>

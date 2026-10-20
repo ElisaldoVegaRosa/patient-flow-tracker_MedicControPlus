@@ -8,6 +8,15 @@ from app.database import get_connection, initialize_database
 from scripts.demo_db_backup import BackupError, create_backup, restore_backup, verify_backup
 
 
+def test_backup_requires_identity_audit_for_new_patient_schema(tmp_path):
+    source = tmp_path / "identity.db"
+    demo_database(source)
+    with sqlite3.connect(source) as connection:
+        connection.execute("DROP TABLE patient_identity_changes")
+    with pytest.raises(BackupError, match="patient_identity_changes"):
+        create_backup(source, tmp_path / "missing-audit.sqlite3")
+
+
 def demo_database(path):
     initialize_database(get_connection(path), {}, lambda _: ("salt", "hash"), lambda: "2026-10-17T00:00:00Z")
     connection = get_connection(path)

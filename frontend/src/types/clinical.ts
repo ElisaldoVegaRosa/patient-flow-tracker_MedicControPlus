@@ -72,12 +72,16 @@ export type TimelineEvent = {
 };
 
 export type Episode = {
+  patient_id?: number;
+  identity_status?: "REGISTERED" | "PROVISIONAL" | "VERIFIED";
+  identity_version?: string;
+  identity_changes?: IdentityChange[];
   triage_version?: string;
   clinical_version?: string;
   id: number;
   name: string;
-  birth_date: string;
-  document: string;
+  birth_date: string | null;
+  document: string | null;
   qr_token: string;
   status: string;
   priority: number;
@@ -105,6 +109,17 @@ export type RecordChange = {
   created_at: string;
 };
 
+export type IdentityChange = {
+  id: number; patient_id: number; episode_id: number; old_value: string;
+  new_value: string; reason: string; verification_source: string;
+  username: string; created_at: string;
+};
+
+export type PendingIdentity = {
+  patient_id: number; episode_id: number | null; name: string;
+  birth_date: string | null; document: string | null;
+};
+
 export type DashboardData = {
   active: number;
   open_alerts: number;
@@ -120,9 +135,10 @@ export type DemoSeedResponse = {
 };
 
 export type ClosedEpisode = {
+  identity_status?: string;
   id: number;
   name: string;
-  document: string;
+  document: string | null;
   status: string;
   priority: number;
   location: string;
@@ -172,6 +188,7 @@ export type TimeRulesEvaluationResponse = {
 };
 
 export type LaboratoryOrder = {
+  patient_identity_status?: string;
   version?: string;
   last_change_id?: number | null;
   record_changes?: RecordChange[];
@@ -209,8 +226,8 @@ export type EpisodePresenceData = {
 export type AdmissionCandidate = {
   id: number;
   name: string;
-  birth_date: string;
-  document: string;
+  birth_date: string | null;
+  document: string | null;
   matches: boolean;
   active_episode_ids: number[];
 };

@@ -5,7 +5,8 @@ import { RECOVERY_DURATION_MS } from "./dischargeDraft";
 
 export const TAB_DRAFT_PREFIX = "mediccontrol:tab-drafts:v1:";
 const fields: Record<DraftKind, string[]> = {
-  arrival: ["name", "birth_date", "document", "priority", "location"],
+  arrival: ["name", "birth_date", "document", "priority", "location", "provisional"],
+  identity: ["name", "birth_date", "document", "reason", "verification_source"],
   triage: ["priority", "location", "assigned_to"],
   vitals: ["temperature", "heart_rate", "systolic", "diastolic", "spo2", "respiratory_rate"],
   evaluation: ["diagnosis", "clinical_note", "disposition"],

@@ -24,6 +24,10 @@ DEMO_USERS = {
         "password": "demo123",
         "role": "SUPERVISOR",
     },
+    "archivo": {
+        "password": "demo123",
+        "role": "ADMISSION",
+    },
 }
 
 PASSWORD_HASH_ITERATIONS = 210_000

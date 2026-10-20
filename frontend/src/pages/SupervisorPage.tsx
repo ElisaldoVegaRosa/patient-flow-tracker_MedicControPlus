@@ -1,3 +1,4 @@
+import { IdentityBadge } from "../components/PatientIdentity";
 import type { SupervisorData } from "../types/clinical";
 import PatientSearch from "../components/PatientSearch";
 import { usePatientSearch } from "../hooks/usePatientSearch";
@@ -195,7 +196,7 @@ export default function SupervisorPage({
           {patients.map((patient) => (
               <tr key={patient.id}>
                 <td>
-                  <strong>{patient.name}</strong>
+                  <strong>{patient.name}</strong><IdentityBadge status={patient.identity_status} />
                   <small>EP-{patient.id}</small>
                 </td>
 
