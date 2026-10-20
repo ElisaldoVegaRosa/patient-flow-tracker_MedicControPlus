@@ -2,7 +2,19 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Bloque identidad provisional implementado localmente: [detalle](PROVISIONAL_IDENTITY.md).
+- Usuario autorizo vista imprimible y prueba PDF sin impresora. Implementada
+  localmente: [guia](WRISTBAND_PDF_DEMO.md). Solo enfermeria/supervisor despues
+  de triaje guardado, con detalle vigente y revision ante cambios. Sin entrega,
+  cambio de QR ni estados clinicos. 37 dirigidas, frontend 553/553 en 53
+  archivos, 18 casos tras ajuste final, lint y build aprobados. Usuario
+  confirmo vista previa EP-21 y aporto PDF abierto en captura, completo
+  y legible; encabezado de navegador aun visible. Usuario confirma lectura
+  QR desde PDF en Android y apertura de Paciente Identidad Demo 21 / EP-21.
+  Commit autorizado para el bloque validado. Impresion fisica pendiente.
+  Push y comprobacion CI pendientes de autorizacion; sin pruebas automaticas directas.
+
+- Identidad provisional publicada en `e04be5f`, CI [39349014853](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39349014853)
+  aprobada. [Detalle](PROVISIONAL_IDENTITY.md).
   Confirma solo archivo/ADMISSION; supervisor consulta pendientes. Conserva
   episodio e historial, bloquea coincidencias y no fusiona. Borradores y
   recibos integrados en controles compartidos. Cobertura completa aprobada:
@@ -13,9 +25,10 @@
   iniciado y base migrada conservando 19 pacientes/20 episodios; integridad
   y referencias correctas, perfil archivo disponible. Usuario confirma prueba
   completa en EP-21: ingreso provisional, verificacion, auditoria, mismo
-  episodio activo y salida de pendientes. Commit autorizado para cerrar
-  el bloque validado; publicacion y comprobacion de CI pendientes de
-  autorizacion explicita.
+  episodio activo y salida de pendientes. Siguiente decision: alcance inicial
+  de vista imprimible de pulsera para demo y vista previa/PDF; impresora,
+  consumibles, entrega fisica e invalidacion requieren diseno y equipo.
+  No hay autorizacion de nuevos commit/push ni de nuevas pruebas directas.
 
 - Lector publicado en `46a18b8`, CI `39195510597` aprobada;
   [detalle](QR_CAMERA_DEMO.md). Camara solo por solicitud, captura sin consulta

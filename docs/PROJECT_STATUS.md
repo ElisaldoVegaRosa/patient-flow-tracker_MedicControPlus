@@ -2,7 +2,25 @@
 
 ## Estado actual (leer primero)
 
-- Identidad provisional implementada localmente tras cont, sobre 46a18b8:
+- Vista imprimible de pulsera implementada localmente sobre e04be5f, autorizada
+  con prueba PDF sin impresora. Enfermeria/supervisor, episodio activo y triaje
+  persistido; consulta identidad vigente al preparar e imprimir, mismo QR y
+  aviso provisional. Sin registrar entrega ni mutar datos. [Guia y limites](WRISTBAND_PDF_DEMO.md).
+  37 pruebas dirigidas aprobadas; suite frontend 553/553 en 53 archivos
+  aprobada (287,32 s). 18 casos del componente tras ajuste final, lint sin
+  advertencias y build aprobados.
+  Usuario confirma vista previa correcta de EP-21 y aporta captura del PDF
+  guardado y abierto: una pagina, datos legibles, QR completo y sin botones
+  ni historia. Quedo encabezado del navegador (fecha/frontend); se indico
+  desactivarlo. Usuario confirma lectura del QR desde ese PDF en Android:
+  tras Identificar paciente abre Paciente Identidad Demo 21 / EP-21.
+  ADB reconnect y reverse de 5173/8000 restablecidos; sin exponer a LAN.
+  Impresion fisica pendiente por falta de equipo.
+  Agente no opero la app. Commit autorizado para este bloque; push pendiente
+  de autorizacion explicita.
+
+- Identidad provisional publicada en `e04be5f`; CI [39349014853](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39349014853)
+  aprobada: backend, frontend, lint y build. Implementada sobre 46a18b8:
   ingreso con datos desconocidos NULL, perfil archivo/ADMISSION, bandeja y
   confirmacion auditable conservando paciente/episodio/QR. Estados REGISTERED,
   PROVISIONAL y VERIFIED; no atribuye verificacion a datos anteriores.
@@ -19,8 +37,9 @@
   mismo SHA-256 que el ensayo. Usuario confirma prueba manual completa en
   EP-21: ingreso provisional sin datos inventados, identidad verificada por
   archivo, mismo episodio activo, auditoria con anterior/nuevo/fuente/motivo
-  y autor; ya no aparece al actualizar pendientes. Commit autorizado;
-  publicacion pendiente de autorizacion explicita.
+  y autor; ya no aparece al actualizar pendientes. Main limpia y sincronizada
+  al comprobar la publicacion. Siguiente propuesta: vista imprimible de pulsera
+  para demo, sin afirmar entrega fisica ni compatibilidad con equipo pendiente.
 
 - Lector QR publicado en `46a18b8`; CI [39195510597](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39195510597)
   aprobada en la publicacion: backend, frontend, lint y build. Activacion voluntaria,

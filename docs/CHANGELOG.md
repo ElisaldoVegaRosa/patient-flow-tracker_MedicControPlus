@@ -5,6 +5,24 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Vista imprimible de pulsera para PDF (entrega local)
+
+- Enfermeria/supervisor pueden preparar vista de episodios activos con triaje
+  persistido. Nombre, nacimiento, documento, EP, QR existente y estado de identidad.
+- Consulta vigente antes de abrir/imprimir; cambios requieren revisar otra vez,
+  cierre o fallo de consulta impiden impresion. Cancelacion y sesion protegidas.
+- Plantilla demo en A4; CSS separa contenido imprimible de controles e historia.
+  Sin registro de entrega ni validacion de impresora fisica. [Guia](WRISTBAND_PDF_DEMO.md).
+- 37 pruebas dirigidas, suite frontend 553/553 en 53 archivos (287,32 s) y
+  18 casos del componente tras ajuste de foco aprobados; lint sin advertencias
+  y build aprobados. Usuario confirma vista previa EP-21 y aporta captura
+  del PDF guardado/abierto: una pagina, datos/QR sin cortes, sin controles
+  ni historia. Encabezados del navegador visibles; se indico desactivarlos.
+  Usuario confirma lectura QR desde PDF en Android y consulta del mismo
+  paciente/EP-21 tras confirmacion. Reconexion ADB y reverse locales recuperados.
+  Impresion fisica pendiente. Commit autorizado; push pendiente de autorizacion.
+  Sin cambios backend.
+
 ## Identidad provisional y admision/archivo (19 de octubre de 2026)
 
 - Ingreso provisional con campos desconocidos NULL y etiqueta unica si falta
@@ -25,8 +43,8 @@ las verificaciones realizadas y el estado de cada etapa.
   perfiles, conservando comprobacion de hashes y de inicializacion repetida.
   Lint y build aprobados. Usuario confirma prueba manual en EP-21: ingreso
   provisional, verificacion por archivo, mismo episodio activo, auditoria
-  y salida de pendientes tras actualizar. Commit autorizado; publicacion
-  pendiente de autorizacion explicita.
+  y salida de pendientes tras actualizar. Publicado en `e04be5f`; CI
+  [39349014853](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39349014853) aprobada: backend, frontend, lint y build.
 
 ## Preparacion del lector QR con camara (18 de octubre de 2026)
 

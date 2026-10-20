@@ -260,9 +260,9 @@ Problema confirmado en codigo: EpisodeCreate y NewEpisodePage exigen documento
 y fecha de nacimiento; patients los declara NOT NULL. No existe perfil de
 admision/archivo. No simular datos desconocidos con fechas o documentos falsos.
 
-Alcance implementado localmente tras cont: [identidad provisional](PROVISIONAL_IDENTITY.md).
-Validacion completa en curso; base activa sin migrar. Acordar prueba antes del
-primer arranque. Alcance:
+Alcance publicado en e04be5f: [identidad provisional](PROVISIONAL_IDENTITY.md).
+CI [39349014853](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39349014853) aprobada; base migrada con integridad y referencias correctas.
+Usuario confirmo prueba guiada completa en EP-21. Alcance:
 
 - Identidad provisional explicita y campos desconocidos representados sin
   confundirlos con datos verificados; conservar informacion parcial real.
@@ -295,6 +295,31 @@ consultar antes de pruebas directas o de actuar sobre la base demo.
 
 Subpaquete A publicado en 361d33c con CI aprobada y prueba guiada completada.
 Lector publicado en 46a18b8, conservando lectura manual y con prueba Android
-confirmada. Identidad provisional y confirmacion auditable implementadas localmente
-segun alcance anterior. Siguiente: cerrar suites y acordar ensayo guiado. Emision fisica sigue pendiente. Nuevos commit/push y compras
-requieren autorizacion; consultar antes de pruebas directas.
+confirmada. Identidad provisional y confirmacion auditable publicadas en e04be5f
+con CI aprobada y prueba guiada de EP-21 completada. Emision fisica pendiente.
+Nuevos commit/push y compras requieren autorizacion; consultar antes de pruebas directas.
+
+### Vista imprimible del demo: implementacion local autorizada
+
+Problema: el detalle muestra QR, pero no ofrece plantilla ni confirma entrega.
+Propuesta inicial sin equipos: vista imprimible con datos de identidad vigentes,
+EP y QR existente, aviso provisional cuando corresponda y acceso tras triaje.
+Vista previa/PDF sirve para revisar contenido; no confirma que una pulsera
+se imprimio, entrego ni que el dispositivo fisico sea compatible.
+
+Excluir inicialmente: cambio/revocacion del token, registro de entrega y
+reimpresion fisica, drivers e impresora especifica. No cambiar estados clinicos
+ni interpretar imprimir como atencion o verificacion de identidad.
+Criterios: permisos explicitos, mismo paciente/EP/QR, datos actuales, aviso
+provisional visible y estilos de impresion sin controles de pantalla. Probar
+comportamiento con tests; acordar antes de vista previa directa o impresion.
+Usuario confirmo este alcance y prueba PDF sin impresora fisica. Implementado
+localmente con consulta vigente al preparar e imprimir, revision ante cambios
+y acceso enfermeria/supervisor tras triaje guardado. [Guia](WRISTBAND_PDF_DEMO.md).
+37 dirigidas y frontend 553/553, lint y build aprobados. Medidas
+finales y validacion fisica dependen de elegir impresora, pulsera y consumibles.
+Usuario confirmo vista previa EP-21 y aporto captura del PDF guardado/abierto
+en una pagina, con identidad y QR completos. Encabezados del navegador aun
+visibles. Usuario confirma lectura QR desde PDF en Android y consulta del
+mismo paciente/EP-21. Impresion fisica pendiente. Commit autorizado para este
+bloque; push pendiente de autorizacion explicita.

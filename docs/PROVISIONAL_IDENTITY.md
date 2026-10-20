@@ -1,6 +1,7 @@
 # Identidad provisional y verificacion por admision/archivo
 
-Entrega local del 19 de octubre de 2026, sobre 46a18b8. No publicada.
+Entrega sobre 46a18b8, publicada en `e04be5f`; CI [39349014853](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39349014853)
+aprobada: backend, frontend, lint y build.
 Problema: recepcion exigia documento y nacimiento incluso si se desconocian;
 faltaba un permiso separado para verificar y un historial especifico.
 
@@ -122,8 +123,8 @@ ni nacimiento; asignacion de etiqueta provisional; confirmacion por archivo
 con datos ficticios; mismo episodio activo, identidad verificada e historial
 con valores anteriores/nuevos, fuente, motivo y autor. Tras actualizar la bandeja,
 EP-21 ya no aparece entre pendientes. QR conservado cubierto por prueba
-automatizada; no se hizo un nuevo escaneo en esta prueba manual. Commit autorizado;
-publicacion pendiente de autorizacion explicita.
+automatizada; no se hizo un nuevo escaneo en esta prueba manual. Publicacion
+y CI completadas en e04be5f; main limpia y sincronizada al comprobarlo.
 
 Exclusiones: fusion, administracion completa de cuentas, impresion, colas/turnos,
 despliegue de campo y cambios de reglas clinicas.

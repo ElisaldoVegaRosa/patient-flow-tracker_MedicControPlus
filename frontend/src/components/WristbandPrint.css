@@ -1,0 +1,57 @@
+.wristband-print-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: auto;
+  background: #fff;
+  color: #111;
+  padding: 24px;
+}
+
+.wristband-preview-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.wristband-print-controls {
+  margin-bottom: 24px;
+}
+
+.wristband-sheet {
+  box-sizing: border-box;
+  width: 180mm;
+  max-width: 100%;
+  min-height: 45mm;
+  border: 1px solid #111;
+  padding: 4mm;
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  background: #fff;
+  color: #111;
+  font: 11pt Arial, sans-serif;
+  break-inside: avoid;
+}
+
+.wristband-identity { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.wristband-sheet p, .wristband-sheet h3 { margin: 0 0 2mm; color: #111; }
+.wristband-sheet h3 { font-size: 14pt; }
+.wristband-brand, .wristband-status { font-weight: bold; }
+.wristband-sheet small { font-size: 8pt; }
+.wristband-qr { flex: 0 0 32mm; background: #fff; }
+.wristband-qr svg { display: block; width: 32mm; height: 32mm; max-width: none; }
+
+@media (max-width: 600px) {
+  .wristband-print-root { padding: 12px; }
+  .wristband-sheet { flex-wrap: wrap; }
+}
+
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body:has(> .wristband-print-root) { margin: 0; background: #fff; }
+  body:has(> .wristband-print-root) > :not(.wristband-print-root) { display: none !important; }
+  .wristband-print-root { position: static; overflow: visible; padding: 0; }
+  .wristband-preview-content { max-width: none; margin: 0; }
+  .wristband-print-controls { display: none !important; }
+  .wristband-sheet { width: 180mm; max-width: none; flex-wrap: nowrap; }
+}

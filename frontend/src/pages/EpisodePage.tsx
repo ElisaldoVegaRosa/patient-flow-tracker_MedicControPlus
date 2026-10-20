@@ -9,6 +9,7 @@ import WriteConflicts from "../components/WriteConflicts";
 import RecordCorrectionForm from "../components/RecordCorrectionForm";
 import ReasonActionForm from "../components/ReasonActionForm";
 import PatientIdentity from "../components/PatientIdentity";
+import WristbandPrint from "../components/WristbandPrint";
 import { QRCodeSVG } from "qrcode.react";
 import { isSessionInterruption, WRITE_CONFIRMED_EVENT } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
@@ -382,6 +383,8 @@ async function createClinicalOrder(
               <code>{episode.qr_token}</code>
             </div>
           </details>
+          <WristbandPrint key={`${user.username}:${user.role}:${episode.id}:${episode.status}:${episode.identity_version}:${episode.events.filter(event => event.type === "TRIAGE").map(event => event.id).join(",")}`}
+            episode={episode} user={user} />
         </section>
 
         <PatientIdentity episode={episode} user={user} operations={operations} writes={writes}
