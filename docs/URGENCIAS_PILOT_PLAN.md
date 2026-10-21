@@ -344,5 +344,21 @@ auditado e integridad correcta. Usuario confirma acceso administrativo
 separado, alta auditada de medico.demo1, acceso medico por perfil, baja con
 revocacion, reactivacion sin token previo y restablecimiento con clave anterior
 rechazada/nueva aceptada. Demo iniciado; prueba manual completada. Proximo:
-crear commit autorizado del bloque validado.
-Publicacion pendiente de autorizacion explicita.
+continuar propuesta de areas/turnos. Publicado en b2265c2, CI [39360417857](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39360417857) aprobada.
+
+### Areas, turnos y coordinacion: implementacion local autorizada
+
+Usuario eligio que coordinacion asigne area/turno; administrador de cuentas
+solo concede o retira ese permiso. [Propuesta concreta](STAFF_AREAS_SHIFTS_PLAN.md):
+planificacion por profesional, horarios configurables, disponibilidad e
+inicio/cierre explicitos, historial y controles compartidos. No asigna ni
+transfiere pacientes, no calcula carga ni sustituye el traspaso clinico.
+Usuario autorizo implementar con "Si, cont". [Guia local](STAFF_AREAS_SHIFTS.md).
+Backend 270/270, frontend 568/568, lint y build aprobados; migracion ensayada
+en copia conservando datos anteriores.
+Prueba guiada autorizada: demo iniciado y migracion aplicada conservando filas
+previas e integridad. Usuario confirma permiso, acceso y ciclo completo del
+turno #1/participacion #1 con auditoria; retirada revoca sesion y nuevo acceso
+permite solo turno propio sin edicion. Datos clinicos conservados. Conflicto
+entre sesiones cubierto automaticamente, sin ensayo manual especifico;
+commit/push a origin/main y comprobacion CI autorizados con "Si, cont".

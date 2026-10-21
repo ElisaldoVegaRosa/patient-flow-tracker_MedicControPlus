@@ -60,6 +60,8 @@ def inspect_database(path: Path) -> dict[str, int]:
                 "SELECT name FROM sqlite_master WHERE type = 'table'"
             )}
             missing = REQUIRED_TABLES - tables
+            if any(row[1] == "can_coordinate" for row in connection.execute("PRAGMA table_info(users)")):
+                missing |= {"staff_areas", "staff_shifts", "staff_assignments", "staff_changes"} - tables
             if any(row[1] == "account_revision" for row in connection.execute("PRAGMA table_info(users)")):
                 missing |= {"account_changes"} - tables
             if any(row[1] == "identity_status" for row in connection.execute("PRAGMA table_info(patients)")):

@@ -2,6 +2,7 @@ import type { User } from "../types/clinical";
 import { clinicalLabel } from "../presentation/clinicalLabels";
 
 type AppHeaderProps = {
+  onStaff?: () => void;
   onIdentity?: () => void;
   user: User;
   onDashboard: () => void;
@@ -14,6 +15,7 @@ type AppHeaderProps = {
 };
 
 export default function AppHeader({
+  onStaff,
   onIdentity,
   user, onDashboard, onSupervisor, onScan, onHistory,
   onLaboratory, onNewEpisode, onLogout,
@@ -23,6 +25,7 @@ export default function AppHeader({
         <div className="logo">✚ MedicControl+</div>
 
         <nav>
+          {onStaff && <button onClick={onStaff}>{user.can_coordinate ? "Personal y turnos" : "Mi turno"}</button>}
           {(user.role === "ADMISSION" || user.role === "SUPERVISOR") && onIdentity && (
             <button onClick={onIdentity}>Identidades por verificar</button>
           )}

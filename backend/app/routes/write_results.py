@@ -26,6 +26,8 @@ def create_router(connection_factory, detail, authenticated_user):
                 return {"status": "unknown"}
             if receipt["role"] != user["role"]:
                 raise HTTPException(403, "La operación corresponde a otro rol")
+            if ":/staff/" in receipt["scope"] and (not user.get("can_coordinate") or user["role"] == "ACCOUNT_ADMIN"):
+                raise HTTPException(403, "El permiso actual no permite consultar ese recibo de planificacion")
             result = (detail(connection, receipt["episode_id"])
                       if receipt["episode_id"] is not None else json.loads(receipt["summary"]))
             return {"status": "confirmed", "result": result}

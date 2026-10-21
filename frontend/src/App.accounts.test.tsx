@@ -56,6 +56,20 @@ it("restaura administrador separado sin cargar dashboard, episodios ni navegacio
   expect(fetchMock.mock.calls.some(([url]) => /dashboard|episodes|presence/.test(String(url)))).toBe(false);
 });
 
+it("concede coordinacion con version y booleano sin conceder acceso clinico al administrador", async () => {
+  const { mutations } = setup();
+  const article = await ready();
+  const group = within(article).getByRole("group", { name: "Conceder permiso de coordinación" });
+  fireEvent.change(within(group).getByLabelText("Motivo"), { target: { value: "Coordinar turno ficticio" } });
+  fireEvent.click(within(group).getByRole("button", { name: "Conceder permiso de coordinación" }));
+  await waitFor(() => expect(mutations).toHaveBeenCalledTimes(1));
+  expect(mutations.mock.calls[0][0]).toBe("/accounts/8/coordination");
+  expect(mutations.mock.calls[0][1].method).toBe("PATCH");
+  expect(JSON.parse(String(mutations.mock.calls[0][1].body))).toEqual({ can_coordinate: true, reason: "Coordinar turno ficticio" });
+  expect(new Headers(mutations.mock.calls[0][1].headers).get("If-Match")).toBe(account.version);
+  expect(screen.queryByRole("button", { name: "Personal y turnos" })).not.toBeInTheDocument();
+});
+
 it("permite acceso personal sin clave demo prellenada y mantiene el acceso demo", async () => {
   const { fetchMock } = setup(false);
   const user = userEvent.setup();

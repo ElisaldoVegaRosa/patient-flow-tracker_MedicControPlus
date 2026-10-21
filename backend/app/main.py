@@ -27,6 +27,7 @@ from .routes.demo import create_router as create_demo_router
 from .routes.episode_registration import create_router as create_episode_registration_router
 from .routes.identity import create_router as create_identity_router
 from .routes.accounts import create_router as create_accounts_router
+from .routes.staffing import create_router as create_staffing_router
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
     DATABASE_PATH,
@@ -77,6 +78,12 @@ def require_roles(*allowed_roles: str):
         return auth.authorize_role(user, allowed_roles)
 
     return dependency
+
+
+def require_coordination(user: dict = Depends(session_user)):
+    if user["role"] == "ACCOUNT_ADMIN" or not user.get("can_coordinate"):
+        raise HTTPException(403, "Permiso de coordinacion requerido")
+    return user
 
 
 def add_event(
@@ -488,6 +495,7 @@ def health() -> dict[str, str]:
 # Composición de rutas por área; el orden de registro se conserva.
 app.include_router(create_router(get_connection, utc_now, session_user))
 app.include_router(create_accounts_router(get_connection, utc_now, require_roles))
+app.include_router(create_staffing_router(get_connection, utc_now, authenticated_user, require_coordination))
 app.include_router(create_presence_router(get_connection, authenticated_user))
 app.include_router(create_write_results_router(get_connection, episode_detail, session_user))
 app.include_router(create_dashboard_router(

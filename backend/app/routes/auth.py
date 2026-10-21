@@ -20,14 +20,14 @@ def create_router(
     router = APIRouter()
 
     @router.post("/auth/login")
-    def login(data: LoginRequest) -> dict[str, str]:
+    def login(data: LoginRequest) -> dict[str, str | bool]:
         """Autentica al usuario y crea una sesión persistente."""
         return auth.login(data.username, data.password, connection_factory)
 
     @router.get("/auth/me")
     def authenticated_session(
         user: dict[str, str] = Depends(authenticated_user),
-    ) -> dict[str, str]:
+    ) -> dict[str, str | bool]:
         return auth.session_user(user)
 
     @router.post("/auth/logout")

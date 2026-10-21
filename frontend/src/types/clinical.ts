@@ -1,4 +1,5 @@
 export type User = {
+  can_coordinate?: boolean;
   display_name?: string;
   username: string;
   role: string;
@@ -6,12 +7,14 @@ export type User = {
 };
 
 export type SessionUser = {
+  can_coordinate?: boolean;
   display_name?: string;
   username: string;
   role: string;
 };
 
 export type Account = {
+  can_coordinate?: number;
   id: number; username: string; display_name: string; role: string; active: number;
   created_at: string; account_revision: number; version: string;
 };
@@ -20,6 +23,22 @@ export type AccountChange = {
   new_value: string; reason: string; created_at: string;
 };
 export type AccountsData = { accounts: Account[]; changes: AccountChange[]; requested_by: string };
+
+export type StaffArea = { id: number; name: string; active: number; revision: number; version: string };
+export type StaffShift = { id: number; name: string; starts_at: string; ends_at: string;
+  coordinator_id: number; coordinator_username: string; coordinator_name: string;
+  coordinator_active: number; coordinator_permission: number;
+  status: "PLANNED" | "ACTIVE" | "CLOSED" | "CANCELLED"; version: string };
+export type StaffAssignment = { id: number; shift_id: number; user_id: number; area_id: number;
+  username: string; display_name: string; role: string; area_name: string; account_active: number;
+  shift_name: string; starts_at: string; ends_at: string; shift_status: StaffShift["status"];
+  status: "PLANNED" | "AVAILABLE" | "UNAVAILABLE" | "FINISHED" | "CANCELLED";
+  effective_available: boolean; version: string };
+export type StaffPerson = { id: number; username: string; display_name: string; role: string };
+export type StaffChange = { id: number; resource: string; target_id: number; actor: string;
+  action: string; reason: string; old_value: string; new_value: string; created_at: string };
+export type StaffingData = { areas: StaffArea[]; shifts: StaffShift[]; assignments: StaffAssignment[];
+  professionals: StaffPerson[]; coordinators: StaffPerson[]; changes: StaffChange[]; requested_by: string };
 
 export type VitalSigns = {
   id: number;

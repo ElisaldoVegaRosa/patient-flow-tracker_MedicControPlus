@@ -2,7 +2,47 @@
 
 ## Estado actual (leer primero)
 
-- Cuentas personales implementadas localmente sobre ce16ed8: administrador
+- Areas, turnos y coordinacion autorizados e implementados localmente sobre
+  b2265c2; validacion completa aprobada. [Guia](STAFF_AREAS_SHIFTS.md).
+  Administrador concede/retira permiso sin acceso a planificacion; coordinacion
+  prepara areas/turnos, responsable explicito confirma disponibilidad y cierre,
+  consulta propia para otros perfiles. Versiones, recibos y auditoria separados
+  de episodios; sin colas ni reparto automatico de pacientes.
+  Dirigidas: 25 backend de personal/cuentas (7 + 18 tras corregir expectativa
+  nueva), 11 respaldo, 15 frontend de personal/cuentas/navegacion aprobadas.
+  Suite completa backend 270/270 (541,14 s; una advertencia de dependencia
+  ya conocida); frontend 568/568 en 56 archivos (431,01 s), lint y build
+  aprobados. Un ajuste de tipo en el fixture nuevo resolvio el error inicial
+  de build; el build posterior paso sin cambios de comportamiento.
+  Migracion ensayada dos veces sobre respaldo restaurado: 14 tablas anteriores
+  intactas, 20 pacientes/21 episodios, integridad y referencias correctas.
+  Cuatro areas nuevas, cero turnos/participaciones/permisos automaticos.
+  Usuario autorizo prueba manual con "Si, cont": demo iniciado y migracion
+  aplicada. Comprobacion posterior conserva todas las filas/columnas previas
+  de 14 tablas, 20 pacientes/21 episodios; integridad y referencias correctas.
+  Al arrancar: cuatro areas, cero turnos/participaciones/cambios y ningun permiso concedido.
+  Respaldo previo verificado:
+  backups/clinical-20261020T030721Z-a0a848c2.sqlite3.
+  Usuario confirma GRANT_COORDINATION de cuenta #8 por admin.demo (revision
+  3 a 4), acceso a Personal y turnos y cuatro areas. Turno #1, Turno Demo
+  Coordinacion 01, cerrado; participacion #1 de medico.demo1 en Consulta
+  finalizada. Recorrido confirmado: PLAN, ACTIVE, AVAILABLE, UNAVAILABLE,
+  FINISHED, CLOSED, con autor, motivo y valores anteriores/nuevos en auditoria.
+  Usuario confirma REVOKE_COORDINATION, invalidacion de sesion anterior,
+  nuevo acceso con Mi turno y consulta propia finalizada sin controles de
+  planificacion. Verificacion posterior de solo lectura: cuenta activa sin
+  permiso, turno #1 CLOSED, participacion #1 FINISHED; nueve tablas clinicas
+  identicas al respaldo previo, 20 pacientes/21 episodios e integridad y
+  referencias correctas. Prueba guiada del recorrido completada. Conflicto
+  entre sesiones cubierto automaticamente, aun sin prueba manual especifica.
+  Usuario autoriza crear commit, publicar en origin/main y comprobar CI con
+  "Si, cont". Publicacion en preparacion al redactar este registro; consultar
+  Git y la CI del SHA publicado al retomar, sin repetir validaciones locales.
+  Siguiente decision funcional: alcance de colas por profesional y sugerencias
+  de asignacion. Demo sigue iniciado.
+
+- Cuentas personales publicadas en `b2265c2`; CI [39360417857](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39360417857)
+  aprobada: backend, frontend, lint y build. Implementadas sobre ce16ed8: administrador
   separado ACCOUNT_ADMIN sin acceso clinico, alta local interactiva,
   crear/activar/desactivar/restablecer con auditoria, versiones, recibos y
   revocacion de sesiones. [Guia y limites](PERSONAL_ACCOUNTS.md).
@@ -20,8 +60,11 @@
   desactivacion revoca su sesion, reactivacion no revive tokens anteriores y
   permite nuevo acceso; restablecimiento revoca sesion, rechaza clave anterior
   y acepta la nueva. Chrome medico / Edge administrador. Demo iniciado.
-  Commit autorizado para cerrar el bloque validado; push pendiente de
-  autorizacion explicita.
+  Main limpia y sincronizada al verificar publicacion. Siguiente alcance:
+  [areas, turnos y coordinacion](STAFF_AREAS_SHIFTS_PLAN.md). Usuario eligio
+  coordinacion para organizar personal; administrador solo concede/retira
+  ese permiso. Implementacion local en validacion descrita arriba; sin reparto
+  automatico de pacientes.
 
 - Vista imprimible de pulsera publicada en `ce16ed8`; CI [39354682995](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39354682995)
   aprobada: backend, frontend, lint y build. Implementada sobre e04be5f, autorizada

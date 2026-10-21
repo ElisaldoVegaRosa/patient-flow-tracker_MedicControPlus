@@ -114,6 +114,16 @@ def test_account_schema_requires_its_audit_table(tmp_path):
         create_backup(source, tmp_path / "backup-accounts.sqlite3")
 
 
+@pytest.mark.parametrize("table", ["staff_areas", "staff_shifts", "staff_assignments", "staff_changes"])
+def test_staff_schema_requires_all_operational_tables(tmp_path, table):
+    source = tmp_path / "staff-incomplete.db"
+    demo_database(source)
+    with sqlite3.connect(source) as connection:
+        connection.execute(f"DROP TABLE {table}")
+    with pytest.raises(BackupError, match=table):
+        create_backup(source, tmp_path / "incomplete.sqlite3")
+
+
 def test_broken_foreign_key_is_not_backed_up(tmp_path):
     source = tmp_path / "clinical.db"
     output = tmp_path / "backup.sqlite3"

@@ -32,7 +32,8 @@ def validate_session(
             users.username,
             users.role,
             users.active,
-            users.display_name
+            users.display_name,
+            users.can_coordinate
         FROM sessions
         JOIN users ON users.id = sessions.user_id
         WHERE sessions.token_hash = ?
@@ -86,6 +87,8 @@ def validate_session(
 
     if session["display_name"]:
         user["display_name"] = session["display_name"]
+    if session["can_coordinate"]:
+        user["can_coordinate"] = True
     connection.close()
 
     return user
@@ -110,7 +113,7 @@ def login(
         # Serialize credential validation + token insertion against deactivation/reset.
         connection.execute("BEGIN IMMEDIATE")
         user = connection.execute(
-            "SELECT id, username, display_name, password_hash, password_salt, role, active FROM users WHERE username = ?",
+            "SELECT id, username, display_name, password_hash, password_salt, role, active, can_coordinate FROM users WHERE username = ?",
             (username,),
         ).fetchone()
         if user is None or user["active"] != 1 or not verify_password(password, user["password_salt"], user["password_hash"]):
@@ -126,6 +129,8 @@ def login(
         result = {"access_token": token, "username": user["username"], "role": user["role"]}
         if user["display_name"]:
             result["display_name"] = user["display_name"]
+        if user["can_coordinate"]:
+            result["can_coordinate"] = True
         return result
     except BaseException:
         connection.rollback()
@@ -136,7 +141,7 @@ def login(
 
 
 def session_user(user: dict[str, str]) -> dict[str, str]:
-    return {key: user[key] for key in ("username", "role", "display_name") if key in user}
+    return {key: user[key] for key in ("username", "role", "display_name", "can_coordinate") if key in user}
 
 
 def logout(

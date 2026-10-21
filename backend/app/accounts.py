@@ -41,7 +41,7 @@ def migrate_accounts(connection):
 
 def account_detail(connection, account_id):
     row = connection.execute(
-        "SELECT id, username, display_name, role, active, created_at, account_revision FROM users WHERE id = ?",
+        "SELECT id, username, display_name, role, active, created_at, account_revision, can_coordinate FROM users WHERE id = ?",
         (account_id,),
     ).fetchone()
     if row is None:

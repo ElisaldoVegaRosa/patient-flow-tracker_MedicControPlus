@@ -28,6 +28,8 @@ import SupervisorPage from "./pages/SupervisorPage";
 import EpisodePage from "./pages/EpisodePage";
 import LoginPage from "./pages/LoginPage";
 import AccountsPage from "./pages/AccountsPage";
+import StaffingPage from "./pages/StaffingPage";
+import { notifyOperationalConfirmation, operationalFormDirty } from "./session/operationalWrites";
 import EpisodePresence from "./components/EpisodePresence";
 import AppHeader from "./components/AppHeader";
 import type {
@@ -84,10 +86,10 @@ function App() {
   const draftRoot = useRef<HTMLDivElement>(null);
   const [retainedDrafts, setRetainedDrafts] = useState<FormDraft[]>([]);
   const lifecycleDirty = useCallback(() => {
-    return [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-record-correction], form[data-draft-kind='identity']") ?? [])]
-      .some(form => [...form.querySelectorAll("input, textarea")].some(field =>
+    return [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-operational], form[data-record-correction], form[data-draft-kind='identity']") ?? [])]
+      .some(form => form.dataset.operational ? operationalFormDirty(form) : [...form.querySelectorAll("input, textarea")].some(field =>
         (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
-        (form.dataset.draftKind === "identity" ? field.value !== field.defaultValue : Boolean(field.value.trim()))));
+        (form.dataset.operational || form.dataset.draftKind === "identity" ? field.value !== field.defaultValue : Boolean(field.value.trim()))));
   }, []);
   function guardLifecycle(action: () => void) {
     if (lifecycleDirty() && !window.confirm("Hay una corrección o motivo sin guardar. ¿Descartar esos campos y salir?")) return;
@@ -244,6 +246,11 @@ function App() {
   }
 
   function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
+    if (path.startsWith("/staff/")) {
+      notifyOperationalConfirmation(path, body);
+      setWriteNotice("Operacion de personal confirmada por el servidor.");
+      return;
+    }
     setWriteNotice("Operación confirmada por el servidor. No se ha creado otro registro.");
     setError(previous => previous.includes("Resultado por confirmar") || previous.includes("envío anterior por confirmar") ? "" : previous);
     const kind = path === "/episodes" ? "arrival" : path.endsWith("/identity") ? "identity" : path.endsWith("/triage") ? "triage" : path.endsWith("/vitals") ? "vitals" : path.endsWith("/medical-evaluation") ? "evaluation" : path.endsWith("/tasks") ? "order" : path.startsWith("/tasks/") ? "lab" : undefined;
@@ -380,6 +387,7 @@ useEffect(() => {
         setUser({
           username: session.username,
           display_name: session.display_name,
+          can_coordinate: session.can_coordinate,
           role: session.role,
           access_token: storedToken,
         });
@@ -723,6 +731,7 @@ async function logout() {
       onInputCapture={event => { const target = event.target; if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) target.setCustomValidity(""); }}
       onSubmitCapture={event => { if (event.target instanceof HTMLFormElement && !validateOperationalForm(event.target)) { event.preventDefault(); event.stopPropagation(); } }}>
       <AppHeader
+        onStaff={() => guardLifecycle(() => leave.run(() => navigate("staff")))}
         onIdentity={() => guardLifecycle(() => leave.run(() => navigate("identity")))}
         user={user}
         onDashboard={() => page === "dashboard" ? void live.refresh() : guardLifecycle(() => leave.run(() => {
@@ -775,7 +784,8 @@ async function logout() {
       <WriteConflicts writes={writes} onReviewed={latest => { reviewChanges(latest); if (page === "laboratory") void openLaboratoryQueue(); }} />
       <RecoveredWrites user={user} operations={operations} onConfirmed={() => {
         setWriteNotice("El servidor confirmó un envío anterior. No se ha reenviado ni se han borrado los campos actuales; consulta los registros actualizados.");
-        void live.refresh();
+        if (page === "staff") notifyOperationalConfirmation("/staff/recovered");
+        else void live.refresh();
       }} />
       <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
         setError(exception.message);
@@ -806,6 +816,7 @@ async function logout() {
         onOpenEpisode={openEpisode} submitting={operations.isPending("arrival")} onSubmit={createEpisode} />}
 
       {page === "scan" && <ScanPage onSubmit={scanEpisode} />}
+      {page === "staff" && <StaffingPage user={user} operations={operations} />}
       {page === "identity" && <IdentityQueuePage user={user}
         onOpenEpisode={async id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
 

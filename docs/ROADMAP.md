@@ -2,7 +2,24 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Cuentas personales implementadas y probadas localmente: [guia](PERSONAL_ACCOUNTS.md).
+- Areas, turnos y coordinacion implementados localmente, autorizados con
+  "Si, cont"; backend 270/270, frontend 568/568, lint y build aprobados.
+  [Guia](STAFF_AREAS_SHIFTS.md).
+  Ensayo de migracion en copia conserva todos los datos previos (20 pacientes,
+  21 episodios). Usuario autorizo prueba manual: demo iniciado, migracion
+  aplicada y filas previas conservadas; integridad/referencias correctas.
+  Usuario confirma concesion y acceso; turno #1 cerrado y participacion #1
+  finalizada, con recorrido completo auditado. Retirada auditada, sesion
+  anterior invalidada y nuevo acceso con Mi turno propio sin controles de
+  edicion confirmados. Nueve tablas clinicas conservadas e integridad correcta.
+  Conflicto entre sesiones cubierto automaticamente; sin prueba manual
+  especifica. Usuario autoriza commit/push a origin/main y comprobacion CI con
+  "Si, cont". Publicacion en preparacion al redactar; al retomar consultar Git
+  y CI del SHA publicado. Despues se decidira alcance de colas por profesional
+  y sugerencias de asignacion; no estan incluidos en este bloque.
+
+- Cuentas personales publicadas en `b2265c2`, CI [39360417857](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39360417857)
+  aprobada. [Guia](PERSONAL_ACCOUNTS.md).
   Administrador exclusivo sin consulta clinica, alta inicial local, auditoria,
   revocacion, versiones y recibos compartidos. Turnos/areas/colas excluidos.
   Cobertura backend 252, frontend 560/560, lint/build aprobados; 21 dirigidas
@@ -11,8 +28,11 @@
   Usuario confirma alta medico.demo1, acceso por perfil, baja con revocacion,
   reactivacion sin recuperar sesion y restablecimiento (revoca, clave antigua
   rechazada, nueva aceptada). Demo iniciado, prueba manual completada.
-  Commit autorizado para este bloque. Push y comprobacion CI pendientes de
-  autorizacion explicita.
+  Siguiente alcance autorizado: [areas, turnos y coordinacion](STAFF_AREAS_SHIFTS_PLAN.md).
+  Usuario eligio coordinacion para asignar area/turno; administrador solo
+  concede/retira permiso. Planificacion y disponibilidad explicitas, con
+  auditoria; colas y asignacion de pacientes quedan despues. Sin nueva
+  prueba directa acordada ni commit/push nuevos; implementacion autorizada.
 
 - Vista imprimible publicada en `ce16ed8`, CI [39354682995](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39354682995)
   aprobada. [Guia](WRISTBAND_PDF_DEMO.md). Solo enfermeria/supervisor despues

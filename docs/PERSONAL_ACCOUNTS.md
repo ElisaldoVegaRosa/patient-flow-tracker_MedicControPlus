@@ -1,6 +1,7 @@
 # Cuentas personales y administrador separado
 
-Entrega local autorizada, sobre ce16ed8. Sin commit/push ni prueba directa.
+Entrega sobre ce16ed8, publicada en `b2265c2`; CI [39360417857](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39360417857)
+aprobada: backend, frontend, lint y build. Prueba manual completada.
 
 ## Alcance y permisos
 
@@ -146,8 +147,7 @@ En Edge admin / Chrome medico, confirma baja con revocacion de sesion,
 reactivacion que no revive el token anterior pero permite nuevo login, y
 restablecimiento que revoca sesion, rechaza clave vieja y acepta nueva.
 Prueba manual del bloque completada; claves no compartidas ni registradas.
-Commit autorizado tras prueba manual completa; publicacion pendiente de
-autorizacion explicita.
+Publicacion y CI completadas en b2265c2; main limpia y sincronizada al verificarlo.
 
 El PDF y QR de EP-21 siguen publicados en ce16ed8; no se repiten esas pruebas.
 Impresion fisica, fusion, cambios de perfil, cambio propio de clave, SSO y correo

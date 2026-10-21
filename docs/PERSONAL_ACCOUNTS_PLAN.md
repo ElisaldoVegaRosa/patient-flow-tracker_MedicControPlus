@@ -2,8 +2,8 @@
 
 Base inspeccionada: ce16ed8. Usuario autorizo implementar este primer bloque.
 Implementado localmente: [guia y limites](PERSONAL_ACCOUNTS.md); validacion
-completa aprobada segun guia. Prueba manual completada y commit autorizado;
-push pendiente de autorizacion explicita. Usuario eligio administrador de cuentas separado,
+completa aprobada segun guia. Prueba manual completada y publicado en b2265c2,
+CI [39360417857](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39360417857) aprobada. Usuario eligio administrador de cuentas separado,
 con permiso propio, en lugar de atribuir esa facultad al supervisor clinico.
 
 ## Problema y base existente

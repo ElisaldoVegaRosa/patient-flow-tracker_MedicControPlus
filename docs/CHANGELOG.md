@@ -5,7 +5,32 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Cuentas personales y administrador separado (entrega local)
+## Areas, turnos y coordinacion (implementacion local)
+
+- Permiso adicional administrado con version, motivo, auditoria y revocacion de
+  sesiones; conserva rol clinico y separacion de ACCOUNT_ADMIN.
+- Areas configurables, turnos con fechas UTC/hora dominicana y responsable
+  confirmado; personal activo, prevencion atomica de duplicados/solapamientos,
+  disponibilidad explicita y consulta propia. Suplencia explicita auditada.
+- Formularios operacionales compartidos con cuentas: conflictos, resultados
+  inciertos y proteccion de campos sin guardar, incluidos cambios en selectores.
+- Auditoria y recibos sin episodio; no modifica ubicacion, asignados ni historial
+  clinico. Respaldo exige las tablas nuevas cuando detecta el permiso nuevo.
+- Migracion transaccional ensayada dos veces en copia restaurada, preservando
+  14 tablas anteriores, 20 pacientes y 21 episodios; base original sin cambios,
+  servidores detenidos. Backend 270/270 (541,14 s), frontend 568/568 en 56
+  archivos (431,01 s), lint y build aprobados. Usuario autoriza prueba guiada:
+  demo iniciado y migracion aplicada conservando filas previas de 14 tablas,
+  20 pacientes/21 episodios e integridad/referencias. Usuario confirma concesion
+  de coordinacion y ciclo completo del turno #1/participacion #1, con auditoria
+  de inicio, disponibilidad, pausa, finalizacion y cierre. Confirma retirada
+  auditada, revocacion de sesion y nuevo acceso a consulta propia sin controles.
+  Nueve tablas clinicas conservadas e integridad/referencias correctas despues
+  de la prueba. Conflicto cubierto automaticamente, sin ensayo manual especifico;
+  usuario autoriza commit/push a origin/main y comprobacion CI con "Si, cont".
+  [Guia y limites](STAFF_AREAS_SHIFTS.md).
+
+## Cuentas personales y administrador separado (publicadas en b2265c2)
 
 - Perfil ACCOUNT_ADMIN separado de supervisor, sin consulta/acciones clinicas;
   acceso personal y nombre visible conservando autoria por username estable.
@@ -34,8 +59,8 @@ las verificaciones realizadas y el estado de cada etapa.
   auditada de medico.demo1, acceso por perfil, baja con revocacion, reactivacion
   sin recuperar token anterior y restablecimiento con revocacion, rechazo de
   clave antigua y acceso con nueva. Chrome medico / Edge administrador.
-  Demo iniciado; commit autorizado tras prueba completa. Publicacion pendiente
-  de autorizacion explicita.
+  Demo iniciado; publicado en `b2265c2`. CI [39360417857](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39360417857)
+  aprobada: backend, frontend, lint y build.
 
 ## Vista imprimible de pulsera para PDF (entrega local)
 

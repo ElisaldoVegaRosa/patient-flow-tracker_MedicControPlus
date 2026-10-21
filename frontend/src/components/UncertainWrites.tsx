@@ -12,6 +12,7 @@ function operationKey(path: string) {
 }
 
 function label(path: string) {
+  if (path.startsWith("/staff/")) return "Planificación de personal";
   if (path === "/accounts") return "Crear cuenta";
   if (path.startsWith("/accounts/")) return `Cuenta #${path.split("/")[2]} · ${path.endsWith("/password") ? "Restablecer contraseña" : "Estado"}`;
   if (path.endsWith("/identity")) return `Identidad · EP-${path.split("/")[2]}`;

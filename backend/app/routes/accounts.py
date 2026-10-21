@@ -52,6 +52,10 @@ class AccountStatus(AccountReason):
     active: bool = Field(strict=True)
 
 
+class CoordinationPermission(AccountReason):
+    can_coordinate: bool = Field(strict=True)
+
+
 def create_router(connection_factory, timestamp, require_roles):
     factory = transaction_factory(connection_factory)
     router = APIRouter(prefix="/accounts")
@@ -134,6 +138,22 @@ def create_router(connection_factory, timestamp, require_roles):
         connection.execute("UPDATE sessions SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL", (timestamp(), account_id))
         result = account_detail(connection, account_id)
         audit(connection, account_id, user["username"], "RESET_PASSWORD", before, result, data.reason, timestamp)
+        return result
+
+    @router.patch("/{account_id}/coordination")
+    @write
+    def coordination(account_id: int, data: CoordinationPermission,
+                     expected: str | None = Header(default=None, alias="If-Match"), user: dict = Depends(administrator)):
+        connection = factory()
+        before = check(connection, account_id, expected)
+        if before["role"] == ACCOUNT_ADMIN:
+            raise HTTPException(409, "El administrador de cuentas no puede coordinar urgencias")
+        if data.can_coordinate and (not before["active"] or not before["display_name"].strip()):
+            raise HTTPException(409, "Selecciona una cuenta personal activa, no un usuario demo compartido")
+        connection.execute("UPDATE users SET can_coordinate=?,account_revision=account_revision+1 WHERE id=?", (int(data.can_coordinate), account_id))
+        connection.execute("UPDATE sessions SET revoked_at=? WHERE user_id=? AND revoked_at IS NULL", (timestamp(), account_id))
+        result = account_detail(connection, account_id)
+        audit(connection, account_id, user["username"], "GRANT_COORDINATION" if data.can_coordinate else "REVOKE_COORDINATION", before, result, data.reason, timestamp)
         return result
 
     return router
