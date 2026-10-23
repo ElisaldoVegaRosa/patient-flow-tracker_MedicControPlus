@@ -1,8 +1,9 @@
 # Colas por profesional y asignacion asistida
 
-Alcance y criterio autorizados por el usuario con "Si, cont" sobre 1dff835,
-publicado con CI 39532858950 aprobada. Implementacion local validada;
-usuario autoriza prueba guiada con "Si, cont"; sin nuevos commit/push autorizados.
+Alcance y criterio autorizados por el usuario con "Si, cont" sobre `1dff835`,
+publicados en `2accbe0` con CI
+[39894081075](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39894081075)
+aprobada. Prueba guiada de EP-22 completada hasta el relevo.
 [Guia y validacion](PATIENT_QUEUES_ASSIGNMENT.md).
 
 ## Problema y base real

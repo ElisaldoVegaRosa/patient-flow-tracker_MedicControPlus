@@ -2,6 +2,14 @@
 
 ## Estado actual (leer primero)
 
+- Colas, responsables y relevo aceptado publicados en `2accbe0`; CI
+  [39894081075](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39894081075)
+  aprobada (backend, frontend, lint y build). `main` y `origin/main`
+  sincronizados con arbol limpio al comprobar la publicacion. Prueba guiada de
+  EP-22 completada hasta relevo e inicio de enfermeria de Observacion; historial
+  e integridad comprobados. Siguiente decision: politica de fin de turno cuando
+  se supera la hora programada y el turno sigue ACTIVE.
+
 - Personal/areas/turnos publicados en `1dff835`; CI
   [39532858950](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39532858950)
   aprobada: backend, frontend, lint y build. Main limpia y sincronizada al
@@ -72,8 +80,8 @@
   despues de su horario, ya que el estado se cierra manualmente; las
   disponibilidades continuan figurando vigentes. Revisar politica de fin de
   turno antes de pruebas de campo.
-  Bloque local listo para revision y publicacion; nuevos commit/push requieren
-  autorizacion explicita.
+  Bloque publicado en `2accbe0`; CI 39894081075 aprobada. Cambios nuevos
+  requieren autorizacion de commit/push.
 
 - Areas, turnos y coordinacion autorizados e implementados localmente sobre
   b2265c2; validacion completa aprobada. [Guia](STAFF_AREAS_SHIFTS.md).

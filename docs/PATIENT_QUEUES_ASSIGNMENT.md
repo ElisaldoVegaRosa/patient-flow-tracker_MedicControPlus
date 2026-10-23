@@ -1,7 +1,8 @@
 # Colas, responsables y relevo del demo
 
-Implementacion local autorizada sobre 1dff835; validacion aprobada. Usuario
-autoriza prueba guiada con "Si, cont"; sin commit/push nuevos autorizados.
+Implementacion publicada en `2accbe0` sobre `1dff835`; CI
+[39894081075](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39894081075)
+aprobada. Prueba guiada de EP-22 completada hasta el relevo.
 [Alcance acordado](PATIENT_QUEUES_ASSIGNMENT_PLAN.md).
 
 ## Prueba guiada actual
@@ -153,10 +154,10 @@ se corrige solo la solicitud de prueba, manteniendo esa proteccion existente.
 Cobertura acumulada backend: 285 casos. Frontend afectado 8/8, 6,55 s;
 lint/build finales aprobados. No se repiten suites completas tras ajustes
 acotados ni pruebas directas anteriores.
-Prueba guiada autorizada y en curso. Cuentas de enfermeria y turno #2 iniciado
-confirmados por usuario. Pendiente revision visual de paneles desplegables,
-disponibilidad y flujo; no se comparten contrasenas.
-Publicacion requiere autorizacion nueva.
+Prueba guiada completada hasta relevo de enfermeria e inicio propio en
+Observacion. Usuario confirma paneles desplegables, disponibilidad y flujo;
+no se comparten contrasenas. Turno #2 siguio ACTIVE tras su fin programado:
+queda pendiente definir la politica de cierre antes de pruebas de campo.
 
 Comandos de validacion ejecutados desde la raiz en PowerShell:
 

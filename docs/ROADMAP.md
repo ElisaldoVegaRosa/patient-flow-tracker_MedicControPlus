@@ -2,6 +2,12 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Colas, responsables y relevo publicados en `2accbe0`; CI
+  [39894081075](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39894081075)
+  aprobada. Prueba guiada EP-22 completada hasta aceptacion e inicio del relevo.
+  Proxima decision: que hacer al vencer la hora programada de un turno ACTIVE;
+  hoy su cierre es manual y mantiene disponibilidades efectivas.
+
 - Personal/areas/turnos publicados en `1dff835`, CI
   [39532858950](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39532858950)
   aprobada. [Alcance de colas y asignacion](PATIENT_QUEUES_ASSIGNMENT_PLAN.md):
@@ -39,8 +45,8 @@
   Siguiente decision operativa: turno #2 siguio ACTIVE mas alla de su fin
   programado; hoy el cierre es manual y la disponibilidad depende del estado.
   Definir aviso/bloqueo o cierre supervisado antes de pruebas de campo.
-  Bloque listo para publicacion solo tras nueva autorizacion de commit/push.
-  Nuevos commit/push requieren autorizacion posterior.
+  Bloque publicado en `2accbe0` con CI aprobada. Cambios posteriores requieren
+  autorizacion de commit/push.
 
 - Areas, turnos y coordinacion implementados localmente, autorizados con
   "Si, cont"; backend 270/270, frontend 568/568, lint y build aprobados.

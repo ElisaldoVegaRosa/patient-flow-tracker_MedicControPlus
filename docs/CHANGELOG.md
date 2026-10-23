@@ -5,7 +5,7 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Borradores de asignacion obsoletos (implementacion local)
+## Borradores de asignacion obsoletos (publicados en 2accbe0)
 
 - Al actualizar una cola, una asignacion confirmada por otra sesion deshabilita
   el formulario anterior. Si habia campos locales, siguen conservados y ahora
@@ -25,7 +25,7 @@ las verificaciones realizadas y el estado de cada etapa.
   aceptado por receptora, nuevo inicio sin borrar el primero. Auditoria e
   integridad SQLite comprobadas. Usuario confirma PROPOSE/ACCEPT/START en UI.
 
-## Paneles operacionales desplegables (implementacion local)
+## Paneles operacionales desplegables (publicados en 2accbe0)
 
 - A solicitud del usuario, areas, creacion de turno, turnos, profesionales,
   pacientes y disciplinas de las colas se muestran plegados inicialmente.
@@ -38,9 +38,9 @@ las verificaciones realizadas y el estado de cada etapa.
   1 navegacion), lint y build aprobados. Una expectativa antigua de ausencia
   de group se ajusto a ausencia de formularios operacionales: details tambien
   tiene rol group. Backend no modificado por este ajuste visual.
-- Prueba manual del nuevo aspecto pendiente; sin commit/push autorizados.
+- Paneles desplegables confirmados por el usuario durante la prueba guiada.
 
-## Colas, responsables y relevo aceptado (implementacion local)
+## Colas, responsables y relevo aceptado (publicados en 2accbe0; CI 39894081075 aprobada)
 
 - Responsables separados por cuenta personal, cola compartida y propia,
   area de seguimiento distinta de ubicacion y texto libre anterior conservado.
@@ -56,8 +56,8 @@ las verificaciones realizadas y el estado de cada etapa.
   con triaje y treinta espacios sin area ni responsables inferidos. Base original
   intacta durante ensayo. Usuario autoriza prueba guiada: demo iniciado y
   migracion aplicada conservando 18 tablas previas y 20 pacientes/21 episodios,
-  con integridad/referencias correctas. Preparacion de cuentas para prueba en
-  curso; nuevos commit/push pendientes de autorizacion.
+  con integridad/referencias correctas. Cuentas preparadas y prueba guiada
+  completada hasta el relevo; publicacion en `2accbe0`.
 - Dirigidas 25 backend, 18 frontend iniciales y 8 posteriores del archivo de colas
   aprobadas. Suite backend 284/284 y frontend 577/577 en 58 archivos aprobadas.
   Refuerzo final: version por secuencia clinica no QR para detectar cierre y
