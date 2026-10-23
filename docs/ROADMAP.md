@@ -2,6 +2,46 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Personal/areas/turnos publicados en `1dff835`, CI
+  [39532858950](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39532858950)
+  aprobada. [Alcance de colas y asignacion](PATIENT_QUEUES_ASSIGNMENT_PLAN.md):
+  dos responsables por episodio, colas por area/profesional, recomendacion
+  explicable y confirmacion/relevo auditados. Usuario confirma cambio a
+  enfermeria de Observacion con relevo aceptado y anterior responsable hasta
+  aceptar; medico normalmente se conserva. Criterio acordado:
+  ordenar pacientes por prioridad y espera; comparar candidatos disponibles por
+  P1/P2 asignados, pendientes de su disciplina, total activo y rotacion en empate.
+  Separar dependencias LAB y tiempo desde ingreso de espera desde triaje.
+  No hay pesos ni tiempos clinicos nuevos. Usuario confirma el criterio y
+  autoriza implementar el bloque con "Si, cont". Desarrollo y validacion
+  completados localmente: backend suite 284/284 mas refuerzo final y rutas
+  afectadas 44/44 (cobertura acumulada 285); frontend 577/577, 8 afectados y
+  lint/build finales aprobados. Migracion ensayada
+  dos veces en copia: 18 tablas anteriores preservadas, 20 pacientes y 21
+  episodios; sin inferir responsables. [Guia local](PATIENT_QUEUES_ASSIGNMENT.md).
+  Respaldo previo verificado. Usuario autoriza prueba guiada con "Si, cont":
+  demo iniciado y migracion aplicada conservando 18 tablas previas, 20 pacientes
+  y 21 episodios e integridad/referencias correctas. Usuario confirma cuentas
+  de enfermeria, tres participaciones y turno #2 iniciado. Ajuste visual pedido:
+  planificacion, turnos, profesionales y colas desplegables; 16 pruebas frontend
+  afectadas y lint/build aprobados. Tres disponibilidades confirmadas;
+  EP-22 ficticio activo, con triaje, Consulta y responsables medico/enfermeria
+  confirmados. Antes de confirmar inicio, una lectura anterior de enfermeria
+  con campos locales produjo aviso generico al quedar deshabilitada la antigua
+  asignacion. Correccion local de identificacion y descarte de ese borrador:
+  18 casos afectados y lint/build aprobados, suite frontend completa 581/581 en 58 archivos aprobada.
+  Prueba guiada de EP-22 completa hasta relevo: Consulta a Observacion,
+  medico conservado, enfermeria de Consulta retenida hasta aceptacion por
+  enfermeria de Observacion, e inicios propios separados. Auditoria e integridad
+  comprobadas en SQLite y PROPOSE/ACCEPT/START visibles confirmados en UI.
+  Aviso y descarte de borrador sin envio confirmados en UI; caso de formulario
+  deshabilitado cubierto por prueba automatizada tras expirar ventana original.
+  Siguiente decision operativa: turno #2 siguio ACTIVE mas alla de su fin
+  programado; hoy el cierre es manual y la disponibilidad depende del estado.
+  Definir aviso/bloqueo o cierre supervisado antes de pruebas de campo.
+  Bloque listo para publicacion solo tras nueva autorizacion de commit/push.
+  Nuevos commit/push requieren autorizacion posterior.
+
 - Areas, turnos y coordinacion implementados localmente, autorizados con
   "Si, cont"; backend 270/270, frontend 568/568, lint y build aprobados.
   [Guia](STAFF_AREAS_SHIFTS.md).

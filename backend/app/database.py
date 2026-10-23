@@ -4,6 +4,7 @@ from pathlib import Path
 from .patient_identity import migrate_patients
 from .accounts import migrate_accounts
 from .staffing import migrate_staffing
+from .care import migrate_care
 
 
 def get_connection(database_path: Path) -> sqlite3.Connection:
@@ -178,6 +179,7 @@ def initialize_database(
     migrate_patients(connection)
     migrate_accounts(connection)
     migrate_staffing(connection)
+    migrate_care(connection)
 
     for username, demo_user in demo_users.items():
         existing_user = connection.execute(

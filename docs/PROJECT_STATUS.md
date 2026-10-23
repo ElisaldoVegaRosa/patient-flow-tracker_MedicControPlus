@@ -2,6 +2,79 @@
 
 ## Estado actual (leer primero)
 
+- Personal/areas/turnos publicados en `1dff835`; CI
+  [39532858950](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39532858950)
+  aprobada: backend, frontend, lint y build. Main limpia y sincronizada al
+  comprobar publicacion; suites locales 270 backend/568 frontend conservadas.
+  Prueba manual completa del recorrido y retirada de permiso confirmada abajo.
+  Alcance autorizado con "Si, cont", implementado y validado localmente:
+  [colas y asignacion asistida](PATIENT_QUEUES_ASSIGNMENT_PLAN.md).
+  assigned_to conserva texto libre previo; nuevas relaciones separan medico y
+  enfermeria por cuenta, sugerencia/confirmacion/inicio y relevo trazable.
+  Usuario confirma enfermeria
+  de Observacion con relevo aceptado, manteniendo al anterior hasta aceptar;
+  medico normalmente se conserva. Criterio autorizado: prioridad/espera del
+  paciente; candidatos elegibles por area;
+  menos P1/P2 asignados, luego pendientes propios, total de episodios y rotacion
+  en empates. LAB visible como dependencia, sin contar como tarea propia.
+  Implementacion aditiva con cuatro tablas care_*, sin inferir cuentas del texto
+  previo. Dirigidas ampliadas: 25 backend (10 colas + 15 respaldo), 18 frontend
+  iniciales y 8 del archivo de colas tras caso adicional de respuestas tardias.
+  Suite completa backend 284/284 (660,57 s), frontend 577/577 en 58 archivos
+  (517,00 s). Refuerzo posterior: version incluye historial clinico no QR para
+  impedir confirmar desde pantalla anterior a cierre/reapertura o prioridad
+  que cambia y vuelve al valor anterior; alertas abiertas visibles como contexto.
+  Diez casos de colas revalidados; nuevo caso y rutas afectadas 44/44 (111,23 s),
+  cobertura acumulada backend 285 casos. Frontend afectado 8/8, lint/build
+  finales aprobados. Sin repetir suites completas despues del ajuste acotado.
+  Ensayo de migracion en copia, dos arranques: 18 tablas previas preservadas,
+  20 pacientes/21 episodios, integridad/referencias correctas, 15 episodios con
+  triaje y 30 espacios vacios; sin inferir area ni responsables. [Guia](PATIENT_QUEUES_ASSIGNMENT.md).
+  Respaldo previo verificado:
+  backups/clinical-20261021T231944Z-5c81937e.sqlite3 (20 pacientes/21 episodios).
+  Usuario autoriza prueba guiada con "Si, cont": demo iniciado y migracion
+  aplicada. Verificacion de solo lectura tras arranque conserva todas las
+  filas/columnas de 18 tablas previas, 20 pacientes/21 episodios e integridad y
+  referencias correctas. Quince episodios con triaje y 30 espacios vacios,
+  ningun responsable/area inferido ni cambios de oficio. Prueba guiada en curso:
+  usuario confirma las dos cuentas personales de enfermeria, coordinacion
+  concedida y tres participaciones planificadas (medico/Consulta,
+  enfermeria/Consulta y enfermeria/Observacion). Turno Demo Asignacion 02
+  creado e iniciado, confirmado por historial shift #2 ACTIVE.
+  Usuario pide reducir saturacion visual: paneles de areas, creacion de turno,
+  turnos, profesionales, pacientes, disciplinas e historial plegados por defecto;
+  encabezados conservan identificacion/estado y cerrar conserva formularios.
+  Ajuste visual: 16 casos frontend afectados aprobados (6 personal, 9 colas,
+  1 navegacion); lint/build aprobados. Sin repetir backend por este ajuste.
+  Prueba guiada: tres disponibilidades confirmadas; EP-22 ficticio activo con
+  triaje, area Consulta, medico.demo1 y enfermeria.consulta asignados. Aun no
+  se ha confirmado el inicio del responsable. Una ventana de enfermeria vio
+  datos anteriores, dejo un formulario de asignacion con campos y luego cargo
+  la asignacion ya hecha por otra sesion. Ese borrador conservado en formulario
+  ahora deshabilitado provocaba aviso generico al salir. Correccion local:
+  identificar el formulario en la parte superior y ofrecer descarte explicito
+  de solo sus campos fuera del bloque deshabilitado; no altera asignaciones.
+  Reproduccion y rutas afectadas 18/18 frontend, lint/build aprobados;
+  suite frontend completa 581/581 en 58 archivos aprobada. Backend sin cambios en este ajuste.
+  Prueba manual reanudada tras caducar sesiones: servidor propio responde.
+  EP-22 paso de Consulta a Observacion; medico.demo1 permanecio responsable;
+  enfermeria.consulta siguio responsable hasta la aceptacion expresa del relevo
+  por enfermeria.observacion. Ambos profesionales confirmaron su inicio propio.
+  Lectura SQLite: responsable enfermeria.observacion sin relevo pendiente,
+  inicio actual nuevo y primer inicio de enfermeria anterior conservado;
+  cambios AREA/ASSIGN/START/PROPOSE/ACCEPT/START auditados. Integridad ok,
+  cero referencias huerfanas. Usuario confirma en UI el historial
+  PROPOSE/ACCEPT/START de enfermeria de Observacion. Usuario confirma en UI
+  aviso de borrador, descarte solo de sus campos y desaparicion del aviso sin
+  enviar operacion. Caso especifico de formulario deshabilitado cubierto por
+  prueba automatizada; la ventana original expiro y no se repitio ese envio.
+  Limite observado: turno #2 programado hasta 22/10 05:00 sigue ACTIVE
+  despues de su horario, ya que el estado se cierra manualmente; las
+  disponibilidades continuan figurando vigentes. Revisar politica de fin de
+  turno antes de pruebas de campo.
+  Bloque local listo para revision y publicacion; nuevos commit/push requieren
+  autorizacion explicita.
+
 - Areas, turnos y coordinacion autorizados e implementados localmente sobre
   b2265c2; validacion completa aprobada. [Guia](STAFF_AREAS_SHIFTS.md).
   Administrador concede/retira permiso sin acceso a planificacion; coordinacion

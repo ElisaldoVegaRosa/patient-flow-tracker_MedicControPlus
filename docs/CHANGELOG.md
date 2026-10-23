@@ -5,7 +5,68 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Areas, turnos y coordinacion (implementacion local)
+## Borradores de asignacion obsoletos (implementacion local)
+
+- Al actualizar una cola, una asignacion confirmada por otra sesion deshabilita
+  el formulario anterior. Si habia campos locales, siguen conservados y ahora
+  se identifican por episodio y accion en la parte superior de la cola.
+- Cada formulario con campos sin guardar ofrece descartarlos expresamente,
+  tambien cuando su accion ya no esta disponible. El descarte solo limpia ese
+  formulario; no envia ni revierte la asignacion confirmada. Los otros campos
+  pendientes permanecen protegidos.
+- Reproduccion de asignacion ajena entre lectura y actualizacion, descarte e
+  inicio propio: 18 casos frontend dirigidos aprobados; lint/build aprobados.
+  Suite frontend completa 581/581 en 58 archivos aprobada. El borrador de la
+  ventana original expiro con su sesion; usuario confirma aviso/descarte de un
+  borrador nuevo sin envio. Transicion a formulario deshabilitado cubierta por
+  prueba automatizada.
+- Prueba guiada posterior de EP-22: dos responsables con inicios propios;
+  traslado a Observacion mantiene medico, relevo de enfermeria propuesto y
+  aceptado por receptora, nuevo inicio sin borrar el primero. Auditoria e
+  integridad SQLite comprobadas. Usuario confirma PROPOSE/ACCEPT/START en UI.
+
+## Paneles operacionales desplegables (implementacion local)
+
+- A solicitud del usuario, areas, creacion de turno, turnos, profesionales,
+  pacientes y disciplinas de las colas se muestran plegados inicialmente.
+  Cada entrada del historial de planificacion tambien es desplegable.
+- Encabezados identifican turno/estado, profesional/area/estado y paciente/EP/
+  prioridad/area; disciplinas indican responsable, cobertura y relevo pendientes.
+- Cerrar paneles conserva los nodos y campos, proteccion de borradores y pausa
+  de actualizacion mientras se edita. Abrir/cerrar no envia operaciones.
+- Validacion: 16 casos frontend afectados aprobados (6 personal, 9 colas,
+  1 navegacion), lint y build aprobados. Una expectativa antigua de ausencia
+  de group se ajusto a ausencia de formularios operacionales: details tambien
+  tiene rol group. Backend no modificado por este ajuste visual.
+- Prueba manual del nuevo aspecto pendiente; sin commit/push autorizados.
+
+## Colas, responsables y relevo aceptado (implementacion local)
+
+- Responsables separados por cuenta personal, cola compartida y propia,
+  area de seguimiento distinta de ubicacion y texto libre anterior conservado.
+- Sugerencia explicable por prioridad/espera del episodio y carga del candidato:
+  P1/P2, tareas propias, total y rotacion. LAB visible como dependencia.
+- Asignacion, inicio propio y relevo aceptado separados. Cambio a Observacion
+  mantiene normalmente medico; enfermeria anterior permanece hasta aceptacion.
+  Cancelacion/rechazo y excepcion explicita de coordinacion auditados.
+- Reutiliza transaccion, permisos actuales, versiones, recibos, proteccion de
+  ediciones y resultados inciertos; cierre retira cola sin borrar responsables.
+- Migracion aditiva ensayada dos veces sobre respaldo: 18 tablas previas intactas,
+  20 pacientes/21 episodios, integridad y referencias correctas. Quince episodios
+  con triaje y treinta espacios sin area ni responsables inferidos. Base original
+  intacta durante ensayo. Usuario autoriza prueba guiada: demo iniciado y
+  migracion aplicada conservando 18 tablas previas y 20 pacientes/21 episodios,
+  con integridad/referencias correctas. Preparacion de cuentas para prueba en
+  curso; nuevos commit/push pendientes de autorizacion.
+- Dirigidas 25 backend, 18 frontend iniciales y 8 posteriores del archivo de colas
+  aprobadas. Suite backend 284/284 y frontend 577/577 en 58 archivos aprobadas.
+  Refuerzo final: version por secuencia clinica no QR para detectar cierre y
+  reapertura/cambios que vuelven al mismo valor; contexto visible de alertas y
+  desglose por prioridad. Diez casos de colas revalidados; nuevo caso y rutas
+  afectadas 44/44 (cobertura acumulada 285). Frontend afectado 8/8 y lint/build
+  finales aprobados, sin repetir suites completas. [Guia](PATIENT_QUEUES_ASSIGNMENT.md).
+
+## Areas, turnos y coordinacion (publicadas en 1dff835; CI 39532858950 aprobada)
 
 - Permiso adicional administrado con version, motivo, auditoria y revocacion de
   sesiones; conserva rol clinico y separacion de ACCOUNT_ADMIN.

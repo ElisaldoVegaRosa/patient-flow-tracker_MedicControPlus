@@ -28,6 +28,8 @@ from .routes.episode_registration import create_router as create_episode_registr
 from .routes.identity import create_router as create_identity_router
 from .routes.accounts import create_router as create_accounts_router
 from .routes.staffing import create_router as create_staffing_router
+from .routes.care import create_router as create_care_router
+from .care import state as care_state
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
     DATABASE_PATH,
@@ -460,6 +462,7 @@ def episode_detail(
         event["version"] = event_version(event, changes)
 
     from .concurrency import annotate_versions
+    result["care"] = care_state(connection, episode_id, suggestions=False)
     return annotate_versions(result)
 
 
@@ -496,6 +499,7 @@ def health() -> dict[str, str]:
 app.include_router(create_router(get_connection, utc_now, session_user))
 app.include_router(create_accounts_router(get_connection, utc_now, require_roles))
 app.include_router(create_staffing_router(get_connection, utc_now, authenticated_user, require_coordination))
+app.include_router(create_care_router(get_connection, utc_now, authenticated_user))
 app.include_router(create_presence_router(get_connection, authenticated_user))
 app.include_router(create_write_results_router(get_connection, episode_detail, session_user))
 app.include_router(create_dashboard_router(

@@ -1,7 +1,8 @@
 # Areas, turnos y coordinacion del demo
 
-Implementacion local sobre b2265c2. Recorrido manual guiado confirmado;
-commit/push a origin/main y comprobacion CI autorizados con "Si, cont".
+Publicado en 1dff835 sobre b2265c2. Recorrido manual guiado confirmado;
+CI [39532858950](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39532858950)
+aprobada: backend, frontend, lint y build. Main limpia/sincronizada al verificar.
 No representa distribucion de pacientes.
 
 ## Accesos
@@ -124,8 +125,8 @@ npm.cmd run build --prefix frontend
 ```
 
 No se repiten pruebas directas de QR, identidad o impresion previamente
-confirmadas. Publicacion y comprobacion CI autorizadas y en preparacion al
-redactar este registro; consultar el resultado por SHA en GitHub Actions.
+confirmadas. Publicacion y CI completadas en 1dff835; siguiente propuesta:
+[colas y asignacion asistida](PATIENT_QUEUES_ASSIGNMENT_PLAN.md).
 
 Referencias: [alcance acordado](STAFF_AREAS_SHIFTS_PLAN.md),
 [cuentas personales](PERSONAL_ACCOUNTS.md), [estado](PROJECT_STATUS.md).

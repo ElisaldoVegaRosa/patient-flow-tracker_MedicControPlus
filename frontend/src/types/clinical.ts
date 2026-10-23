@@ -40,6 +40,21 @@ export type StaffChange = { id: number; resource: string; target_id: number; act
 export type StaffingData = { areas: StaffArea[]; shifts: StaffShift[]; assignments: StaffAssignment[];
   professionals: StaffPerson[]; coordinators: StaffPerson[]; changes: StaffChange[]; requested_by: string };
 
+export type CarePerson = { id: number; username: string; display_name: string; role: string; active: number };
+export type CareCandidate = { id: number; username: string; display_name: string; high_priority: number;
+  pending_tasks: number; total: number; by_priority: Record<string, number>; incoming: number;
+  last_assignment_at: string | null; last_assignment_order: number };
+export type CareSlot = { discipline: "DOCTOR" | "NURSE"; user_id: number | null; pending_user_id: number | null;
+  owner: CarePerson | null; proposed: CarePerson | null; started_at: string | null; first_started_at: string | null;
+  covered: boolean; needs_coverage: boolean; candidates: CareCandidate[]; waiting_minutes?: number | null };
+export type CareEpisode = { episode_id: number; name: string; status: string; priority: number; location: string;
+  legacy_assigned_to: string | null; area_id: number | null; area_name: string | null; ready_at: string | null;
+  arrival_at: string; historical: number | null; version: string; slots: CareSlot[];
+  since_arrival_minutes?: number | null; since_ready_minutes?: number | null; lab_pending?: number; open_alert_count?: number;
+  changes?: { id: number; action: string; discipline: string | null; actor: string; reason: string;
+    created_at: string; old_value: string; new_value: string }[] };
+export type CareQueue = { episodes: CareEpisode[]; areas: { id: number; name: string; active: number }[]; requested_by: string };
+
 export type VitalSigns = {
   id: number;
   episode_id: number;
@@ -103,6 +118,7 @@ export type TimelineEvent = {
 };
 
 export type Episode = {
+  care?: CareEpisode;
   patient_id?: number;
   identity_status?: "REGISTERED" | "PROVISIONAL" | "VERIFIED";
   identity_version?: string;

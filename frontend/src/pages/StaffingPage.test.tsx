@@ -40,13 +40,14 @@ it("shows only the user's read-only planning without requesting coordination dat
   await screen.findByText(/Estado registrado: Planificado/);
   expect(screen.getByRole("heading", { name: "Mi turno" })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Crear turno" })).not.toBeInTheDocument();
-  expect(screen.queryByRole("group")).not.toBeInTheDocument();
+  expect(document.querySelector("form[data-operational]")).toBeNull();
   expect(fetchMock.mock.calls.every(([url]) => String(url).endsWith("/staff/mine"))).toBe(true);
 });
 
 it("sends Dominican midnight-crossing dates with an explicit offset and requires personal staff", async () => {
   const { mutations } = setup();
-  await screen.findByRole("article", { name: "Turno Noche demo" });
+  await screen.findByText("Noche demo · Planificado");
+  document.querySelectorAll("details").forEach(node => { node.open = true; });
   const form = screen.getByRole("group", { name: "Crear turno" });
   for (const [label, value] of [["Nombre del turno", "Noche nueva"], ["Inicio · hora dominicana", "2026-10-20T20:00"], ["Fin · hora dominicana", "2026-10-21T08:00"], ["Responsable de coordinación", "8"], ["Motivo", "Planificacion ficticia"]])
     fireEvent.change(within(form).getByLabelText(label), { target: { value } });
@@ -60,7 +61,8 @@ it("sends Dominican midnight-crossing dates with an explicit offset and requires
 
 it("preserves edits after a version conflict and sends reviewed versions only after explicit review", async () => {
   const { mutations, update, data } = setup();
-  await screen.findByRole("article", { name: "Turno Noche demo" });
+  await screen.findByText("Noche demo · Planificado");
+  document.querySelectorAll("details").forEach(node => { node.open = true; });
   const details = screen.getByText("Consulta · Activa").closest("details")!;
   details.open = true;
   const group = within(details).getByRole("group", { name: "Actualizar área" });
@@ -80,7 +82,8 @@ it("preserves edits after a version conflict and sends reviewed versions only af
 
 it("does not erase new fields when an earlier receipt arrives and keeps filtered forms mounted", async () => {
   setup();
-  await screen.findByRole("article", { name: "Turno Noche demo" });
+  await screen.findByText("Noche demo · Planificado");
+  document.querySelectorAll("details").forEach(node => { node.open = true; });
   const group = screen.getByRole("group", { name: "Crear área" });
   fireEvent.change(within(group).getByLabelText("Nombre del área"), { target: { value: "Borrador diferente" } });
   fireEvent.change(within(group).getByLabelText("Motivo"), { target: { value: "Motivo actual" } });
@@ -101,4 +104,24 @@ it("detects select-only edits relative to default selection", () => {
   expect(operationalFormDirty(form)).toBe(false);
   fireEvent.change(within(form).getByRole("combobox"), { target: { value: "true" } });
   expect(operationalFormDirty(form)).toBe(true);
+});
+
+it("starts planning folded and preserves dirty fields when closing and reopening", async () => {
+  const { mutations } = setup();
+  await screen.findByText("Noche demo · Planificado");
+  const disclosure = screen.getByText("Planificar turno").closest("details")!;
+  const shiftCard = screen.getByRole("article", { name: "Turno Noche demo" });
+  expect(disclosure.open).toBe(false);
+  expect(shiftCard.querySelector("details")!.open).toBe(false);
+  fireEvent.click(disclosure.querySelector("summary")!);
+  const name = within(disclosure).getByLabelText("Nombre del turno");
+  fireEvent.change(name, { target: { value: "Borrador conservado" } });
+  fireEvent.click(disclosure.querySelector("summary")!);
+  expect(disclosure.open).toBe(false);
+  expect(name).toHaveValue("Borrador conservado");
+  expect(screen.getByText("Actualización automática pausada mientras editas.")).toBeInTheDocument();
+  fireEvent.click(disclosure.querySelector("summary")!);
+  expect(within(disclosure).getByLabelText("Nombre del turno")).toBe(name);
+  expect(name).toHaveValue("Borrador conservado");
+  expect(mutations).not.toHaveBeenCalled();
 });

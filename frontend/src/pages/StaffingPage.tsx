@@ -90,7 +90,7 @@ export default function StaffingPage({ user, operations }: { user: User; operati
     {notice && <p role="status">{notice}</p>}{(error || liveError) && <p role="alert">{error || liveError}</p>}
     {!data && <p role="status">Consultando turnos…</p>}
     {user.can_coordinate && <>
-      <section className="panel"><h2>Áreas</h2>
+      <section className="panel"><details className="operational-disclosure"><summary><h2>Áreas</h2></summary>
         <OperationalWriteForm {...common} path="/staff/areas" label="Crear área"><label>Nombre del área<input name="name" required maxLength={200} /></label></OperationalWriteForm>
         {data?.areas.map(area => <details key={area.id}><summary>{area.name} · {area.active ? "Activa" : "Inactiva"}</summary>
           <OperationalWriteForm {...common} method="PATCH" path={`/staff/areas/${area.id}`} version={area.version} label="Actualizar área">
@@ -98,15 +98,15 @@ export default function StaffingPage({ user, operations }: { user: User; operati
             <label>Estado del área<select name="active" defaultValue={String(Boolean(area.active))}><option value="true">Activa</option><option value="false">Inactiva</option></select></label>
           </OperationalWriteForm>
         </details>)}
-      </section>
-      <section className="panel"><h2>Planificar turno</h2>
+      </details></section>
+      <section className="panel"><details className="operational-disclosure"><summary><h2>Planificar turno</h2></summary>
         <OperationalWriteForm {...common} path="/staff/shifts" label="Crear turno">{shiftFields()}</OperationalWriteForm>
-      </section>
+      </details></section>
       <section aria-label="Turnos planificados"><h2>Turnos</h2>{data?.shifts.map(shift => {
         const closed = shift.status === "CLOSED" || shift.status === "CANCELLED";
         const own = shift.coordinator_username === user.username;
         return <article className="panel" key={shift.id} aria-label={`Turno ${shift.name}`}>
-          <h3>{shift.name} · {names[shift.status]}</h3>
+          <details className="operational-disclosure"><summary><h3>{shift.name} · {names[shift.status]}</h3></summary>
           <p>{localDate(shift.starts_at).replace("T", " ")} — {localDate(shift.ends_at).replace("T", " ")}</p>
           <p>Coordinación: {shift.coordinator_name || shift.coordinator_username} ({shift.coordinator_username})</p>
           {(!shift.coordinator_active || !shift.coordinator_permission) && <p role="status">El responsable ya no tiene acceso de coordinación. Otra cuenta autorizada debe asumirlo explícitamente.</p>}
@@ -127,7 +127,7 @@ export default function StaffingPage({ user, operations }: { user: User; operati
             <label>Profesional<select name="user_id" required defaultValue=""><option value="">Selecciona una cuenta personal activa</option>{data.professionals.map(person => <option key={person.id} value={person.id}>{personLabel(person)} · {person.role}</option>)}</select></label>
             <label>Área de trabajo<select name="area_id" required defaultValue=""><option value="">Selecciona un área activa</option>{areaOptions}</select></label>
           </OperationalWriteForm>
-        </article>;
+        </details></article>;
       })}</section>
     </>}
     <section aria-label="Disponibilidad del personal"><h2>{user.can_coordinate ? "Personal planificado" : "Mi planificación y disponibilidad"}</h2>
@@ -142,7 +142,7 @@ export default function StaffingPage({ user, operations }: { user: User; operati
         const done = assignment.status === "FINISHED" || assignment.status === "CANCELLED";
         return <article className="panel" key={assignment.id} aria-label={`Planificación ${assignment.username} ${assignment.id}`}
           hidden={Boolean((areaFilter && String(assignment.area_id) !== areaFilter) || (shiftFilter && String(assignment.shift_id) !== shiftFilter))}>
-          <h3>{personLabel(assignment)} · {assignment.area_name}</h3>
+          <details className="operational-disclosure"><summary><h3>{personLabel(assignment)} · {assignment.area_name} · {names[assignment.status]}</h3></summary>
           <p>{assignment.shift_name} · {localDate(assignment.starts_at).replace("T", " ")} — {localDate(assignment.ends_at).replace("T", " ")}</p>
           <p>Estado registrado: {names[assignment.status]}. Disponible ahora por confirmación: {assignment.effective_available ? "Sí" : "No"}.</p>
           {!assignment.account_active && <p>Cuenta inactiva; no se considera disponible.</p>}
@@ -157,13 +157,13 @@ export default function StaffingPage({ user, operations }: { user: User; operati
               </select></label>
             </OperationalWriteForm>
           </>}
-        </article>;
+        </details></article>;
       })}
     </section>
     {user.can_coordinate && <section className="panel"><details><summary>Historial de planificación</summary>{data?.changes.map(change => <article key={change.id}>
-      <h3>{change.resource} #{change.target_id} · {change.action}</h3>
+      <details className="operational-disclosure"><summary><h3>{change.resource} #{change.target_id} · {change.action}</h3></summary>
       <p>Motivo: {change.reason}</p><p>{change.actor} · {change.created_at}</p>
-      <details><summary>Valores anteriores y nuevos</summary><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{change.old_value}</pre><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{change.new_value}</pre></details>
+      <details><summary>Valores anteriores y nuevos</summary><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{change.old_value}</pre><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{change.new_value}</pre></details></details>
     </article>)}</details></section>}
   </main>;
 }

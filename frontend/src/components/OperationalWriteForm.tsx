@@ -3,7 +3,7 @@ import type { FormEvent, ReactNode } from "react";
 import { api, isSessionInterruption, VersionConflictError } from "../api/client";
 import type { PendingOperations } from "../hooks/usePendingOperations";
 import { matchesSubmittedFields } from "../session/submittedFields";
-import { OPERATION_CONFIRMED_EVENT, operationalFields } from "../session/operationalWrites";
+import { OPERATION_CONFIRMED_EVENT, operationalFields, operationalFormDirty } from "../session/operationalWrites";
 const reasonInput = <label>Motivo<textarea name="reason" required minLength={3} maxLength={2000} /></label>;
 
 function defaultPayload(fields: FormData): Record<string, unknown> {
@@ -19,6 +19,7 @@ export default function OperationalWriteForm({ path, version, method, transform,
 }) {
   const [baseline, setBaseline] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [hasDraft, setHasDraft] = useState(false);
   const form = useRef<HTMLFormElement>(null);
   const stale = baseline !== null && baseline !== version;
   useEffect(() => {
@@ -31,7 +32,7 @@ export default function OperationalWriteForm({ path, version, method, transform,
       const current = new FormData();
       for (const [name, value] of Object.entries(values)) current.set(name, String(value ?? ""));
       if (!matchesSubmittedFields(current, JSON.parse(detail.body))) return;
-      node.reset(); setBaseline(null); setError(""); onDirty();
+      node.reset(); setBaseline(null); setError(""); setHasDraft(false); onDirty();
     };
     window.addEventListener(OPERATION_CONFIRMED_EVENT, saved);
     return () => window.removeEventListener(OPERATION_CONFIRMED_EVENT, saved);
@@ -59,8 +60,15 @@ export default function OperationalWriteForm({ path, version, method, transform,
       }
     } finally { release(); }
   }
+  function discardDraft() {
+    form.current?.reset();
+    setBaseline(null);
+    setError("");
+    setHasDraft(false);
+    onDirty();
+  }
   return <form ref={form} data-operational="true" data-account-path={path} className="form-grid" onSubmit={event => void submit(event)}
-    onChange={() => { if (version) setBaseline(previous => previous ?? version); onDirty(); }}>
+    onChange={event => { if (version) setBaseline(previous => previous ?? version); setHasDraft(operationalFormDirty(event.currentTarget)); onDirty(); }}>
     <fieldset disabled={operations.hasPending() || blocked}>
       <legend>{label}</legend>
       {children}
@@ -72,5 +80,9 @@ export default function OperationalWriteForm({ path, version, method, transform,
       {error && <p role="alert">{error}</p>}
       <button type="submit" disabled={stale}>{operations.isPending(path) ? "Guardando…" : label}</button>
     </fieldset>
+    {hasDraft && <div className="operational-draft" role="status">
+      <p>{blocked ? "Esta acción ya no está disponible. Hay campos anteriores sin guardar en este formulario." : "Hay campos sin guardar en este formulario."}</p>
+      <button type="button" disabled={operations.hasPending()} onClick={discardDraft}>Descartar campos de {label}</button>
+    </div>}
   </form>;
 }

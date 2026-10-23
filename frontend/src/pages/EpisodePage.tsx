@@ -372,9 +372,20 @@ async function createClinicalOrder(
           <p><strong>Documento:</strong> {episode.document ?? "No registrado"}</p>
           <p><strong>Nacimiento:</strong> {episode.birth_date ?? "No registrado"}</p>
           <p>
-            <strong>Asignado:</strong>{" "}
+            <strong>{episode.care ? "Referencia previa (texto libre):" : "Asignado:"}</strong>{" "}
             {episode.assigned_to || "Sin asignar"}
           </p>
+          {episode.care && <section aria-label="Responsables confirmados">
+            <h3>Responsables confirmados</h3>
+            <p>Área de seguimiento: {episode.care.area_name || "Sin área confirmada"}.</p>
+            {episode.care.slots.map(slot => <p key={slot.discipline}>
+              <strong>{slot.discipline === "DOCTOR" ? "Medicina" : "Enfermería"}:</strong>{" "}
+              {slot.owner ? `${slot.owner.display_name || slot.owner.username} (${slot.owner.username})` : "Sin responsable confirmado"}.
+              {slot.needs_coverage && " Cobertura pendiente; revisar turno, disponibilidad y relevo."}
+              {slot.proposed && ` Relevo pendiente de aceptación por ${slot.proposed.display_name || slot.proposed.username}; el anterior continúa responsable.`}
+            </p>)}
+            <p>Asignación, inicio y relevo se consultan en Colas y responsables.</p>
+          </section>}
 
           <details>
             <summary>Mostrar pulsera QR</summary>
@@ -441,7 +452,7 @@ async function createClinicalOrder(
       </label>
 
       <label>
-        Personal responsable
+        {episode.care ? "Referencia responsable (texto libre)" : "Personal responsable"}
         <input
           disabled={savingTriage}
           name="assigned_to"

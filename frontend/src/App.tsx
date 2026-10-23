@@ -29,6 +29,7 @@ import EpisodePage from "./pages/EpisodePage";
 import LoginPage from "./pages/LoginPage";
 import AccountsPage from "./pages/AccountsPage";
 import StaffingPage from "./pages/StaffingPage";
+import CareQueuePage from "./pages/CareQueuePage";
 import { notifyOperationalConfirmation, operationalFormDirty } from "./session/operationalWrites";
 import EpisodePresence from "./components/EpisodePresence";
 import AppHeader from "./components/AppHeader";
@@ -246,9 +247,9 @@ function App() {
   }
 
   function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
-    if (path.startsWith("/staff/")) {
+    if (path.startsWith("/staff/") || path.startsWith("/care/")) {
       notifyOperationalConfirmation(path, body);
-      setWriteNotice("Operacion de personal confirmada por el servidor.");
+      setWriteNotice("Operacion de organizacion confirmada por el servidor.");
       return;
     }
     setWriteNotice("Operación confirmada por el servidor. No se ha creado otro registro.");
@@ -731,6 +732,7 @@ async function logout() {
       onInputCapture={event => { const target = event.target; if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) target.setCustomValidity(""); }}
       onSubmitCapture={event => { if (event.target instanceof HTMLFormElement && !validateOperationalForm(event.target)) { event.preventDefault(); event.stopPropagation(); } }}>
       <AppHeader
+        onCare={() => guardLifecycle(() => leave.run(() => navigate("care")))}
         onStaff={() => guardLifecycle(() => leave.run(() => navigate("staff")))}
         onIdentity={() => guardLifecycle(() => leave.run(() => navigate("identity")))}
         user={user}
@@ -785,11 +787,13 @@ async function logout() {
       <RecoveredWrites user={user} operations={operations} onConfirmed={() => {
         setWriteNotice("El servidor confirmó un envío anterior. No se ha reenviado ni se han borrado los campos actuales; consulta los registros actualizados.");
         if (page === "staff") notifyOperationalConfirmation("/staff/recovered");
+        else if (page === "care") notifyOperationalConfirmation("/care/recovered");
         else void live.refresh();
       }} />
       <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
         setError(exception.message);
         if (exception instanceof VersionConflictError) {
+          if (path.startsWith("/care/")) notifyOperationalConfirmation("/care/recovered");
           const id = Number(path.match(/^\/episodes\/(\d+)/)?.[1]) || (page === "episode" ? episode?.id : laboratoryQueue?.orders.find(order => path === `/tasks/${order.id}/complete` || path === `/tasks/${order.id}/result`)?.episode_id);
           if (id) writes.reportConflict(path, id, exception);
         }
@@ -817,6 +821,7 @@ async function logout() {
 
       {page === "scan" && <ScanPage onSubmit={scanEpisode} />}
       {page === "staff" && <StaffingPage user={user} operations={operations} />}
+      {page === "care" && <CareQueuePage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "identity" && <IdentityQueuePage user={user}
         onOpenEpisode={async id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
 

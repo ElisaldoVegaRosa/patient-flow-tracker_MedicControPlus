@@ -36,6 +36,16 @@ def demo_database(path):
     connection.close()
 
 
+@pytest.mark.parametrize('table', ['care_schema', 'care_episodes', 'care_slots', 'care_changes'])
+def test_care_schema_requires_all_responsibility_tables(tmp_path, table):
+    source = tmp_path / 'care-incomplete.db'
+    demo_database(source)
+    with sqlite3.connect(source) as connection:
+        connection.execute(f'DROP TABLE {table}')
+    with pytest.raises(BackupError, match=table):
+        create_backup(source, tmp_path / 'incomplete.sqlite3')
+
+
 def test_backup_and_isolated_restore_preserve_snapshot(tmp_path):
     source = tmp_path / "clinical.db"
     backup = tmp_path / "backup.sqlite3"

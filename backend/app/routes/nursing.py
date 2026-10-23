@@ -1,4 +1,5 @@
 from ..input_validation import Location, Assignee
+from ..care import ready
 from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import json
@@ -72,6 +73,8 @@ def create_router(
             user["username"],
             f"Prioridad {data.priority}; ubicación {data.location}",
         )
+
+        ready(connection, episode_id)
 
         connection.commit()
         result = detail(connection, episode_id)
