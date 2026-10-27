@@ -44,6 +44,18 @@ async function ready() {
 }
 function fill(group: HTMLElement, label: string, value: string) { fireEvent.change(within(group).getByLabelText(label), { target: { value } }); }
 
+it("shows overdue reevaluations before unfolding the patient and never completes them by reading", async () => {
+  vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-10-26T21:31:00Z"));
+  const { writes } = setup({}, { ...episode, reevaluations: [{ id: 1, episode_id: 21, group_id: 1,
+    title: "Accion ficticia", group_title: "Seguimiento ficticio", service: "MEDICAL", status: "PENDING",
+    due_at: "2026-10-26T21:30:00Z", result: null, revision: 0, owner_id: 8, owner_name: "Medico ficticio",
+    owner_username: doctor.username, version: '"reevaluation-0"', created_by: doctor.username }] });
+  const card = await screen.findByRole("article", { name: "Seguimiento EP-21" });
+  expect(card.querySelector("details")!.open).toBe(false);
+  expect(within(card).getByText("Reevaluaciones pendientes: 1 · Vencidas: 1")).toBeVisible();
+  expect(writes).not.toHaveBeenCalled();
+});
+
 it("confirms an assignment with version and numeric ID without implying attention started", async () => {
   const { writes } = setup();
   const card = await ready();

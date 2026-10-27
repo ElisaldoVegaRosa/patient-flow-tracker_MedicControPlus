@@ -1,7 +1,7 @@
 // Presentation only: API values, clinical notes and audit originals stay unchanged.
 const labels = {
   episodeStatus: { ACTIVE: "Activo", CLOSED: "Cerrado", ANNULLED: "Anulado" },
-  taskStatus: { PENDING: "Pendiente", COMPLETED: "Completada", ANNULLED: "Anulada" },
+  taskStatus: { PENDING: "Pendiente", COMPLETED: "Completada", ANNULLED: "Anulada", CANCELLED: "Cancelada" },
   alertStatus: {
     CREATED: "Creada", ACTIVE: "Activa", ACKNOWLEDGED: "Reconocida",
     ESCALATED: "Escalada", RESOLVED: "Resuelta",
@@ -18,6 +18,8 @@ const labels = {
     ORDER_TESTS: "Solicitar pruebas u órdenes", READY_FOR_DISCHARGE: "Preparar para alta",
   },
   eventType: {
+    REEVALUATION_CREATED: "Reevaluación programada", REEVALUATION_COMPLETE: "Acción de reevaluación realizada",
+    REEVALUATION_RESCHEDULE: "Acción de reevaluación reprogramada", REEVALUATION_CANCEL: "Acción de reevaluación cancelada",
     IDENTITY_VERIFIED: "Identidad verificada",
     EPISODE_CREATED: "Ingreso registrado", TRIAGE: "Triaje",
     VITALS_RECORDED: "Signos vitales registrados", QR_SCANNED: "Pulsera escaneada",

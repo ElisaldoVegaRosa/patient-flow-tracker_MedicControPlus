@@ -12,8 +12,8 @@ function defaultPayload(fields: FormData): Record<string, unknown> {
   return data;
 }
 
-export default function OperationalWriteForm({ path, version, method, transform, blocked = false, conflictNoun = "cuenta", label, children, operations, onApplied, onConflict, onDirty }: {
-  blocked?: boolean; conflictNoun?: string; path: string; version?: string; method?: "POST" | "PATCH"; transform?: (fields: FormData) => Record<string, unknown>; label: string; children: ReactNode; operations: PendingOperations;
+export default function OperationalWriteForm({ path, version, method, transform, blocked = false, conflictNoun = "cuenta", reasonLabel = "Motivo", label, children, operations, onApplied, onConflict, onDirty }: {
+  reasonLabel?: string; blocked?: boolean; conflictNoun?: string; path: string; version?: string; method?: "POST" | "PATCH"; transform?: (fields: FormData) => Record<string, unknown>; label: string; children: ReactNode; operations: PendingOperations;
   onApplied: (path: string, result: unknown, body?: BodyInit | null) => void;
   onConflict: () => void; onDirty: () => void;
 }) {
@@ -67,12 +67,12 @@ export default function OperationalWriteForm({ path, version, method, transform,
     setHasDraft(false);
     onDirty();
   }
-  return <form ref={form} data-operational="true" data-account-path={path} className="form-grid" onSubmit={event => void submit(event)}
+  return <form ref={form} data-operational="true" data-account-path={path} className="form-grid operational-form" onSubmit={event => void submit(event)}
     onChange={event => { if (version) setBaseline(previous => previous ?? version); setHasDraft(operationalFormDirty(event.currentTarget)); onDirty(); }}>
     <fieldset disabled={operations.hasPending() || blocked}>
       <legend>{label}</legend>
       {children}
-      {reasonInput}
+      {reasonLabel === "Motivo" ? reasonInput : <label>{reasonLabel}<textarea name="reason" required minLength={3} maxLength={2000} /></label>}
       {stale && <div role="alert">
         <p>{conflictNoun === "cuenta" ? "Esta cuenta cambió." : "Estos datos cambiaron."} Tus campos se conservan. Revisa los datos actuales antes de continuar.</p>
         <button type="button" onClick={() => { setBaseline(version ?? null); setError(""); }}>{conflictNoun === "cuenta" ? "He revisado esta cuenta; usar versión actual" : "He revisado los cambios; usar versión actual"}</button>

@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timezone
 from fastapi import HTTPException
 from .concurrency import etag
+from .reevaluations import actions as reevaluation_actions
 
 DISCIPLINES = ("DOCTOR", "NURSE")
 
@@ -157,6 +158,7 @@ def queue(connection, username, mine=False):
         item['since_ready_minutes'] = elapsed(item['ready_at'], now)
         for slot in item['slots']:
             slot['waiting_minutes'] = None if slot['first_started_at'] or item['historical'] else elapsed(item['ready_at'], now)
+        item['reevaluations'] = reevaluation_actions(connection, row['id'])
         item['lab_pending'] = connection.execute("SELECT COUNT(*) FROM tasks WHERE episode_id=? AND service='LAB' AND status='PENDING'", (row['id'],)).fetchone()[0]
         result.append(item)
     result.sort(key=lambda item: (item['priority'], item['ready_at'] is None, item['ready_at'] or '', item['episode_id']))

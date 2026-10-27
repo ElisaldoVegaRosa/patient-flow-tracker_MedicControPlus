@@ -253,6 +253,7 @@ function App() {
       setWriteNotice("Operacion de organizacion confirmada por el servidor.");
       return;
     }
+    if (path.includes("/reevaluations")) notifyOperationalConfirmation(path, body);
     setWriteNotice("Operación confirmada por el servidor. No se ha creado otro registro.");
     setError(previous => previous.includes("Resultado por confirmar") || previous.includes("envío anterior por confirmar") ? "" : previous);
     const kind = path === "/episodes" ? "arrival" : path.endsWith("/identity") ? "identity" : path.endsWith("/triage") ? "triage" : path.endsWith("/vitals") ? "vitals" : path.endsWith("/medical-evaluation") ? "evaluation" : path.endsWith("/tasks") ? "order" : path.startsWith("/tasks/") ? "lab" : undefined;
@@ -866,7 +867,7 @@ async function logout() {
         />
       )}
 
-      {page === "episode" && episode?.status === "ACTIVE" && <EpisodePresence episodeId={episode.id} user={user} root={draftRoot} isEditing={() => visibleDrafts().some(draft => draft.episodeId === episode.id)} />}
+      {page === "episode" && episode?.status === "ACTIVE" && <EpisodePresence episodeId={episode.id} user={user} root={draftRoot} isEditing={() => lifecycleDirty() || visibleDrafts().some(draft => draft.episodeId === episode.id)} />}
 
       {page === "episode" && episode && (
         <EpisodePage

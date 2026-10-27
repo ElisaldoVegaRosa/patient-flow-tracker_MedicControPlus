@@ -46,6 +46,16 @@ def test_care_schema_requires_all_responsibility_tables(tmp_path, table):
         create_backup(source, tmp_path / 'incomplete.sqlite3')
 
 
+@pytest.mark.parametrize('table', ['reevaluation_groups', 'reevaluation_actions', 'reevaluation_changes'])
+def test_reevaluation_backup_requires_the_complete_audit_schema(tmp_path, table):
+    source = tmp_path / 'reevaluation-incomplete.db'
+    demo_database(source)
+    with sqlite3.connect(source) as connection:
+        connection.execute(f'DROP TABLE {table}')
+    with pytest.raises(BackupError, match=table):
+        create_backup(source, tmp_path / 'incomplete-reevaluation.sqlite3')
+
+
 def test_backup_and_isolated_restore_preserve_snapshot(tmp_path):
     source = tmp_path / "clinical.db"
     backup = tmp_path / "backup.sqlite3"

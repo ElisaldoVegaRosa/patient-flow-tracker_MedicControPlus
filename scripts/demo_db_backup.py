@@ -60,6 +60,9 @@ def inspect_database(path: Path) -> dict[str, int]:
                 "SELECT name FROM sqlite_master WHERE type = 'table'"
             )}
             missing = REQUIRED_TABLES - tables
+            reevaluation_tables = {"reevaluation_groups", "reevaluation_actions", "reevaluation_changes"}
+            if tables & reevaluation_tables:
+                missing |= reevaluation_tables - tables
             care_tables = {"care_schema", "care_episodes", "care_slots", "care_changes"}
             if tables & care_tables:
                 missing |= care_tables - tables

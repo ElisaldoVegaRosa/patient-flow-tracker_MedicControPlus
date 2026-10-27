@@ -1,3 +1,5 @@
+import ReevaluationDue, { ReevaluationSummary } from "../components/ReevaluationDue";
+import { staffingAuditDate } from "../components/staffingAuditDate";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { api, getSessionRevision, isSessionInterruption } from "../api/client";
@@ -109,12 +111,18 @@ export default function CareQueuePage({ user, operations, onOpenEpisode }: {
     const route = user.can_coordinate || item.slots.some(owns) || (user.role === "NURSE" && item.area_id === null && item.slots.every(slot => slot.user_id === null));
     return <article className="panel" key={item.episode_id} aria-label={`Seguimiento EP-${item.episode_id}`}
       hidden={Boolean((area && String(item.area_id ?? "") !== area) || (mine && !item.slots.some(slot => owns(slot) || proposed(slot))))}>
+      {active && <ReevaluationSummary actions={item.reevaluations ?? []} />}
       <details className="operational-disclosure"><summary><h2>{item.name} · EP-{item.episode_id} · P{item.priority} · {item.area_name || "Sin área confirmada"}</h2></summary>
       <p>Estado del episodio: {item.status}. Ubicación física: {item.location}. Área de seguimiento: {item.area_name || "Sin área confirmada"}.</p>
       <p>Desde ingreso: {minutes(item.since_arrival_minutes)}. Desde fin de triaje: {minutes(item.since_ready_minutes)}.</p>
       {item.historical === 1 && <p>Registro anterior: no se infiere inicio de atención ni responsables a partir del texto previo.</p>}
       <p>Referencia previa, sin asignación confirmada por ese texto: {item.legacy_assigned_to || "Sin referencia"}.</p>
       <p>Órdenes LAB pendientes: {item.lab_pending ?? "Consultar episodio"}. Son dependencias, no tareas propias de medicina o enfermería.</p>
+      {(item.reevaluations ?? []).filter(action => action.status === "PENDING").map(action => <div key={action.id}>
+        <p><strong>{action.service === "MEDICAL" ? "Medicina" : "Enfermería"}: {action.title}</strong> · {staffingAuditDate(action.due_at)}</p>
+        <p>Responsable: {action.owner_name || action.owner_username || "Sin responsable confirmado"}</p>
+        <ReevaluationDue dueAt={action.due_at} pending={active} />
+      </div>)}
       <p>Alertas abiertas: {item.open_alert_count ?? "Consultar episodio"}. Consulta el episodio para valorar su contexto.</p>
       {!active && <p role="status">Episodio finalizado. Los campos locales se conservan para consulta; no se pueden enviar.</p>}
       <button type="button" onClick={() => onOpenEpisode(item.episode_id)}>Abrir episodio EP-{item.episode_id}</button>

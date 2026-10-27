@@ -33,7 +33,7 @@ button {
   font-weight: 700;
 }
 
-button:hover {
+button:not(:disabled):hover {
   background: #076b65;
 }
 
@@ -81,7 +81,7 @@ label {
   background: transparent;
 }
 
-.header nav button:hover {
+.header nav button:not(:disabled):hover {
   color: #087f78;
   background: #e9f5f3;
 }
@@ -432,7 +432,7 @@ details[open] .large-button {
   background: #b53d31;
 }
 
-.discharge:hover {
+.discharge:not(:disabled):hover {
   background: #963127;
 }
 
@@ -650,7 +650,7 @@ details[open] .large-button {
   background: #eef3f3;
 }
 
-.filter-buttons button:hover,
+.filter-buttons button:not(:disabled):hover,
 .filter-buttons .active-filter {
   color: white;
   background: #087f78;
@@ -708,7 +708,7 @@ Acciones principales de una pantalla
   background: white;
 }
 
-.secondary-button:hover {
+.secondary-button:not(:disabled):hover {
   color: white;
   background: #087f78;
 }
@@ -1062,3 +1062,42 @@ Acciones principales de una pantalla
   min-width: 0;
 }
 .staff-date-time p { grid-column: 1 / -1; }
+
+/* A single operational fieldset fills its form, even inside narrow cards. */
+.operational-form {
+  grid-template-columns: minmax(0, 1fr);
+}
+.operational-form > fieldset {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.staff-date-time > label {
+  min-width: 0;
+}
+.staff-date-time > label:first-of-type {
+  grid-column: 1 / -1;
+}
+.staff-date-time input,
+.staff-date-time select {
+  min-width: 0;
+  max-width: 100%;
+}
+.staff-date-time legend {
+  max-width: 100%;
+  white-space: normal;
+}
+.reevaluations-panel .task > div {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Disabled actions remain visibly unavailable, including while hovered. */
+:root button:disabled {
+  background: #e2e8f0;
+  color: #475569;
+  cursor: not-allowed;
+  opacity: 1;
+  box-shadow: none;
+  transform: none;
+}

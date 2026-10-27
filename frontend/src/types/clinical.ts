@@ -47,7 +47,7 @@ export type CareCandidate = { id: number; username: string; display_name: string
 export type CareSlot = { discipline: "DOCTOR" | "NURSE"; user_id: number | null; pending_user_id: number | null;
   owner: CarePerson | null; proposed: CarePerson | null; started_at: string | null; first_started_at: string | null;
   covered: boolean; needs_coverage: boolean; candidates: CareCandidate[]; waiting_minutes?: number | null };
-export type CareEpisode = { episode_id: number; name: string; status: string; priority: number; location: string;
+export type CareEpisode = { reevaluations?: Reevaluation[]; episode_id: number; name: string; status: string; priority: number; location: string;
   legacy_assigned_to: string | null; area_id: number | null; area_name: string | null; ready_at: string | null;
   arrival_at: string; historical: number | null; version: string; slots: CareSlot[];
   since_arrival_minutes?: number | null; since_ready_minutes?: number | null; lab_pending?: number; open_alert_count?: number;
@@ -102,6 +102,7 @@ export type ClinicalTask = {
   result: string | null;
   created_at?: string;
   due_at?: string | null;
+  reevaluation_group_id?: number;
 };
 
 export type TimelineEvent = {
@@ -118,6 +119,8 @@ export type TimelineEvent = {
 };
 
 export type Episode = {
+  reevaluations?: Reevaluation[];
+  reevaluation_changes?: ReevaluationChange[];
   care?: CareEpisode;
   patient_id?: number;
   identity_status?: "REGISTERED" | "PROVISIONAL" | "VERIFIED";
@@ -281,3 +284,9 @@ export type AdmissionCandidate = {
 
 export type StaffHistoryData = { changes: StaffChange[]; total: number; page: number; page_size: number; has_more: boolean;
   shifts: { id: number; name: string }[]; professionals: { id: number; username: string; display_name: string }[]; requested_by: string };
+
+export type Reevaluation = { id: number; episode_id: number; group_id: number; group_title: string; title: string;
+  service: "MEDICAL" | "NURSING"; status: string; due_at: string; result: string | null; revision: number;
+  owner_username: string | null; owner_name: string | null; owner_id: number | null; version: string; created_by: string };
+export type ReevaluationChange = { id: number; task_id: number; action: string; actor: string; reason: string;
+  created_at: string; old_value: string; new_value: string };

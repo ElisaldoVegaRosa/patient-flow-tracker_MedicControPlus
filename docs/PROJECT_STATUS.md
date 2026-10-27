@@ -2,7 +2,37 @@
 
 ## Estado actual (leer primero)
 
-- Historial de planificacion y horarios: nueva mejora local autorizada. Linea
+- Reevaluaciones individuales: implementacion local y prueba manual completadas.
+  Medico programa hora exacta o dentro de X minutos, con vista previa fija,
+  acciones independientes MEDICAL/NURSING vinculadas y auditoria. Solo completa
+  el responsable confirmado por disciplina; el relevo debe aceptarse primero.
+  Alta bloqueada hasta realizar o cancelar con motivo todos los pendientes.
+  Avisos por hora individual en episodio y colas; sin intervalos clinicos nuevos
+  ni aplicacion de la regla generica de tarea >60 minutos a estas acciones.
+  Validacion backend completa 298/298 (598,26 s). Frontend completo inicial
+  595/600: cinco fallos de avisos corregidos por causa comun y 82/82 afectadas
+  aprobadas. Ajustes visuales posteriores: 17 pruebas de formularios y 5 de
+  bloqueo de alta aprobadas, con lint/build finales correctos. Sin repetir las
+  suites no afectadas ni presentar el resultado inicial como suite aprobada.
+  Migracion aditiva aplicada tras ensayo aislado doble y respaldo verificado:
+  backups/clinical-20261027T005526Z-0a8ddc59.sqlite3. Al arrancar se conservaron
+  las 22 tablas anteriores, 21 pacientes/22 episodios, integridad y referencias.
+  Usuario confirma en EP-22: dos pendientes con misma hora, realizacion medica
+  independiente, reprogramacion solo de enfermeria, realizacion por
+  enfermeria.observacion, alta bloqueada/habilitada segun pendientes, nueva
+  accion cancelada con motivo e historial de autores/fechas. Tambien confirma
+  distribucion de fecha/hora exacta sin solapamiento y boton deshabilitado gris
+  sin hover. Edge mostraba interfaz anterior: recarga completa recupero la
+  seccion y etiquetas actuales. EP-22 queda ACTIVE, dos acciones realizadas
+  y una cancelada. No se opero automaticamente la interfaz.
+  Usuario autoriza crear el commit, publicarlo en origin/main y comprobar CI.
+  El resultado remoto debe verificarse en GitHub Actions tras el push.
+  [Alcance y resultados](REEVALUATIONS.md).
+
+- Historial de planificacion, horarios y extension publicados en `0791385`;
+  CI [40424912604](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/40424912604)
+  aprobada: backend, frontend, lint y build. Main limpia y sincronizada al
+  cerrar la publicacion. Prueba manual confirmada. Alcance publicado: Linea
   de tiempo continua dentro de una seccion plegable, con eventos de todas las
   cuentas visibles para coordinacion en los ultimos siete dias (168 horas),
   hasta 50 recientes y enlace a registros completos con filtros y paginacion.
@@ -18,9 +48,7 @@
   a registros completos, filtro de tipo/limpieza y campos AM/PM de inicio/fin.
   No se crearon turnos para esta comprobacion visual. Limite de siete dias,
   paginacion y permisos cuentan con cobertura automatica.
-  Usuario autoriza crear el commit, publicarlo en origin/main y comprobar CI.
-  Las validaciones locales y manuales anteriores corresponden a este bloque;
-  el resultado remoto debe comprobarse en GitHub Actions tras el push.
+  Publicacion y resultado remoto verificados en el commit/CI indicados arriba.
 
 - Turno vencido y extension: implementacion local con validacion completa
   aprobada y prueba guiada completada por el usuario (contador negativo,

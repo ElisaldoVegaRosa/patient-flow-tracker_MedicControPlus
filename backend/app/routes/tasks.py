@@ -172,6 +172,9 @@ def create_router(
             connection.close()
             raise
 
+        if connection.execute("SELECT 1 FROM reevaluation_actions WHERE task_id=?", (task_id,)).fetchone():
+            raise HTTPException(409, "Completa esta accion desde Reevaluaciones programadas, con responsable y nota")
+
         if task["status"] == "COMPLETED":
             connection.close()
             raise HTTPException(

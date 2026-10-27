@@ -11,7 +11,7 @@ from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.responses import JSONResponse
 
 from .security import hash_session_token, hash_password, verify_password
-from . import auth, database
+from . import auth, database, reevaluations
 from .write_operations import active_connection
 from .routes.presence import create_router as create_presence_router
 from .routes.write_results import create_router as create_write_results_router
@@ -19,6 +19,7 @@ from .routes.auth import create_router
 from .routes.dashboard import create_router as create_dashboard_router
 from .routes.episode_queries import create_router as create_episode_queries_router
 from .routes.tasks import create_router as create_tasks_router
+from .routes.reevaluations import create_router as create_reevaluations_router
 from .routes.nursing import create_router as create_nursing_router
 from .routes.medical import create_router as create_medical_router
 from .routes.record_lifecycle import create_router as create_record_lifecycle_router
@@ -281,6 +282,7 @@ def evaluate_time_rules(
             FROM tasks
             WHERE episode_id = ?
             AND status = 'PENDING'
+            AND NOT EXISTS (SELECT 1 FROM reevaluation_actions r WHERE r.task_id=tasks.id)
             """,
             (episode_id,),
         ).fetchall()
@@ -462,6 +464,13 @@ def episode_detail(
         event["version"] = event_version(event, changes)
 
     from .concurrency import annotate_versions
+    result["reevaluations"] = reevaluations.actions(connection, episode_id)
+    result["reevaluation_changes"] = reevaluations.history(connection, episode_id)
+    reevaluation_by_task = {item['id']: item for item in result['reevaluations']}
+    for task in result['tasks']:
+        if task['id'] in reevaluation_by_task:
+            task['due_at'] = reevaluation_by_task[task['id']]['due_at']
+            task['reevaluation_group_id'] = reevaluation_by_task[task['id']]['group_id']
     result["care"] = care_state(connection, episode_id, suggestions=False)
     return annotate_versions(result)
 
@@ -544,4 +553,8 @@ app.include_router(create_medical_router(
 
 app.include_router(create_record_lifecycle_router(
     get_connection, utc_now, episode_detail, add_event, require_roles,
+))
+
+app.include_router(create_reevaluations_router(
+    get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
 ))

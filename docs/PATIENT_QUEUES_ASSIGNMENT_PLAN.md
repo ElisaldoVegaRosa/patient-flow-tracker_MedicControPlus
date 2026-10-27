@@ -111,8 +111,10 @@ de esfuerzo ni sustituye el juicio del equipo.
 Medicina cuenta tareas PENDING de servicio MEDICAL de sus episodios; enfermeria,
 servicio NURSING. LAB se muestra como dependencia pendiente del episodio, sin
 atribuir su ejecucion a medicina/enfermeria. No deducir duracion ni vencimiento
-de una tarea por su titulo. No hay fecha estructurada de reevaluacion en los
-modelos actuales revisados: no inventar vencimientos ni incluirlos en el orden.
+de una tarea por su titulo. En la base original no habia fecha estructurada
+de reevaluacion. El bloque local posterior incorpora fechas explicitas y
+pendientes vinculados; ver [reevaluaciones](REEVALUATIONS.md). No inferir
+vencimientos de tareas anteriores ni cambiar el orden de prioridad acordado.
 Las alertas abiertas se muestran como contexto; no son tareas equivalentes.
 
 Revalidar elegibilidad y version antes de confirmar; si la carga vario, mostrar

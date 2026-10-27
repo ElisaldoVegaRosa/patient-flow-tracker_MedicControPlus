@@ -94,6 +94,11 @@ def create_router(
         connection = connection_factory()
         require_active_episode(connection, episode_id)
 
+        pending = connection.execute("""SELECT COUNT(*) FROM reevaluation_actions r JOIN tasks t ON t.id=r.task_id
+            WHERE t.episode_id=? AND t.status='PENDING'""", (episode_id,)).fetchone()[0]
+        if pending:
+            raise HTTPException(409, f"Hay {pending} acciones de reevaluacion pendientes. Completalas o cancelalas con motivo antes del alta")
+
         connection.execute(
             """
             UPDATE episodes

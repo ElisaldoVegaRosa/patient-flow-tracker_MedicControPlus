@@ -5,6 +5,7 @@ from .patient_identity import migrate_patients
 from .accounts import migrate_accounts
 from .staffing import migrate_staffing
 from .care import migrate_care
+from .reevaluations import migrate_reevaluations
 
 
 def get_connection(database_path: Path) -> sqlite3.Connection:
@@ -180,6 +181,7 @@ def initialize_database(
     migrate_accounts(connection)
     migrate_staffing(connection)
     migrate_care(connection)
+    migrate_reevaluations(connection)
 
     for username, demo_user in demo_users.items():
         existing_user = connection.execute(

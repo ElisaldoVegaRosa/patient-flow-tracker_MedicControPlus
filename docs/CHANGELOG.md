@@ -5,6 +5,42 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Reevaluaciones programadas por paciente (implementacion local)
+
+- Prueba guiada confirmada en EP-22: programacion de ambas disciplinas,
+  realizacion independiente por responsables, reprogramacion exclusiva de
+  enfermeria, cancelacion motivada y trazabilidad. Alta bloqueada con pendientes
+  y disponible al resolverlos. EP-22 queda activo. Ajustes visuales de fecha y
+  estados deshabilitados confirmados; Edge recupero interfaz actual al recargar.
+- Botones deshabilitados con apariencia gris y cursor no disponible; hover
+  limitado a acciones habilitadas. Evita que el bloqueo del alta parezca una
+  accion disponible. 5 pruebas afectadas, lint/build aprobados.
+- Ajuste visual tras captura del usuario: fieldset operacional ocupa todo el
+  formulario; fecha en fila completa y controles limitados al ancho disponible,
+  tambien dentro de tarjetas estrechas. 17 pruebas afectadas, lint/build aprobados.
+  Confirmacion visual recibida; no se repiten suites backend por este ajuste CSS.
+- Programacion medica con momento futuro, hora exacta o intervalo indicado por
+  el medico. Se muestra el instante antes de guardar y se conserva para recibos
+  y reintentos; no se asigna un intervalo clinico por defecto.
+- Una accion por disciplina, vinculadas al mismo seguimiento si se solicitan
+  ambas. Cada una puede realizarse, reprogramarse o cancelarse por separado.
+- Realizacion solo por el responsable confirmado del perfil correspondiente;
+  proponer relevo no sustituye al responsable. Aceptarlo invalida la pantalla
+  antigua. El vencimiento del turno no impide completar lo que sigue a su cargo.
+- El alta se rechaza atomicamente con reevaluaciones pendientes. Medico debe
+  completarlas cuando le correspondan o cancelarlas con motivo; leer avisos
+  no completa acciones. Historial y notas conservados.
+- Avisos de vencimiento por hora individual en episodio y colas, incluso con
+  ficha plegada; estas tareas se excluyen de la alerta generica >60 minutos.
+- Tres tablas aditivas, version e idempotencia. Integracion con respaldo y
+  esquema SQL documentado; sin inferir fechas en datos anteriores.
+- Dirigidas aprobadas: 24 backend y 117 frontend, luego 17 de panel/colas;
+  backend completo 298/298 (598,26 s). Frontend completo inicial 595/600
+  (304,48 s); cinco casos de alta/recuperacion afectados por un status vacio,
+  corregidos y revalidados con 82/82 afectadas (54,84 s). Lint/build finales
+  aprobados, sin repetir las suites no afectadas. Migracion ensayada dos veces en copia sin
+  alterar 22 tablas previas ni la base activa (21 pacientes/22 episodios).
+
 ## Linea de tiempo de planificacion y horarios AM/PM (implementacion local)
 
 - La vista reciente contiene eventos de los ultimos siete dias, de otras

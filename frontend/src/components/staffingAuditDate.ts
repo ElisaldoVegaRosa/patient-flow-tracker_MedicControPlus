@@ -1,8 +1,8 @@
-export function staffingAuditDate(value: string) {
+export function staffingAuditDate(value: string, includeSeconds = false) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("es-DO", {
     timeZone: "America/Santo_Domingo", year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", hour12: true,
+    hour: "2-digit", minute: "2-digit", hour12: true, ...(includeSeconds ? { second: "2-digit" as const } : {}),
   }).format(date);
 }
 
@@ -11,7 +11,7 @@ export function staffingLocalDate(value: string) {
 }
 export function staffingDatePayload(fields: FormData): Record<string, unknown> {
   const result: Record<string, unknown> = Object.fromEntries(fields);
-  for (const name of ["starts_at", "ends_at"]) {
+  for (const name of ["starts_at", "ends_at", "due_at"]) {
     if (!fields.has(`${name}_date`)) continue;
     const hour = Number(fields.get(`${name}_hour`));
     const period = fields.get(`${name}_period`);

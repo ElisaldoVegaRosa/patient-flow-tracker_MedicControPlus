@@ -2,6 +2,22 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Reevaluaciones autorizadas: hora exacta y dentro de X minutos con vista previa;
+  dos acciones independientes si participan medicina y enfermeria. Usuario
+  confirma que el alta exige completarlas o cancelarlas con motivo y que solo
+  completa el responsable actual por disciplina tras aceptar un eventual relevo.
+  Implementacion local: backend 298/298; frontend 595/600 antes del ajuste
+  de avisos, despues 82/82 afectadas aprobadas, incluidos cinco casos corregidos.
+  Lint y build finales aprobados. Ensayo aditivo en copia verificado. Usuario
+  autoriza prueba guiada; demo reiniciado y migracion aplicada conservando las
+  22 tablas previas, integridad y referencias. EP-22 ACTIVE con sus responsables.
+  Prueba guiada confirmada: pendientes independientes, realizacion por ambos
+  responsables, reprogramacion, cancelacion con motivo, bloqueo/desbloqueo de
+  alta e historial; ajustes visuales confirmados. EP-22 queda ACTIVE.
+  Usuario autoriza crear el commit, publicarlo en origin/main y comprobar CI.
+  El resultado remoto debe verificarse en GitHub Actions tras el push.
+  [Detalle](REEVALUATIONS.md).
+
 - Historial autorizado: opcion 3, eventos de otras personas y sesiones dentro
   del permiso vigente. Implementacion local de ultimos siete dias (168 horas,
   hasta 50 recientes), linea continua y pagina de registros completos con
@@ -9,8 +25,8 @@
   Alcance: personal, areas y turnos; no amplia permisos de Mi turno ni crea
   una auditoria transversal clinica. Backend 289/289, frontend 594/594, lint y
   build aprobados. Usuario confirma historial reciente/completo, filtro y
-  limpieza, y campos AM/PM de inicio/fin. Commit/push a origin/main autorizados;
-  comprobar GitHub Actions despues de publicar.
+  limpieza, y campos AM/PM de inicio/fin. Publicado en `0791385`;
+  CI [40424912604](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/40424912604) aprobada.
 
 - Politica acordada para el fin programado del turno: contador negativo y
   aviso, sin bloqueo automatico de tareas ni nuevas asignaciones. Coordinacion

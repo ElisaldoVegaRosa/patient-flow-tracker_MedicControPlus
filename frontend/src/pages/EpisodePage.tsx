@@ -1,3 +1,4 @@
+import ReevaluationsPanel from "../components/ReevaluationsPanel";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { usePendingOperations } from "../hooks/usePendingOperations";
@@ -915,10 +916,11 @@ async function createClinicalOrder(
   )}
 </section>
 
+        <ReevaluationsPanel key={`reevaluations:${episode.id}`} episode={episode} user={user} operations={operations} updateEpisode={updateEpisode} />
         <section className="panel">
           <h2>Órdenes y tareas del episodio</h2>
 
-          {episode.tasks
+          {episode.tasks.filter(task => !task.reevaluation_group_id)
             .map((task) => (
               <article className="task" key={task.id}>
                 <div>
@@ -995,8 +997,9 @@ async function createClinicalOrder(
             disabled={discharging}
             aria-describedby={dischargeError ? "discharge-error" : undefined}
           />
+          {(episode.reevaluations ?? []).some(item => item.status === "PENDING") && <p role="status">Completa o cancela con motivo las reevaluaciones pendientes antes del alta.</p>}
           {dischargeError && <p id="discharge-error" role="alert">{dischargeError}</p>}
-          <button type="submit" className="discharge" disabled={discharging}>
+          <button type="submit" className="discharge" disabled={discharging || (episode.reevaluations ?? []).some(item => item.status === "PENDING")}>
             {discharging ? "Cerrando episodio…" : "Cerrar episodio · Alta médica"}
           </button>
         </form>
