@@ -13,6 +13,7 @@ it.each([true, false])("restores coordination=%s and guards select-only edits on
       "/auth/me": { username: "medico.uno", role: "DOCTOR", can_coordinate: coordinate },
       "/dashboard": { active: 0, open_alerts: 0, patients: [], requested_by: "medico.uno" },
       "/staff/planning": { areas: [{ id: 1, name: "Consulta", active: 1, version: '"a"' }], shifts: [], assignments: [], professionals: [], coordinators: [], changes: [], requested_by: "medico.uno" },
+      "/staff/changes": { changes: [], total: 0, page: 1, page_size: 20, has_more: false, shifts: [], professionals: [] },
       "/staff/mine": { assignments: [], requested_by: "medico.uno" },
     };
     if (!(path in routes)) throw new Error(`Unexpected ${path}`);
@@ -32,6 +33,13 @@ it.each([true, false])("restores coordination=%s and guards select-only edits on
     const unload = new Event("beforeunload", { cancelable: true });
     window.dispatchEvent(unload);
     expect(unload.defaultPrevented).toBe(true);
+    screen.getByText(/Historial de planificación · últimos 7 días/).closest("details")!.open = true;
+    fireEvent.click(screen.getByRole("button", { name: "Ver todos los registros" }));
+    expect(screen.getByRole("heading", { name: "Personal, áreas y turnos" })).toBeInTheDocument();
+    confirm.mockReturnValue(true);
+    fireEvent.click(screen.getByRole("button", { name: "Ver todos los registros" }));
+    expect(await screen.findByRole("heading", { name: "Registros de planificación" })).toBeInTheDocument();
+
   }
   expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith(coordinate ? "/staff/planning" : "/staff/mine"))).toBe(true);
 });

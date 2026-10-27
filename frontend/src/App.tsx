@@ -29,6 +29,7 @@ import EpisodePage from "./pages/EpisodePage";
 import LoginPage from "./pages/LoginPage";
 import AccountsPage from "./pages/AccountsPage";
 import StaffingPage from "./pages/StaffingPage";
+import StaffHistoryPage from "./pages/StaffHistoryPage";
 import CareQueuePage from "./pages/CareQueuePage";
 import { notifyOperationalConfirmation, operationalFormDirty } from "./session/operationalWrites";
 import EpisodePresence from "./components/EpisodePresence";
@@ -820,7 +821,8 @@ async function logout() {
         onOpenEpisode={openEpisode} submitting={operations.isPending("arrival")} onSubmit={createEpisode} />}
 
       {page === "scan" && <ScanPage onSubmit={scanEpisode} />}
-      {page === "staff" && <StaffingPage user={user} operations={operations} />}
+      {page === "staff" && <StaffingPage user={user} operations={operations} onHistory={() => guardLifecycle(() => setPage("staff-history"))} />}
+      {page === "staff-history" && <StaffHistoryPage user={user} onBack={() => setPage("staff")} />}
       {page === "care" && <CareQueuePage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "identity" && <IdentityQueuePage user={user}
         onOpenEpisode={async id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}

@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import StaffingPage from "./StaffingPage";
+import StaffingPage, { ShiftCountdown } from "./StaffingPage";
 import { usePendingOperations } from "../hooks/usePendingOperations";
 import { establishSession, invalidateSession } from "../api/client";
 import { notifyOperationalConfirmation, operationalFormDirty } from "../session/operationalWrites";
@@ -16,6 +16,15 @@ const assignment = { shift_id: 1, user_id: 8, area_id: 1, status: "PLANNED" as c
   ...person, id: 1, account_active: 1, area_name: area.name, area_active: 1, shift_name: shift.name, starts_at: shift.starts_at,
   ends_at: shift.ends_at, shift_status: shift.status, coordinator_id: 8, effective_available: false };
 const response = (status: number, value: unknown) => ({ ok: status < 400, status, json: async () => value }) as Response;
+
+function fillDate(group: HTMLElement, label: string, value: string) {
+  const fields = within(group).getByRole("group", { name: label });
+  fireEvent.change(within(fields).getByLabelText("Fecha"), { target: { value: value.slice(0, 10) } });
+  const hour = Number(value.slice(11, 13));
+  fireEvent.change(within(fields).getByLabelText("Hora (1–12)"), { target: { value: String(hour % 12 || 12) } });
+  fireEvent.change(within(fields).getByLabelText("Minutos"), { target: { value: value.slice(14, 16) } });
+  fireEvent.change(within(fields).getByLabelText("AM/PM"), { target: { value: hour >= 12 ? "PM" : "AM" } });
+}
 
 function setup(coordinate = true) {
   establishSession("staff-test-session");
@@ -33,7 +42,58 @@ function setup(coordinate = true) {
   render(<Harness />);
   return { fetchMock, mutations, update: (value: StaffingData) => { data = value; }, data };
 }
-afterEach(() => { invalidateSession(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+afterEach(() => { invalidateSession(); vi.unstubAllGlobals(); vi.restoreAllMocks(); vi.useRealTimers(); });
+
+it("continues the countdown below zero and reveals the overdue notice at the scheduled end", () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-10-21T11:59:59Z"));
+  render(<ShiftCountdown endsAt="2026-10-21T12:00:00Z" canCoordinate />);
+  expect(screen.getByText("Tiempo hasta fin programado: 00:00:01")).toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  act(() => vi.advanceTimersByTime(2000));
+  expect(screen.getByText("Tiempo desde fin programado: −00:00:01")).toBeInTheDocument();
+  expect(screen.getByRole("alert")).toHaveTextContent("Revisa si requiere una extensión o cobertura");
+});
+
+it("shows an overdue active shift outside folded details in coordination", async () => {
+  vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-10-21T12:01:00Z"));
+  const coordinator = setup();
+  await screen.findByText("Noche demo · Planificado");
+  coordinator.update({ ...coordinator.data, shifts: [{ ...shift, status: "ACTIVE" }] });
+  fireEvent.click(screen.getByRole("button", { name: "Consultar personal actual" }));
+  const card = screen.getByRole("article", { name: "Turno Noche demo" });
+  expect(await within(card).findByRole("alert")).toHaveTextContent("Fuera del horario programado");
+  expect(card.querySelector("details")?.open).toBe(false);
+});
+
+it("tells a professional to alert coordination on their own overdue shift", async () => {
+  vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-10-21T12:01:00Z"));
+  const mine = setup(false);
+  await screen.findByText(/Estado registrado: Planificado/);
+  mine.update({ ...mine.data, assignments: [{ ...assignment, shift_status: "ACTIVE" }] });
+  fireEvent.click(screen.getByRole("button", { name: "Consultar personal actual" }));
+  const card = screen.getByRole("article", { name: "Planificación medico.uno 1" });
+  expect(await within(card).findByRole("alert")).toHaveTextContent("Avisa a coordinación");
+});
+
+it("submits a reasoned shift extension in Dominican time without closing the shift", async () => {
+  const { data, update, mutations } = setup();
+  await screen.findByText("Noche demo · Planificado");
+  update({ ...data, shifts: [{ ...shift, status: "ACTIVE" }] });
+  fireEvent.click(screen.getByRole("button", { name: "Consultar personal actual" }));
+  const card = screen.getByRole("article", { name: "Turno Noche demo" });
+  const extension = await within(card).findByText("Extender horario del turno");
+  card.querySelectorAll("details").forEach(node => { node.open = true; });
+  expect(extension).toBeInTheDocument();
+  const form = within(card).getByRole("group", { name: "Confirmar extensión del turno" });
+  fillDate(form, "Nueva hora de fin · hora dominicana", "2026-10-21T09:00");
+  fireEvent.change(within(form).getByLabelText("Motivo"), { target: { value: "Cobertura ficticia del relevo" } });
+  fireEvent.click(within(form).getByRole("button", { name: "Confirmar extensión del turno" }));
+  await waitFor(() => expect(mutations).toHaveBeenCalledTimes(1));
+  expect(mutations.mock.calls[0][0]).toBe("/staff/shifts/1/extend");
+  expect(JSON.parse(String(mutations.mock.calls[0][1].body))).toEqual({ ends_at: "2026-10-21T09:00:00-04:00", reason: "Cobertura ficticia del relevo" });
+  expect(new Headers(mutations.mock.calls[0][1].headers).get("If-Match")).toBe(shift.version);
+});
 
 it("shows only the user's read-only planning without requesting coordination data", async () => {
   const { fetchMock } = setup(false);
@@ -50,7 +110,8 @@ it("sends Dominican midnight-crossing dates with an explicit offset and requires
   document.querySelectorAll("details").forEach(node => { node.open = true; });
   const form = screen.getByRole("group", { name: "Crear turno" });
   for (const [label, value] of [["Nombre del turno", "Noche nueva"], ["Inicio · hora dominicana", "2026-10-20T20:00"], ["Fin · hora dominicana", "2026-10-21T08:00"], ["Responsable de coordinación", "8"], ["Motivo", "Planificacion ficticia"]])
-    fireEvent.change(within(form).getByLabelText(label), { target: { value } });
+    if (label.includes("hora dominicana")) fillDate(form, label, value);
+    else fireEvent.change(within(form).getByLabelText(label), { target: { value } });
   fireEvent.click(within(form).getByRole("button", { name: "Crear turno" }));
   await waitFor(() => expect(mutations).toHaveBeenCalledTimes(1));
   expect(mutations.mock.calls[0][0]).toBe("/staff/shifts");

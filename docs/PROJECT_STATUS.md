@@ -2,13 +2,46 @@
 
 ## Estado actual (leer primero)
 
+- Historial de planificacion y horarios: nueva mejora local autorizada. Linea
+  de tiempo continua dentro de una seccion plegable, con eventos de todas las
+  cuentas visibles para coordinacion en los ultimos siete dias (168 horas),
+  hasta 50 recientes y enlace a registros completos con filtros y paginacion.
+  Acciones comprensibles, tabla de campos modificados y sin JSON en pantalla.
+  Fechas y entrada de horarios en 12 horas con AM/PM explicito, zona dominicana.
+  Mantiene permisos: coordinacion consulta auditoria general; Mi turno sigue
+  privado. No hay migracion ni cambios en registros clinicos o de auditoria.
+  Dirigidas: 13 backend y 20 frontend, luego 6 de navegacion/respuestas tardias.
+  Validacion actual completa: backend 289/289 (556,36 s), frontend 594/594
+  en 61 archivos (283,88 s), lint y build aprobados. Backend usa un temporal
+  nuevo dentro del repo para evitar el bloqueo previo de .tmp/pytest.
+  Prueba guiada confirmada por el usuario: lectura continua y horas, acceso
+  a registros completos, filtro de tipo/limpieza y campos AM/PM de inicio/fin.
+  No se crearon turnos para esta comprobacion visual. Limite de siete dias,
+  paginacion y permisos cuentan con cobertura automatica.
+  Usuario autoriza crear el commit, publicarlo en origin/main y comprobar CI.
+  Las validaciones locales y manuales anteriores corresponden a este bloque;
+  el resultado remoto debe comprobarse en GitHub Actions tras el push.
+
+- Turno vencido y extension: implementacion local con validacion completa
+  aprobada y prueba guiada completada por el usuario (contador negativo,
+  extension hasta 25/10/2026 20:00 y auditoria EXTEND revision 2 a 3). Un contador visible en coordinacion y Mi turno
+  sigue en negativo al superar la hora programada y avisa sin bloquear tareas
+  ni asignaciones. El coordinador confirmado puede ampliar la hora de fin de
+  un turno ACTIVE con motivo, version y auditoria; se rechazan solapamientos
+  con otras planificaciones del personal. Pruebas dirigidas: 2 backend y 10
+  frontend aprobadas. Suite backend 287/287 antes de refinar el control de
+  solapamiento de participaciones finalizadas; 2/2 afectadas despues.
+  Frontend 585/585, lint y build aprobados. El script validate.ps1 encontro acceso denegado en su
+  carpeta temporal anterior; se usó otra dentro del repo para la suite backend.
+  Prueba visual posterior completada; publicacion autorizada junto con el
+  historial de planificacion y los horarios AM/PM descritos arriba.
+
 - Colas, responsables y relevo aceptado publicados en `2accbe0`; CI
   [39894081075](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39894081075)
   aprobada (backend, frontend, lint y build). `main` y `origin/main`
   sincronizados con arbol limpio al comprobar la publicacion. Prueba guiada de
   EP-22 completada hasta relevo e inicio de enfermeria de Observacion; historial
-  e integridad comprobados. Siguiente decision: politica de fin de turno cuando
-  se supera la hora programada y el turno sigue ACTIVE.
+  e integridad comprobados. La politica de fin de turno se recoge arriba.
 
 - Personal/areas/turnos publicados en `1dff835`; CI
   [39532858950](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39532858950)

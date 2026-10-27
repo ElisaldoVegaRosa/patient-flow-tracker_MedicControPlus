@@ -38,7 +38,7 @@ export type StaffPerson = { id: number; username: string; display_name: string; 
 export type StaffChange = { id: number; resource: string; target_id: number; actor: string;
   action: string; reason: string; old_value: string; new_value: string; created_at: string };
 export type StaffingData = { areas: StaffArea[]; shifts: StaffShift[]; assignments: StaffAssignment[];
-  professionals: StaffPerson[]; coordinators: StaffPerson[]; changes: StaffChange[]; requested_by: string };
+  professionals: StaffPerson[]; coordinators: StaffPerson[]; changes: StaffChange[]; changes_has_more?: boolean; requested_by: string };
 
 export type CarePerson = { id: number; username: string; display_name: string; role: string; active: number };
 export type CareCandidate = { id: number; username: string; display_name: string; high_priority: number;
@@ -278,3 +278,6 @@ export type AdmissionCandidate = {
   matches: boolean;
   active_episode_ids: number[];
 };
+
+export type StaffHistoryData = { changes: StaffChange[]; total: number; page: number; page_size: number; has_more: boolean;
+  shifts: { id: number; name: string }[]; professionals: { id: number; username: string; display_name: string }[]; requested_by: string };

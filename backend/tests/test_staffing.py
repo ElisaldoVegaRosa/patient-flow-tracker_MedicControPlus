@@ -131,6 +131,58 @@ def test_shift_dates_require_explicit_zone_and_next_day_for_midnight(staff, star
     assert not query("SELECT id FROM staff_shifts")
 
 
+def test_active_shift_extension_is_audited_without_changing_clinical_work(staff):
+    client, _, _, coord, nurse, auth = staff
+    planned = shift(client, auth, coord).json()
+    duty(client, auth, planned, nurse)
+    active = transition(client, auth, "shifts", planned, "ACTIVE").json()
+    assignment = client.get("/staff/planning", headers=auth).json()["assignments"][0]
+    available = transition(client, auth, "assignments", assignment, "AVAILABLE").json()
+    path = f"/staff/shifts/{active['id']}/extend"
+    updated = write(client, auth, path, {"ends_at": "2026-10-21T09:00:00-04:00"}, active)
+    assert updated.status_code == 200
+    extended = updated.json()
+    assert extended["status"] == "ACTIVE"
+    assert extended["ends_at"] == "2026-10-21T13:00:00+00:00"
+    assert extended["version"] != active["version"]
+    own = client.get("/staff/mine", headers=auth).json()
+    assert own["assignments"] == []
+    nurse_auth = staff[1](nurse["username"])
+    nurse_duty = client.get("/staff/mine", headers=nurse_auth).json()["assignments"][0]
+    assert nurse_duty["ends_at"] == extended["ends_at"]
+    assert nurse_duty["effective_available"] and nurse_duty["status"] == available["status"]
+    audit = query("SELECT actor,action,reason,old_value,new_value FROM staff_changes WHERE resource='shift' AND target_id=? ORDER BY id DESC LIMIT 1", (active["id"],))[0]
+    assert (audit["actor"], audit["action"], audit["reason"]) == (coord["username"], "EXTEND", REASON)
+    assert json.loads(audit["old_value"])["ends_at"] == active["ends_at"]
+    assert json.loads(audit["new_value"])["ends_at"] == extended["ends_at"]
+    assert query("SELECT COUNT(*) FROM care_changes")[0][0] == 0
+
+
+def test_extension_requires_current_coordinator_new_time_and_no_overlap(staff):
+    client, login, admin, coord, nurse, auth = staff
+    planned = shift(client, auth, coord).json()
+    duty(client, auth, planned, nurse)
+    path = f"/staff/shifts/{planned['id']}/extend"
+    later = {"ends_at": "2026-10-21T09:00:00-04:00"}
+    assert write(client, auth, path, later, planned).status_code == 409
+    active = transition(client, auth, "shifts", planned, "ACTIVE").json()
+    assert write(client, auth, path, later).status_code == 428
+    assert write(client, auth, path, later, planned).status_code == 409
+    assert write(client, auth, path, {"ends_at": "2026-10-21T09:00:00"}, active).status_code == 422
+    assert write(client, auth, path, {"ends_at": "2026-10-21T08:00:00-04:00"}, active).status_code == 409
+    other = grant(client, admin, nurse).json()
+    assert other["can_coordinate"]
+    assert write(client, login(nurse["username"]), path, later, active).status_code == 403
+    next_shift = shift(client, auth, coord, "2026-10-21T10:00:00-04:00", "2026-10-21T14:00:00-04:00").json()
+    assert duty(client, auth, next_shift, nurse).status_code == 201
+    assert write(client, auth, path, {"ends_at": "2026-10-21T11:00:00-04:00"}, active).status_code == 409
+    current_duty = next(item for item in client.get("/staff/planning", headers=auth).json()["assignments"] if item["shift_id"] == active["id"])
+    available = transition(client, auth, "assignments", current_duty, "AVAILABLE").json()
+    assert transition(client, auth, "assignments", available, "FINISHED").status_code == 200
+    assert write(client, auth, path, {"ends_at": "2026-10-21T11:00:00-04:00"}, active).status_code == 409
+    assert write(client, auth, path, later, active).status_code == 200
+
+
 def test_overlap_is_atomic_adjacent_allowed_and_cancel_releases_time(staff):
     client, _, _, coord, nurse, auth = staff
     first = shift(client, auth, coord).json()

@@ -1033,3 +1033,32 @@ Acciones principales de una pantalla
   outline-offset: 4px;
   border-radius: 4px;
 }
+
+.staff-timeline {
+  list-style: none;
+  padding-left: 1.25rem;
+  border-left: 3px solid #00857e;
+}
+.staff-timeline > li {
+  position: relative;
+  margin: 1.5rem 0;
+  padding: 0 0 1.5rem .5rem;
+  border-bottom: 1px solid #dde7e7;
+}
+.staff-timeline > li::before {
+  content: "";
+  position: absolute;
+  left: -1.7rem;
+  top: .35rem;
+  width: .7rem;
+  height: .7rem;
+  border-radius: 50%;
+  background: #00857e;
+}
+.staff-date-time {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: .75rem;
+  min-width: 0;
+}
+.staff-date-time p { grid-column: 1 / -1; }

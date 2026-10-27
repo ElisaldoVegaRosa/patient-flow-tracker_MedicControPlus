@@ -1,3 +1,6 @@
+import StaffingTimeline from "../components/StaffingTimeline";
+import StaffDateTimeInput from "../components/StaffDateTimeInput";
+import { staffingAuditDate, staffingDatePayload } from "../components/staffingAuditDate";
 import { useEffect, useRef, useState } from "react";
 import { api, getSessionRevision, isSessionInterruption } from "../api/client";
 import OperationalWriteForm from "../components/OperationalWriteForm";
@@ -8,21 +11,34 @@ import type { StaffingData, StaffShift, User } from "../types/clinical";
 
 const names: Record<string, string> = { PLANNED: "Planificado", ACTIVE: "Iniciado", CLOSED: "Cerrado", CANCELLED: "Cancelado",
   AVAILABLE: "Disponible confirmado", UNAVAILABLE: "No disponible", FINISHED: "Participación finalizada" };
-function localDate(value: string) {
-  return new Intl.DateTimeFormat("sv-SE", { timeZone: "America/Santo_Domingo", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(value)).replace(" ", "T");
-}
 function payload(fields: FormData) {
-  const result: Record<string, unknown> = Object.fromEntries(fields);
+  const result: Record<string, unknown> = staffingDatePayload(fields);
   for (const key of ["area_id", "user_id", "shift_id", "coordinator_id"]) if (key in result) result[key] = Number(result[key]);
   if ("active" in result) result.active = result.active === "true";
-  // This local demo schedules Dominican time explicitly; never use the PC's timezone.
-  for (const key of ["starts_at", "ends_at"]) if (result[key]) result[key] = `${result[key]}:00-04:00`;
   return result;
 }
 const personLabel = (person: { display_name: string; username: string }) => `${person.display_name} (${person.username})`;
 const empty = { areas: [], shifts: [], assignments: [], professionals: [], coordinators: [], changes: [], requested_by: "" };
 
-export default function StaffingPage({ user, operations }: { user: User; operations: PendingOperations }) {
+export function ShiftCountdown({ endsAt, canCoordinate }: { endsAt: string; canCoordinate: boolean }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const difference = new Date(endsAt).getTime() - now;
+  const overdue = difference <= 0;
+  const seconds = Math.ceil(Math.abs(difference) / 1000);
+  const clock = `${String(Math.floor(seconds / 3600)).padStart(2, "0")}:${String(Math.floor(seconds % 3600 / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  return <div>
+    <p>{overdue ? "Tiempo desde fin programado" : "Tiempo hasta fin programado"}: {overdue ? "−" : ""}{clock}</p>
+    {overdue && <p role="alert">Fuera del horario programado: el turno sigue activo. {canCoordinate
+      ? "Revisa si requiere una extensión o cobertura. Si terminó, finaliza las participaciones, cierra el turno e inicia el próximo relevo."
+      : "Avisa a coordinación para revisar la extensión o cobertura y organizar el próximo relevo."}</p>}
+  </div>;
+}
+
+export default function StaffingPage({ user, operations, onHistory }: { user: User; operations: PendingOperations; onHistory?: () => void }) {
   const [data, setData] = useState<StaffingData | null>(null);
   const [dirty, setDirty] = useState(false);
   const [notice, setNotice] = useState("");
@@ -74,8 +90,8 @@ export default function StaffingPage({ user, operations }: { user: User; operati
   function shiftFields(shift?: StaffShift) {
     return <>
       <label>Nombre del turno<input name="name" required maxLength={200} defaultValue={shift?.name} /></label>
-      <label>Inicio · hora dominicana<input type="datetime-local" name="starts_at" required defaultValue={shift && localDate(shift.starts_at)} /></label>
-      <label>Fin · hora dominicana<input type="datetime-local" name="ends_at" required defaultValue={shift && localDate(shift.ends_at)} /></label>
+      <StaffDateTimeInput name="starts_at" label="Inicio · hora dominicana" value={shift?.starts_at} />
+      <StaffDateTimeInput name="ends_at" label="Fin · hora dominicana" value={shift?.ends_at} />
       <label>Responsable de coordinación<select name="coordinator_id" required defaultValue={shift?.coordinator_id ?? ""}>
         <option value="">Selecciona una cuenta con permiso</option>{coordinatorOptions}
       </select></label>
@@ -106,14 +122,21 @@ export default function StaffingPage({ user, operations }: { user: User; operati
         const closed = shift.status === "CLOSED" || shift.status === "CANCELLED";
         const own = shift.coordinator_username === user.username;
         return <article className="panel" key={shift.id} aria-label={`Turno ${shift.name}`}>
+          {shift.status === "ACTIVE" && <ShiftCountdown endsAt={shift.ends_at} canCoordinate={own} />}
           <details className="operational-disclosure"><summary><h3>{shift.name} · {names[shift.status]}</h3></summary>
-          <p>{localDate(shift.starts_at).replace("T", " ")} — {localDate(shift.ends_at).replace("T", " ")}</p>
+          <p>{staffingAuditDate(shift.starts_at)} — {staffingAuditDate(shift.ends_at)}</p>
           <p>Coordinación: {shift.coordinator_name || shift.coordinator_username} ({shift.coordinator_username})</p>
           {(!shift.coordinator_active || !shift.coordinator_permission) && <p role="status">El responsable ya no tiene acceso de coordinación. Otra cuenta autorizada debe asumirlo explícitamente.</p>}
           {closed && <p>Turno finalizado o cancelado. Los campos que estabas editando quedan solo para consulta.</p>}
           <details><summary>Editar planificación</summary>
             <OperationalWriteForm {...common} method="PATCH" path={`/staff/shifts/${shift.id}`} version={shift.version} blocked={shift.status !== "PLANNED"} label="Actualizar turno">{shiftFields(shift)}</OperationalWriteForm>
           </details>
+          {shift.status === "ACTIVE" && <details><summary>Extender horario del turno</summary>
+            <OperationalWriteForm {...common} path={`/staff/shifts/${shift.id}/extend`} version={shift.version} blocked={!own} label="Confirmar extensión del turno">
+              <StaffDateTimeInput name="ends_at" label="Nueva hora de fin · hora dominicana" value={shift.ends_at} />
+              <p>La extensión se registra con motivo; no modifica tareas ni transfiere pacientes. Revisa los turnos futuros del personal para evitar solapamientos.</p>
+            </OperationalWriteForm>
+          </details>}
           {!own && <OperationalWriteForm {...common} path={`/staff/shifts/${shift.id}/assume`} version={shift.version} blocked={closed} label="Asumir coordinación de este turno">
             <p>Asumes personalmente la coordinación. Se conserva el responsable anterior en auditoría; no cambia la atención del paciente.</p>
           </OperationalWriteForm>}
@@ -142,8 +165,9 @@ export default function StaffingPage({ user, operations }: { user: User; operati
         const done = assignment.status === "FINISHED" || assignment.status === "CANCELLED";
         return <article className="panel" key={assignment.id} aria-label={`Planificación ${assignment.username} ${assignment.id}`}
           hidden={Boolean((areaFilter && String(assignment.area_id) !== areaFilter) || (shiftFilter && String(assignment.shift_id) !== shiftFilter))}>
+          {!user.can_coordinate && assignment.shift_status === "ACTIVE" && !done && <ShiftCountdown endsAt={assignment.ends_at} canCoordinate={false} />}
           <details className="operational-disclosure"><summary><h3>{personLabel(assignment)} · {assignment.area_name} · {names[assignment.status]}</h3></summary>
-          <p>{assignment.shift_name} · {localDate(assignment.starts_at).replace("T", " ")} — {localDate(assignment.ends_at).replace("T", " ")}</p>
+          <p>{assignment.shift_name} · {staffingAuditDate(assignment.starts_at)} — {staffingAuditDate(assignment.ends_at)}</p>
           <p>Estado registrado: {names[assignment.status]}. Disponible ahora por confirmación: {assignment.effective_available ? "Sí" : "No"}.</p>
           {!assignment.account_active && <p>Cuenta inactiva; no se considera disponible.</p>}
           {user.can_coordinate && <>
@@ -160,10 +184,11 @@ export default function StaffingPage({ user, operations }: { user: User; operati
         </details></article>;
       })}
     </section>
-    {user.can_coordinate && <section className="panel"><details><summary>Historial de planificación</summary>{data?.changes.map(change => <article key={change.id}>
-      <details className="operational-disclosure"><summary><h3>{change.resource} #{change.target_id} · {change.action}</h3></summary>
-      <p>Motivo: {change.reason}</p><p>{change.actor} · {change.created_at}</p>
-      <details><summary>Valores anteriores y nuevos</summary><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{change.old_value}</pre><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{change.new_value}</pre></details></details>
-    </article>)}</details></section>}
+    {user.can_coordinate && <section className="panel"><details><summary>Historial de planificación · últimos 7 días</summary>
+      <p>Eventos de todas las cuentas autorizadas, de los últimos siete días, incluidos turnos y sesiones anteriores. Más recientes primero.</p>
+      {data && <StaffingTimeline changes={data.changes} />}
+      {data?.changes_has_more && <p>Se muestran los 50 eventos más recientes. Consulta los registros completos para ver el resto.</p>}
+      {onHistory && <button type="button" onClick={onHistory}>Ver todos los registros</button>}
+    </details></section>}
   </main>;
 }

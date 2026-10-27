@@ -5,6 +5,50 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Linea de tiempo de planificacion y horarios AM/PM (implementacion local)
+
+- La vista reciente contiene eventos de los ultimos siete dias, de otras
+  cuentas y sesiones dentro del permiso de coordinacion; maximo 50 recientes,
+  con aviso si quedan mas. No se descartan ni modifican los registros antiguos.
+- Pagina Registros de planificacion: filtros de fechas dominicanas, turno,
+  participaciones del profesional y tipo de cambio; paginacion del servidor
+  de 20 eventos por pagina, maximo 50 por solicitud. Conserva las mismas
+  restricciones de acceso que Personal y turnos, incluidas revocaciones.
+- Eventos continuos sin desplegables individuales, con nombres comprensibles,
+  contexto del turno/profesional/area, autor, motivo y comparacion Antes/Despues.
+- Horas mostradas y capturadas con AM/PM explicito. Conversion a UTC-04:00
+  mantiene el contrato API, control de borradores, reinicio y conflictos.
+- Validacion dirigida aprobada (13 backend; 20 frontend y 6 posteriores),
+  lint y build. Suites completas actuales aprobadas: backend 289/289
+  (556,36 s) y frontend 594/594 en 61 archivos (283,88 s).
+- Prueba manual guiada confirmada: historial reciente y completo, nombres y
+  horas legibles, filtro de tipo y limpieza, y campos AM/PM de inicio/fin.
+
+## Historial de planificacion legible (implementacion local)
+
+- Validacion frontend: 588/588, dirigidas 13/13 y ajuste final 3/3; lint y build aprobados.
+- Tabla Campo/Antes/Despues con solo los campos modificados de areas, turnos
+  y participaciones. Estados y roles traducidos, fechas en hora dominicana.
+- Retirada de detalles tecnicos: 13/13 pruebas afectadas, lint y build aprobados.
+- Registro completo conservado en la base; se retira Detalles tecnicos de la pantalla operativa.
+  Los registros no interpretables muestran un aviso para solicitar revision a soporte.
+- Prueba manual previa del contador, extension e historial confirmada por el usuario.
+
+## Aviso de fin programado y extension del turno (implementacion local)
+
+- El turno ACTIVE muestra cuenta regresiva hasta su hora de fin; despues
+  muestra el tiempo excedido en negativo y un aviso visible aun con el panel
+  plegado. El profesional ve el aviso en Mi turno y puede contactar a
+  coordinacion. El vencimiento no cierra el turno ni interrumpe tareas,
+  responsables o nuevas asignaciones.
+- El coordinador confirmado puede ampliar el fin del turno ACTIVE con nueva
+  hora y motivo. La API exige version vigente y zona horaria explicita,
+  rechaza una hora no posterior y solapamientos con otras planificaciones
+  vigentes. El historial registra EXTEND con valores anterior y nuevo.
+- Dirigidas aprobadas: 2 backend y 10 frontend. Suite backend 287/287 antes
+  de un refuerzo del control de solapamientos; 2/2 afectadas despues.
+  Frontend 585/585, lint y build aprobados. Prueba guiada pendiente.
+
 ## Borradores de asignacion obsoletos (publicados en 2accbe0)
 
 - Al actualizar una cola, una asignacion confirmada por otra sesion deshabilita

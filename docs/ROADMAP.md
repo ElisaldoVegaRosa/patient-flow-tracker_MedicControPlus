@@ -2,11 +2,29 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Historial autorizado: opcion 3, eventos de otras personas y sesiones dentro
+  del permiso vigente. Implementacion local de ultimos siete dias (168 horas,
+  hasta 50 recientes), linea continua y pagina de registros completos con
+  filtros/paginacion; acciones legibles y horarios de 12 horas con AM/PM.
+  Alcance: personal, areas y turnos; no amplia permisos de Mi turno ni crea
+  una auditoria transversal clinica. Backend 289/289, frontend 594/594, lint y
+  build aprobados. Usuario confirma historial reciente/completo, filtro y
+  limpieza, y campos AM/PM de inicio/fin. Commit/push a origin/main autorizados;
+  comprobar GitHub Actions despues de publicar.
+
+- Politica acordada para el fin programado del turno: contador negativo y
+  aviso, sin bloqueo automatico de tareas ni nuevas asignaciones. Coordinacion
+  puede registrar extension motivada y auditada; el relevo y el cierre siguen
+  explicitos. Implementacion local validada: suite backend 287/287, refuerzo
+  posterior 2/2 afectadas, frontend 585/585, lint y build aprobados. Prueba
+  guiada del contador, extension e historial completada. Mejora visual del
+  historial autorizada: tabla Antes/Despues sin detalles tecnicos visibles. No se ha definido
+  tiempo extra individual ni aprobacion administrativa de horas laborales.
+
 - Colas, responsables y relevo publicados en `2accbe0`; CI
   [39894081075](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39894081075)
   aprobada. Prueba guiada EP-22 completada hasta aceptacion e inicio del relevo.
-  Proxima decision: que hacer al vencer la hora programada de un turno ACTIVE;
-  hoy su cierre es manual y mantiene disponibilidades efectivas.
+  La decision sobre la hora programada de un turno ACTIVE se recoge arriba.
 
 - Personal/areas/turnos publicados en `1dff835`, CI
   [39532858950](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/39532858950)

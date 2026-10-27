@@ -25,7 +25,8 @@ No representa distribucion de pacientes.
    Laboratorio. Pueden renombrarse, crearse o desactivarse con motivo. Un area
    con participaciones pendientes no puede desactivarse.
 2. Crear un turno con nombre, inicio, fin y responsable de coordinacion activo.
-   La pantalla usa hora dominicana, UTC-04:00. Para cruzar medianoche se elige
+   La pantalla usa hora dominicana, UTC-04:00, con fecha y hora de 12 horas.
+   Selecciona AM o PM explicitamente: 12 AM es medianoche y 12 PM mediodia. Para cruzar medianoche se elige
    la fecha siguiente en el fin. Se persiste UTC.
 3. Planificar profesionales y area. No duplica ni permite horarios solapados
    para una persona, incluso con solicitudes simultaneas. Turnos contiguos se
@@ -40,6 +41,15 @@ No representa distribucion de pacientes.
 6. Para cerrar, finalizar o cancelar explicitamente todas las participaciones
    pendientes. Cancelar un turno aun planificado cancela sus participaciones
    planificadas y audita cada una. Los estados terminales no se reabren.
+
+Si un turno ACTIVE supera su fin programado, Personal y turnos y Mi turno
+muestran un contador negativo y aviso. Es una advertencia, no un cierre ni
+un bloqueo de las tareas o asignaciones. El coordinador confirmado puede
+usar **Extender horario del turno** para registrar una hora posterior y el
+motivo, con control de version y auditoria. La extension se rechaza si solapa
+otra planificacion no cancelada de los profesionales del turno. Si el turno ha
+terminado, se finalizan sus participaciones, se cierra y se inicia el relevo.
+La extension del turno no acredita horas extra laborales individuales.
 
 Cualquier cuenta con permiso puede preparar turnos futuros. Solo el responsable
 confirmado cambia estados o incorpora profesionales al turno activo. Otra
@@ -130,3 +140,24 @@ confirmadas. Publicacion y CI completadas en 1dff835; siguiente propuesta:
 
 Referencias: [alcance acordado](STAFF_AREAS_SHIFTS_PLAN.md),
 [cuentas personales](PERSONAL_ACCOUNTS.md), [estado](PROJECT_STATUS.md).
+
+## Historial de planificacion (mejora local)
+
+La seccion reciente permanece plegable; al abrirla los eventos se leen en una
+linea de tiempo continua, con cambios y motivo visibles sin abrir cada evento.
+Se consultan los ultimos siete dias (168 horas respecto al reloj del servidor),
+de todas las cuentas incluidas en el permiso de coordinacion. La pantalla
+muestra hasta 50 eventos recientes y avisa si hay mas.
+
+**Ver todos los registros** abre una pagina independiente. Admite fechas
+inicial/final inclusivas en hora dominicana, turno, participaciones de un
+profesional y tipo de cambio. Cada pagina contiene 20 eventos, ordenados por
+fecha descendente e identificador para desempatar. Incluye profesionales
+inactivos en los filtros si tienen participaciones historicas. Las lecturas
+no alteran la auditoria y no exponen JSON en la interfaz. La API permite
+hasta 50 eventos por solicitud. Ambos accesos requieren coordinacion;
+Mi turno conserva exclusivamente la planificacion propia.
+
+El paso a la pagina completa respeta el aviso de campos sin guardar. El
+historial se actualiza cada 15 segundos con la pestana visible; los resultados
+anteriores a un cambio de filtros o sesion no sustituyen la consulta actual.

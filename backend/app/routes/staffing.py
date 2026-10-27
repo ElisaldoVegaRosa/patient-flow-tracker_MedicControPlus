@@ -1,10 +1,11 @@
 """Planning endpoints with atomic receipts, fresh coordination permission and versions."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import sqlite3
 from typing import Literal
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from .. import auth
+from ..staff_history import history_page
 from ..input_validation import Name, ClinicalNote
 from ..staffing import STAFF_ROLES, check_version, coordinator, detail, no_overlap, professional, record, responsible
 from ..write_operations import atomic_write, transaction_factory
@@ -37,6 +38,16 @@ class Shift(Reason):
 
 class ShiftStatus(Reason):
     status: Literal["ACTIVE", "CLOSED", "CANCELLED"]
+
+
+class ShiftExtension(Reason):
+    ends_at: datetime
+
+    @model_validator(mode="after")
+    def explicit_zone(self):
+        if self.ends_at.tzinfo is None:
+            raise ValueError("Indica la nueva hora de fin con zona horaria explicita")
+        return self
 
 
 class Assignment(Reason):
@@ -81,10 +92,34 @@ def create_router(connection_factory, timestamp, clinical_user, require_coordina
         try:
             resources = {name: [detail(connection, kind, row["id"]) for row in connection.execute(f"SELECT id FROM {table} ORDER BY id")]
                 for name, kind, table in (("areas", "area", "staff_areas"), ("shifts", "shift", "staff_shifts"), ("assignments", "assignment", "staff_assignments"))}
+            recent = history_page(connection, timestamp())
             people = [dict(row) for row in connection.execute("SELECT id,username,display_name,role,active,can_coordinate FROM users WHERE active=1 AND role!='ACCOUNT_ADMIN' ORDER BY id")]
             return {**resources, "professionals": [person for person in people if person["role"] in STAFF_ROLES and person["display_name"].strip()],
                     "coordinators": [person for person in people if person["can_coordinate"]],
-                    "changes": [dict(row) for row in connection.execute("SELECT * FROM staff_changes ORDER BY id DESC")],
+                    "changes": recent["changes"], "changes_has_more": recent["has_more"],
+                    "requested_by": user["username"]}
+        finally:
+            connection.close()
+
+    @router.get("/changes")
+    def changes(page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=50),
+                start_date: date | None = None, end_date: date | None = None,
+                shift_id: int | None = Query(None, gt=0), professional_id: int | None = Query(None, gt=0),
+                action: Literal["CREATE", "UPDATE", "EXTEND", "ASSUME_COORDINATION", "ACTIVE", "CLOSED", "CANCELLED",
+                                "PLAN", "CHANGE_AREA", "AVAILABLE", "UNAVAILABLE", "FINISHED", "SHIFT_CANCELLED"] | None = None,
+                user: dict = Depends(require_coordination)):
+        if start_date and end_date and start_date > end_date:
+            raise HTTPException(422, "La fecha inicial debe ser anterior o igual a la final")
+        if end_date == date.max:
+            raise HTTPException(422, "Selecciona una fecha final anterior al año 10000")
+        connection = factory()
+        try:
+            return {**history_page(connection, timestamp(), recent=False, page=page, page_size=page_size,
+                                   start_date=start_date, end_date=end_date, shift_id=shift_id,
+                                   professional_id=professional_id, action=action),
+                    "shifts": [dict(row) for row in connection.execute("SELECT id,name FROM staff_shifts ORDER BY id DESC")],
+                    "professionals": [dict(row) for row in connection.execute(
+                        "SELECT DISTINCT u.id,u.username,u.display_name FROM users u JOIN staff_assignments d ON d.user_id=u.id ORDER BY u.id")],
                     "requested_by": user["username"]}
         finally:
             connection.close()
@@ -145,6 +180,22 @@ def create_router(connection_factory, timestamp, clinical_user, require_coordina
             no_overlap(connection, row["user_id"], starts, ends, identifier)
         connection.execute("UPDATE staff_shifts SET name=?,starts_at=?,ends_at=?,coordinator_id=?,revision=revision+1 WHERE id=?", (data.name, starts, ends, data.coordinator_id, identifier))
         return save(connection, "shift", identifier, user, "UPDATE", before, data.reason)
+
+    @router.post("/shifts/{identifier}/extend")
+    @write
+    def extend_shift(identifier: int, data: ShiftExtension, expected: str | None = Header(default=None, alias="If-Match"), user: dict = Depends(require_coordination)):
+        connection = factory()
+        before = check_version(connection, "shift", identifier, expected)
+        responsible(before, user)
+        if before["status"] != "ACTIVE":
+            raise HTTPException(409, "Solo puede extenderse un turno activo")
+        new_end = data.ends_at.astimezone(timezone.utc).isoformat()
+        if data.ends_at.astimezone(timezone.utc) <= datetime.fromisoformat(before["ends_at"]):
+            raise HTTPException(409, "La nueva hora de fin debe ser posterior a la programada")
+        for row in connection.execute("SELECT user_id FROM staff_assignments WHERE shift_id=? AND status!='CANCELLED'", (identifier,)).fetchall():
+            no_overlap(connection, row["user_id"], before["starts_at"], new_end, identifier)
+        connection.execute("UPDATE staff_shifts SET ends_at=?,revision=revision+1 WHERE id=?", (new_end, identifier))
+        return save(connection, "shift", identifier, user, "EXTEND", before, data.reason)
 
     @router.post("/shifts/{identifier}/assume")
     @write
