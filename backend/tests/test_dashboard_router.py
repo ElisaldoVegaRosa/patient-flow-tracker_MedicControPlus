@@ -24,7 +24,7 @@ def test_dashboard_access_and_empty_response(tmp_path, monkeypatch, username) ->
         response = client.get("/dashboard", headers=headers)
         assert response.status_code == 200
         assert response.json() == {
-            "active": 0, "open_alerts": 0, "patients": [], "requested_by": username,
+            "active": 0, "open_alerts": 0, "patients": [], "requested_by": username, "laboratory_enabled": False,
         }
         supervisor = client.get("/supervisor/dashboard", headers=headers)
         if username != "supervisor":

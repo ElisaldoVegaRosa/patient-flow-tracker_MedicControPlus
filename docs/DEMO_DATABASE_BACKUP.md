@@ -1,9 +1,13 @@
 # Respaldo y restauracion de la base del demo local
 
-La base activa es `backend/clinical.db`. El comando usa la API de respaldo de
+La base predeterminada es `backend/clinical.db`. El comando usa la API de respaldo de
 SQLite para obtener una copia consistente aunque la API este encendida. Guarda
 la copia y su SHA-256 en `backups/`, directorio ignorado por Git. No imprime
 datos clinicos ni tokens.
+
+Si se inicia una copia mediante `demo.ps1 Start -Database`, el respaldo sin
+`--source` sigue apuntando a la base predeterminada. Indicar la copia activa
+explicitamente; ver [el ensayo LAB y su respaldo](LABORATORY_ACTIVATION.md).
 
 Desde la raiz del repositorio, en PowerShell:
 
@@ -21,6 +25,13 @@ archivo `.sha256` del mismo nombre. Para comprobar una copia existente:
 La verificacion comprueba el SHA-256, `PRAGMA integrity_check`, las referencias
 foraneas y las tablas necesarias para este demo. Una copia creada antes de
 nuevas escrituras representa el estado anterior; no incluye cambios posteriores.
+
+Cuando la base contiene tablas del nuevo laboratorio, exige sus 12 tablas y
+el marcador unico de esquema v2. Rechaza una familia incompleta o una version
+incompatible tanto al respaldar como al verificar/restaurar, incluso si el
+SHA-256 coincide. No ejecuta migraciones ni agrega datos. Las bases anteriores
+sin tablas LAB siguen siendo compatibles. Esta validacion no acredita que una
+orden este clinicamente completa ni que sus resultados esten revisados.
 
 ## Ensayo de restauracion sin tocar la base activa
 

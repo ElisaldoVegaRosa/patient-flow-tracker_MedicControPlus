@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import sqlite3
 
 from fastapi import APIRouter, Depends
+from ..laboratory_integration import available
 
 
 def create_router(
@@ -41,13 +42,17 @@ def create_router(
             if alert["status"] != "RESOLVED"
         )
 
-        connection.close()
+        try:
+            laboratory_enabled = available(connection)
+        finally:
+            connection.close()
 
         return {
             "active": len(patients),
             "open_alerts": open_alerts,
             "patients": patients,
             "requested_by": user["username"],
+            "laboratory_enabled": laboratory_enabled,
         }
 
     @router.get("/supervisor/dashboard")

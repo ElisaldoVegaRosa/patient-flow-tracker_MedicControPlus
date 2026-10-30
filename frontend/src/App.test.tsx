@@ -688,7 +688,11 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
       events: [...episode.events, { id: 3, episode_id: 42, type: "DISCHARGE",
         username: "medico", note, created_at: "2026-10-04T12:00:00Z" }] };
     fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => closed } as Response);
-    await user.type(screen.getByLabelText("Nota de alta"), `  ${note}  `);
+    const field = screen.getByLabelText("Nota de alta");
+    // This case verifies multiline persistence/trim; keyboard entry is covered elsewhere.
+    await user.click(field);
+    await user.paste(`  ${note}  `);
+    expect(field).toHaveValue(`  ${note}  `);
     await user.click(screen.getByRole("button", { name: "Cerrar episodio · Alta médica" }));
     expect(fetchMock).toHaveBeenLastCalledWith("http://localhost:8000/episodes/42/discharge",
       expect.objectContaining({ method: "POST", body: JSON.stringify({ note }) }));
@@ -711,7 +715,10 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
     fetchMock.mockImplementationOnce(() => new Promise<Response>((resolve) => { finish = resolve; }));
     const field = screen.getByLabelText("Nota de alta");
     const note = "  Indicaciones de seguimiento pendientes de revisión.  ";
-    await user.type(field, note);
+    // Verify duplicate/retry semantics without spending the time budget on every keystroke.
+    await user.click(field);
+    await user.paste(note);
+    expect(field).toHaveValue(note);
     const button = screen.getByRole("button", { name: "Cerrar episodio · Alta médica" });
     const form = field.closest("form")!;
     await user.dblClick(button);

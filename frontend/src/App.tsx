@@ -1,4 +1,5 @@
 import { validateOperationalForm } from "./forms/inputValidation";
+import LaboratoryFollowupsPage from "./pages/LaboratoryFollowupsPage";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
@@ -10,7 +11,7 @@ import UncertainWrites from "./components/UncertainWrites";
 import RetainedDrafts from "./components/RetainedDrafts";
 import RecoveredWrites from "./components/RecoveredWrites";
 import {
-  AdmissionReviewError, api, bindWriteRecovery, establishSession, getSessionRevision, invalidateSession,
+  AdmissionReviewError, api, bindWriteRecovery, establishSession, getSessionRevision, getWriteRevision, invalidateSession,
   isSessionInterruption, SESSION_EXPIRED_EVENT, VersionConflictError,
 } from "./api/client";
 import { useFormRecovery } from "./session/useFormRecovery";
@@ -31,7 +32,8 @@ import AccountsPage from "./pages/AccountsPage";
 import StaffingPage from "./pages/StaffingPage";
 import StaffHistoryPage from "./pages/StaffHistoryPage";
 import CareQueuePage from "./pages/CareQueuePage";
-import { notifyOperationalConfirmation, operationalFormDirty } from "./session/operationalWrites";
+import { clearSpecimenDrafts, claimSpecimenDraftOwner } from "./session/specimenDrafts";
+import { notifyOperationalConfirmation, notifyOperationalConflict, operationalFormDirty } from "./session/operationalWrites";
 import EpisodePresence from "./components/EpisodePresence";
 import AppHeader from "./components/AppHeader";
 import type {
@@ -87,6 +89,7 @@ function App() {
   const [recoveredNote, setRecoveredNote] = useState("");
   const draftRoot = useRef<HTMLDivElement>(null);
   const [retainedDrafts, setRetainedDrafts] = useState<FormDraft[]>([]);
+  useEffect(() => { if (user) claimSpecimenDraftOwner(user); }, [user]);
   const lifecycleDirty = useCallback(() => {
     return [...(draftRoot.current?.querySelectorAll<HTMLFormElement>("form[data-operational], form[data-record-correction], form[data-draft-kind='identity']") ?? [])]
       .some(form => form.dataset.operational ? operationalFormDirty(form) : [...form.querySelectorAll("input, textarea")].some(field =>
@@ -134,6 +137,18 @@ function App() {
   const liveReady = page === "dashboard" ? dashboard : page === "supervisor" ? supervisorData : page === "laboratory" ? laboratoryQueue : page === "episode" ? episode : null;
   const liveContext = user && liveReady
     ? `${getSessionRevision()}:${user.username}:${user.role}:${page}:${page === "episode" ? episode?.id ?? "" : page === "laboratory" ? laboratoryFilter : ""}` : null;
+  const readGeneration = useRef(0);
+  useLayoutEffect(() => { readGeneration.current++; }, [liveContext]);
+  async function consultLaboratoryConflict() {
+    const generation = readGeneration.current;
+    const writeRevision = getWriteRevision();
+    try {
+      const result = await api<LaboratoryQueue>(`/lab/orders?status=${laboratoryFilter}`);
+      if (generation === readGeneration.current && writeRevision === getWriteRevision()) applyLaboratoryQueue(result);
+    } catch (exception) {
+      if (generation === readGeneration.current && !isSessionInterruption(exception)) setError((exception as Error).message);
+    }
+  }
   const live = useLiveRefresh({
     context: liveContext,
     paused: () => operations.hasPending() || leave.confirming || recovery.status === "checking" || lifecycleDirty(),
@@ -248,6 +263,12 @@ function App() {
   }
 
   function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
+    if (/^\/lab\/(specimens|analyses|results|followups)\//.test(path) || /^\/episodes\/\d+\/lab-orders$/.test(path) || (path.endsWith("/discharge") && (result as Episode)?.laboratory?.orders.length)) {
+      notifyOperationalConfirmation(path, body);
+      setWriteNotice(path.startsWith("/lab/followups/") ? "Seguimiento confirmado por el servidor." : path.endsWith("/discharge") ? "Alta y revisión de laboratorio confirmadas por el servidor." : path.endsWith("/lab-orders") ? "Orden de laboratorio confirmada por el servidor." : /\/(cancel|reinstate)$/.test(path) ? "Cambio de analítica confirmado por el servidor." : path.startsWith("/lab/specimens/") ? "Registro de muestra confirmado por el servidor." : "Registro de resultado confirmado por el servidor.");
+      if (page === "episode" && episode?.id === (result as Episode).id) updateEpisode(result as Episode); else void live.refresh();
+      return;
+    }
     if (path.startsWith("/staff/") || path.startsWith("/care/")) {
       notifyOperationalConfirmation(path, body);
       setWriteNotice("Operacion de organizacion confirmada por el servidor.");
@@ -691,6 +712,7 @@ async function completeLaboratoryOrder(
 async function logout() {
   const release = operations.start("logout");
   if (!release) return;
+  clearSpecimenDrafts();
   const request = api<LogoutResponse>("/auth/logout", { method: "POST" });
   invalidateSession();
   clearRecovery();
@@ -734,6 +756,8 @@ async function logout() {
       onInputCapture={event => { const target = event.target; if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) target.setCustomValidity(""); }}
       onSubmitCapture={event => { if (event.target instanceof HTMLFormElement && !validateOperationalForm(event.target)) { event.preventDefault(); event.stopPropagation(); } }}>
       <AppHeader
+        onFollowups={(["DOCTOR", "NURSE", "LAB", "SUPERVISOR"].includes(user.role) && (dashboard?.laboratory_enabled || episode?.laboratory))
+          ? () => guardLifecycle(() => leave.run(() => navigate("lab-followups"))) : undefined}
         onCare={() => guardLifecycle(() => leave.run(() => navigate("care")))}
         onStaff={() => guardLifecycle(() => leave.run(() => navigate("staff")))}
         onIdentity={() => guardLifecycle(() => leave.run(() => navigate("identity")))}
@@ -795,6 +819,8 @@ async function logout() {
       <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
         setError(exception.message);
         if (exception instanceof VersionConflictError) {
+          if (/^\/episodes\/\d+\/lab-orders$/.test(path) || (path.endsWith("/discharge") && episode?.laboratory?.orders.length)) { notifyOperationalConflict(path); return; }
+          if (/^\/lab\/(specimens|analyses|results|followups)\//.test(path)) { notifyOperationalConflict(path); return; }
           if (path.startsWith("/care/")) notifyOperationalConfirmation("/care/recovered");
           const id = Number(path.match(/^\/episodes\/(\d+)/)?.[1]) || (page === "episode" ? episode?.id : laboratoryQueue?.orders.find(order => path === `/tasks/${order.id}/complete` || path === `/tasks/${order.id}/result`)?.episode_id);
           if (id) writes.reportConflict(path, id, exception);
@@ -825,6 +851,8 @@ async function logout() {
       {page === "staff" && <StaffingPage user={user} operations={operations} onHistory={() => guardLifecycle(() => setPage("staff-history"))} />}
       {page === "staff-history" && <StaffHistoryPage user={user} onBack={() => setPage("staff")} />}
       {page === "care" && <CareQueuePage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
+      {page === "lab-followups" && ["DOCTOR", "NURSE", "LAB", "SUPERVISOR"].includes(user.role) && <LaboratoryFollowupsPage user={user} operations={operations}
+        onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "identity" && <IdentityQueuePage user={user}
         onOpenEpisode={async id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
 
@@ -854,8 +882,10 @@ async function logout() {
       {page === "laboratory" && laboratoryQueue && (
         <LaboratoryPage
           laboratoryQueue={laboratoryQueue}
+          user={user} operations={operations} onSampleApplied={confirmedWrite}
           canPublish={user.role === "LAB"}
           onRefresh={live.refresh}
+          onConflict={() => { void consultLaboratoryConflict(); }}
           isCompleting={(id) => operations.isPending(`task:${id}`)}
           onCompleteOrder={completeLaboratoryOrder}
           onFilterChange={async (filter) => {

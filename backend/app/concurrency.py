@@ -52,6 +52,8 @@ def annotate_versions(episode):
     ]
     if episode.get("record_changes"):
         clinical_state.append(episode["record_changes"])
+    if episode.get("laboratory_version"):
+        clinical_state.append(episode["laboratory_version"])
     episode["clinical_version"] = etag(clinical_state)
     for task in episode["tasks"]:
         task["version"] = task_version(task)
@@ -95,6 +97,8 @@ def check_version(connection, detail, request, user, payload):
         episode_id = row["episode_id"]
         if kind == "alert" and payload.get("data", {}).get("status") == "RESOLVED" and user["role"] not in {"DOCTOR", "SUPERVISOR"}:
             raise HTTPException(403, "Solo médico o supervisor puede resolver alertas")
+    from .laboratory_integration import guard_legacy_write
+    guard_legacy_write(connection, kind, identifier)
     episode = detail(connection, episode_id)
     if kind != "identity" and (episode["status"] == "ANNULLED" or (episode["status"] != "ACTIVE" and kind not in ("task_result", "event_note", "reopen"))):
         raise HTTPException(409, "El episodio está cerrado")

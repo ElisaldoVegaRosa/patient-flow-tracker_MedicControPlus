@@ -141,8 +141,9 @@ export default function CareQueuePage({ user, operations, onOpenEpisode }: {
         return <section key={slot.discipline} aria-label={`${roleLabel(slot.discipline)} EP-${item.episode_id}`}>
           <details className="operational-disclosure"><summary><h3>{roleLabel(slot.discipline)} · {personLabel(slot.owner)}{slot.needs_coverage ? " · Cobertura pendiente" : ""}{slot.proposed ? " · Relevo pendiente" : ""}</h3></summary>
           <p>Responsable confirmado: {personLabel(slot.owner)}.</p>
-          <p>Inicio con el responsable actual: {slot.started_at || "Sin confirmar"}. Espera hasta primer inicio: {minutes(slot.waiting_minutes)}.</p>
-          {slot.first_started_at && <p>Primer inicio operacional registrado: {slot.first_started_at}. Un relevo no borra ese hecho.</p>}
+          <p>Inicio con el responsable actual: {slot.started_at ? staffingAuditDate(slot.started_at) : "Sin confirmar"}.
+            {slot.first_started_at ? " Espera hasta primer inicio finalizada." : ` Espera hasta primer inicio: ${minutes(slot.waiting_minutes)}.`}</p>
+          {slot.first_started_at && <p>Primer inicio operacional registrado: {staffingAuditDate(slot.first_started_at)}. Un relevo no borra ese hecho.</p>}
           {active && slot.needs_coverage && <p role="status">Cobertura pendiente: falta responsable o revisar cuenta, área, turno y disponibilidad. La responsabilidad anterior se conserva.</p>}
           {slot.proposed && <p>Relevo propuesto a {personLabel(slot.proposed)}. Hasta aceptar, sigue responsable {personLabel(slot.owner)}.</p>}
           <details><summary>Candidatos y explicación del reparto</summary>
@@ -152,7 +153,7 @@ export default function CareQueuePage({ user, operations, onOpenEpisode }: {
               {index === 0 ? "Sugerido: " : "Alternativa: "}{personLabel(candidate)} · P1/P2: {candidate.high_priority};
               tareas propias: {candidate.pending_tasks}; total activo: {candidate.total}; relevos entrantes pendientes: {candidate.incoming};
               desglose P1–P5: {[1, 2, 3, 4, 5].map(priority => `P${priority}: ${candidate.by_priority[String(priority)] ?? 0}`).join(", ")};
-              última asignación: {candidate.last_assignment_at || "Aún sin asignaciones"}.
+              última asignación: {candidate.last_assignment_at ? staffingAuditDate(candidate.last_assignment_at) : "Aún sin asignaciones"}.
             </p>)}
           </details>
           {(user.can_coordinate || user.role === slot.discipline) && <OperationalWriteForm {...common}
@@ -185,6 +186,7 @@ export default function CareQueuePage({ user, operations, onOpenEpisode }: {
   }
   return <main className="container" ref={root}>
     <h1>Colas y responsables</h1>
+    <p>Fechas y horas de esta vista en hora dominicana, formato de 12 horas.</p>
     <p>Prioridad vigente y antigüedad desde triaje. Sugerencia, asignación e inicio son hechos separados. No acredita evaluación clínica.</p>
     <button type="button" disabled={operations.hasPending()} onClick={() => void reload()}>Consultar colas actuales</button>
     <p>{dirty ? "Actualización automática pausada mientras editas." : "Actualización cada 15 segundos mientras la pestaña esté visible."}</p>
@@ -202,10 +204,10 @@ export default function CareQueuePage({ user, operations, onOpenEpisode }: {
     <section className="panel"><details className="operational-disclosure"><summary><h2>Consultar responsables anteriores</h2></summary>
       <form onSubmit={inspectForm}><label>Número de episodio<input name="episode_id" type="number" min="1" required /></label><button>Consultar responsables e historial</button></form>
       {history && <><h3>Historial EP-{history.episode_id} · {history.status}</h3>
-        {history.slots.map(slot => <p key={slot.discipline}>{roleLabel(slot.discipline)}: {personLabel(slot.owner)}; inicio actual: {slot.started_at || "Sin confirmar"}.</p>)}
+        {history.slots.map(slot => <p key={slot.discipline}>{roleLabel(slot.discipline)}: {personLabel(slot.owner)}; inicio actual: {slot.started_at ? staffingAuditDate(slot.started_at) : "Sin confirmar"}.</p>)}
         {history.changes?.length === 0 && <p>Sin cambios de responsabilidad registrados.</p>}
         {history.changes?.map(change => <article key={change.id}><h4>{change.action} · {change.discipline ? roleLabel(change.discipline) : "Área"}</h4>
-          <p>{change.actor} · {change.created_at}</p><p>Motivo: {change.reason}</p><details><summary>Valores anteriores y nuevos</summary>
+          <p>{change.actor} · {staffingAuditDate(change.created_at)}</p><p>Motivo: {change.reason}</p><details><summary>Valores anteriores y nuevos</summary>
             <pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{change.old_value}</pre><pre style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{change.new_value}</pre>
           </details></article>)}
       </>}

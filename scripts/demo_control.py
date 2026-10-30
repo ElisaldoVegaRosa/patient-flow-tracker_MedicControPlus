@@ -71,10 +71,11 @@ def responds(service):
 
 
 class DemoControl:
-    def __init__(self, root):
+    def __init__(self, root, database=None):
         self.root = Path(root).resolve()
         self.directory = self.root / ".tmp" / "demo-control"
         self.state_file = self.directory / "processes.json"
+        self.database = Path(database).resolve() if database is not None else None
 
     @contextmanager
     def locked(self):
@@ -107,6 +108,8 @@ class DemoControl:
                         or record["pid"] <= 0 or type(record.get("created")) is not int
                         or record["created"] <= 0 or not isinstance(record.get("image"), str)
                         or not record["image"]):
+                    raise ValueError()
+                if 'database' in record and (not isinstance(record['database'], str) or not Path(record['database']).is_absolute()):
                     raise ValueError()
             return state
         except (ValueError, OSError):
@@ -145,11 +148,24 @@ class DemoControl:
         return True
 
     def start(self):
+        if self.database is not None:
+            import sys
+            sys.path.insert(0, str(self.root / 'backend'))
+            from app.database_selection import select_database
+            try:
+                select_database(self.root / 'backend' / 'clinical.db', str(self.database))
+            except ValueError as error:
+                raise ControlError(str(error)) from error
         commands = self.commands()
         state = self.load()
         pending = []
         for service, port in PORTS.items():
             if service in state and self.owns(state[service]):
+                if service == 'backend':
+                    default = self.root / 'backend' / 'clinical.db'
+                    current = Path(state[service].get('database', str(default))).resolve()
+                    if current != (self.database or default).resolve():
+                        raise ControlError('El backend propio usa otra base. Deten el demo antes de cambiar de base.')
                 if not responds(service):
                     raise ControlError(f"{service}: proceso propio sin respuesta; revisa los logs antes de reiniciar.")
                 continue
@@ -163,6 +179,9 @@ class DemoControl:
                 env = os.environ.copy()
                 if service == "backend":
                     env["PYTHONPATH"] = str(self.root / "backend")
+                    env.pop('MEDICCONTROL_DATABASE_PATH', None)
+                    if self.database is not None:
+                        env['MEDICCONTROL_DATABASE_PATH'] = str(self.database)
                 with (self.directory / f"{service}.log").open("ab") as output:
                     process = subprocess.Popen(arguments, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
                                                stdout=output, stderr=output,
@@ -171,6 +190,8 @@ class DemoControl:
                 if identity is None:
                     raise ControlError(f"{service} termino al iniciar. Consulta su log.")
                 record = {"pid": process.pid, **identity}
+                if service == 'backend' and self.database is not None:
+                    record['database'] = str(self.database)
                 created.append((service, record))
                 state[service] = record
                 self.save(state)
@@ -218,6 +239,8 @@ class DemoControl:
             responsive = responds(service)
             label = "propio" if owned else ("puerto libre" if available else "no gestionado")
             print(f"{service}: {label}; " + ("responde" if responsive else "sin respuesta HTTP") + f"; puerto {port}")
+            if service == 'backend' and owned:
+                print(f"Base del backend propio: {state[service].get('database', self.root / 'backend' / 'clinical.db')}")
         print("Estado HTTP no verifica integridad de base ni circuito clinico.")
         print(f"Logs locales: {self.directory}")
 
@@ -225,10 +248,13 @@ class DemoControl:
 def main():
     parser = argparse.ArgumentParser(description="Control local del demo MedicControl+ en Windows")
     parser.add_argument("action", choices=("start", "stop", "status"))
+    parser.add_argument('--database', type=Path, help='Copia LAB preparada que usara el backend; solo para start')
     args = parser.parse_args()
     if os.name != "nt":
         parser.exit(1, "Este controlador requiere Windows.\n")
-    control = DemoControl(Path(__file__).resolve().parents[1])
+    if args.database is not None and args.action != 'start':
+        parser.error('--database solo se usa con start')
+    control = DemoControl(Path(__file__).resolve().parents[1], database=args.database)
     try:
         with control.locked():
             getattr(control, args.action)()

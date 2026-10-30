@@ -24,6 +24,16 @@ REQUIRED_TABLES = frozenset({
     "vitals", "alerts", "alert_history", "write_receipts", "tasks", "record_changes",
 })
 
+# Keep this standalone CLI independent of the API's Python import path.
+# This is the unpublished v2 schema from migration 011; no migration runs here.
+LABORATORY_TABLES = frozenset({
+    "lab_schema", "lab_orders", "lab_analyses", "lab_specimens",
+    "lab_analysis_specimens", "lab_specimen_repeats", "lab_result_versions",
+    "lab_result_specimens", "lab_result_reviews", "lab_followups",
+    "lab_followup_scope", "lab_changes",
+})
+LABORATORY_SCHEMA_VERSION = 2
+
 
 class BackupError(Exception):
     """A backup or restore cannot be completed safely."""
@@ -60,6 +70,9 @@ def inspect_database(path: Path) -> dict[str, int]:
                 "SELECT name FROM sqlite_master WHERE type = 'table'"
             )}
             missing = REQUIRED_TABLES - tables
+            has_laboratory = any(name.startswith("lab_") for name in tables)
+            if has_laboratory:
+                missing |= LABORATORY_TABLES - tables
             reevaluation_tables = {"reevaluation_groups", "reevaluation_actions", "reevaluation_changes"}
             if tables & reevaluation_tables:
                 missing |= reevaluation_tables - tables
@@ -74,6 +87,10 @@ def inspect_database(path: Path) -> dict[str, int]:
                 missing |= {"patient_identity_changes"} - tables
             if missing:
                 raise BackupError("Faltan tablas del demo: " + ", ".join(sorted(missing)))
+            if has_laboratory:
+                versions = connection.execute("SELECT version FROM lab_schema").fetchall()
+                if versions != [(LABORATORY_SCHEMA_VERSION,)]:
+                    raise BackupError("Version de laboratorio no compatible o sin registrar")
             return {
                 "patients": connection.execute("SELECT COUNT(*) FROM patients").fetchone()[0],
                 "episodes": connection.execute("SELECT COUNT(*) FROM episodes").fetchone()[0],

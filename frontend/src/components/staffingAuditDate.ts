@@ -11,7 +11,7 @@ export function staffingLocalDate(value: string) {
 }
 export function staffingDatePayload(fields: FormData): Record<string, unknown> {
   const result: Record<string, unknown> = Object.fromEntries(fields);
-  for (const name of ["starts_at", "ends_at", "due_at"]) {
+  for (const name of ["starts_at", "ends_at", "due_at", "occurred_at"]) {
     if (!fields.has(`${name}_date`)) continue;
     const hour = Number(fields.get(`${name}_hour`));
     const period = fields.get(`${name}_period`);

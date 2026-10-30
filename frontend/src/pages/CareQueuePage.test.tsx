@@ -37,6 +37,33 @@ function setup(userOverrides: Partial<User> = {}, initial = episode) {
   return { writes, fetchMock, open, update: (value: CareEpisode | null, archived = initial) => { data = { ...data, episodes: value ? [value] : [] }; detail = archived; } };
 }
 afterEach(() => { invalidateSession(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+it("presenta inicio y asignación en RD 12h y distingue espera finalizada de falta de datos", async () => {
+  const stamp = "2026-10-29T01:03:30.772530+00:00";
+  const value: CareEpisode = { ...episode, slots: episode.slots.map(slot => slot.discipline === "DOCTOR" ? {
+    ...slot, user_id: doctor.id, owner: doctor, started_at: stamp, first_started_at: stamp, waiting_minutes: null,
+    candidates: [{ ...candidate, last_assignment_at: stamp }],
+  } : slot) };
+  setup({}, value); await ready();
+  const medical = within(screen.getByRole("region", { name: "Medicina EP-21" }));
+  expect(medical.getByText(/Inicio con el responsable actual: 28\/10\/2026.*09:03.*p\.\s*m\./)).toBeVisible();
+  expect(medical.getByText(/Espera hasta primer inicio finalizada/)).toBeVisible();
+  expect(medical.queryByText(/Sin dato fiable/)).not.toBeInTheDocument();
+  expect(medical.getByText(/Primer inicio operacional registrado: 28\/10\/2026/)).toBeVisible();
+  expect(medical.getByText(/última asignación: 28\/10\/2026/)).toBeVisible();
+  expect(screen.queryByText(/2026-10-29T01:03/)).not.toBeInTheDocument();
+  const nursing = within(screen.getByRole("region", { name: "Enfermería EP-21" }));
+  expect(nursing.getByText(/Espera hasta primer inicio: 10 min/)).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Consultar historial EP-21" }));
+  await screen.findByRole("heading", { name: "Historial EP-21 · ACTIVE" });
+  expect(screen.getByText(/Medicina: Medico ficticio.*inicio actual: 28\/10\/2026.*09:03/)).toBeInTheDocument();
+});
+
+it("mantiene falta de dato fiable cuando aún no hay inicio y no hay espera verificable", async () => {
+  setup({}, { ...episode, slots: episode.slots.map(slot => ({ ...slot, waiting_minutes: null })) });
+  await ready();
+  expect(screen.getAllByText(/Espera hasta primer inicio: Sin dato fiable/)).toHaveLength(2);
+  expect(screen.queryByText(/Espera hasta primer inicio finalizada/)).not.toBeInTheDocument();
+});
 async function ready() {
   const card = await screen.findByRole("article", { name: "Seguimiento EP-21" });
   document.querySelectorAll("details").forEach(node => { node.open = true; });

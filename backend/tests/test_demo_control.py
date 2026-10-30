@@ -149,6 +149,43 @@ def test_launch_preserves_environment_and_handles_paths_with_spaces(control, mon
     assert all(call[1]["stdin"] == demo.subprocess.DEVNULL for call in calls)
 
 
+def test_explicit_database_is_passed_only_to_backend_and_recorded(control, monkeypatch, tmp_path):
+    from app import database_selection
+    target = tmp_path / 'Copia LAB con espacios.sqlite3'
+    control.database = target
+    monkeypatch.setattr(database_selection, 'select_database', lambda default, override: target)
+    calls = []
+    monkeypatch.setenv('MEDICCONTROL_DATABASE_PATH', 'ambient-must-not-win')
+    monkeypatch.setattr(demo.subprocess, 'Popen', lambda args, **kw: calls.append(kw) or SimpleNamespace(pid=10+len(calls), poll=lambda: None))
+    control.start()
+    assert calls[0]['env']['MEDICCONTROL_DATABASE_PATH'] == str(target)
+    assert control.load()['backend']['database'] == str(target)
+    assert os.environ['MEDICCONTROL_DATABASE_PATH'] == 'ambient-must-not-win'
+
+
+def test_owned_backend_from_another_database_is_not_reused_or_stopped(control, monkeypatch, tmp_path):
+    control.save({'backend': {**record(11), 'database': str(tmp_path / 'other.sqlite3')}})
+    monkeypatch.setattr(demo.subprocess, 'Popen', lambda *a, **kw: pytest.fail('Must not launch'))
+    monkeypatch.setattr(demo.subprocess, 'run', lambda *a, **kw: pytest.fail('Must not stop'))
+    with pytest.raises(demo.ControlError, match='otra base'):
+        control.start()
+    assert control.load()['backend']['pid'] == 11
+
+
+def test_default_start_ignores_database_override_inherited_from_shell(control, monkeypatch):
+    calls = []
+    monkeypatch.setenv('MEDICCONTROL_DATABASE_PATH', 'ambient-must-not-win')
+    monkeypatch.setattr(demo.subprocess, 'Popen', lambda args, **kw: calls.append(kw) or SimpleNamespace(pid=10+len(calls), poll=lambda: None))
+    control.start()
+    assert 'MEDICCONTROL_DATABASE_PATH' not in calls[0]['env']
+
+
+def test_invalid_database_reference_in_process_state_is_rejected(control):
+    control.save({'backend': {**record(11), 'database': {'invalid': True}}})
+    with pytest.raises(demo.ControlError, match='ilegible'):
+        control.load()
+
+
 def test_status_does_not_adopt_or_stop_external_servers(control, monkeypatch, capsys):
     monkeypatch.setattr(demo, "port_available", lambda port: False)
     monkeypatch.setattr(demo.subprocess, "run", lambda *a, **kw: pytest.fail("No stop"))

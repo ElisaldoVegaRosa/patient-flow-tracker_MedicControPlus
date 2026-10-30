@@ -119,6 +119,8 @@ export type TimelineEvent = {
 };
 
 export type Episode = {
+  laboratory?: LaboratoryEpisodeState;
+  lab_followups?: (Pick<LaboratoryFollowup, "current_cycle" | "scope"> & Partial<LaboratoryFollowup>)[];
   reevaluations?: Reevaluation[];
   reevaluation_changes?: ReevaluationChange[];
   care?: CareEpisode;
@@ -171,6 +173,7 @@ export type PendingIdentity = {
 };
 
 export type DashboardData = {
+  laboratory_enabled?: boolean;
   active: number;
   open_alerts: number;
   patients: Episode[];
@@ -237,7 +240,56 @@ export type TimeRulesEvaluationResponse = {
   requested_by: string;
 };
 
+export type LaboratoryResultVersion = {
+  id: number; sequence: number; action: string; result: string | null; reason?: string; published_at: string;
+  reviewed_at: string | null;
+};
+export type LaboratorySummary = {
+  status: "PENDING" | "PARTIAL" | "COMPLETED" | "COMPLETED_WITH_CANCELLATIONS" | "CANCELLED";
+  processing_context: "ACTIVE" | "FOLLOWUP" | "UNAVAILABLE";
+  published_results: number;
+  pending_results: number;
+  pending_reviews: number;
+  cancelled_analyses: number;
+  analyses: {
+    reinstatement_requires_plan?: boolean;
+    version?: string; reviewer_username?: string | null;
+    required_specimens?: { id: number; received_at: string | null; suitability: string }[];
+    versions?: LaboratoryResultVersion[];
+    id: number; title: string; cancelled_at: string | null; cancellation_reason: string | null;
+    has_result: boolean; current_result: string | null; result_annulled: boolean;
+    result_sequence: number | null; needs_medical_review: boolean; reviewed_at: string | null;
+    satisfies_current_samples: boolean;
+  }[];
+  specimens: {
+    id: number; version?: string; kind: string; kind_description: string | null; collected_at: string | null;
+    delivered_at: string | null; received_at: string | null; suitability: string;
+    assessed_at: string | null; analysis_ids: number[]; historical_analysis_ids: number[];
+  }[];
+  repeats?: LaboratoryRepeat[];
+};
+export type LaboratoryRepeat = {
+  id: number; analysis_id: number; previous_specimen_id: number; new_specimen_id: number;
+  requested_at: string; requested_by_username: string; reason: string;
+};
+export type FollowupPerson = { id: number; username: string; display_name: string; role: string; active: number };
+export type LaboratoryFollowup = {
+  id: number; episode_id: number; patient_name: string; episode_status: string; current_cycle: boolean; version: string;
+  owner_user_id: number; pending_user_id: number | null; owner: FollowupPerson | null; proposed: FollowupPerson | null;
+  review_due_at: string | null; communication_plan: string | null; reason: string;
+  pending_results: number; pending_reviews: number; clinical_work_pending: boolean; requires_plan: boolean;
+  coverage_pending: boolean; overdue: boolean; scope: { analysis_id: number }[];
+  analyses?: LaboratoryAnalysisDetail[];
+};
+export type LaboratoryFollowupQueue = { total: number; items: LaboratoryFollowup[]; limit: number; offset: number };
+export type FollowupHistorySnapshot = Pick<LaboratoryFollowup, "owner" | "proposed" | "review_due_at" | "communication_plan">;
+export type LaboratoryFollowupHistory = { items: { id: number; action: string; created_at: string; reason: string;
+  username: string; previous: FollowupHistorySnapshot | null; next: FollowupHistorySnapshot | null }[];
+  has_more: boolean; offset: number; limit: number };
+
 export type LaboratoryOrder = {
+  workflow?: "LEGACY" | "STRUCTURED";
+  laboratory?: LaboratorySummary;
   patient_identity_status?: string;
   version?: string;
   last_change_id?: number | null;
@@ -254,6 +306,29 @@ export type LaboratoryOrder = {
   location: string;
   episode_status: string;
 };
+
+export type LaboratorySpecimen = LaboratorySummary["specimens"][number];
+export type LaboratoryAnalysisDetail = {
+  id: number; title: string; version: string; cancelled_at: string | null; cancellation_reason: string | null;
+  medical_owner: { username: string; role: string; active: number } | null;
+  required_specimens: { id: number; received_at: string | null; suitability: string }[];
+  has_published_result: boolean; needs_medical_review: boolean; satisfies_current_samples: boolean;
+  current_version: (Omit<LaboratoryResultVersion, "reviewed_at"> & { review: { reviewed_at: string } | null }) | null;
+  versions: (Omit<LaboratoryResultVersion, "reviewed_at"> & { review: { reviewed_at: string } | null })[];
+};
+export type LaboratoryEpisodeState = {
+  legacy_order_ids?: number[];
+  orders: { task_id: number; task_status: string; specimens: LaboratorySpecimen[];
+    results?: LaboratoryAnalysisDetail[];
+    repeats?: LaboratoryRepeat[];
+  }[];
+};
+export type LaboratoryOrderRequest = {
+  title: string; reason: string;
+  analyses: { key: string; title: string }[];
+  specimens: { key: string; kind: string; kind_description?: string; analysis_keys: string[] }[];
+};
+export type SampleProfessional = { id: number; username: string; display_name: string; role: string };
 
 export type LaboratoryQueue = {
   status_filter: string;

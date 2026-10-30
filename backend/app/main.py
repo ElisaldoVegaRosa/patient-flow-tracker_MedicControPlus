@@ -30,6 +30,7 @@ from .routes.identity import create_router as create_identity_router
 from .routes.accounts import create_router as create_accounts_router
 from .routes.staffing import create_router as create_staffing_router
 from .routes.care import create_router as create_care_router
+from .routes.laboratory_samples import create_router as create_laboratory_router
 from .care import state as care_state
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
 from .config import (
@@ -45,6 +46,18 @@ def utc_now() -> str:
 
 def get_connection() -> sqlite3.Connection:
     return active_connection() or database.get_connection(DATABASE_PATH)
+
+
+def get_laboratory_connection() -> sqlite3.Connection:
+    from .laboratory_integration import available
+    connection = get_connection()
+    try:
+        if not available(connection):
+            raise HTTPException(409, {'code': 'laboratory_not_enabled', 'message': 'El laboratorio por muestras requiere preparacion explicita de la base; no se ha migrado automaticamente'})
+        return connection
+    except BaseException:
+        connection.close()
+        raise
 
 
 def initialize_database() -> None:
@@ -472,7 +485,8 @@ def episode_detail(
             task['due_at'] = reevaluation_by_task[task['id']]['due_at']
             task['reevaluation_group_id'] = reevaluation_by_task[task['id']]['group_id']
     result["care"] = care_state(connection, episode_id, suggestions=False)
-    return annotate_versions(result)
+    from .laboratory_integration import enrich_episode
+    return annotate_versions(enrich_episode(connection, result))
 
 
 app = FastAPI(
@@ -557,4 +571,9 @@ app.include_router(create_record_lifecycle_router(
 
 app.include_router(create_reevaluations_router(
     get_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
+))
+
+app.include_router(create_laboratory_router(
+    get_laboratory_connection, utc_now, episode_detail, add_event, require_active_episode, require_roles,
+    include_discharge=False,
 ))

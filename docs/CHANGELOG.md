@@ -5,6 +5,397 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Validacion de rutas LAB integradas (29/10/2026)
+
+- Actualiza tres pruebas del prototipo que aun esperaban rutas ausentes en main.
+  Ahora verifican respuesta correcta y paridad de muestras, profesionales y
+  seguimientos entre API principal y router aislado en bases temporales.
+- Sin cambios de comportamiento, permisos, migracion o datos de la aplicacion.
+- Revision integral: backend 541/541 cubiertas en tramos tras corregir expectativas;
+  frontend completo 742/742 (79 archivos), lint/build aprobados. Ensayo manual
+  de EP-23 y relevo de seguimiento confirmados por usuario en copia separada.
+
+## Colas: fecha local legible y espera finalizada (28/10/2026)
+
+- Inicio actual, primer inicio, ultima asignacion y fechas del historial de
+  responsables usan formato dominicano de 12 horas, con indicacion de zona.
+- Tras primer inicio, muestra Espera hasta primer inicio finalizada. El backend
+  deja de devolver el contador en ese punto; no implica ausencia de registro.
+  Conserva Sin dato fiable para espera no iniciada sin un valor verificable.
+- Sin cambios de datos/API, calculos ni permisos. Pruebas afectadas 18/18,
+  con comprobacion de cambio de dia UTC a RD y conservacion de espera pendiente.
+
+
+
+## Arranque protegido y copia LAB seleccionable (28/10/2026)
+
+- Integra muestras/resultados/seguimientos en main, una vez y con guarda de
+  esquema. Sin migracion desde arranque. Alta de produccion solo por discharge;
+  endpoint POST lab-discharge reservado a los ensayos aislados existentes.
+- Nuevo prepare_laboratory_demo.py: respaldo SQLite con SHA, restauracion temporal,
+  migracion aditiva y cotejo de estructura/contenido de tablas anteriores antes de
+  publicar snapshot. Rechaza origen, clinical.db, sus auxiliares y colisiones entre
+  destinos/checksums; fallo conserva rollback y no publica copia incompleta.
+- Configuracion admite una copia LAB existente y verificada por seleccion
+  explicita. demo.ps1 Start -Database y controlador registran base elegida,
+  evitan heredar otra por ambiente y exigen parar antes de cambiar de base.
+  Status informa ruta; Stop conserva verificacion de identidad de procesos.
+- Preparados snapshot, rollback y copia de trabajo reales: 26 tablas previas,
+  21 pacientes/22 episodios preservados, original sin tablas LAB. Restauracion
+  comprobada por SHA-256. Ningun servidor iniciado/detenido ni interfaz operada.
+- Regresion backend 102/102; preparador final 12/12; sintaxis PowerShell correcta.
+  Frontend sin cambios; se conservan sus resultados previos sin repetir suites.
+  Guia LABORATORY_ACTIVATION.md. Sin commit/push o CI nueva.
+
+
+
+## Seguimiento de laboratorio tras alta: bandeja, planes y relevos (28/10/2026)
+
+- Bandeja transversal con filtros de responsabilidad/receptor, resueltos y paginas
+  de 20 casos; actualizacion cada 15 s visible y pausa ante borradores/operaciones.
+  Acceso por capacidad LAB y rol clinico; formularios tambien desde episodio.
+- Responsable edita plan; responsable o coordinacion proponen medico activo.
+  Receptor acepta; responsable anterior continua hasta aceptar. Participantes o
+  coordinacion cancelan/rechazan con motivo. Ciclos anteriores quedan consultables.
+- Conserva formularios fuera de filtro; conflictos consultan version sin borrar
+  campos. Reintento usa cuerpo/clave original y preserva texto posterior.
+- Catalogo medico acotado e historial paginado de planes/relevos con nombres,
+  motivos, fechas RD 12h y valores anteriores/nuevos. No expone datos internos
+  de muestras/informes en el historial. Relevo pendiente aparece aun sin trabajo
+  clinico pendiente. Dashboard anuncia esquema LAB completo sin migrar.
+- Validacion backend 35/35 y dashboard reconfirmado 6/6; frontend final afectado
+  131/131 con un trabajador; lint/build aprobados. Ampliada 190/193 con tres
+  esperas iniciales, registradas como fallos. Sin modificar timeouts/configuracion.
+- Sin iniciar/operar demo, montar rutas nuevas, migrar original o commit/push.
+
+
+
+## Alta mixta y revision expresa de resultados anteriores (28/10/2026)
+
+- Criterio confirmado por el usuario: ordenes antiguas pendientes bloquean;
+  completadas con texto exigen revision expresa del medico responsable confirmado.
+  Se coteja la version clinica y la de cada resultado anterior. No convierte datos.
+- Snapshot inmutable en lab_changes con orden, texto, version, medico, motivo,
+  fecha y evento de alta; evento legible en linea de tiempo. Fallo revierte todo;
+  reintento conserva una sola alta/revision. Recibos anteriores compatibles.
+- Vista de ordenes antiguas y formulario de alta con casillas por version. Si
+  cambia el resultado, se pierde la casilla y se exige revisar. Pendientes nuevos
+  requieren plan: motivo, fecha RD 12h y comunicacion al paciente. Revisiones y
+  reevaluaciones pendientes mantienen bloqueo. Borradores y conflictos protegidos.
+- Anular resultado antiguo activo vuelve la tarea a PENDING; no se considera
+  cancelacion de solicitud. Orden antigua ANNULLED no tiene resultado que revisar.
+- Validacion afectada 42 backend y 164 frontend aprobadas; lint/build correctos.
+  Sin montar rutas nuevas, migrar original, operar interfaz ni commit/push.
+
+
+
+## Laboratorio: nuevas muestras, cancelacion y reactivacion (28/10/2026)
+
+- LAB puede solicitar muestra nueva del mismo tipo, para una o varias analiticas
+  vigentes vinculadas a una muestra no apta. Seleccion y motivo obligatorios,
+  version de muestra y clave. Excluye vinculos historicos y analiticas canceladas.
+- Medico confirmado cancela trabajo pendiente y reactiva cancelaciones, con
+  version de analitica. Revision pendiente o resultado completado impiden cancelar;
+  reactivacion tras alta que reabre pendientes requiere plan de seguimiento.
+- Historial de solicitudes con origen/reemplazo, analitica, motivo, usuario y fecha
+  local. Proyeccion de linaje y necesidad de plan, sin modificar tablas ni reglas
+  de escritura. Conserva muestras anteriores y versiones de resultados.
+- Borradores/reintentos por accion; consulta explicita de conflicto en bandeja
+  funciona aun con campos sucios y descarta respuestas fuera de su contexto.
+- Backend afectado 49/49; frontend afectado 127/127, lint y build aprobados.
+  Sin operar interfaz, activar rutas o migrar base demo; sin commit/push.
+
+
+## Laboratorio: creacion de ordenes con analiticas y muestras (28/10/2026)
+
+- Nuevo formulario medico para episodios activos con proyeccion LAB habilitada.
+  Hasta 30 analiticas y 30 muestras, compartidas o multiples por analitica, con
+  vinculacion obligatoria y tipo Otro descrito. No usa catalogos clinicos inventados.
+- Agregar/quitar filas conserva identidad; borradores acotados por episodio/cuenta
+  y baseline, motivos, version clinica y reintentos idempotentes. Confirmar compara
+  el contenido anidado completo antes de limpiar; campos posteriores se conservan.
+- Formulario operacional soporta casillas y cambios de filas. Conflicto al resolver
+  envio incierto solicita datos actuales mediante la pantalla aun montada.
+- Circuito anterior intacto sin integracion LAB. Con integracion, LAB usa su
+  formulario y las otras tareas conservan el formulario clinico comun.
+- Backend seleccionado 17/17; frontend afectado 123/123, fixture tipado ajustado
+  15/15; lint y build finales aprobados. Sin migrar demo ni montar rutas nuevas.
+
+
+## Laboratorio: resultados individuales y revision medica (28/10/2026)
+
+- Formularios LAB de publicacion, correccion y anulacion; revision de la version
+  exacta por medico confirmado. Motivo obligatorio y permisos/contexto vigentes.
+- Proyeccion de version por analitica, muestras fuente y versiones anteriores
+  con texto, motivo y fecha de revision. No expone tokens ni detalles internos.
+- Borradores separados por accion/informe; nueva version no reutiliza el texto
+  anterior. Cambiar muestras obliga a confirmar fuentes nuevamente. Recuperar
+  no reenvia; confirmacion coincidente conserva ediciones posteriores.
+- Corregido orden de liberacion/confirmacion para actualizar bandeja al publicar
+  o resolver envio incierto. Se mantiene pausa de lecturas ante otras ediciones.
+- Validacion: backend 13/13, frontend afectadas 75/75 y consumidores compartidos
+  11/11; lint/build aprobados. Sin activar migracion/rutas ni operar demo.
+
+
+## Laboratorio: registro de hechos de muestras y borradores (28/10/2026)
+
+- Formularios de obtencion/entrega por NURSE/LAB; recepcion/aptitud solo LAB.
+  Presentes en bandeja y episodio para esos roles, con contexto vigente y
+  version por muestra. Hecho ya registrado, orden fuera de contexto o sin
+  version bloquean campos con explicacion. No marca procesamiento ni crea orden.
+- Seleccion explicita de quien realizo el hecho: propio profesional, otro activo,
+  paciente (autotoma UI solo heces/orina) o tercero para transporte. Catalogo
+  aislado de NURSE/LAB activos con id/nombre/usuario/rol y sin secretos;
+  backend vuelve a comprobar profesionales al guardar. Version en resumen.
+- Fecha actual declarada o fecha/hora RD 12h explicita, usando conversor comun
+  de fechas. Backend conserva validacion cronologica; no infiere hechos.
+- OperationalWriteForm admite restauracion opcional sin alterar comportamiento
+  anterior: motivo, baseline congelada, guardas de doble envio y borradores
+  conservados ante errores/conflictos. Cambio de version exige revision humana.
+  Solo limpia tras confirmacion coincidente de cuerpo, sin borrar texto posterior.
+- Borradores de muestras en sessionStorage de esta pestana, por API/cuenta/rol y
+  accion; ventana 30 min sin renovar al leer. Nueva cuenta/rol o logout explicito
+  elimina; fallo de almacenamiento informa. No guarda token ni reenvia al volver.
+  Al reabrir formulario conserva version anterior para detectar cambios.
+- Confirmacion, reintento incierto con misma clave/cuerpo y consulta de estado
+  usan cliente central. Etiqueta legible por muestra en guardados por confirmar.
+  Enfermeria usa el episodio; no se amplia acceso a la bandeja LAB/SUPERVISOR.
+- Iniciales 17 frontend, luego 22 nuevas aprobadas; backend dirigido 10/10
+  (49,08 s). En prueba de episodio 29/30, ajuste de asercion: bloqueo heredado
+  de fieldset, no atributo propio del boton. Sin cambiar regla de app.
+  Final backend 36/36 (142,38 s). Frontend 20 archivos 154/155: un timeout de
+  segunda prueba antigua de nota larga. Se homogeneiza pegado con valor exacto
+  y aserciones conservadas, sin cambiar runner/tiempos; archivo 25/25 (13,77 s).
+  Proteccion posterior de respuestas tardias/cambio de episodio: siete archivos
+  afectados 60/60 (15,27 s), incluidas 32 nuevas UI. Una nueva backend de catalogo.
+  Lint completo previo y final de archivos afectados, build final aprobados.
+  No se repiten suites intactas ni se presenta inicial parcial como completa
+  aprobada. Bases anteriores 21/55, 109 y 486 no son nuevas ejecuciones.
+- Nuevas rutas aun sin montar; sin migrar demo, operar interfaz o publicar.
+  Pendientes publicacion/correccion/revision de analiticas, ingreso de ordenes,
+  arranque y compatibilidad de episodios mixtos antes de activar/prueba manual.
+
+## Laboratorio: bandeja por analiticas y vista de consulta (28/10/2026)
+
+- GET /lab/orders lee un snapshot consistente y proyecta workflow LEGACY o
+  STRUCTURED. Mantiene permisos LAB/SUPERVISOR, orden descendente, contrato
+  anterior y sin QR/documento/nacimiento. Filtra trabajo por estado analitico,
+  sin escribir tasks.status/result ni confundir revision medica con finalizacion.
+- PENDING incluye parciales y trabajo reabierto; COMPLETED incluye completadas,
+  finalizadas con cancelaciones, canceladas y resultados legacy anulados. Las
+  revisiones pendientes siguen visibles aunque el trabajo LAB sea terminal.
+- Resumen estructurado explicito de analiticas/muestras y contexto ACTIVE,
+  FOLLOWUP o UNAVAILABLE segun episodio/custodia vigente. Sin inferir obtencion
+  por recepcion ni procesamiento por aptitud. No expone el plan de comunicacion.
+- Tipos compartidos y vista de consulta: labels en espanol, muestras/analiticas
+  desplegadas solo a peticion, contador de trabajo separado de revision, fechas
+  dominicanas 12h. Las ordenes nuevas no muestran completar/corregir genericos;
+  originales mantienen formularios y borradores al buscar. Datos incompletos
+  no habilitan formulario antiguo. Informes cancelados conservan revision visible.
+- Dirigidas iniciales: backend 12/12 (95,49 s), frontend 26/26 en 3 archivos
+  (65,26 s). Agregados dos casos de legado anulado e informe cancelado/revision.
+  Final backend afectado 21/21 (147,92 s), frontend afectado 55/55 en seis
+  archivos (26,80 s), lint/build aprobados. Incluye 9 nuevas backend y 9 UI.
+  Frontend completo inicial 605/609: cuatro fallos en tres archivos. Acotadas:
+  tres pasan y una agota 5 s; medicion localiza abrir 1,476 s, escribir 2,876 s,
+  historial a 5,157 s. Test usa pegado de la misma nota y comprueba su valor,
+  conservando resto de aserciones, reglas de app, runner y tiempos. Las cuatro
+  pasan en afectadas finales; completa no repetida ni presentada como aprobada.
+  Las 109 afectadas y 486 completas previas son base anterior.
+- Sin montar nuevas rutas, migrar demo, operar interfaz, commits/push o CI nueva.
+  Faltan formularios por muestra/analitica, cliente de escritura y activacion.
+
+## Laboratorio: alta habitual unificada con custodia (28/10/2026)
+
+- POST /episodes/{id}/discharge usa el motor compartido de alta/custodia cuando
+  hay ordenes estructuradas. Conserva If-Match de clinical_version; exige clave
+  de idempotencia y motivo. Plan con fecha futura/comunicacion cuando faltan
+  resultados, solo por medico confirmado. Informes sin revisar y reevaluaciones
+  pendientes bloquean; custodia sin plazo inventado si todo esta revisado.
+- El protocolo de pruebas /lab-discharge comparte ese motor, sin registrar un
+  segundo endpoint en main. Tareas genericas siguen sin completar/corregir una
+  orden estructurada. Mixtas con ordenes heredadas sin desglose siguen bloqueadas.
+- Legacy conserva nota/default, permisos y huella de recibos previa (se omiten
+  campos opcionales LAB ausentes al calcular la intencion). Plan/motivo LAB sin
+  orden estructurada se rechazan explicitamente, no se descartan en silencio.
+- Desarrollo: primer caso detecto cierre prematuro de conexion en revalidacion
+  de sesion; corregido usando connection_factory transaccional. Segunda prueba
+  dirigida: 5 aprobadas; ajuste de prueba de fallo deliberado de auditoria para
+  esperar RuntimeError propagado por el cliente principal, sin alterar el runner.
+  Seis casos restantes aprobados (68,31 s); regresion final afectada 109/109
+  aprobada en 938,76 s (15:38), incluidas 11 nuevas. Cubre altas/seguimiento,
+  cancelaciones, integracion, ciclo, rutas medicas, reevaluaciones, validacion,
+  correcciones/reapertura, concurrencia, flujo legacy, recibos y presencia.
+  Backend completo 486 aprobado es base anterior, no una nueva validacion de
+  esta entrega. No se repiten esquema, respaldos o frontend sin cambios.
+- Sin migracion del demo, operaciones de interfaz, commits/push o CI nueva.
+
+## Laboratorio: guardas de rutas antiguas y detalle global (28/10/2026)
+
+- Puente de solo lectura reconoce esquema completo v2, sin migrar el demo ni
+  adoptar ordenes anteriores. Esquema parcial/incompatible devuelve conflicto
+  explicito. Compartida la familia de tablas en el nucleo de esquema.
+- atomic_write/check_version bloquea completar/corregir ordenes estructuradas
+  por tareas genericas y darles alta por la ruta antigua. No se infiere cierre
+  por revisar/completar: falta unificar el alta con custodia antes de activar.
+  Ordenes heredadas conservan completar/corregir/alta con las reglas previas.
+- episode_detail global y /write-result incluyen laboratorio y seguimiento cuando
+  existe el esquema; version clinica incorpora cambios persistidos LAB/custodia.
+  El paso del tiempo y overdue no invalidan borradores. Sin LAB se conserva el
+  payload anterior; sin orden estructurada se conserva la huella clinica previa.
+- 11 pruebas dirigidas aprobadas (17,89 s). Adaptada prueba anterior de cierre y
+  reapertura: ya no utiliza el atajo ahora bloqueado; asigna medico, registra
+  plan y usa protocolo de alta LAB. Caso ajustado aprobado (7,33 s).
+  Primera regresion completa interrumpida al detectar esa adaptacion necesaria;
+  no se presenta como aprobada. Regresion final backend completa: 486/486
+  aprobadas en 2187,98 s (36:27).
+- Sin cambios frontend ni migracion/operacion de interfaz, commits o push.
+
+## Laboratorio: respaldo y restauracion compatibles (28/10/2026)
+
+- El comando standalone de respaldo/verificacion/restauracion reconoce las 12
+  tablas LAB como una familia completa y exige el marcador unico de esquema v2.
+  Rechaza familias incompletas, marcador vacio y versiones incompatibles, sin
+  migrar ni modificar el origen. Bases anteriores sin LAB siguen admitidas.
+- Ensayo automatizado con datos ficticios en las 12 tablas: conserva esquema,
+  filas, linaje de muestras, versiones/revisiones, custodia, scope y auditoria;
+  comprueba referencias y que los informes restaurados siguen siendo inmutables.
+  Una copia incompleta se rechaza incluso con un SHA-256 recalculado coincidente.
+- Validacion afectada: 36/36 pruebas aprobadas (14,92 s), incluidas 18 nuevas de
+  laboratorio y 18 existentes de respaldo. Las 159 pruebas de API/esquema LAB
+  aprobadas anteriormente siguen como base; no se repiten al no cambiar esa API.
+  Frontend sin cambios. Sin migracion de la base original, interfaz ni commits/push.
+- Siguiente: integrar rutas/alta, guardas, bandejas y UI, conservando el circuito
+  legado sin inferir muestras o revisiones anteriores. No activa aun laboratorio.
+
+## Laboratorio: cancelacion y restitucion de analiticas (API aislada, 28/10/2026)
+
+- Estados confirmados: Finalizada con cancelaciones si el resto esta completado,
+  Cancelada si se cancelaron todas. Mantiene PENDING/PARTIAL cuando queda trabajo.
+- Solo medico responsable cancela/restituye con motivo, version e idempotencia;
+  conserva muestras, asociaciones, informes y auditoria. No cancela trabajo ya
+  completado ni permite saltar revision de un informe disponible.
+- Informes conservados siguen corregibles/anulables por LAB y revisables por su
+  responsable; pending_reviews incluye los de analiticas canceladas. Corrigir
+  despues del alta vuelve a la bandeja y no restituye la analitica por si solo.
+- Restitucion conserva motivo anterior en historial y requisitos originales;
+  exige plan cuando reabre trabajo pendiente en CLOSED. Protege ABA y recibos
+  tras relevo. Scope del alta conserva cancelacion/motivo sin falso resultado.
+- Pruebas iniciales: tres aprobadas; fallo de restitucion cerrada por id de ruta
+  textual frente a ids persistidos enteros, corregido usando el id canonico de
+  base. Caso afectado aprobado; regresion final de seis suites 159/159 aprobada
+  (1105,19 s): 15 cancelaciones, 25 seguimiento, 33 resultados, 26 muestras,
+  19 repeticion y 41 esquema. Las 144 previas siguen como base anterior.
+  No se repiten suites backend ajenas o frontend sin cambios.
+- Esquema v2, original y frontend sin cambios. API sin montar en main.app;
+  no se opero la interfaz del usuario ni se crearon commits/push.
+
+## Laboratorio: alta y seguimiento posterior (API aislada, 27/10/2026)
+
+- Regla confirmada: alta con pendientes por el medico responsable, que conserva
+  seguimiento hasta relevo aceptado. Version conjunta, motivo, fecha futura y
+  comunicacion explicita; bloquea resultados sin revisar y reevaluaciones pendientes.
+- Custodia por alta y snapshot de analiticas/pendientes. Con resultados revisados
+  conserva responsable sin inventar plazo; una correccion tardia vuelve a bandeja.
+  Scope limita escrituras tras cierre; reapertura conserva historia y reactiva
+  responsabilidad de episodio, sin trasladar automaticamente care_slots.
+- Bandeja clinica con filtros/paginacion; relevo propuesto, aceptado o rechazado
+  con auditoria. Coordinacion propone cobertura, sin revisar como medico ni
+  sustituir al anterior sin aceptacion. Plan de contacto no acredita contacto.
+- Prototipo v2, sin activar en main: plan nullable como pareja y snapshot JSON.
+  Copias experimentales v1 rechazadas intactas. Ensayo en copia del original:
+  26 tablas conservadas, doble aplicacion, integridad/FKs y restauracion verificadas.
+- 39 pruebas de esquema y tres centrales/cuatro de relevo aprobadas durante el
+  desarrollo. Consulta de test corregida: lab_followup_scope tiene clave compuesta,
+  no columna id. Regresion final 144/144 aprobada (384,21 s): 25 seguimiento,
+  33 resultados, 26 muestras, 19 repeticion y 41 esquema. Fuente anterior: 116
+  laboratorio aprobadas; no se presentan como nuevas tras el cambio. Backend
+  ajeno y frontend sin cambios, no se repiten sus suites.
+- Sin migracion de la base del demo ni interfaz nueva. Falta integrar alta y guardas
+  en rutas existentes, detalle/recibos globales, respaldos y politica legado/cancelacion.
+
+## Laboratorio: resultados y revision medica versionados (API aislada, 27/10/2026)
+
+- Publicacion parcial por analitica, con fuentes exactas recibidas y aptas.
+  Correccion/anulacion generan versiones nuevas; conservan texto, fuentes y
+  revisiones anteriores. Repeticion pendiente no se resuelve por resultado antiguo.
+- Medico responsable confirmado registra revision por version; propuesto espera
+  aceptacion. Revalidacion tambien antes de reusar recibos: responsable anterior
+  pierde permiso tras relevo. Resumen de laboratorio y revision separados.
+- Marcador compartido de ciclo invalida formularios de muestras/resultados al
+  cerrar y reabrir episodio, sin depender de reloj o presencia. Protege ABA.
+- Primeros tres casos aprobados. Primera regresion: 20 aprobados y fallo de test
+  por ruta DOCTOR/propose inexistente, corregida a DOCTOR/handoff. Dos pruebas de
+  relevo corregidas y 93 restantes/regresion aprobadas. Caso adicional de ciclo
+  aprobado; regresion final 116/116 aprobada (237,82 s): 33 resultados, 26 muestras,
+  19 repeticion y 38 esquema. Se repiten por el cambio compartido de version;
+  sin repetir modulos backend ajenos o frontend sin cambios. Las 362 completas
+  anteriores no se presentan como una nueva ejecucion de backend.
+- Sin cambios de esquema, activacion en main.app o base del demo. No sincroniza
+  aun tareas genericas ni integra alta/seguimiento, recibos globales o pantallas.
+
+## Laboratorio: repeticion selectiva de muestras (API aislada, 27/10/2026)
+
+- Solo laboratorio solicita nueva toma para analiticas seleccionadas de una
+  muestra no apta, con motivo, version y clave de idempotencia. Sin agregar
+  analiticas, cambiar tipo ni tocar las canceladas; peticion invalida no escribe.
+- Una muestra nueva por solicitud, sin copiar hechos de obtencion/recepcion;
+  conserva original, asociaciones historicas, linaje, resultados y revisiones.
+  Permite solicitar despues las analiticas restantes o repetir una nueva muestra
+  que tambien resulte no apta. Linaje por analitica, sin duplicar solicitudes.
+- Nuevos campos de lectura: historical_analysis_ids y repeats. Medicina y
+  enfermeria consultan pendientes; solicitar no asigna ni acredita una toma.
+- Auditoria y evento atomicos, reintentos/concurrencia sin muestras duplicadas,
+  rollback completo si falla auditoria. Tres pruebas iniciales aprobadas;
+  regresion afectada 83/83 aprobada (123,92 s): 26 muestras, 19 repeticion y
+  38 esquema. Base anterior: 362 backend aprobadas; no es otra ejecucion completa.
+  Modulos ajenos y frontend sin cambios, no se repiten sus pruebas.
+- No se modifica esquema ni se registra el router en main.app; sin migracion
+  de base del demo, pantallas nuevas o pruebas directas sobre la app del usuario.
+
+## Laboratorio: API aislada de muestras (27/10/2026)
+
+- Router separado de main: orden explicita con varias analiticas y muestras,
+  consulta, toma y entrega, recepcion y aptitud. No crea ni modifica estructuras
+  de la base del demo al arrancar; requiere esquema en base de pruebas aislada.
+- Toma/entrega por NURSE o LAB; recepcion/aptitud solo LAB. Consulta por DOCTOR,
+  NURSE, LAB o SUPERVISOR; creacion solo DOCTOR. Distingue registrador de quien
+  realiza el hecho, incluida recogida/entrega por el paciente sin cuenta.
+- Motivo, version y clave de idempotencia, sesion revalidada y auditoria/evento
+  atomicos. La recepcion no inventa toma ni acredita aptitud. Fechas reales
+  normalizadas a UTC, sin futuro ni contradicciones con hechos ya registrados;
+  instante del hecho separado del registro tardio.
+- Pruebas HTTP sobre servidor temporal: permisos, reintentos, versiones,
+  concurrencia, sesiones caducadas/cuenta desactivada, cronologia y rollback.
+  Primera ejecucion restringida detenida sin resultados; con permisos del runner,
+  24 pruebas aprobadas y error de consulta en la prueba de rollback:
+  `SELECT id FROM lab_orders`, cuya clave es `task_id`; corregido. Esa prueba
+  y 2 pruebas de fechas aprobadas despues. Validacion completa final backend:
+  362/362 aprobadas (614,62 s), incluidas 38 de esquema y 26 de API de muestras.
+  Frontend sin cambios, sin repetir sus suites.
+- Sin activacion ni pantallas; falta completar resultados, bloqueo de atajos
+  genericos y alta, integracion de respaldos y UI antes de usar estas ordenes.
+
+## Laboratorio: esquema aislado, sin activacion en el demo (27/10/2026)
+
+- Modelo y contratos documentados para muestras multiples, analiticas, repeticion,
+  resultados versionados, revision medica y seguimiento posterior al alta.
+- Migracion 011 canonica y ejecutor transaccional separado del arranque: doce
+  tablas aditivas, referencias compuestas entre orden/analitica/muestra, cadenas
+  de resultados y revisiones vinculadas a version exacta. Historia inmutable y
+  planes por evento de alta para conservar reaperturas sucesivas.
+- Pruebas dirigidas: 37 de esquema aprobadas (11,78 s) y 1 adicional de
+  restauracion (0,46 s). Cubren migracion repetida, rollback de fallo intermedio,
+  transaccion del llamador, preservacion de datos previos, relaciones cruzadas,
+  recepcion independiente, repeticion selectiva/ciclos y revision de versiones.
+- Ensayo en copia local ignorada por Git: 26 tablas anteriores conservadas;
+  migracion doble, integridad, FKs y restauracion SQLite verificadas. Original
+  sin cambios. Las 26 incluyen sqlite_sequence. La restauracion ensayada no
+  sustituye la futura integracion de tablas LAB en el validador de respaldos.
+- Sin rutas ni pantallas nuevas, permisos clinicos implementados o migracion de
+  la base del demo. Suites de interfaz y circuito clinico no se presentan como
+  validacion de este esquema. [Diseno y limites](LABORATORY_DATA_MODEL.md).
+
 ## Reevaluaciones programadas por paciente (implementacion local)
 
 - Prueba guiada confirmada en EP-22: programacion de ambas disciplinas,

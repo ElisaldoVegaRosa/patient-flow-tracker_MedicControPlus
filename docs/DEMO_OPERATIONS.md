@@ -7,6 +7,12 @@ y volver a iniciar cuando no haya operaciones pendientes.
 
 ## Desde VS Code
 
+Para ensayar el laboratorio nuevo con una copia verificada, consultar
+[la activacion controlada](LABORATORY_ACTIVATION.md). `Start -Database` elige
+una copia LAB existente; `Status` identifica la base del backend propio. Cambiar
+de base requiere detener los servicios. `Start` sin esa opcion conserva la
+base predeterminada y no migra LAB durante el arranque.
+
 Abrir la carpeta del proyecto. En Terminal > Ejecutar tarea, elegir:
 
 - **MedicControl+: Demo status**: comprueba procesos y respuesta HTTP.

@@ -1,4 +1,8 @@
-from ..input_validation import ClinicalNote, Diagnosis, DischargeNote
+from ..input_validation import ClinicalNote, Diagnosis
+from ..laboratory_discharge import DischargeRequest, close as close_laboratory, fingerprint
+from ..laboratory_integration import available
+from .. import auth, laboratory_followups
+from datetime import datetime, timezone
 from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import sqlite3
@@ -17,9 +21,6 @@ class MedicalEvaluationRequest(BaseModel):
         "READY_FOR_DISCHARGE",
     ] = "CONTINUE_OBSERVATION"
 
-class DischargeRequest(BaseModel):
-    note: DischargeNote = "Alta médica"
-
 
 def create_router(
     connection_factory: Callable[[], sqlite3.Connection],
@@ -31,6 +32,15 @@ def create_router(
 ) -> APIRouter:
     connection_factory = transaction_factory(connection_factory)
     router = APIRouter()
+
+    def authorize_discharge(connection, request, user):
+        fresh = auth.validate_session(request.headers.get('Authorization'), lambda: connection_factory(),
+            lambda: datetime.now(timezone.utc).isoformat())
+        if fresh['username'] != user['username'] or fresh['role'] != user['role']:
+            raise HTTPException(403, 'La autorizacion cambio antes de guardar')
+        if available(connection) and connection.execute('SELECT 1 FROM lab_orders WHERE episode_id=? LIMIT 1',
+                (request.path_params['episode_id'],)).fetchone() and not request.headers.get('Idempotency-Key'):
+            raise HTTPException(428, 'Esta accion requiere un identificador de operacion')
 
     @router.post("/episodes/{episode_id}/medical-evaluation")
     @atomic_write(connection_factory, detail)
@@ -85,7 +95,7 @@ def create_router(
         return result
 
     @router.post("/episodes/{episode_id}/discharge")
-    @atomic_write(connection_factory, detail)
+    @atomic_write(connection_factory, detail, authorize=authorize_discharge, fingerprint_payload=fingerprint)
     def discharge_episode(
         episode_id: int,
         data: DischargeRequest,
@@ -93,6 +103,13 @@ def create_router(
     ) -> dict:
         connection = connection_factory()
         require_active_episode(connection, episode_id)
+
+        if available(connection) and connection.execute('SELECT 1 FROM lab_orders WHERE episode_id=? LIMIT 1', (episode_id,)).fetchone():
+            state = laboratory_followups.discharge_state(connection, episode_id, detail)
+            close_laboratory(connection, episode_id, data, user, state, timestamp, add_event)
+            return detail(connection, episode_id)
+        if data.followup is not None or data.reason is not None or data.legacy_reviews:
+            raise HTTPException(422, 'El plan y motivo de laboratorio requieren una orden estructurada; no se han registrado')
 
         pending = connection.execute("""SELECT COUNT(*) FROM reevaluation_actions r JOIN tasks t ON t.id=r.task_id
             WHERE t.episode_id=? AND t.status='PENDING'""", (episode_id,)).fetchone()[0]

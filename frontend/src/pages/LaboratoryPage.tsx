@@ -1,12 +1,19 @@
 import { IdentityBadge } from "../components/PatientIdentity";
 import type { FormEvent } from "react";
 import type { LaboratoryQueue } from "../types/clinical";
+import SpecimenWorkPanel from "../components/SpecimenWorkPanel";
+import type { PendingOperations } from "../hooks/usePendingOperations";
+import type { SessionUser } from "../types/clinical";
+import type { SampleApplied } from "../components/SpecimenWorkPanel";
+import StructuredLaboratoryOrder from "../components/StructuredLaboratoryOrder";
 import RecordCorrectionForm from "../components/RecordCorrectionForm";
 import { clinicalLabel } from "../presentation/clinicalLabels";
 import PatientSearch from "../components/PatientSearch";
 import { usePatientSearch } from "../hooks/usePatientSearch";
 
 type LaboratoryPageProps = {
+  onConflict?: () => void;
+  user?: SessionUser; operations?: PendingOperations; onSampleApplied?: SampleApplied;
   laboratoryQueue: LaboratoryQueue;
   canPublish?: boolean;
   isCompleting?: (taskId: number) => boolean;
@@ -17,7 +24,7 @@ type LaboratoryPageProps = {
 };
 
 export default function LaboratoryPage({
-  laboratoryQueue,
+  laboratoryQueue, user, operations, onSampleApplied, onConflict,
   onRefresh,
   onCompleteOrder,
   onFilterChange,
@@ -28,9 +35,12 @@ export default function LaboratoryPage({
   const search = usePatientSearch();
   const matchesOrder = (order: LaboratoryQueue["orders"][number]) => search.matches(order.patient_name, order.episode_id);
   const matchingOrders = laboratoryQueue.orders.filter(matchesOrder);
-  const active = laboratoryQueue.orders.filter(order => order.episode_status === "ACTIVE" && order.status === "PENDING");
-  const closed = laboratoryQueue.orders.filter(order => order.episode_status === "CLOSED" && order.status === "PENDING");
-  const completed = laboratoryQueue.orders.filter(order => order.status === "COMPLETED" || order.status === "ANNULLED");
+  const isStructured = (order: LaboratoryQueue["orders"][number]) => order.workflow === "STRUCTURED" || Boolean(order.laboratory);
+  const actualStatus = (order: LaboratoryQueue["orders"][number]) => isStructured(order) ? order.laboratory?.status ?? "PENDING" : order.status;
+  const isTerminal = (order: LaboratoryQueue["orders"][number]) => ["COMPLETED", "COMPLETED_WITH_CANCELLATIONS", "CANCELLED", "ANNULLED"].includes(actualStatus(order));
+  const active = laboratoryQueue.orders.filter(order => order.episode_status === "ACTIVE" && !isTerminal(order));
+  const closed = laboratoryQueue.orders.filter(order => order.episode_status === "CLOSED" && !isTerminal(order));
+  const completed = laboratoryQueue.orders.filter(isTerminal);
   return (
   <main className="container">
     <div className="page-title">
@@ -38,7 +48,7 @@ export default function LaboratoryPage({
         <span>LABORATORIO SIMULADO</span>
         <h1>Órdenes de laboratorio</h1>
         <p>
-          Registra y publica resultados para los episodios activos.
+          Consulta las órdenes, sus muestras y los resultados disponibles.
         </p>
       </div>
 
@@ -128,11 +138,17 @@ export default function LaboratoryPage({
 
               <div>
                 <dt>Estado</dt>
-                <dd>{clinicalLabel("taskStatus", order.status)}</dd>
+                <dd>{clinicalLabel(isStructured(order) ? "laboratoryStatus" : "taskStatus", actualStatus(order))}</dd>
               </div>
             </dl>
 
-            {order.status !== "PENDING" ? <>
+            {isStructured(order) ? order.laboratory ? <>
+              <StructuredLaboratoryOrder laboratory={order.laboratory} user={user} operations={operations} onApplied={onSampleApplied}
+                onConflict={onConflict ?? (() => { void onRefresh(); })} blocked={!["PENDING", "COMPLETED"].includes(order.status)} />
+              {user && operations && onSampleApplied && <SpecimenWorkPanel specimens={order.laboratory.specimens} analyses={order.laboratory.analyses} user={user} operations={operations}
+                blocked={order.laboratory.processing_context === "UNAVAILABLE" || order.status !== "PENDING"} onApplied={onSampleApplied} onConflict={onConflict ?? (() => { void onRefresh(); })} />}
+            </> :
+              <p role="alert">No se pudo consultar el detalle de esta orden. Actualiza la bandeja antes de continuar.</p> : order.status !== "PENDING" ? <>
               <p>Resultado vigente: {order.status === "ANNULLED" ? "Anulado" : order.result || "Sin resultado"}</p>
               {(order.record_changes ?? []).length > 0 && <details><summary>Ver correcciones y resultados anteriores</summary>
                 {(order.record_changes ?? []).map(change => <article key={change.id}>

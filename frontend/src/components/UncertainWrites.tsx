@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { acknowledgeInterruptedWrites, confirmWrite, getSessionRevision, getUncertainWrites, getWriteBody, inspectWrite, isSessionInterruption, needsInterruptedWriteReview, retryWrite, WRITE_RESULTS_EVENT } from "../api/client";
 import type { UncertainWrite } from "../api/client";
 import type { PendingOperations } from "../hooks/usePendingOperations";
+import { clinicalLabel } from "../presentation/clinicalLabels";
 
 function operationKey(path: string) {
   const resource = path.match(/^\/(tasks|alerts)\/(\d+)/);
@@ -12,6 +13,18 @@ function operationKey(path: string) {
 }
 
 function label(path: string) {
+  const followup = path.match(/^\/lab\/followups\/(\d+)\/(plan|propose|accept|cancel-handoff)$/);
+  if (followup) return `Seguimiento #${followup[1]} · ${{ plan: "Plan", propose: "Proponer relevo", accept: "Aceptar relevo", "cancel-handoff": "Cancelar o rechazar relevo" }[followup[2]]}`;
+  const order = path.match(/^\/episodes\/(\d+)\/lab-orders$/);
+  if (order) return `EP-${order[1]} · Crear orden de laboratorio`;
+  const sample = path.match(/^\/lab\/specimens\/(\d+)\/(collection|delivery|receipt|suitability|repeat)$/);
+  const lifecycle = path.match(/^\/lab\/analyses\/(\d+)\/(cancel|reinstate)$/);
+  if (lifecycle) return `Analítica #${lifecycle[1]} · ${lifecycle[2] === "cancel" ? "Cancelación" : "Reactivación"}`;
+  const publication = path.match(/^\/lab\/analyses\/(\d+)\/results$/);
+  if (publication) return `Analítica #${publication[1]} · Publicar resultado`;
+  const result = path.match(/^\/lab\/results\/(\d+)\/(corrections|annul|review)$/);
+  if (result) return `Resultado #${result[1]} · ${{ corrections: "Corrección", annul: "Anulación", review: "Revisión médica" }[result[2]]}`;
+  if (sample) return `Muestra #${sample[1]} · ${clinicalLabel("specimenAction", sample[2])}`;
   if (path.startsWith("/care/")) return `Responsables y relevo · EP-${path.split("/")[3]}`;
   if (path.startsWith("/staff/")) return "Planificación de personal";
   if (path === "/accounts") return "Crear cuenta";
@@ -51,6 +64,7 @@ export default function UncertainWrites({ operations, onConfirmed, onRejected }:
       if (!mounted.current || revision !== getSessionRevision()) return;
       if (response.status === "confirmed") {
         confirmWrite(item.key);
+        release();
         handlers.current.onConfirmed(item.path, response.result, body);
       } else {
         setMessages(previous => ({ ...previous, [item.key]: "Todavía no hay confirmación. Esto no demuestra que el envío haya fallado; puede seguir en curso." }));

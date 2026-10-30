@@ -1,7 +1,9 @@
 from pathlib import Path
+import os
+from .database_selection import select_database
 
 
-DATABASE_PATH = Path(__file__).parents[1] / "clinical.db"
+DATABASE_PATH = select_database(Path(__file__).parents[1] / "clinical.db", os.environ.get("MEDICCONTROL_DATABASE_PATH"))
 
 DEMO_USERS = {
     "recepcion": {

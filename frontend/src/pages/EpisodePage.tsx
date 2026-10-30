@@ -1,3 +1,12 @@
+import { LaboratoryAnalysisRecord } from "../components/LaboratoryResultForms";
+import LaboratoryOrderForm from "../components/LaboratoryOrderForm";
+import { LaboratoryRepeatHistory } from "../components/SpecimenRepeatForm";
+import LegacyLaboratoryOrders from "../components/LegacyLaboratoryOrders";
+import LaboratoryDischargeForm from "../components/LaboratoryDischargeForm";
+import LaboratoryFollowupPanel from "../components/LaboratoryFollowupPanel";
+import { laboratoryAnalysis } from "../presentation/laboratoryAnalysis";
+import SpecimenWorkPanel from "../components/SpecimenWorkPanel";
+import { notifyOperationalConfirmation } from "../session/operationalWrites";
 import ReevaluationsPanel from "../components/ReevaluationsPanel";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
@@ -12,7 +21,7 @@ import ReasonActionForm from "../components/ReasonActionForm";
 import PatientIdentity from "../components/PatientIdentity";
 import WristbandPrint from "../components/WristbandPrint";
 import { QRCodeSVG } from "qrcode.react";
-import { isSessionInterruption, WRITE_CONFIRMED_EVENT } from "../api/client";
+import { api, isSessionInterruption, WRITE_CONFIRMED_EVENT } from "../api/client";
 import type { AlertHistoryEntry, Episode, User } from "../types/clinical";
 import { clinicalLabel } from "../presentation/clinicalLabels";
 
@@ -684,7 +693,7 @@ async function createClinicalOrder(
         setOrderError("");
         const form = new FormData(event.currentTarget);
         onClinicalOrderChange?.(
-          Boolean(form.get("title")) || form.get("service") !== "LAB",
+          Boolean(form.get("title")) || form.get("service") !== (episode.laboratory ? "NURSING" : "LAB"),
         );
       }}
     >
@@ -703,8 +712,8 @@ async function createClinicalOrder(
       <label>
         Servicio responsable
 
-        <select name="service" disabled={creatingOrder} defaultValue="LAB">
-          <option value="LAB">{clinicalLabel("service", "LAB")}</option>
+        <select name="service" disabled={creatingOrder} defaultValue={episode.laboratory ? "NURSING" : "LAB"}>
+          {!episode.laboratory && <option value="LAB">{clinicalLabel("service", "LAB")}</option>}
           <option value="NURSING">{clinicalLabel("service", "NURSING")}</option>
           <option value="MEDICAL">{clinicalLabel("service", "MEDICAL")}</option>
         </select>
@@ -718,6 +727,9 @@ async function createClinicalOrder(
     </form>
   </section>
 )}
+       <LaboratoryOrderForm episode={episode} user={user} operations={operations}
+         onApplied={(path, result, body) => { notifyOperationalConfirmation(path, body); updateEpisode(result as Episode); }}
+         onConflict={current => { void api<Episode>(`/episodes/${episode.id}`).then(value => { if (current()) updateEpisode(value); }).catch(() => {}); }} />
        <section className="panel alerts">
   <h2>
     Alertas activas{" "}
@@ -916,6 +928,27 @@ async function createClinicalOrder(
   )}
 </section>
 
+        {["LAB", "NURSE", "DOCTOR", "SUPERVISOR"].includes(user.role) && episode.laboratory?.orders.filter(order => order.results?.length).map(order => <section className="panel" key={`results:${order.task_id}`}>
+          <h2>Resultados de laboratorio · Orden #{order.task_id}</h2>
+          <LaboratoryRepeatHistory repeats={order.repeats} analyses={order.results?.map(item => laboratoryAnalysis(item)) ?? []} />
+          {order.results?.map(analysis => <LaboratoryAnalysisRecord key={analysis.id} analysis={laboratoryAnalysis(analysis, episode.status === "CLOSED" && !analysis.satisfies_current_samples && !episode.lab_followups?.some(followup => followup.current_cycle && followup.review_due_at))} user={user} operations={operations}
+            blocked={!["PENDING", "COMPLETED"].includes(order.task_status) || (episode.status !== "ACTIVE" && !(episode.status === "CLOSED" && episode.lab_followups?.some(followup => followup.current_cycle && followup.scope.some(link => link.analysis_id === analysis.id))))}
+            onApplied={(path, result, body) => { notifyOperationalConfirmation(path, body); updateEpisode(result as Episode); }}
+            onConflict={() => { void api<Episode>(`/episodes/${episode.id}`).then(updateEpisode).catch(() => {}); }} />)}
+        </section>)}
+        {["LAB", "NURSE"].includes(user.role) && episode.laboratory?.orders.map(order => <section className="panel" key={`samples:${order.task_id}`}>
+          <SpecimenWorkPanel specimens={order.specimens} analyses={order.results?.map(item => laboratoryAnalysis(item))} user={user} operations={operations}
+            blocked={order.task_status !== "PENDING" || (episode.status !== "ACTIVE" && !(episode.status === "CLOSED" && episode.lab_followups?.some(followup => followup.current_cycle && order.specimens.every(specimen => {
+              const ids = [...specimen.analysis_ids, ...specimen.historical_analysis_ids];
+              return ids.length > 0 && ids.every(id => followup.scope.some(link => link.analysis_id === id));
+            }))))}
+            onApplied={(path, result, body) => { notifyOperationalConfirmation(path, body); updateEpisode(result as Episode); }}
+            onConflict={() => { void api<Episode>(`/episodes/${episode.id}`).then(updateEpisode).catch(() => {}); }} />
+        </section>)}
+        <LaboratoryFollowupPanel episode={episode} user={user} operations={operations}
+          onApplied={(path, result, body) => { notifyOperationalConfirmation(path, body); updateEpisode(result as Episode); }}
+          onConflict={current => { void api<Episode>(`/episodes/${episode.id}`).then(value => { if (current()) updateEpisode(value); }).catch(() => {}); }} />
+        {["LAB", "NURSE", "DOCTOR", "SUPERVISOR"].includes(user.role) && <LegacyLaboratoryOrders episode={episode} />}
         <ReevaluationsPanel key={`reevaluations:${episode.id}`} episode={episode} user={user} operations={operations} updateEpisode={updateEpisode} />
         <section className="panel">
           <h2>Órdenes y tareas del episodio</h2>
@@ -979,7 +1012,10 @@ async function createClinicalOrder(
         </section>}
       </div>
 
-      {user.role === "DOCTOR" && episode.status === "ACTIVE" && (
+      <LaboratoryDischargeForm episode={episode} user={user} operations={operations} initialNote={dischargeNote} onNoteChange={onDischargeNoteChange}
+        onApplied={(path, result, body) => { notifyOperationalConfirmation(path, body); updateEpisode(result as Episode); }}
+        onConflict={current => { void api<Episode>(`/episodes/${episode.id}`).then(value => { if (current()) updateEpisode(value); }).catch(() => {}); }} />
+      {user.role === "DOCTOR" && episode.status === "ACTIVE" && !episode.laboratory?.orders.length && (
         <form data-draft-kind="discharge" data-episode-id={episode.id} className="panel medical-form" onSubmit={dischargeEpisode} noValidate>
           <label htmlFor="discharge-note">Nota de alta</label>
           <textarea

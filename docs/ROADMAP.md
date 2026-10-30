@@ -2,6 +2,202 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Prueba manual EP-23 confirmada: orden #19 parcial/completada, sangre compartida,
+  orina rechazada y reemplazada, correccion/nueva revision y anulacion auditadas.
+  Alta con plan, publicacion posterior y revision completadas; filtros muestran
+  resuelto solo al incluir sin pendientes (0 resultados/0 revisiones).
+  Relevo tras alta confirmado el 29/10: propuesta/aceptacion a medico, retorno
+  propuesto a medico.demo1 y rechazado; medico conserva custodia. Historial con
+  motivos y actores confirmado por usuario. Sin cuentas nuevas.
+  Revision integral 29/10: tres expectativas 404 del prototipo corregidas con
+  paridad de rutas principales; produccion intacta. Backend 541/541 en tramos,
+  frontend 742/742 completo, lint/build aprobados; detalle en LOCAL_VALIDATION.md.
+  Commit autorizado por usuario el 29/10. Siguiente decision: autorizar push a
+  origin/main y comprobar CI; publicacion aun pendiente. Comunicacion real al
+  paciente no probada (plan simulado).
+  Copia de trabajo contiene cambios de usuario; no reemplazar por snapshot inicial.
+
+
+
+## Decisiones y avances anteriores (consulta por demanda)
+
+- Usuario autorizo prueba manual guiada con copia LAB. Iniciada y Status confirma
+  ambos servicios propios/respondiendo y base de trabajo correcta. No fue preciso
+  detener servicios: ya estaban apagados. Pendiente login manual del usuario y
+  validacion guiada; interfaz no operada por agente, original no sustituido.
+
+
+
+- Arranque y preparacion listos (28/10). Rutas principales con guarda de esquema,
+  sin migracion implicita ni POST de alta alternativo. CLI crea snapshot/respaldo
+  verificados y copia de trabajo, sin conversion de ordenes; Start -Database
+  selecciona copia y bloquea reutilizacion de otra base. 102 backend + ultimas
+  12 del preparador aprobadas; PowerShell correcto; frontend intacto no repetido.
+- Pendiente confirmacion del usuario para ensayo guiado y cambio de servicios.
+  Copia real: .tmp/laboratory-rollout-20261028/clinical-lab-working.sqlite3.
+  Conservar snapshot/respaldo; original sin LAB. [Pasos](LABORATORY_ACTIVATION.md).
+
+
+
+- Seguimiento UI listo (28/10): bandeja transversal/personal/resueltos, version,
+  plan por responsable y relevo con aceptacion/rechazo, historial legible. Cuentas
+  receptoras activas acotadas y capacidad LAB visible por esquema completo.
+  35 backend + dashboard reconfirmado 6; frontend afectadas 131 seriales aprobadas,
+  lint/build correctos. Ampliada 190/193, esperas iniciales variables bajo carga;
+  no cambiar tiempos ni declararla aprobada. Pendiente: arranque/rutas, activacion
+  con respaldo y prueba manual previamente coordinada. Sin migrar original.
+
+
+
+- Decision resuelta 28/10: alta mixta con ordenes antiguas resueltas y revision
+  expresa del medico confirmado, version exacta y snapshot atomico al alta.
+  Pendientes antiguos no pasan a plan; anular su resultado activo reabre pendiente.
+  UI de alta/plan inicial y vista antigua listas. Validacion 42 backend + 164 UI,
+  lint/build aprobados. Siguiente: gestion de seguimiento tras alta y arranque
+  controlado; sin migrar ni operar demo, sin nueva publicacion.
+
+
+
+- Repeticiones/cancelaciones UI listas (28/10): LAB selecciona analiticas de
+  muestra no apta; medico confirmado cancela/restituye, con motivo, revision y
+  plan tras alta cuando corresponda. Linaje consultable por roles asistenciales.
+  Conflictos de bandeja consultan version preservando borradores. Validacion
+  49 backend + 127 frontend afectadas, lint/build aprobados. Siguiente: mixtas,
+  seguimiento/alta en UI e integracion de arranque. Sin activar/migrar demo.
+
+
+- Ordenes UI preparadas (28/10): analiticas/muestras vinculadas, motivo, version,
+  borradores y recuperacion de conflictos/confirmaciones inciertas. Regresion
+  17 backend y 123 frontend aprobadas; fixture corregido 15/15, lint/build final
+  aprobados. Siguiente: repeticiones/cancelaciones UI, mixtas y activacion.
+  No se migra original ni se prueba interfaz sin coordinar con usuario.
+
+
+- Resultados UI preparados (28/10): publicar/corregir/anular por LAB y revisar
+  version exacta por medico confirmado, fuentes explicitas, historia y borradores
+  por accion. Backend 13/13; frontend 75/75 + consumidores compartidos 11/11;
+  lint/build aprobados. Siguiente: ingreso de ordenes, UI de repeticiones y
+  cancelaciones, compatibilidad mixta y activacion coordinada. No migrar demo
+  implicitamente; solicitar prueba manual antes de operar la interfaz.
+
+
+- Formularios de hechos (28/10): roles/contexto/version, performer explicito,
+  fecha RD, borradores por cuenta/rol/pestana 30 min y recuperacion sin reenvio;
+  reintento incierto preserva intencion/campos nuevos. Catalogo acotado y version
+  de muestra en resumen, sin nuevos roles de bandeja. Backend final 36/36;
+  frontend 154/155 con timeout antiguo de escritura, ajustado con pegado y mismas
+  aserciones; archivo 25/25. Ultimas afectadas por respuestas tardias 60/60,
+  lint/build aprobados. Sin repetir completas/intactas o ampliar tiempos.
+  Iniciales 17/22 UI y 10 backend; asercion de bloqueo heredado corregida.
+  Faltan resultados/ordenes/arranque/mixtas; sin migrar ni operar interfaz.
+
+- Bandeja (28/10): estado por analiticas sin alterar portadora, revision medica
+  separada, workflow explicito, contexto de seguimiento y legado anulado en
+  terminales. Vista de consulta en desplegables con labels y fechas RD 12h,
+  sin acciones genericas en nuevas. Final 21 backend + 55 frontend afectadas
+  aprobadas, lint/build correctos. Completa frontend inicial 605/609, cuatro
+  fallos; acotadas 3 pasan y 1 timeout de nota medido/corregido en prueba mediante
+  pegado con mismas aserciones. Cuatro pasan en final afectada; completa no
+  repetida/no aprobada. Sin cambiar runner/tiempos. Base previa 109/486.
+  Faltan escrituras por muestra/analitica, arranque y mixtas; sin migrar demo.
+
+- Alta unificada (28/10): ruta habitual usa motor comun con custodia/plan y
+  clave para ordenes estructuradas; mantiene version clinica, contrato legacy
+  y huella anterior de recibos. Mixtas sin desglose siguen bloqueadas. Corregida
+  conexion de autorizacion transaccional; regresion afectada 109/109 aprobada
+  (938,76 s), incluidas 11 nuevas. Las 486 completas anteriores son base previa,
+  no repetidas sin cambios en esquema/respaldos/frontend. Falta bandejas/cliente/UI/arranque;
+  sin migrar demo ni probar interfaz automaticamente.
+
+- Integracion LAB (28/10): guardas de rutas genericas/alta antigua implementadas
+  para ordenes estructuradas; anteriores conservan circuito. Detalle/recibos
+  globales y version clinica incluyen datos LAB/custodia sin caducar por reloj.
+  Esquema incompleto/incompatible falla con conflicto. Validacion dirigida 11/11;
+  prueba de ciclo adaptada al alta con responsable/plan, 1/1. Regresion final
+  backend completa 486/486 aprobada (2187,98 s), tras interrumpir primera
+  ejecucion para esa adaptacion.
+  Alta unificada posteriormente con motor comun; faltan bandejas/inicializacion/UI
+  y compatibilidad de episodios mixtos antes de activar.
+  No migrar demo ni operar interfaz automaticamente.
+
+- Circuito de muestras confirmado por el usuario: sangre y saliva se obtienen
+  en laboratorio cuando el paciente puede trasladarse; si su condicion o una
+  indicacion medica impide moverlo, laboratorio o enfermeria las obtiene donde
+  esta. Heces y orina son tipos separados: el paciente recoge y entrega su
+  muestra cuando puede; si necesita asistencia, se obtiene donde esta.
+  El traslado puede hacerlo enfermeria, laboratorio o el paciente segun quien
+  la obtenga y la movilidad. No asignar automaticamente un transportista fijo.
+  Usuario confirma que solo laboratorio registra recepcion y aptitud para
+  procesamiento. Una orden puede contener varias analiticas y requerir muestras
+  distintas que llegan en momentos diferentes: seguimiento por muestra dentro
+  de la orden, sin inferir que todas llegaron por recibir una de ellas.
+  Usuario autoriza publicar resultados parciales: disponibles para consulta
+  medica, mostrando cuales faltan y sin completar toda la orden.
+  Revision medica por cada resultado publicado y por version, con autor y fecha.
+  Una correccion posterior queda pendiente de nueva revision; se conserva la
+  revision anterior vinculada al texto que se reviso. Publicacion y revision
+  son hechos separados.
+  Usuario autoriza a laboratorio a solicitar directamente otra muestra para
+  la misma analitica, sin autorizacion medica previa y con motivo; no habilita
+  nuevas analiticas. Conservar muestra anterior y vincular la nueva toma a
+  la misma orden, con pendiente visible para medicina y enfermeria.
+  Reparto confirmado: laboratorio coordina la nueva toma si el paciente puede
+  desplazarse; si no puede, laboratorio y enfermeria confirman quien la obtiene.
+  Usuario confirma que solo el medico responsable confirmado del episodio
+  marca resultados revisados; un sustituto debe aceptar primero el relevo.
+  Otros profesionales con permiso pueden consultar sin marcar revision.
+  Mostrar por separado laboratorio completado y revision medica pendiente.
+  Usuario confirma: solo el medico responsable confirmado puede cancelar una
+  analitica, con motivo e historial. Laboratorio conserva permisos de incidencia
+  y repeticion de muestra; repetir no agrega ni cancela analiticas.
+  El 28/10/2026 confirma estados: Finalizada con cancelaciones si el resto esta
+  completado, Cancelada si todas se cancelan, conservando motivos e historial.
+  Implementados cancelacion/restitucion por responsable confirmado y revisiones
+  de informes conservadas aunque se cancele el trabajo. Base LAB anterior:
+  159/159 aprobadas (15 cancelaciones, 25 seguimiento, 33 resultados, 26 muestras,
+  19 repeticion y 41 esquema); las 144 previas son base anterior.
+  Alta acordada: exigir revision de resultados publicados. Si faltan resultados,
+  permitir decision medica explicita con motivo, responsable, fecha de revision
+  y como informar al paciente; sin plan o responsable, bloquear. Conservar
+  pendientes tras alta, permitir publicacion y seguimiento hasta revision, con
+  relevo aceptado y auditado. No altera pendientes de reevaluacion.
+  Usuario confirma que el alta con resultados pendientes la registra el medico
+  responsable confirmado y conserva seguimiento hasta que otro acepte el relevo.
+  Alcance y estimacion preliminar: [plan de laboratorio](LABORATORY_TRACKING_PLAN.md),
+  90-150 horas tecnicas en cinco etapas. Nucleo aislado implementado, incluidas
+  cancelaciones y seguimiento; integracion con rutas existentes y UI pendientes.
+  [Modelo y contratos](LABORATORY_DATA_MODEL.md) preparados sobre rutas reales;
+  esquema ejecutable 011 y modulo laboratory_schema, sin registro en arranque.
+  Ensayo doble en copia: 26 tablas previas conservadas, integridad/FKs y
+  restauracion SQLite verificadas; 37 pruebas de esquema y 1 de restauracion
+  aprobadas. Sin cambios en la base original. Cierre/seguimiento y cancelacion
+  implementados; familia de 12 tablas integrada en respaldos el 28/10/2026:
+  marcador unico v2, rechazo de conjuntos incompletos/versiones incompatibles,
+  restauracion con filas/esquema/guardas conservados y compatibilidad sin LAB.
+  Validacion afectada 36/36 aprobadas (18 nuevas LAB + 18 respaldo existentes);
+  las 159 anteriores siguen como base de API/esquema. Sin activacion ni migracion. API aislada de toma/entrega/recepcion/aptitud implementada,
+  con permisos por rol, version, idempotencia y auditoria; no montada en main.
+  Base previa a repeticion: backend completo 362/362 aprobado (38 esquema +
+  26 API nuevas incluidas). Repeticion selectiva implementada en API aislada:
+  solo LAB y muestra no apta, conserva linaje y otras analiticas, sin duplicar
+  muestras por reintentos. Suites afectadas: 83/83 aprobadas (26 muestras,
+  19 repeticion, 38 esquema); 362 completas corresponden a la base anterior.
+  Resultados parciales, correccion/anulacion versionada y revision solo por medico
+  confirmado implementados en API aislada; separa LAB completado de revision.
+  Protege recibos tras relevo y versiones tras cierre/reapertura. Regresion final
+  116/116 aprobada (33 resultados, 26 muestras, 19 repeticion, 38 esquema).
+  No presentar las 362 completas anteriores como nueva ejecucion de backend.
+  Alta/seguimiento implementados en API aislada: responsable confirmado,
+  plan explicito, custodia y snapshot al alta, revision/publicacion posteriores
+  limitadas al scope del ciclo y relevo aceptado. Prototipo v2 ensayado en copia;
+  original sin LAB, copias v1 rechazadas sin cambios. Regresion final 144/144
+  aprobada: 25 seguimiento, 33 resultados, 26 muestras, 19 repeticion, 41 esquema.
+  Las 116 previas no se presentan como nueva validacion posterior al alta.
+  En esa etapa faltaban alta existente, detalle/recibos, guardas y respaldos.
+  Integrados posteriormente; siguen pendientes bandejas y pantallas para activar.
+  Obtencion, entrega y recepcion separadas en API, distinguiendo autor del
+  registro de quien realiza o transporta la muestra; sin asignaciones inferidas.
+
 - Reevaluaciones autorizadas: hora exacta y dentro de X minutos con vista previa;
   dos acciones independientes si participan medicina y enfermeria. Usuario
   confirma que el alta exige completarlas o cancelarlas con motivo y que solo
@@ -14,8 +210,12 @@
   Prueba guiada confirmada: pendientes independientes, realizacion por ambos
   responsables, reprogramacion, cancelacion con motivo, bloqueo/desbloqueo de
   alta e historial; ajustes visuales confirmados. EP-22 queda ACTIVE.
-  Usuario autoriza crear el commit, publicarlo en origin/main y comprobar CI.
-  El resultado remoto debe verificarse en GitHub Actions tras el push.
+  Publicado en `69f9d15`, CI
+  [40438711911](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/40438711911)
+  aprobada en backend, frontend completo, lint y build.
+  Siguiente propuesta: seguimiento manual del laboratorio, sin integracion con
+  el programa externo desconocido. Definir donde se toman muestras y quien
+  confirma su recepcion antes de acordar estados y permisos nuevos.
   [Detalle](REEVALUATIONS.md).
 
 - Historial autorizado: opcion 3, eventos de otras personas y sesiones dentro

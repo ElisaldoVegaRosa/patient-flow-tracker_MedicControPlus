@@ -2,7 +2,208 @@
 
 ## Estado actual (leer primero)
 
-- Reevaluaciones individuales: implementacion local y prueba manual completadas.
+- Ensayo manual LAB en copia confirmado por usuario: EP-23, orden #19,
+  tres analiticas y sangre compartida. Obtencion/entrega/recepcion/aptitud,
+  publicacion parcial, rechazo de orina #2 y reemplazo #3 apto comprobados.
+  Correccion de hemograma exigio nueva revision; anulacion de orina conservo
+  historial y reabrio pendiente. Alta con plan, publicacion posterior al alta
+  y revision medica realizadas. Filtro oculta EP-23 sin pendientes y lo muestra
+  al incluir resueltos: 0 resultados y 0 revisiones pendientes.
+  Evidencia manual reportada por usuario/capturas; agente no opero la interfaz.
+  Comunicacion real al paciente no probada: el plan fue simulado.
+  Copia clinical-lab-working.sqlite3 contiene escrituras; no sobrescribirla ni
+  exigir igualdad con snapshot inicial. Original permanece separado sin LAB.
+- Ajuste visual de colas (28/10): inicio actual/primero, ultima asignacion e
+  historial usan hora dominicana 12h. waiting_minutes es null por diseno tras
+  primer inicio; UI ahora muestra espera finalizada en vez de Sin dato fiable.
+  Antes de iniciar mantiene contador/falta real de dato. No modifica registros,
+  calculos, permisos o API; no requiere reiniciar backend.
+- Pruebas frontend afectadas 18/18 (11,65 s), incluidas dos nuevas de cambio de
+  dia UTC/RD, 12h y espera concluida frente a falta real de datos. Lint/build
+  finales se reportan en LOCAL_VALIDATION.md. Backend intacto no repetido.
+- Relevo tras alta confirmado manualmente el 29/10: medico.demo1 propuso a
+  medico; el anterior conservo responsabilidad hasta aceptar medico. Retorno
+  propuesto a medico.demo1 y rechazado: medico conserva custodia, sin relevo
+  pendiente. Usuario confirmo propuestas, aceptacion, rechazo y motivos/actores
+  en historial. Cuenta demo medico ya existia activa; no se crearon cuentas.
+- Revision integral 29/10 completada: tres expectativas antiguas de rutas 404
+  actualizadas a 200 y paridad main/router aislado, sin cambiar produccion.
+  Cobertura backend 541/541 en tramos (221 + 3 + 317); frontend completo
+  742/742 en 79 archivos, lint/build aprobados. Detalle y diagnostico de bloqueo
+  del entorno en LOCAL_VALIDATION.md. Original sigue sin tablas LAB.
+- Commit del bloque LAB autorizado expresamente por usuario el 29/10.
+  Esta entrega conserva validacion y ensayo manual; publicacion pendiente.
+  Siguiente decision: autorizar push a origin/main y comprobar CI. No hay
+  autorizacion nueva de push ni migracion de base original. Base previa 69f9d15.
+  Ensayo manual completado; no equivale a validacion de campo.
+
+
+
+## Antecedentes de entregas anteriores (consulta por demanda)
+
+- Ensayo manual autorizado e iniciado el 28/10: ambos servicios estaban detenidos;
+  se inicio copia clinical-lab-working.sqlite3 mediante demo.ps1 Start -Database.
+  Status verificado: backend/frontend propios y respondiendo; ruta de copia
+  confirmada. El primer Status restringido no pudo inspeccionar procesos;
+  se verifico con el mismo contexto de permisos del lanzamiento. No se detuvo
+  ningun proceso ajeno ni se sustituyo la base original.
+- Prueba manual en curso: pendiente que usuario abra Chrome e ingrese con cuenta
+  medica personal. No se ha operado la interfaz ni validado circuito clinico real.
+
+
+
+- Arranque LAB integrado en codigo (28/10): rutas registradas una sola vez y
+  protegidas por esquema completo v2. No se migra desde lifespan ni al consultar
+  una ruta. Base sin LAB responde 409 laboratory_not_enabled para roles autorizados.
+  Alta publica unica: /episodes/{id}/discharge; POST lab-discharge no montado.
+- Preparacion explicita con respaldo/checksum y verificacion de cada tabla previa;
+  copia de trabajo seleccionable con demo.ps1 Start -Database. Config valida
+  archivo absoluto existente/integridad/referencias/LAB; controlador no reutiliza
+  backend propio de otra base ni hereda una seleccion ambiental inesperada.
+  Status muestra base del backend propio; Stop mantiene verificaciones de PID.
+- Artefactos reales listos, sin iniciar: snapshot y copia de trabajo en
+  .tmp/laboratory-rollout-20261028/, respaldo anterior en
+  backups/laboratory-before-20261028.sqlite3. Se preservaron 26 tablas anteriores,
+  21 pacientes/22 episodios. Snapshot, restauracion de comprobacion y copia de
+  trabajo coinciden por SHA-256; original sigue con cero tablas LAB.
+- Validacion: regresion backend 102/102 (181,07 s), ultimo endurecimiento de rutas
+  del preparador 12/12 (5,09 s), sintaxis PowerShell y diff correctos. Frontend sin
+  cambios en este bloque: no se repitieron sus suites; base previa 131/131 seriales
+  y lint/build aprobados. [Guia concreta](LABORATORY_ACTIVATION.md).
+- Siguiente decision: confirmar ensayo manual guiado en copia de trabajo. Antes
+  cerrar formularios/sesiones y detener servicios propios; no ejecutado aun.
+  Original sin sustituir ni migrar; sin cambios de servicios, commit/push o CI nueva.
+
+
+
+- Seguimiento tras alta UI preparado (28/10): bandeja con filtros personal/todos,
+  resueltos y paginacion; acceso desde cabecera solo con capacidad LAB y rol
+  clinico, y formularios en episodio. Propone responsable o coordinacion; acepta
+  solo receptor. Responsable conserva custodia hasta aceptar; participantes o
+  coordinacion cancelan/rechazan con motivo. Solo responsable modifica plan.
+- Version propia, idempotencia y borradores por cuenta/accion. Conserva campos
+  al salir del filtro, muestra ciclos anteriores bloqueados y descarta lecturas
+  tardias. Aviso de pausa refleja restauracion y retiro de formularios por relevo.
+  Historia paginada legible con personas, plan, fechas RD 12h y cambios previos.
+- Catalogo acotado de medicos activos; historial de consulta sin mutaciones.
+  Relevo pendiente sigue visible aunque el trabajo clinico este resuelto.
+- Validacion: 35/35 backend (346,75 s), dashboard afectado reconfirmado 6/6
+  (34,02 s). Frontend final 131/131 en 16 archivos, --maxWorkers=1 (96,37 s).
+  Lint/build finales aprobados. Ampliada previa 190/193, tres esperas iniciales;
+  no se presenta como aprobada ni se alteraron tiempos/configuracion del runner.
+  Detalle y diagnostico en LOCAL_VALIDATION.md.
+- Siguiente: integrar arranque/rutas y preparar activacion controlada con respaldo;
+  coordinar prueba manual antes de operar interfaz. Base original sin migrar,
+  nuevas rutas sin montar en main, sin commit/push ni CI nueva.
+
+
+
+- Alta mixta preparada (28/10), criterio elegido expresamente por usuario:
+  ordenes anteriores pendientes bloquean; completadas requieren resultado no
+  vacio y revision expresa de su version por medico confirmado. ANNULLED sin
+  resultado vigente no requiere casilla. Anular resultado antiguo en episodio
+  activo vuelve a PENDING: no equivale a cancelar la orden.
+- Alta habitual y protocolo aislado comparten contrato; snapshot por resultado
+  anterior con medico, motivo, fecha y evento de alta en lab_changes. No convierte
+  ordenes, muestras ni revisiones antiguas al modelo nuevo. Auditar/cerrar es
+  atomico, huella de recibos anteriores preservada y reintento no duplica.
+- UI: ordenes anteriores identificadas, casillas por version y plan RD 12h para
+  resultados nuevos pendientes; revisiones y reevaluaciones previas siguen
+  bloqueando. Borradores por episodio/cuenta, versiones, recuperacion sin envio,
+  perdida de casilla al cambiar informe y conflictos conservando campos.
+- Validacion actual: backend afectado 42/42 (363,31 s), frontend 164/164 en 19
+  archivos (41,12 s), lint y build aprobados. No son suites completas repetidas.
+- Siguiente: gestion de seguimiento tras alta (bandeja, plan y relevo) e integracion
+  de arranque antes de activar. Rutas nuevas aun sin montar en main, original
+  sin migrar; interfaz no operada, sin commit/push ni CI nueva.
+
+
+
+- Nuevas muestras y cancelaciones UI preparadas (28/10): LAB solicita reemplazo
+  de muestra no apta para analiticas vigentes seleccionadas, sin cambiar tipo ni
+  agregar analiticas. Medico confirmado cancela/restituye con motivo; requiere
+  revisar informe vigente y no admite cancelar trabajo ya completado. Tras el
+  alta, restituir pendientes exige plan vigente. Muestras/informes conservados.
+- Historia transversal: muestra anterior/nueva, analitica, motivo, autor y fecha
+  RD 12h en episodio/bandeja. Proyeccion agrega linaje y necesidad de plan sin
+  secretos. Borradores, version e idempotencia compartidos. Consultar conflicto
+  de bandeja preserva campos y descarta respuestas tras navegar u otra escritura.
+- Validacion actual: 49/49 backend (297,29 s); 127/127 frontend afectadas en 16
+  archivos (26,38 s); lint y build finales aprobados. No son suites completas
+  repetidas. Comprobaciones y correcciones en LOCAL_VALIDATION.md.
+- Siguiente: compatibilidad de episodios mixtos, seguimiento/alta en UI e
+  integracion de arranque antes de activar. Nuevas rutas sin montar en main,
+  base demo sin migrar, interfaz no operada; sin commit/push o CI nueva.
+
+
+- Creacion de ordenes estructuradas preparada (28/10): medico en episodio activo
+  con laboratorio habilitado, hasta 30 analiticas y 30 muestras, vinculos muchos
+  a muchos y descripcion para Otro. Validacion de relaciones, motivo, version
+  clinica y clave; sin registrar hechos de muestra ni resultados implicitamente.
+  Filas agregables/eliminables con claves estables; borradores por episodio/cuenta,
+  version original y recuperacion sin envio. Confirmacion compara la definicion
+  completa para conservar ediciones posteriores. Conflictos de reintento consultan
+  estado actual sin cambiar de episodio tras abandonar la pantalla.
+- Validacion vigente de ordenes: 17 backend seleccionadas (60,12 s), frontend
+  afectado 123/123 (28,62 s); lint aprobado. Compilacion detecto fixture incompleto,
+  corregido con datos tipados; archivo 15/15 (4,29 s) y build final aprobados.
+  No se repiten suites intactas ni se presenta esta regresion como suite completa.
+- Siguiente: UI de repeticiones/cancelaciones, compatibilidad mixta y activacion
+  controlada. Nuevas rutas sin montar en main, base demo sin migrar, sin prueba
+  directa de app ni commit/push. Legado conserva su formulario anterior; modo
+  estructurado separa la orden LAB de otras tareas.
+
+
+- Resultados por analitica preparados (28/10): publicacion LAB con confirmacion
+  de muestras recibidas/aptas, correccion y anulacion con motivo, versiones
+  anteriores consultables y revision de la version exacta por medico confirmado.
+  Formularios en episodio y bandeja; contexto/custodia vigente, version propia,
+  borradores y reintentos compartidos. Cambiar fuentes exige nueva seleccion.
+  Confirmacion libera la operacion antes de refrescar la bandeja; otras ediciones
+  siguen protegidas. Labels LAB legibles en linea de tiempo y envios inciertos.
+- Validacion de este bloque: 13/13 backend (76,56 s), 75/75 frontend afectadas
+  (17,28 s) y 11/11 consumidores compartidos (11,51 s); lint completo y build
+  aprobados. Se corrigieron dos fallos encontrados: seleccion de fuentes que
+  cambiaba implicitamente y consulta omitida durante confirmacion. No son suites
+  completas repetidas. Detalle en LOCAL_VALIDATION.md.
+- Pendiente tras resultados: ingreso de ordenes ya preparado arriba; faltan
+  repeticiones/cancelaciones, compatibilidad mixta y activacion. Sin migrar ni montar
+  las rutas nuevas en main. Sin prueba directa de app, commit o push.
+
+
+- Formularios de muestras preparados (28/10/2026): obtencion/entrega NURSE/LAB,
+  recepcion/aptitud solo LAB, en episodio y bandeja. Contexto/ciclo/scope y version
+  por muestra; hechos previos o falta de version bloqueados con explicacion.
+  Actor real elegido explicitamente por nombre, fecha declarada ahora o exacta
+  RD 12h. Catalogo solo NURSE/LAB activos; no cambia permisos de bandeja.
+- Borradores por pestana/API/cuenta/rol y accion, 30 min sin renovar al leer,
+  campos permitidos y sin tokens. Otra cuenta/rol o logout limpia; fallos se
+  notifican. Reabrir conserva baseline, exige revisar version nueva, no reenvia.
+  Doble envio bloqueado y reintento incierto usa misma clave/cuerpo. Solo limpia
+  tras confirmacion coincidente; conserva texto posterior. Respuestas tardias
+  no actualizan otro episodio ni una pantalla abandonada.
+- Validacion actual: backend afectado 36/36 (142,38 s). Frontend de 20 archivos:
+  154/155, un timeout de la segunda prueba antigua de nota larga; se homogeneiza
+  pegado, agrega comprobacion de valor y conserva resto de aserciones/tiempos.
+  Archivo ajustado 25/25 (13,77 s). Ultima correccion de respuestas tardias:
+  siete archivos afectados 60/60 (15,27 s). Lint completo previo y lint de archivos
+  afectados final aprobados; build final aprobado. No se repiten partes intactas
+  ni se presenta aquella ejecucion parcial como suite completa aprobada.
+  Incluye 32 nuevas pruebas UI y una de catalogo backend. [Detalle](LOCAL_VALIDATION.md).
+- Integracion previa: bandeja por trabajo real y revision separada, alta comun
+  con custodia/plan, guardas de tareas, esquema v2/respaldos preparados.
+  Bases previas: 21 backend/55 UI, 109 de alta y 486 backend completo.
+- Siguiente: publicacion/correccion/anulacion y revision por analitica, ingreso
+  de ordenes, arranque y compatibilidad de episodios mixtos. Nuevas rutas LAB
+  aun sin montar en main; original sin tablas LAB, sin migracion implicita.
+  No activar/migrar demo hasta completar integracion y coordinar prueba manual.
+  Sin interfaz operada, commits/push o CI nueva. Demo no iniciado por el agente.
+  [Alcance](LABORATORY_TRACKING_PLAN.md), [modelo](LABORATORY_DATA_MODEL.md).
+
+- Reevaluaciones individuales publicadas en `69f9d15`; CI
+  [40438711911](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/40438711911)
+  aprobada: backend, frontend completo, lint y build. Main limpia y sincronizada
+  al cerrar la publicacion. Prueba manual completada.
   Medico programa hora exacta o dentro de X minutos, con vista previa fija,
   acciones independientes MEDICAL/NURSING vinculadas y auditoria. Solo completa
   el responsable confirmado por disciplina; el relevo debe aceptarse primero.
@@ -25,8 +226,9 @@
   sin hover. Edge mostraba interfaz anterior: recarga completa recupero la
   seccion y etiquetas actuales. EP-22 queda ACTIVE, dos acciones realizadas
   y una cancelada. No se opero automaticamente la interfaz.
-  Usuario autoriza crear el commit, publicarlo en origin/main y comprobar CI.
-  El resultado remoto debe verificarse en GitHub Actions tras el push.
+  Publicacion y CI verificadas en el commit/run indicados arriba. Siguiente
+  bloque propuesto: seguimiento de laboratorio; concretar toma/recepcion de
+  muestras antes de implementar nuevos estados.
   [Alcance y resultados](REEVALUATIONS.md).
 
 - Historial de planificacion, horarios y extension publicados en `0791385`;

@@ -1,6 +1,6 @@
 from ..input_validation import TaskTitle, TaskResult
 from ..write_operations import atomic_write, transaction_factory
-from ..concurrency import task_version
+from ..laboratory_queue import read as read_laboratory_queue
 from collections.abc import Callable
 import sqlite3
 from typing import Literal
@@ -89,55 +89,11 @@ def create_router(
     ) -> dict:
         connection = connection_factory()
 
-        query = """
-            SELECT
-                tasks.id,
-                tasks.episode_id,
-                tasks.title,
-                tasks.service,
-                tasks.status,
-                tasks.result,
-                tasks.created_at,
-                (SELECT MAX(id) FROM record_changes WHERE target_type = 'TASK' AND target_id = tasks.id) AS last_change_id,
-                patients.name AS patient_name,
-                patients.identity_status AS patient_identity_status,
-                episodes.priority,
-                episodes.location,
-                episodes.status AS episode_status
-            FROM tasks
-            JOIN episodes ON episodes.id = tasks.episode_id
-            JOIN patients ON patients.id = episodes.patient_id
-            WHERE tasks.service = 'LAB' AND episodes.status != 'ANNULLED'
-        """
-
-        parameters: tuple[str, ...] = ()
-
-        if status != "ALL":
-            query += " AND tasks.status = ?"
-            parameters = (status,)
-
-        query += " ORDER BY tasks.id DESC"
-
-        rows = connection.execute(
-            query,
-            parameters,
-        ).fetchall()
-
-        orders = [dict(row) for row in rows]
-        for order in orders:
-            order["version"] = task_version(order)
-            order["record_changes"] = [dict(change) for change in connection.execute(
-                "SELECT * FROM record_changes WHERE target_type = 'TASK' AND target_id = ? ORDER BY id DESC",
-                (order["id"],),
-            )]
-        connection.close()
-
-        return {
-            "status_filter": status,
-            "total": len(orders),
-            "orders": orders,
-            "requested_by": user["username"],
-        }
+        try:
+            connection.execute('BEGIN')
+            return read_laboratory_queue(connection, status, user['username'])
+        finally:
+            connection.close()
 
     @router.patch("/tasks/{task_id}/complete")
     @atomic_write(connection_factory, detail)
