@@ -5,6 +5,27 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Tablero de esperas y demoras por etapa (29/10/2026)
+
+- Nueva consulta para Supervisor y cuentas con coordinacion. No concede acceso
+  al panel Supervisor ni a administracion de cuentas. Solo episodios activos.
+- Separa tiempo desde ingreso, triaje y primer inicio de medicina/enfermeria;
+  el primer inicio detiene su espera y un relevo no la reinicia. Fechas sin
+  respaldo fiable no se sustituyen por cero ni por duraciones negativas.
+- Fases de muestras actuales, reemplazos, resultados y revision de la version
+  vigente, sin duplicar una muestra compartida. Ordenes anteriores sin inferir
+  fases; no migra al consultar ni cambia episodios, tareas o alertas.
+- Tarjetas plegadas con mayor antiguedad pendiente conocida, filtros, busqueda,
+  paginacion y actualizacion visible cada 15 s. Aviso al conservar datos antiguos
+  tras fallo; denegacion retira datos. Fechas dominicanas en 12 h.
+- Panel Supervisor cambia encabezado Espera a Estancia desde ingreso, conservando
+  contrato de API. Sin limites clinicos ni procesamiento de laboratorio inferido.
+- Validacion completa: backend 556/556, frontend 753/753 (81 archivos), lint/build
+  aprobados. Usuario confirma manualmente Supervisor/coordinacion, filtros,
+  exclusion de cerrado EP-23, refresco y apertura de EP-2 (retoma 30/10).
+  Usuario confirma menu oculto en Recepcion. Ensayo manual acordado completado;
+  sin publicacion del bloque.
+
 ## Validacion de rutas LAB integradas (29/10/2026)
 
 - Actualiza tres pruebas del prototipo que aun esperaban rutas ausentes en main.

@@ -1116,3 +1116,8 @@ Acciones principales de una pantalla
   box-shadow: none;
   transform: none;
 }
+.operational-delay-card summary { cursor: pointer; }
+.operational-delay-summary { display: block; margin-top: 0.5rem; }
+.operational-delay-card { margin-top: 1rem; }
+.operational-delay-item { border-top: 1px solid #dce7e8; padding-top: 0.75rem; margin-top: 0.75rem; }
+.operational-delay-card h2, .operational-delay-item h3 { font-size: 1rem; }

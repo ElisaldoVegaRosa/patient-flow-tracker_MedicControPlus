@@ -2,14 +2,15 @@
 
 ## Estado
 
-28/10: modelo, API e interfaces preparados e integrados en main con guarda de
-esquema. Sin migracion implicita ni POST de alta alternativo. Preparador y
-seleccion de copia de trabajo listos; respaldo/snapshot/restauracion reales
-verificados y original sin LAB. Regresion backend 102/102 mas preparador final
-12/12; PowerShell correcto. Frontend intacto: base previa 131/131 con un trabajador.
-Pendiente confirmacion para detener demo actual e iniciar ensayo guiado con
-copia de trabajo. Ver LABORATORY_ACTIVATION.md. Sin cambiar servicios, commit/push
-o CI nueva. No autoriza despliegue clinico.
+29/10: bloque publicado en origin/main, commit 82810c6. CI del mismo SHA
+aprobada: [ejecucion 40983611174](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/40983611174).
+Validacion local: backend 541/541 en tramos y frontend completo 742/742,
+79 archivos, lint/build correctos. Ensayo manual por usuario en copia concluido:
+EP-23, orden #19, muestras/reemplazo, parciales, correcciones y revision,
+alta con plan, publicacion posterior, relevo aceptado y retorno rechazado.
+Copia con respaldo posterior y restauracion verificados; original sin migrar.
+Los apartados de avances aislados documentan etapas anteriores, no pendientes
+actuales. Ver PROJECT_STATUS.md para estado y siguiente decision.
 
 ## Problema y alcance
 

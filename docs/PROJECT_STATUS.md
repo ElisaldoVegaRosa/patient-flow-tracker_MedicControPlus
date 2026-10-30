@@ -2,6 +2,31 @@
 
 ## Estado actual (leer primero)
 
+- Bloque activo elegido por usuario: tablero de esperas y demoras por etapa.
+  Acceso acordado: Supervisor y cuentas con permiso de coordinacion; no ampliar
+  acceso al panel Supervisor ni a administracion de cuentas.
+- Implementacion local de consulta: estancia, triaje, primer inicio por disciplina,
+  obtencion/entrega/recepcion/aptitud/reemplazo, resultado y revision LAB.
+  Sin migraciones, escrituras, alertas ni limites clinicos nuevos. Fechas faltantes
+  o contradictorias quedan sin duracion fiable; relevos no reinician primer inicio.
+- Filtros y detalles plegados, 20 pacientes por pagina, actualizacion visible cada
+  15 s y retiro de datos ante denegacion. Backend completo 556/556 y frontend
+  completo 753/753 (81 archivos) aprobados. Lint/build finales sin advertencias.
+  Ver OPERATIONAL_DELAYS.md y LOCAL_VALIDATION.md.
+- Ensayo manual autorizado por usuario. Stop/Start gestionados completados;
+  Status confirma backend/frontend propios respondiendo y misma copia
+  .tmp/laboratory-rollout-20261028/clinical-lab-working.sqlite3. Original aparte.
+  Ensayo manual confirmado por usuario al retomar el 30/10: vista Supervisor,
+  filtros de primer inicio/revision, busqueda excluye EP-23 cerrado, refresco
+  visible automatico y apertura de EP-2. medico.demo1 ve y carga el tablero
+  con coordinacion. Recepcion no muestra la opcion, confirmado por usuario.
+  Ensayo manual acordado completado; agente no opero interfaz. Siguiente paso:
+  commit/push y verificar CI, autorizados expresamente por usuario el 30/10.
+  Sin nuevo commit/push. Ultima publicacion: 82810c6, CI aprobada 40983611174;
+  no atribuir esa CI al tablero aun no publicado.
+
+## Ultima entrega publicada: laboratorio (referencia)
+
 - Ensayo manual LAB en copia confirmado por usuario: EP-23, orden #19,
   tres analiticas y sangre compartida. Obtencion/entrega/recepcion/aptitud,
   publicacion parcial, rechazo de orina #2 y reemplazo #3 apto comprobados.
@@ -31,11 +56,17 @@
   Cobertura backend 541/541 en tramos (221 + 3 + 317); frontend completo
   742/742 en 79 archivos, lint/build aprobados. Detalle y diagnostico de bloqueo
   del entorno en LOCAL_VALIDATION.md. Original sigue sin tablas LAB.
-- Commit del bloque LAB autorizado expresamente por usuario el 29/10.
-  Esta entrega conserva validacion y ensayo manual; publicacion pendiente.
-  Siguiente decision: autorizar push a origin/main y comprobar CI. No hay
-  autorizacion nueva de push ni migracion de base original. Base previa 69f9d15.
-  Ensayo manual completado; no equivale a validacion de campo.
+- Publicado 82810c6 en origin/main con autorizacion expresa del usuario.
+  CI del mismo SHA completada con success: backend, frontend, lint y build.
+  [Ejecucion verificada](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/40983611174).
+- Cierre operativo 29/10: respaldo de la copia activa y restauracion a ruta nueva
+  verificados, 22 pacientes/23 episodios. Respaldo local ignorado por Git:
+  backups/clinical-20261030T011447Z-89674ad8.sqlite3 y su .sha256 (nombre UTC).
+  Restauracion: .tmp/clinical-20261030T011447Z-89674ad8-restore-check.sqlite3.
+  No se sustituyo ni migro la original; no se detuvieron servicios.
+- Siguiente bloque ya elegido: tablero de demoras por etapa, en desarrollo local.
+  La comunicacion realizada al paciente y el ensayo en red local siguen fuera.
+  El ensayo manual LAB completado no equivale a validacion de campo.
 
 
 

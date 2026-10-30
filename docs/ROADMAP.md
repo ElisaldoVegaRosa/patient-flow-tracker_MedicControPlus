@@ -2,6 +2,22 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Prioridad resuelta por usuario: tablero de esperas y demoras por etapa.
+  Acceso resuelto: Supervisor y cuentas con permiso de coordinacion.
+  Implementacion local aprobada: backend completo 556/556, frontend completo
+  753/753, lint/build. Sin limites clinicos, alertas, migraciones o escrituras.
+  Proyeccion de hechos existentes; no inferir procesos.
+  Ensayo manual autorizado; reinicio gestionado y Status correctos sobre misma
+  copia LAB. Usuario confirma vista Supervisor, filtros, exclusion de EP-23
+  cerrado, refresco automatico, apertura de EP-2 y acceso con medico.demo1
+  coordinador (retoma 30/10). Recepcion sin opcion en menu, confirmado por
+  usuario. Ensayo manual acordado completado; interfaz no operada por agente.
+  Usuario autoriza expresamente commit/push y comprobar CI el 30/10.
+  Publicacion y resultado remoto pendientes de ejecutar/verificar.
+  Comunicacion realizada y red local no forman parte de este bloque.
+
+## Ultima entrega publicada (referencia)
+
 - Prueba manual EP-23 confirmada: orden #19 parcial/completada, sangre compartida,
   orina rechazada y reemplazada, correccion/nueva revision y anulacion auditadas.
   Alta con plan, publicacion posterior y revision completadas; filtros muestran
@@ -12,9 +28,12 @@
   Revision integral 29/10: tres expectativas 404 del prototipo corregidas con
   paridad de rutas principales; produccion intacta. Backend 541/541 en tramos,
   frontend 742/742 completo, lint/build aprobados; detalle en LOCAL_VALIDATION.md.
-  Commit autorizado por usuario el 29/10. Siguiente decision: autorizar push a
-  origin/main y comprobar CI; publicacion aun pendiente. Comunicacion real al
-  paciente no probada (plan simulado).
+  Publicado 82810c6 en origin/main; CI 40983611174 completada con success
+  para ese SHA (backend, frontend, lint/build). Respaldo posterior y restauracion
+  en archivo nuevo verificados: 22 pacientes/23 episodios, original sin sustituir.
+  Siguiente bloque elegido: demoras por etapa. Su acceso tambien fue confirmado.
+  Supervisor ya muestra metricas; la nueva vista distingue estancia y espera.
+  Comunicacion real al paciente no probada (plan simulado).
   Copia de trabajo contiene cambios de usuario; no reemplazar por snapshot inicial.
 
 

@@ -1,5 +1,6 @@
 import { validateOperationalForm } from "./forms/inputValidation";
 import LaboratoryFollowupsPage from "./pages/LaboratoryFollowupsPage";
+import OperationalDelaysPage from "./pages/OperationalDelaysPage";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
@@ -756,6 +757,7 @@ async function logout() {
       onInputCapture={event => { const target = event.target; if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) target.setCustomValidity(""); }}
       onSubmitCapture={event => { if (event.target instanceof HTMLFormElement && !validateOperationalForm(event.target)) { event.preventDefault(); event.stopPropagation(); } }}>
       <AppHeader
+        onDelays={user.role === "SUPERVISOR" || user.can_coordinate ? () => guardLifecycle(() => leave.run(() => navigate("operational-delays"))) : undefined}
         onFollowups={(["DOCTOR", "NURSE", "LAB", "SUPERVISOR"].includes(user.role) && (dashboard?.laboratory_enabled || episode?.laboratory))
           ? () => guardLifecycle(() => leave.run(() => navigate("lab-followups"))) : undefined}
         onCare={() => guardLifecycle(() => leave.run(() => navigate("care")))}
@@ -851,6 +853,7 @@ async function logout() {
       {page === "staff" && <StaffingPage user={user} operations={operations} onHistory={() => guardLifecycle(() => setPage("staff-history"))} />}
       {page === "staff-history" && <StaffHistoryPage user={user} onBack={() => setPage("staff")} />}
       {page === "care" && <CareQueuePage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
+      {page === "operational-delays" && <OperationalDelaysPage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "lab-followups" && ["DOCTOR", "NURSE", "LAB", "SUPERVISOR"].includes(user.role) && <LaboratoryFollowupsPage user={user} operations={operations}
         onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "identity" && <IdentityQueuePage user={user}

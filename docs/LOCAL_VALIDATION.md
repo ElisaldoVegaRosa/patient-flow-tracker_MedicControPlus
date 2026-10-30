@@ -1,5 +1,44 @@
 # Diagnostico de validacion local en Windows
 
+## Tablero de esperas y demoras: 29/10/2026
+
+- Base publicada 82810c6, CI 40983611174 aprobada. Nuevo bloque local elegido por
+  usuario; acceso confirmado para Supervisor y cuentas con permiso de coordinacion.
+  GET /operations/delays es consulta sin migracion ni efectos sobre episodios.
+- Primer intento de pruebas nuevas fallo en fixture: sqlite3.connect no usaba
+  sqlite3.Row, requerido por migrate_patients. Se uso database.get_connection
+  en el fixture, sin cambiar produccion para acomodarlo. Dirigidas 14/14 (6,13 s).
+  Despues se amplian a esquema LAB parcial y coordinacion en medicina/enfermeria/
+  laboratorio; esa version esta incluida en la suite completa aprobada.
+- Interfaz dirigida inicial: 15/15, tres archivos (10,11 s), un trabajador.
+  Se agrega despues caso de inicio historico y resumen visible de mayor antiguedad;
+  el resultado anterior no se atribuye a esos ultimos cambios. La suite completa
+  final si incluye ambos ajustes.
+- Lint detecto advertencia de dependencia del efecto inicial; se uso la funcion
+  refresh estable del hook. Lint/build posteriores aprobados antes del ajuste
+  del resumen. Lint/build finales del resumen tambien aprobados, sin advertencias.
+  Suite frontend completa final iniciada con --maxWorkers=1; log local ignorado
+  .tmp/delays-frontend-final-20261029.log. Final: 753/753, 81 archivos,
+  323,85 s. Sin cambios de runner, timeouts ni aislamiento entre archivos.
+- Backend completo iniciado con Python .venv -u -m pytest -q --disable-warnings
+  -x backend/tests, PYTHONPATH=backend y --basetemp
+  .tmp/pytest-delays-final-20261029. Fuera del aislamiento que bloquea TestClient,
+  diagnosticado en la revision anterior. Log: .tmp/delays-backend-final-20261029.log.
+  Final: 556/556 (1687,36 s), una advertencia de deprecacion anyio/Starlette
+  ya existente. Version final backend aprobada completa; sin fallos.
+- Resultado vigente de este bloque: backend completo 556/556, frontend completo
+  753/753 y lint/build finales aprobados. Diff, UTF-8 y enlaces locales revisados.
+- Solo datos ficticios/bases temporales, sin navegador operado ni servicios
+  reiniciados. Ensayo manual se coordinara con usuario; el backend gestionado no
+  usa --reload y requiere reinicio manteniendo la copia LAB. Sin commit/push nuevo.
+- Ensayo posterior autorizado, con reinicio gestionado sobre la misma copia LAB.
+  Al retomar el 30/10, usuario confirma filtros de primer inicio/revision,
+  exclusion del cerrado EP-23, refresco visible automatico, apertura de EP-2 y
+  acceso con Supervisor y medico.demo1 coordinador. Agente no opero navegador.
+  Recepcion sin opcion en menu tambien confirmado por usuario: ensayo manual
+  acordado completado. No se repiten suites por estas anotaciones documentales;
+  resultados automaticos del 29/10. Sin commit/push del nuevo bloque.
+
 ## Revision integral LAB: 29/10/2026
 
 - Base Git: 69f9d15, cambios locales acumulados del bloque LAB; sin commit/push.

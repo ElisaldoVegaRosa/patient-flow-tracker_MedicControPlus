@@ -184,7 +184,7 @@ export default function SupervisorPage({
             <th>Paciente</th>
             <th>Prioridad</th>
             <th>Ubicación</th>
-            <th>Espera</th>
+            <th>Estancia desde ingreso</th>
             <th>Alertas</th>
             <th>Tareas</th>
             <th>Riesgo</th>

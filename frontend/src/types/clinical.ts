@@ -209,6 +209,17 @@ export type HistoryData = {
   requested_by: string;
 };
 
+export type DelayStage = "TRIAGE" | "DOCTOR" | "NURSE" | "LAB_COLLECTION" | "LAB_DELIVERY" | "LAB_RECEIPT" | "LAB_SUITABILITY" | "LAB_REPLACEMENT" | "LAB_RESULT" | "LAB_REVIEW" | "LAB_LEGACY";
+export type DelayClock = { state: "PENDING" | "COMPLETED" | "BEFORE_TRIAGE"; since: string | null; until: string | null; minutes: number | null };
+export type OperationalDelays = {
+  generated_at: string; requested_by: string;
+  patients: { episode_id: number; name: string; identity_status: string; priority: number; location: string;
+    area_name: string | null; started_at: string; stay_minutes: number | null; triage: DelayClock;
+    attention: { discipline: "DOCTOR" | "NURSE"; owner: { username: string; display_name: string } | null; wait: DelayClock }[];
+    laboratory: { stage: DelayStage; order_id: number; resource_id: number; title: string; since: string | null; minutes: number | null }[];
+  }[];
+};
+
 export type SupervisorPatient = Episode & {
   waiting_minutes: number;
   open_alert_count: number;
