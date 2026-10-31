@@ -2,6 +2,29 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Comunicacion tras alta implementada localmente con reglas aceptadas el 30/10.
+  Usuario elige registrar gestiones y consultar telefono fuera de la app.
+  Recepcion contacta, medico autoriza; WhatsApp institucional solo avisos.
+  Explicacion clinica separada, historial y rectificacion propia; sin envios.
+  [Alcance](PATIENT_COMMUNICATION_PLAN.md).
+- Validacion automatica aprobada: suites completas backend 573/573, frontend
+  766/766; ajuste final historico 17 backend + 13 frontend, lint/build correctos.
+- Ensayo manual basico confirmado en EP-23: autorizacion, dos intentos sin
+  respuesta pendientes, contacto confirmado separado de explicacion, explicacion
+  registrada y filtro de completados. Rectificacion con original conservado,
+  explicacion pendiente y posterior nueva explicacion confirmadas. Sin contacto real.
+- Etiqueta del responsable corregida sin cambiar cuenta/asignacion: username
+  si display_name vacio; usuario confirma. 19 backend + 14 frontend y lint/build.
+- Copia activa: .tmp/communication-rollout-20261030/clinical-communication-working.sqlite3.
+  Respaldo posterior y restauracion a archivo nuevo verificados: 22 pacientes,
+  23 episodios. Original y copia LAB siguen separados; no reemplazar copia activa
+  por snapshot inicial. Agente no opero interfaz.
+- Usuario autoriza expresamente commit/push del bloque validado y comprobar CI.
+  Siguiente paso: publicacion y verificacion remota del mismo SHA. Red local y
+  contacto real quedan fuera.
+
+## Ultimo bloque publicado: esperas y demoras
+
 - Prioridad resuelta por usuario: tablero de esperas y demoras por etapa.
   Acceso resuelto: Supervisor y cuentas con permiso de coordinacion.
   Implementacion local aprobada: backend completo 556/556, frontend completo
@@ -12,9 +35,10 @@
   cerrado, refresco automatico, apertura de EP-2 y acceso con medico.demo1
   coordinador (retoma 30/10). Recepcion sin opcion en menu, confirmado por
   usuario. Ensayo manual acordado completado; interfaz no operada por agente.
-  Usuario autoriza expresamente commit/push y comprobar CI el 30/10.
-  Publicacion y resultado remoto pendientes de ejecutar/verificar.
-  Comunicacion realizada y red local no forman parte de este bloque.
+  Publicado 589f93d en origin/main con autorizacion expresa el 30/10.
+  CI 41146977296 aprobada para ese SHA: backend/frontend/lint/build.
+  Bloque posterior elegido: registro de comunicacion tras alta; decisiones arriba.
+  No se ha contactado pacientes. Red local sigue fuera.
 
 ## Ultima entrega publicada (referencia)
 

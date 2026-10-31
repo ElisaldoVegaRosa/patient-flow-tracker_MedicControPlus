@@ -1,5 +1,99 @@
 # Diagnostico de validacion local en Windows
 
+## Comunicacion tras alta: 30/10/2026
+
+- Base publicada 589f93d, CI 41146977296 aprobada. Bloque nuevo local, sin commit/push.
+- Suites completas: backend 573/573 (2409,73 s, 40:09), una advertencia
+  anyio/Starlette ya existente; frontend estable 766/766, 83 archivos (1138,87 s).
+  Codigo/pruebas sin cambios durante esa suite frontend, verificado con SHA256.
+- Ajuste posterior limitado al historial: texto y motivo de autorizacion
+  historicos solo para DOCTOR/SUPERVISOR; Recepcion conserva proyeccion restringida.
+  Cambian solo ruta/test backend y tipos/pagina frontend. Pruebas afectadas
+  posteriores: backend 17/17 (106,42 s), frontend 13/13 (33,78 s).
+  Lint/build posteriores aprobados sin advertencias. No se repiten suites enteras
+  tras ese ajuste; se conserva la validacion completa anterior y la dirigida final.
+- Borradores/recuperacion previamente validados con 38/38, cinco archivos (88,42 s):
+  PatientCommunicationsPage, App.communications, specimenDrafts, UncertainWrites,
+  RecoveredWrites. Backend cubre ademas permisos, idempotencia, concurrencia,
+  revocacion, ciclo, redaccion de historial y preparacion de copia sin cambiar origen.
+- Comandos completos: .venv Python -u, PYTHONPATH=backend, pytest -q
+  --disable-warnings -x backend/tests --basetemp .tmp/pytest-communication-final;
+  npm.cmd run test --prefix frontend -- --maxWorkers=1; npm.cmd run lint
+  --prefix frontend; npm.cmd run build --prefix frontend.
+  Dirigidas finales: mismo pytest para backend/tests/test_patient_communications.py
+  con --basetemp .tmp/pytest-communication-history-final; Vitest --run
+  src/pages/PatientCommunicationsPage.test.tsx src/App.communications.test.tsx.
+- Logs ignorados: .tmp/communication-backend-final.log,
+  .tmp/communication-frontend-stable-final.log y
+  .tmp/communication-frontend-affected-final.log. Huellas iniciales de codigo:
+  .tmp/communication-source-fingerprint.json; cuatro archivos cambiados despues
+  para el ajuste historico previsto, comprobados explicitamente.
+- Diagnostico resuelto: primer fixture backend uso created_by en events; columna
+  real username. Corregido solo fixture. Primer test de refresco frontend activo
+  reloj simulado despues del temporizador real; corregido antes del montaje.
+  Lint inicial detecto incremento redundante de ref en limpieza; retirado sin
+  eliminar guardas de montaje/sesion/escritura. No se alteran runners ni timeouts.
+- Primera suite frontend completa comenzo antes de ultimos ajustes y detecto un
+  fallo de recuperacion de borrador; se detuvo. Se sustituyo por la suite estable
+  completa aprobada, sin ediciones durante la ejecucion, no por un resultado antiguo.
+- TestClient fuera del aislamiento por bloqueo previamente diagnosticado. Todas
+  las bases de ensayo son temporales. Sin migracion de original/copia LAB,
+  navegador operado ni servicios reiniciados. Proximo paso: coordinar ensayo
+  manual en una copia nueva, con respaldo y activacion explicita.
+
+### Correccion durante ensayo: etiqueta del responsable
+
+- Usuario confirma autorizacion del aviso de EP-23 y acceso como Recepcion;
+  reporta Medico responsable: Sin responsable activo. Lectura de la copia muestra
+  seguimiento #1, usuario medico, display_name vacio, rol DOCTOR y active=1.
+- Causa: proyeccion solo usaba display_name; UI interpretaba etiqueta vacia como
+  cuenta inactiva. Se agrega fallback a username, y etiqueta ausente se describe
+  como Sin responsable identificado. No se editan cuenta, asignacion o aviso.
+- Backend dirigido ampliado: 19/19 (77,28 s), una advertencia ya existente;
+  frontend afectado 14/14, dos archivos (26,53 s). Lint/build posteriores correctos.
+  No se repite suite completa por este ajuste de proyeccion/presentacion; ultimas
+  suites completas 573/766 anteriores, mas validaciones dirigidas posteriores.
+- Stop/Start gestionados con la misma copia de comunicacion, Status correcto:
+  ambos propios/respondiendo y ruta exacta. No se cambian cuenta, asignacion o
+  autorizacion. Etiqueta corregida confirmada por usuario; agente no opera app.
+
+### Activacion autorizada para ensayo manual
+
+- Usuario confirma cierre de formularios/sesiones. Preparador ejecutado con origen
+  .tmp/laboratory-rollout-20261028/clinical-lab-working.sqlite3 y destino nuevo
+  .tmp/communication-rollout-20261030/clinical-communication-working.sqlite3,
+  --communications. Conservo las 38 tablas anteriores, 22 pacientes/23 episodios.
+- Respaldo verificado backups/clinical-20261031T022302Z-bc86f065.sqlite3,
+  SHA256 b8417f6e4923a83aa8292ff4a7135fa100cd9cf7aa33d34ef0bc96f52a01b5a3.
+  Preparacion inicial SHA256 1a9a63ad3c7c8f4a82dff71dd89c414e1d203967ea7e6edf83ac34ae0af4eb7f.
+  El checksum de preparacion no acredita el archivo activo despues de escrituras.
+- Stop/Start de servicios propios completados; Status confirma backend/frontend
+  propios respondiendo y ruta exacta nueva. No sustituye original ni copia LAB.
+- Lectura de la copia: EP-23 CLOSED, seguimiento #1, responsable medico. Interfaz
+  no operada por agente. Pendiente login manual del usuario y validacion guiada.
+
+### Cierre del circuito manual de comunicacion
+
+- Confirmaciones aportadas por usuario: medico autoriza aviso de EP-23; Recepcion
+  ve texto y registra llamada sin respuesta (30/10/2026 10:34 p. m.) y WhatsApp
+  leido sin respuesta (10:36 p. m.). Ambos mantienen pendiente y proximo intento
+  31/10/2026 10:15 a. m. Posterior respuesta/identidad y aviso transmitido confirman
+  contacto, conservando explicacion pendiente. No se enviaron comunicaciones reales.
+- Medico registra explicacion: caso desaparece del filtro habitual y aparece con
+  completados. Rectificacion conserva original y reabre explicacion; contacto sigue
+  confirmado. Nueva explicacion registrada y tres hechos conservados en historial,
+  confirmado por usuario. Estado final: contacto/aviso confirmados y explicacion
+  registrada. Agente no opero app; no se afirma ensayo manual de todas las ramas.
+- Respaldo posterior de la copia activa, no de clinical.db:
+  backups/clinical-20261031T024815Z-603b0fd9.sqlite3 y .sha256.
+  SHA256 6a246a97acf43d8f871b2347bbe6827b0ae9aa7e7c4ff237e0ce811ee9dde509.
+  Restauracion .tmp/clinical-20261031T024815Z-603b0fd9-communication-restore-check.sqlite3.
+  Hash, integridad y referencias verificados: 22 pacientes/23 episodios. No se
+  reemplaza la copia activa, original ni copia LAB; no se detienen servicios.
+- Cambios posteriores solo documentales: diff/codificacion/enlaces revisados;
+  no se repiten suites. Usuario autoriza despues commit/push y comprobar CI;
+  publicacion/resultado remoto pendientes en el momento de preparar la entrega.
+
 ## Tablero de esperas y demoras: 29/10/2026
 
 - Base publicada 82810c6, CI 40983611174 aprobada. Nuevo bloque local elegido por

@@ -210,6 +210,12 @@ export type HistoryData = {
 };
 
 export type DelayStage = "TRIAGE" | "DOCTOR" | "NURSE" | "LAB_COLLECTION" | "LAB_DELIVERY" | "LAB_RECEIPT" | "LAB_SUITABILITY" | "LAB_REPLACEMENT" | "LAB_RESULT" | "LAB_REVIEW" | "LAB_LEGACY";
+export type CommunicationEvent = { id: number; kind: "ATTEMPT" | "EXPLAIN" | "RECTIFY"; actor: string; own: boolean; created_at: string; voided: boolean; reason: string | null;
+  payload: { channel?: "PHONE" | "IN_PERSON" | "WHATSAPP"; outcome?: "NO_RESPONSE" | "SENT" | "READ" | "CONFIRMED"; transmitted?: boolean; identity_verified?: boolean; notify_doctor?: boolean; next_attempt_at?: string | null }; rectifies_id: number | null };
+export type CommunicationCase = { followup_id: number; episode_id: number; patient_name: string; owner_name: string | null; version: string; current_cycle: boolean;
+  notice_id: number | null; valid: boolean; contacted: boolean; explained: boolean; can_authorize: boolean; can_explain: boolean; can_attempt: boolean; historical_message?: string; authorization_reason?: string;
+  mode: "CONTACT_ONLY" | "MESSAGE" | null; message: string | null; authorized_at: string | null; next_attempt_at: string | null; history: CommunicationEvent[]; history_count: number };
+export type CommunicationQueue = { enabled: boolean; total: number; has_more: boolean; items: CommunicationCase[] };
 export type DelayClock = { state: "PENDING" | "COMPLETED" | "BEFORE_TRIAGE"; since: string | null; until: string | null; minutes: number | null };
 export type OperationalDelays = {
   generated_at: string; requested_by: string;

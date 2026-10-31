@@ -36,7 +36,7 @@ def preserved_tables(connection: sqlite3.Connection) -> dict[str, tuple[str, str
     return result
 
 
-def prepare(source: Path, destination: Path, backup: Path | None = None) -> dict:
+def prepare(source: Path, destination: Path, backup: Path | None = None, *, communications: bool = False) -> dict:
     if destination.is_symlink():
         raise BackupError('El destino no puede ser un enlace simbolico')
     source, destination = source.resolve(), destination.resolve()
@@ -67,6 +67,10 @@ def prepare(source: Path, destination: Path, backup: Path | None = None) -> dict
             connection.execute('PRAGMA foreign_keys=ON')
             before = preserved_tables(connection)
             migrate_laboratory_schema(connection)
+            from app.patient_communications import available as communication_available, migrate
+            if communications:
+                migrate(connection)
+            communication_enabled = communication_available(connection)
             after = preserved_tables(connection)
             if any(after.get(table) != value for table, value in before.items()):
                 raise BackupError('La migracion altero una tabla anterior; no se publico la copia preparada')
@@ -74,6 +78,7 @@ def prepare(source: Path, destination: Path, backup: Path | None = None) -> dict
         create_backup(temporary, destination)
         verify_backup(destination, require_checksum=True)
         return {'prepared': str(destination), 'rollback_backup': str(rollback), 'schema_version': SCHEMA_VERSION,
+                'communications_enabled': communication_enabled,
                 'original_tables_verified': len(before), **counts}
     finally:
         for suffix in ('', '-wal', '-shm', '-journal'):
@@ -85,9 +90,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument('--source', type=Path, default=LIVE_DATABASE)
     parser.add_argument('--destination', type=Path, required=True)
     parser.add_argument('--backup', type=Path, help='Archivo nuevo para respaldo anterior; por defecto se genera en backups/')
+    parser.add_argument('--communications', action='store_true', help='Habilita registro de comunicacion solo en la copia nueva')
     args = parser.parse_args(argv)
     try:
-        print(json.dumps(prepare(args.source, args.destination, args.backup), ensure_ascii=False, indent=2))
+        print(json.dumps(prepare(args.source, args.destination, args.backup, communications=args.communications), ensure_ascii=False, indent=2))
         return 0
     except (BackupError, OSError, ValueError, sqlite3.DatabaseError) as error:
         print(f'Preparacion no completada: {error}', file=sys.stderr)

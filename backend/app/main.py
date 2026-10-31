@@ -31,6 +31,7 @@ from .routes.accounts import create_router as create_accounts_router
 from .routes.staffing import create_router as create_staffing_router
 from .routes.care import create_router as create_care_router
 from .routes.operational_delays import create_router as create_operational_delays_router
+from .routes.patient_communications import create_router as create_patient_communications_router
 from .routes.laboratory_samples import create_router as create_laboratory_router
 from .care import state as care_state
 from .routes.alerts import ALLOWED_ALERT_TRANSITIONS, create_router as create_alerts_router
@@ -525,6 +526,7 @@ app.include_router(create_accounts_router(get_connection, utc_now, require_roles
 app.include_router(create_staffing_router(get_connection, utc_now, authenticated_user, require_coordination))
 app.include_router(create_care_router(get_connection, utc_now, authenticated_user))
 app.include_router(create_operational_delays_router(get_connection, utc_now, authenticated_user))
+app.include_router(create_patient_communications_router(get_connection, utc_now, authenticated_user))
 app.include_router(create_presence_router(get_connection, authenticated_user))
 app.include_router(create_write_results_router(get_connection, episode_detail, session_user))
 app.include_router(create_dashboard_router(

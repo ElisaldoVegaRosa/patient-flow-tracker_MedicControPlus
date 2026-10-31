@@ -1,6 +1,7 @@
 import { validateOperationalForm } from "./forms/inputValidation";
 import LaboratoryFollowupsPage from "./pages/LaboratoryFollowupsPage";
 import OperationalDelaysPage from "./pages/OperationalDelaysPage";
+import PatientCommunicationsPage from "./pages/PatientCommunicationsPage";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import "./App.css";
@@ -264,6 +265,11 @@ function App() {
   }
 
   function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
+    if (path.startsWith("/communications/")) {
+      notifyOperationalConfirmation(path, body);
+      setWriteNotice("Gestión de comunicación confirmada por el servidor. No se ha duplicado el registro.");
+      return;
+    }
     if (/^\/lab\/(specimens|analyses|results|followups)\//.test(path) || /^\/episodes\/\d+\/lab-orders$/.test(path) || (path.endsWith("/discharge") && (result as Episode)?.laboratory?.orders.length)) {
       notifyOperationalConfirmation(path, body);
       setWriteNotice(path.startsWith("/lab/followups/") ? "Seguimiento confirmado por el servidor." : path.endsWith("/discharge") ? "Alta y revisión de laboratorio confirmadas por el servidor." : path.endsWith("/lab-orders") ? "Orden de laboratorio confirmada por el servidor." : /\/(cancel|reinstate)$/.test(path) ? "Cambio de analítica confirmado por el servidor." : path.startsWith("/lab/specimens/") ? "Registro de muestra confirmado por el servidor." : "Registro de resultado confirmado por el servidor.");
@@ -757,6 +763,7 @@ async function logout() {
       onInputCapture={event => { const target = event.target; if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) target.setCustomValidity(""); }}
       onSubmitCapture={event => { if (event.target instanceof HTMLFormElement && !validateOperationalForm(event.target)) { event.preventDefault(); event.stopPropagation(); } }}>
       <AppHeader
+        onCommunications={(["RECEPTION", "DOCTOR", "SUPERVISOR"].includes(user.role) || (["NURSE", "LAB"].includes(user.role) && user.can_coordinate)) ? () => guardLifecycle(() => leave.run(() => navigate("communications"))) : undefined}
         onDelays={user.role === "SUPERVISOR" || user.can_coordinate ? () => guardLifecycle(() => leave.run(() => navigate("operational-delays"))) : undefined}
         onFollowups={(["DOCTOR", "NURSE", "LAB", "SUPERVISOR"].includes(user.role) && (dashboard?.laboratory_enabled || episode?.laboratory))
           ? () => guardLifecycle(() => leave.run(() => navigate("lab-followups"))) : undefined}
@@ -816,11 +823,13 @@ async function logout() {
         setWriteNotice("El servidor confirmó un envío anterior. No se ha reenviado ni se han borrado los campos actuales; consulta los registros actualizados.");
         if (page === "staff") notifyOperationalConfirmation("/staff/recovered");
         else if (page === "care") notifyOperationalConfirmation("/care/recovered");
+        else if (page === "communications") notifyOperationalConfirmation("/communications/recovered");
         else void live.refresh();
       }} />
       <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
         setError(exception.message);
         if (exception instanceof VersionConflictError) {
+          if (path.startsWith("/communications/")) { notifyOperationalConflict(path); return; }
           if (/^\/episodes\/\d+\/lab-orders$/.test(path) || (path.endsWith("/discharge") && episode?.laboratory?.orders.length)) { notifyOperationalConflict(path); return; }
           if (/^\/lab\/(specimens|analyses|results|followups)\//.test(path)) { notifyOperationalConflict(path); return; }
           if (path.startsWith("/care/")) notifyOperationalConfirmation("/care/recovered");
@@ -854,6 +863,7 @@ async function logout() {
       {page === "staff-history" && <StaffHistoryPage user={user} onBack={() => setPage("staff")} />}
       {page === "care" && <CareQueuePage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "operational-delays" && <OperationalDelaysPage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
+      {page === "communications" && <PatientCommunicationsPage user={user} operations={operations} />}
       {page === "lab-followups" && ["DOCTOR", "NURSE", "LAB", "SUPERVISOR"].includes(user.role) && <LaboratoryFollowupsPage user={user} operations={operations}
         onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "identity" && <IdentityQueuePage user={user}

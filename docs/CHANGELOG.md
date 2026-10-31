@@ -5,6 +5,30 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Registro de comunicacion tras alta (30/10/2026, local)
+
+- Aviso autorizado por medico responsable y bandeja limitada para Recepcion.
+  No concede acceso a informes clinicos. El numero se consulta fuera de la app.
+- Corrige identificacion del medico en contacto tras alta: si display_name esta
+  vacio se usa username. La ausencia de etiqueta no se presenta como cuenta
+  inactiva; no altera la asignacion, la cuenta ni la autorizacion vigente.
+- Gestion manual por telefono, presencial o WhatsApp institucional solo para
+  avisos. Enviado/leido no equivale a contacto confirmado. Sin respuesta conserva
+  pendiente y proximo intento; no cierra por numero de intentos.
+- Contacto, aviso transmitido y explicacion clinica separados. Historial y
+  rectificacion propia sin borrar hechos. Cambios de seguimiento exigen nueva
+  autorizacion. Pendientes visibles aunque laboratorio este resuelto.
+- Control de version, idempotencia, borradores, recuperacion de envios y pausa de
+  refresco al editar. Esquema aditivo solo en copia preparada explicitamente con
+  --communications; sin migracion al consultar/arrancar ni envios automaticos.
+- Suites completas aprobadas: backend 573/573, frontend 766/766. Ajuste final
+  historico validado con 17 backend y 13 frontend; lint/build sin advertencias.
+  Ajuste de etiqueta de responsable: 19 backend/14 frontend y lint/build aprobados.
+  Circuito manual basico confirmado por usuario en EP-23: intentos pendientes,
+  contacto, explicacion, filtro, rectificacion e historial. Respaldo posterior
+  y restauracion en archivo nuevo verificados. Sin publicacion del bloque.
+  Sin nuevo commit/push ni modificacion de bases demo.
+
 ## Tablero de esperas y demoras por etapa (29/10/2026)
 
 - Nueva consulta para Supervisor y cuentas con coordinacion. No concede acceso

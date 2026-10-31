@@ -13,6 +13,8 @@ function operationKey(path: string) {
 }
 
 function label(path: string) {
+  const contact = path.match(/^\/communications\/(\d+)\/(authorize|attempt|explain|rectify)$/);
+  if (contact) return `Contacto del seguimiento #${contact[1]} · ${{ authorize: "Autorizar aviso", attempt: "Gestión de contacto", explain: "Explicación clínica", rectify: "Rectificación" }[contact[2]]}`;
   const followup = path.match(/^\/lab\/followups\/(\d+)\/(plan|propose|accept|cancel-handoff)$/);
   if (followup) return `Seguimiento #${followup[1]} · ${{ plan: "Plan", propose: "Proponer relevo", accept: "Aceptar relevo", "cancel-handoff": "Cancelar o rechazar relevo" }[followup[2]]}`;
   const order = path.match(/^\/episodes\/(\d+)\/lab-orders$/);

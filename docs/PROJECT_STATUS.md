@@ -2,6 +2,47 @@
 
 ## Estado actual (leer primero)
 
+- Bloque actual: registro de comunicacion tras alta, implementado localmente.
+  Reglas aceptadas: Recepcion contacta, medico autoriza el aviso, WhatsApp
+  institucional solo para avisos; respuesta e identidad para confirmar contacto.
+  Sin respuesta mantiene pendiente y proximo intento. Explicacion clinica separada.
+- Usuario eligio consultar telefono fuera de la app: no se agregan campos de
+  telefono ni envios. Bandeja de Recepcion limitada, sin informes clinicos.
+  Historial y rectificacion propia auditados; cambios de seguimiento requieren
+  nueva autorizacion. Versiones, idempotencia, borradores y recuperacion integrados.
+- Ensayo manual autorizado; usuario confirma formularios/sesiones cerrados.
+  Copia nueva preparada con --communications: 38 tablas anteriores conservadas,
+  22 pacientes/23 episodios. Respaldo verificado:
+  backups/clinical-20261031T022302Z-bc86f065.sqlite3 y .sha256 (nombre UTC).
+  Copia activa: .tmp/communication-rollout-20261030/clinical-communication-working.sqlite3.
+  Stop/Start gestionados completados; Status confirma ambos propios/respondiendo
+  y ruta nueva exacta. Original y copia LAB anteriores no se sustituyeron.
+  [Alcance y activacion](PATIENT_COMMUNICATION_PLAN.md).
+- Suites completas aprobadas: backend 573/573, frontend estable 766/766
+  (83 archivos). Ajuste historico posterior validado con backend 17/17 y frontend
+  13/13; lint/build finales sin advertencias. Borradores/recuperacion 38/38.
+  Resultados precisos en LOCAL_VALIDATION.md; CI anterior solo corresponde a 589f93d.
+- Circuito manual basico confirmado por usuario en EP-23: aviso autorizado,
+  llamada sin respuesta y WhatsApp leido sin respuesta conservan pendiente y
+  proximo intento. Respuesta/identidad y aviso transmitido confirman contacto,
+  sin completar explicacion. Medico registra explicacion, caso se oculta y
+  reaparece al incluir completados. Rectificacion conserva original y reabre
+  explicacion; nueva explicacion registrada. Estado final confirmado: contacto
+  y aviso confirmados, explicacion registrada, historial conservado.
+- Etiqueta de medico corregida durante ensayo: display_name vacio usa username;
+  medico seguia activo/asignado. Usuario confirma etiqueta corregida. Ajuste
+  validado con backend 19/19, frontend 14/14, lint/build correctos. Interfaz
+  operada por usuario; no contacto real, llamadas ni WhatsApp enviados por agente.
+- Respaldo posterior verificado y restaurado a archivo nuevo: 22 pacientes y
+  23 episodios. backups/clinical-20261031T024815Z-603b0fd9.sqlite3 y .sha256;
+  restauracion .tmp/clinical-20261031T024815Z-603b0fd9-communication-restore-check.sqlite3.
+  No reemplaza la copia activa ni originales. Detalle en LOCAL_VALIDATION.md.
+- Usuario autoriza expresamente commit/push del bloque de comunicacion y
+  comprobar CI. Siguiente paso: publicar esta entrega validada y verificar
+  la ejecucion del mismo SHA; resultado remoto aun pendiente.
+
+## Ultimo bloque publicado: esperas y demoras
+
 - Bloque activo elegido por usuario: tablero de esperas y demoras por etapa.
   Acceso acordado: Supervisor y cuentas con permiso de coordinacion; no ampliar
   acceso al panel Supervisor ni a administracion de cuentas.
@@ -20,10 +61,12 @@
   filtros de primer inicio/revision, busqueda excluye EP-23 cerrado, refresco
   visible automatico y apertura de EP-2. medico.demo1 ve y carga el tablero
   con coordinacion. Recepcion no muestra la opcion, confirmado por usuario.
-  Ensayo manual acordado completado; agente no opero interfaz. Siguiente paso:
-  commit/push y verificar CI, autorizados expresamente por usuario el 30/10.
-  Sin nuevo commit/push. Ultima publicacion: 82810c6, CI aprobada 40983611174;
-  no atribuir esa CI al tablero aun no publicado.
+  Ensayo manual acordado completado; agente no opero interfaz.
+  Publicado 589f93d en origin/main con autorizacion expresa el 30/10.
+  CI 41146977296 aprobada para SHA
+  589f93d0ee19b1e91cd13cf85521b003c36dbe38: backend, frontend, lint/build.
+  [CI verificada](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/41146977296).
+  Bloque posterior elegido: registro de comunicacion tras alta; decisiones arriba.
 
 ## Ultima entrega publicada: laboratorio (referencia)
 

@@ -4,7 +4,7 @@ import { RECOVERY_DURATION_MS } from "./dischargeDraft";
 export type SpecimenDraft = { baseline: string; fields: Record<string, string>; editedAt: number };
 const key = "mediccontrol:specimen-drafts:v1:" + encodeURIComponent(import.meta.env.VITE_API_URL ?? "http://localhost:8000");
 const allowed = new Set(["reason", "location", "performed_by", "professional_id", "time_mode", "occurred_at_date", "occurred_at_hour", "occurred_at_minute", "occurred_at_period", "suitability", "result", "specimen_ids"]);
-const allowedField = (name: string) => allowed.has(name) || ["title", "note", "followup_reason", "communication_plan", "user_id"].includes(name) || /^(?:analysis_a\d+|kind_s\d+|description_s\d+|link_s\d+_a\d+|repeat_analysis_\d+|legacy_review_\d+|due_at_(?:date|hour|minute|period))$/.test(name);
+const allowedField = (name: string) => allowed.has(name) || ["title", "note", "followup_reason", "communication_plan", "user_id", "mode", "message", "channel", "outcome", "identity_verified", "transmitted", "notify_doctor"].includes(name) || /^(?:analysis_a\d+|kind_s\d+|description_s\d+|link_s\d+_a\d+|repeat_analysis_\d+|legacy_review_\d+|due_at_(?:date|hour|minute|period))$/.test(name);
 type Bucket = { username: string; role: string; drafts: Record<string, SpecimenDraft> };
 const empty = (owner: SessionUser): Bucket => ({ username: owner.username, role: owner.role, drafts: {} });
 export function clearSpecimenDrafts() { try { sessionStorage.removeItem(key); } catch { /* A blocked store holds no restorable draft. */ } }
@@ -29,7 +29,7 @@ function load(owner: SessionUser): Bucket {
   const drafts: Record<string, SpecimenDraft> = {};
   if (Object.keys(value.drafts).length > 100) throw new Error();
   for (const [path, draft] of Object.entries(value.drafts)) {
-    if (!/^(?:\/episodes\/\d+\/(?:lab-orders|discharge)|\/lab\/(?:specimens\/\d+\/(?:collection|delivery|receipt|suitability|repeat)|analyses\/\d+\/(?:results|cancel|reinstate)|results\/\d+\/(?:corrections|annul|review)|followups\/\d+\/(?:plan|propose|accept|cancel-handoff)))$/.test(path)) throw new Error();
+    if (!/^(?:\/communications\/\d+\/(?:authorize|attempt|explain|rectify\/\d+)|\/episodes\/\d+\/(?:lab-orders|discharge)|\/lab\/(?:specimens\/\d+\/(?:collection|delivery|receipt|suitability|repeat)|analyses\/\d+\/(?:results|cancel|reinstate)|results\/\d+\/(?:corrections|annul|review)|followups\/\d+\/(?:plan|propose|accept|cancel-handoff)))$/.test(path)) throw new Error();
     if (!draft || typeof draft.baseline !== "string" || draft.baseline.length > 256 || !Number.isFinite(draft.editedAt)) throw new Error();
     if (draft.editedAt > Date.now() || Date.now() - draft.editedAt >= RECOVERY_DURATION_MS) continue;
     if (!draft.fields || typeof draft.fields !== "object" || Array.isArray(draft.fields) || Object.entries(draft.fields).some(([name, text]) => !allowedField(name) || typeof text !== "string" || text.length > 2000)) throw new Error();
