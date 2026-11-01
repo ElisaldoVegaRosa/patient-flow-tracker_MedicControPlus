@@ -42,16 +42,19 @@ class ProbeError(RuntimeError):
     """Static operational errors only: never include response bodies or credentials."""
 
 
-def plan(sessions):
+def plan(sessions, steady_minutes=None):
     if sessions not in (5, 15, 30):
         raise ProbeError('Solo se admiten etapas de 5, 15 o 30 sesiones')
+    if steady_minutes not in (None, 10):
+        raise ProbeError('Solo se admite observacion sostenida de 10 minutos')
+    rounds = ROUNDS if steady_minutes is None else steady_minutes * 60 // INTERVAL + 1
     return {'sessions': sessions, 'roles': {role: sessions // 5 for role in ROLES},
-            'rounds': ROUNDS, 'interval_seconds': INTERVAL,
-            'scheduled_read_window_seconds': (ROUNDS - 1) * INTERVAL,
+            'rounds': rounds, 'interval_seconds': INTERVAL,
+            'scheduled_read_window_seconds': (rounds - 1) * INTERVAL,
             'request_timeout_seconds': REQUEST_TIMEOUT, 'active_episodes_at_start': 61,
-            'structured_lab_orders': LAB_ORDERS, 'read_requests': sessions * ROUNDS * 3,
+            'structured_lab_orders': LAB_ORDERS, 'read_requests': sessions * rounds * 3,
             'independent_writers': sessions * 4 // 5, 'conflict_writers': sessions * 2 // 5,
-            'measured_requests_on_success': sessions * ROUNDS * 3 + sessions + sessions * 13 // 5 + 1,
+            'measured_requests_on_success': sessions * rounds * 3 + sessions + sessions * 13 // 5 + 1,
             'isolation': 'Nueva base sintetica y proceso propio en loopback; sin URL/base externas',
             'latency_sla': None, 'automatic_stage_escalation': False}
 
@@ -311,7 +314,8 @@ def login(work, actor):
     actor.client.headers['Authorization'] = f'Bearer {token}'
 
 
-def reads(work, actors):
+def reads(work, actors, rounds=None):
+    rounds = ROUNDS if rounds is None else rounds
     barrier = Barrier(len(actors))
     paths = {'RECEPTION': '/communications', 'NURSE': '/care/queue', 'DOCTOR': '/care/queue',
              'LAB': '/lab/orders?status=PENDING', 'SUPERVISOR': '/operations/delays'}
@@ -319,7 +323,7 @@ def reads(work, actors):
     def worker(actor):
         barrier.wait(timeout=REQUEST_TIMEOUT)
         start = monotonic()
-        for index in range(ROUNDS):
+        for index in range(rounds):
             if work.aborted.wait(max(0, start + index * INTERVAL - monotonic())):
                 raise ProbeError('Lecturas canceladas tras una incidencia')
             for operation, path in (('dashboard', '/dashboard'), ('role_queue', paths[actor.role]),
@@ -413,11 +417,12 @@ def verify_data(path, actors, ledger, shared_id, winner):
             'independent_writes': len(ledger), 'shared_conflict_protected': True}
 
 
-def execute(sessions):
+def execute(sessions, steady_minutes=None):
+    observation_plan = plan(sessions, steady_minutes)
     import httpx
     directory, manifest = new_run(sessions)
     started = monotonic()
-    report = {'plan': plan(sessions), 'run_id': manifest['run_id'], 'completed': False,
+    report = {'plan': observation_plan, 'run_id': manifest['run_id'], 'completed': False,
               'started_at': datetime.now(timezone.utc).isoformat(),
               'source': source_identity(),
               'environment': {'system': platform.system(), 'python': platform.python_version(),
@@ -432,7 +437,7 @@ def execute(sessions):
         for actor in actors:
             actor.client = httpx.Client(base_url=base, timeout=REQUEST_TIMEOUT, trust_env=False, follow_redirects=False)
         parallel(actors, lambda actor: login(work, actor), work.aborted)
-        reads(work, actors)
+        reads(work, actors, observation_plan['rounds'])
         ledger = independent_writes(work, actors)
         winner = conflict_writes(work, actors, shared_id)
         report['checks'] = verify_data(path, actors, ledger, shared_id, winner)
@@ -473,12 +478,13 @@ def main(argv=None):
         return 0
     parser = argparse.ArgumentParser(description='Observacion multiusuario aislada; sin --execute solo muestra el plan')
     parser.add_argument('--sessions', type=int, choices=(5, 15, 30), default=5)
+    parser.add_argument('--steady-minutes', type=int, choices=(10,), help='Ventana de consultas sostenidas; escrituras al final')
     parser.add_argument('--execute', action='store_true')
     values = parser.parse_args(args)
     if not values.execute:
-        print(json.dumps(plan(values.sessions), ensure_ascii=False, indent=2))
+        print(json.dumps(plan(values.sessions, values.steady_minutes), ensure_ascii=False, indent=2))
         return 0
-    output, report = execute(values.sessions)
+    output, report = execute(values.sessions) if values.steady_minutes is None else execute(values.sessions, values.steady_minutes)
     print(json.dumps({'completed': report['completed'], 'report': str(output), 'error': report.get('error')}, ensure_ascii=False))
     return 0 if report['completed'] else 1
 

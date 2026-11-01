@@ -269,3 +269,56 @@ Status HTTP no comprueba circuito clinico ni integridad de esa copia; verificaci
 anteriores de integridad corresponden a base sintetica. Sin commit/push.
 La prueba de carga no sustituye comprobacion visual ni resuelve por si sola
 la intermitencia frontend registrada en LOCAL_VALIDATION.md.
+
+## Ensayo sostenido preparado
+
+Usuario prioriza observar diez minutos. Nueva opcion --steady-minutes 10 conserva
+el plan breve por defecto. Con 30 sesiones: 41 rondas/15 s entre t=0 y t=600,
+3690 lecturas y 3799 operaciones totales previstas. Preparacion y guardados finales
+agregan tiempo a los diez minutos. Datos iniciales, roles, aislamiento y limites
+iguales. Las escrituras no se distribuyen durante la ventana: se hacen al final.
+No mide memoria/CPU ni acredita ausencia de fugas. No nueva carga real ejecutada.
+
+Descripcion (sin servidor):
+`.venv/Scripts/python.exe scripts/capacity_probe.py --sessions 30 --steady-minutes 10`
+
+Ejecucion propuesta, pendiente coordinacion:
+`.venv/Scripts/python.exe scripts/capacity_probe.py --sessions 30 --steady-minutes 10 --execute`
+
+Criterios: todas las operaciones previstas, cero estados inesperados, replay sin
+duplicados, conflicto protegido, integridad/FK correctas y cierre de servidor.
+Registrar latencias y compararlas con alcance temporal distinto; sin SLA definido.
+27 pruebas del controlador aprobadas en 12,73 s, una advertencia. Default breve
+preservado; test nuevo valida plan sostenido y modo descriptivo sin ejecucion.
+
+## Ensayo sostenido autorizado: resultado 01/11/2026
+
+Comando: .venv/Scripts/python.exe scripts/capacity_probe.py --sessions 30
+--steady-minutes 10 --execute. Informe
+.tmp/capacity-runs/capacity-30-cg_w_clb/report.json.
+completed=true, 3799 operaciones/625,672 s (10:26 aprox). Ventana programada:
+600 s, 41 rondas, 30 sesiones. 3690 consultas y 30 logins HTTP 200.
+Cero estados inesperados. 24 escrituras independientes finales con replay exacto,
+conflicto compartido 1 HTTP 200 y 11 HTTP 409 esperados. Integridad/FK correctas,
+67 pacientes/episodios finales. Puerto privado 52209 cerrado verificado.
+Demo Status: backend/frontend propios/responden con misma copia de comunicacion;
+no reinicio ni sustitucion de datos del demo. Integridad medida solo en sintetica.
+
+| Operacion | p50 ms | p95 ms | Max ms |
+| --- | ---: | ---: | ---: |
+| Login | 1465,148 | 2053,052 | 2136,338 |
+| Panel (1230 lecturas) | 120,316 | 180,565 | 263,487 |
+| Episodio (1230) | 57,301 | 113,543 | 173,064 |
+| Cola por rol (1230) | 483,416 | 697,987 | 1026,838 |
+
+Maximo de escrituras independientes finales: 978,751 ms. Plan de diez minutos,
+no comparar como ensayo de identica duracion con el breve previo. Percentiles
+agregados no muestran tendencia temporal; no se midieron CPU/memoria ni fugas.
+Escrituras solo al final; no acredita carga mixta sostenida ni capacidad en campo.
+
+Fuente app: commit 2a59902fb7a4913cde671da63bb27eb8a65b0b85;
+backend SHA256 238cdc79d59e297470bf66d241124626024fcc7a63b6553cf651fb2839095086.
+Controlador ampliado localmente, aun no publicado, SHA256
+691754e7dc5e036d6245c85fd91b4671eff51c07e82bc3dd7862eb533314c527.
+Sin nuevo commit/push. Validacion preparatoria del controlador 27/27 conservada;
+no cambios de codigo posteriores al ensayo ni repeticion de suites innecesaria.

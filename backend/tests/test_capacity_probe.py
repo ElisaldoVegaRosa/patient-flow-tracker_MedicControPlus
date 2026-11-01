@@ -329,3 +329,17 @@ def test_end_invariants_detect_overwritten_shared_value(completed):
         c.execute("UPDATE episodes SET location='Sobrescritura ficticia' WHERE id=?", (completed[3],))
     with pytest.raises(probe.ProbeError, match='conflicto compartido'):
         probe.verify_data(*completed)
+
+
+def test_sustained_plan_is_bounded_and_describe_only(monkeypatch, capsys):
+    monkeypatch.setattr(probe, 'execute', lambda *args: pytest.fail('No execution authorized'))
+    assert probe.main(['--sessions', '30', '--steady-minutes', '10']) == 0
+    value = json.loads(capsys.readouterr().out)
+    assert value['rounds'] == 41
+    assert value['scheduled_read_window_seconds'] == 600
+    assert value['read_requests'] == 3690
+    assert value['measured_requests_on_success'] == 3799
+    assert value['request_timeout_seconds'] == 10
+    assert value['independent_writers'] == 24
+    with pytest.raises(probe.ProbeError):
+        probe.plan(30, 60)

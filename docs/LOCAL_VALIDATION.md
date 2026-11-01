@@ -1,5 +1,29 @@
 # Diagnostico de validacion local en Windows
 
+## Ensayo sostenido completado
+
+- Ensayo sostenido autorizado y completado: 30 sesiones, 41 rondas/600 s,
+  3799 operaciones en 625,672 s; cero errores inesperados. 30 logins correctos,
+  3690 lecturas; 24 escrituras finales y replay sin duplicados, conflicto protegido.
+  Integridad/FK correctas, 67 pacientes/episodios sinteticos finales.
+- Panel p95 180,565 ms/max 263,487 ms; colas p95 697,987 ms, episodio 113,543 ms.
+  Informe .tmp/capacity-runs/capacity-30-cg_w_clb/report.json. Puerto privado
+  cerrado; demo propio responde con misma copia. Sin reinicio del demo.
+- Alcance: consultas sostenidas y guardados al final; no memoria/CPU ni escrituras
+  distribuidas. Percentiles globales no prueban tendencia temporal ni capacidad
+  en campo. Sin nueva carga, commit o push autorizados para esta ampliacion.
+
+Detalles, comando, huellas y limites en CAPACITY_OBSERVATION.md.
+
+## Preparacion de duracion sostenida
+
+- test_capacity_probe.py: 27 passed, 1 warning, 12.73 s, basetemp
+  .tmp/pytest-capacity-sustained, Python .venv y PYTHONPATH=backend.
+- Plan --sessions 30 --steady-minutes 10 sin --execute: 41 rondas, 600 s,
+  3799 operaciones. No servidor/base nueva ni carga real. App sin modificar.
+- Revision diff y diff --check; no repetir suites de app por controlador aislado.
+
+
 ## Restauracion: comprobacion completa con concurrencia acotada, 01/11/2026
 
 - Se revisan App.tsx, bindWriteRecovery, writeReferenceOwner, setup y prueba

@@ -2,6 +2,34 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Ensayo sostenido autorizado y completado: 30 sesiones, 41 rondas/600 s,
+  3799 operaciones en 625,672 s; cero errores inesperados. 30 logins correctos,
+  3690 lecturas; 24 escrituras finales y replay sin duplicados, conflicto protegido.
+  Integridad/FK correctas, 67 pacientes/episodios sinteticos finales.
+- Panel p95 180,565 ms/max 263,487 ms; colas p95 697,987 ms, episodio 113,543 ms.
+  Informe .tmp/capacity-runs/capacity-30-cg_w_clb/report.json. Puerto privado
+  cerrado; demo propio responde con misma copia. Sin reinicio del demo.
+- Alcance: consultas sostenidas y guardados al final; no memoria/CPU ni escrituras
+  distribuidas. Percentiles globales no prueban tendencia temporal ni capacidad
+  en campo. Sin nueva carga, commit o push autorizados para esta ampliacion.
+
+- Ensayo sostenido priorizado por usuario y preparado: --steady-minutes 10,
+  30 sesiones, 41 rondas cada 15 s, ventana de consultas 600 s, 3799 operaciones.
+  Misma base sintetica inicial, timeout 10 s y escrituras/replay/conflicto al final.
+- Preparacion validada: 27 pruebas del controlador aprobadas (12,73 s), una
+  advertencia; modo descriptivo confirma plan sin abrir servidor. Sin carga real.
+- Ejecucion posterior completada, resultado en bloque inicial. Sin nuevos
+  commits/push autorizados. Duracion total sera algo mayor de diez minutos por
+  preparacion/login/guardados. No mide memoria ni escrituras sostenidas.
+
+- Publicacion verificada: 2a59902fb7a4913cde671da63bb27eb8a65b0b85 en origin/main.
+  CI 41332475264 SUCCESS: backend, frontend, lint y build (9:05).
+  https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/41332475264
+- Siguiente decision: elegir continuidad operacional del demo. Recomendacion:
+  planificar ensayo sostenido con duracion y carga acordadas, porque los ensayos
+  anteriores son cortos. No nueva carga autorizada ni nuevos compromisos de campo.
+  Esta actualizacion documental queda local; sin nuevo commit/push autorizado.
+
 - Revision de restauracion completada: frontend completo con maxWorkers=2,
   83 archivos/767 pruebas aprobados en 209,27 s, sin otras suites simultaneas.
   Sin cambios de app, esperas, configuracion del runner ni dependencias.
@@ -10,7 +38,7 @@
   concurrencia y aprobacion actual con dos trabajadores. No declarar curado un
   defecto de produccion no reproducido. Detalle en LOCAL_VALIDATION.md.
 - Entrega preparada y revisada: [alcance y validaciones](PERFORMANCE_RELEASE.md).
-  Usuario autoriza commit/push a origin/main y comprobar CI; publicacion en curso.
+  Publicacion finalizada; SHA y CI verificados constan en bloque inicial.
   Sin mas carga ni reinicios necesarios.
 
 - Ultima comprobacion 01/11/2026: reinicio autorizado completado con misma base

@@ -5,6 +5,12 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+- Controlador de capacidad: opcion acotada --steady-minutes 10 para consultas
+  sostenidas, conserva escenario breve por defecto y escrituras finales.
+  Preparacion validada con 27 pruebas; ensayo autorizado completado: 3799
+  operaciones/625,672 s, sin errores inesperados y con integridad correcta.
+
+
 - 01/11/2026: resumen activado mediante reinicio autorizado con misma base.
   Ensayo de 30 sesiones/649 operaciones aprobado; panel p95 6,18 -> 0,39 s,
   max 6,54 -> 0,51 s. Sin errores inesperados ni duplicados. Evidencia local
