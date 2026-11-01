@@ -172,11 +172,16 @@ export type PendingIdentity = {
   birth_date: string | null; document: string | null;
 };
 
+export type DashboardPatient = Pick<Episode, "id" | "name" | "identity_status" | "priority" | "location"> & {
+  open_alert_count: number;
+  pending_task_count: number;
+};
+
 export type DashboardData = {
   laboratory_enabled?: boolean;
   active: number;
   open_alerts: number;
-  patients: Episode[];
+  patients: DashboardPatient[];
   requested_by: string;
 };
 

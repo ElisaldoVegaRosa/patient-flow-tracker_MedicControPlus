@@ -30,7 +30,11 @@ patients[1].tasks = [{
   status: "PENDING", result: null,
 }];
 const populated: DashboardData = {
-  active: 3, open_alerts: 3, patients, requested_by: "recepcion",
+  active: 3, open_alerts: 3, patients: patients.map(p => ({
+    id: p.id, name: p.name, priority: p.priority, location: p.location,
+    open_alert_count: p.alerts.filter(a => a.status !== "RESOLVED").length,
+    pending_task_count: p.tasks.filter(t => t.status === "PENDING").length,
+  })), requested_by: "recepcion",
 };
 const empty: DashboardData = {
   active: 0, open_alerts: 0, patients: [], requested_by: "recepcion",

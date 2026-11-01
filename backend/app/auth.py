@@ -110,13 +110,22 @@ def login(
 ) -> dict[str, str]:
     connection = connection_factory()
     try:
-        # Serialize credential validation + token insertion against deactivation/reset.
-        connection.execute("BEGIN IMMEDIATE")
+        # PBKDF2 must not hold the database writer lock. The exhausted SELECT
+        # does not start a transaction with our SQLite connection configuration.
         user = connection.execute(
-            "SELECT id, username, display_name, password_hash, password_salt, role, active, can_coordinate FROM users WHERE username = ?",
+            "SELECT id, username, display_name, password_hash, password_salt, role, active, can_coordinate, account_revision FROM users WHERE username = ?",
             (username,),
         ).fetchone()
         if user is None or user["active"] != 1 or not verify_password(password, user["password_salt"], user["password_hash"]):
+            raise HTTPException(401, "Credenciales inválidas")
+        # Revalidate the snapshot under the writer lock: reset/deactivation (even
+        # followed by reactivation) during verification must not create a session.
+        connection.execute("BEGIN IMMEDIATE")
+        current = connection.execute(
+            "SELECT id, username, display_name, password_hash, password_salt, role, active, can_coordinate, account_revision FROM users WHERE id = ?",
+            (user["id"],),
+        ).fetchone()
+        if current is None or dict(current) != dict(user):
             raise HTTPException(401, "Credenciales inválidas")
         token = secrets.token_urlsafe(32)
         created_at = datetime.now(timezone.utc)
@@ -132,6 +141,11 @@ def login(
         if user["can_coordinate"]:
             result["can_coordinate"] = True
         return result
+    except sqlite3.OperationalError as error:
+        connection.rollback()
+        if getattr(error, "sqlite_errorcode", 0) & 0xFF in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED):
+            raise HTTPException(503, "Inicio de sesión temporalmente ocupado; inténtalo de nuevo") from None
+        raise
     except BaseException:
         connection.rollback()
         raise

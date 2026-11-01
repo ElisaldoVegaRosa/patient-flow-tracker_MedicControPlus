@@ -5,6 +5,56 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+- 01/11/2026: resumen activado mediante reinicio autorizado con misma base.
+  Ensayo de 30 sesiones/649 operaciones aprobado; panel p95 6,18 -> 0,39 s,
+  max 6,54 -> 0,51 s. Sin errores inesperados ni duplicados. Evidencia local
+  sintetica, no certificacion de campo; detalles en CAPACITY_OBSERVATION.md.
+
+
+## Resumen del centro de control (01/11/2026, local)
+
+- /dashboard obtiene contadores agregados sin reconstruir los episodios completos.
+  Contrato DashboardPatient y vista actualizados; detalle se carga al abrir.
+- Consultas acotadas, conteos sin multiplicacion de relaciones, cierre en error.
+  Pruebas de estados, orden, consulta constante, busqueda y navegacion.
+- Backend y frontend deben actualizarse juntos. Sin nueva carga real ni reinicio.
+
+
+## Ensayo tras correccion de autenticacion (01/11/2026, local)
+
+- Treinta sesiones completan 649 operaciones aisladas sin errores inesperados;
+  no se reproduce bloqueo de login, integridad y control de conflictos correctos.
+- Panel p95 6,18 s/max 6,54 s: siguiente diagnostico recomendado. No certifica
+  capacidad en campo. Informe y huellas conservados; demo habitual sin reinicio.
+
+## Concurrencia al iniciar sesion (31/10/2026, local)
+
+- Verificacion de contrasena fuera del bloqueo SQLite de escritura. Antes de
+  insertar sesion se comparan cuenta, credenciales, permisos y revision dentro
+  de transaccion; reset/desactivacion/reactivacion concurrentes invalidan el intento.
+- SQLite ocupado devuelve 503 controlado, conservando espera y parametros PBKDF2.
+- Validacion: 40 pruebas dirigidas y 608 backend aprobadas; carga real pendiente.
+- Pruebas deterministas de concurrencia, mutacion de cuenta y contencion; no
+  modifican datos del demo ni sustituyen la repeticion de capacidad pendiente.
+
+## Herramienta de observacion multiusuario (31/10/2026, local)
+
+- Nuevo controlador aislado scripts/capacity_probe.py. Modo predeterminado solo
+  describe; ejecucion separada crea datos sinteticos y proceso propio en loopback.
+- Perfiles personales, lecturas espaciadas, escrituras independientes, repeticion
+  idempotente y conflicto de version controlado. Verifica autoria, cantidades,
+  integridad y ausencia de duplicados/sobrescrituras, ademas de medir HTTP por rol.
+- No modifica el demo ni admite destinos externos. No escala automaticamente ni
+  certifica tiempos clinicos, navegadores, red o dispositivos. Primera ejecucion
+  real autorizada de cinco sesiones completada: 109 solicitudes, sin errores
+  inesperados, duplicados ni sobrescrituras; 85,813 s. Puerto privado cerrado y
+  demo habitual respondiendo con misma copia. Segunda etapa autorizada de quince:
+  325 solicitudes en 95,156 s, integridad correcta y cero errores inesperados;
+  panel p95 sube de 604,897 a 2668,450 ms. Etapa treinta autorizada detenida en
+  login: 25 accesos correctos y cinco HTTP 500 por bloqueo SQLite. Fases restantes
+  no ejecutadas, sin declarar capacidad de treinta. Diagnostico HTTP no JSON del
+  controlador corregido y validado 26/26; autenticacion de app aun sin modificar.
+
 ## Registro de comunicacion tras alta (30/10/2026, local)
 
 - Aviso autorizado por medico responsable y bandeja limitada para Recepcion.

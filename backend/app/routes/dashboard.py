@@ -21,39 +21,37 @@ def create_router(
     ) -> dict:
         connection = connection_factory()
 
-        episode_rows = connection.execute(
-            """
-            SELECT id
-            FROM episodes
-            WHERE status = 'ACTIVE'
-            ORDER BY priority, started_at
-            """
-        ).fetchall()
-
-        patients = [
-            detail(connection, row["id"])
-            for row in episode_rows
-        ]
-
-        open_alerts = sum(
-            1
-            for patient in patients
-            for alert in patient["alerts"]
-            if alert["status"] != "RESOLVED"
-        )
-
         try:
+            # Aggregate each relation independently: joining tasks and alerts
+            # directly would multiply counts. No episode histories are loaded.
+            patients = [dict(row) for row in connection.execute(
+                """
+                SELECT e.id, p.name, p.identity_status, e.priority, e.location,
+                    COALESCE(a.open_alert_count, 0) AS open_alert_count,
+                    COALESCE(t.pending_task_count, 0) AS pending_task_count
+                FROM episodes e JOIN patients p ON p.id = e.patient_id
+                LEFT JOIN (
+                    SELECT episode_id, COUNT(*) AS open_alert_count
+                    FROM alerts WHERE status != 'RESOLVED' GROUP BY episode_id
+                ) a ON a.episode_id = e.id
+                LEFT JOIN (
+                    SELECT episode_id, COUNT(*) AS pending_task_count
+                    FROM tasks WHERE status = 'PENDING' GROUP BY episode_id
+                ) t ON t.episode_id = e.id
+                WHERE e.status = 'ACTIVE'
+                ORDER BY e.priority, e.started_at
+                """
+            )]
             laboratory_enabled = available(connection)
+            return {
+                "active": len(patients),
+                "open_alerts": sum(patient["open_alert_count"] for patient in patients),
+                "patients": patients,
+                "requested_by": user["username"],
+                "laboratory_enabled": laboratory_enabled,
+            }
         finally:
             connection.close()
-
-        return {
-            "active": len(patients),
-            "open_alerts": open_alerts,
-            "patients": patients,
-            "requested_by": user["username"],
-            "laboratory_enabled": laboratory_enabled,
-        }
 
     @router.get("/supervisor/dashboard")
     def supervisor_dashboard(

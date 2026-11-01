@@ -1,5 +1,228 @@
 # Diagnostico de validacion local en Windows
 
+## Restauracion: comprobacion completa con concurrencia acotada, 01/11/2026
+
+- Se revisan App.tsx, bindWriteRecovery, writeReferenceOwner, setup y prueba
+  App.results. Restauracion espera crypto.subtle.digest antes de mostrar panel;
+  DOM del fallo previo aun estaba en Restaurando sesion. Sin traza suficiente
+  para localizar exactamente el retraso. No se modifica la aplicacion por conjetura.
+- Hipotesis comprobable: sensibilidad a carga al ejecutar varias suites/procesos.
+  npm.cmd run test --prefix frontend -- --maxWorkers=2, sin otras suites a la vez:
+  83 archivos y 767 pruebas aprobados, 209,27 s.
+  Log .tmp/frontend-restoration-resource-check.log; salida 0.
+- Mismos tests, codigo y tiempos de espera. maxWorkers es solo argumento de esta
+  ejecucion, no cambio del runner del repo/CI. No se ampliaron limites temporales.
+- La aprobacion actual corresponde a esta condicion de ejecucion. Fallo anterior
+  766/767 bajo paralelismo predeterminado y archivo posterior 2/2 se conservan.
+  Evidencia compatible con sensibilidad del entorno; no demuestra causalidad unica
+  ni certifica ausencia de intermitencia con otra carga. No nuevas pruebas reales.
+- Solo documentacion actualizada; diff --check y revision de diff realizados.
+  Sin commit/push, reinicio o cambios de app. Backend anterior no vuelto a ejecutar.
+
+
+## Confirmacion visual del resumen del panel
+
+- Usuario opera la app y confirma los cuatro indicadores, tabla sin NaN,
+  busqueda de episodio activo, limpieza del filtro y apertura del paciente correcto.
+- Captura muestra 13 activos, 14 alertas, 4 alta prioridad y 6 tareas pendientes;
+  buscar EP-23 devuelve cero porque su episodio esta cerrado. Indicadores generales
+  conservados. Se corrige el ejemplo de prueba; no cambia la aplicacion.
+- Confirmacion manual no resuelve la intermitencia automatica de restauracion
+  registrada previamente. Sin nuevas suites, commit/push ni trafico automatizado.
+
+
+- Ultima comprobacion 01/11/2026: reinicio autorizado completado con misma base
+  .tmp/communication-rollout-20261030/clinical-communication-working.sqlite3.
+  Backend/frontend propios y respondiendo; no se sustituyo la base.
+- Ensayo aislado autorizado con resumen: 30 sesiones, 649 operaciones/101,235 s,
+  cero errores inesperados. Integridad/FK, 24 escrituras y reintentos sin duplicados;
+  conflicto compartido 1 HTTP 200 y 11 HTTP 409 esperados. Puerto privado cerrado.
+- Panel p95 6180,726 -> 390,208 ms; max 6541,905 -> 514,247 ms. Mismo plan y
+  controlador; medicion local sintetica breve, sin certificar capacidad en campo.
+  Informe .tmp/capacity-runs/capacity-30-70k9j_lc/report.json.
+- Siguiente paso recomendado: comprobacion visual guiada del panel actualizado.
+  Sigue registrada intermitencia frontend: suite 766/767, archivo aislado 2/2;
+  no afirmar suite completa verde. Sin commit/push ni otra carga autorizados.
+
+
+## Resumen del panel implementado: 01/11/2026
+
+- Backend: .venv/Scripts/python.exe -m pytest -q --disable-warnings -x
+  backend/tests/test_dashboard_summary.py backend/tests/test_dashboard_router.py
+  backend/tests/test_laboratory_followup_ui.py backend/tests/test_laboratory_startup.py
+  backend/tests/test_accounts.py backend/tests/test_flow.py
+  backend/tests/test_record_lifecycle.py --basetemp .tmp/pytest-dashboard-summary,
+  PYTHONPATH=backend. 53 passed, 1 warning in 270.62 s.
+  Log .tmp/dashboard-summary-tests.log. Bases temporales; sin trafico al demo.
+- Frontend dirigidas App.dashboard.test.tsx + pages/PatientSearch.test.tsx: 11/11.
+  npm.cmd run build --prefix frontend y npm.cmd run lint --prefix frontend: correctos.
+- npm.cmd run test --prefix frontend: 766 aprobadas/1 fallida, 82 archivos aprobados
+  y uno fallido, 225,26 s. Log .tmp/dashboard-frontend-full.log. App.results.test.tsx
+  agota espera del encabezado Centro de control, DOM aun en Restaurando sesion;
+  no alcanza publicacion de laboratorio. Coincide con otras suites ejecutandose.
+- Hipotesis: sensibilidad temporal al entorno concurrente. Tras terminar backend
+  y frontend completos se ejecuta SOLO App.results.test.tsx, mismo runner/limites:
+  2/2 aprobado en 4,34 s, sin cambios de codigo. Compatible con intermitencia por
+  carga; no demuestra causa unica ni convierte la suite completa anterior en verde.
+  No se repiten suites completas ni se amplian tiempos para conseguir aprobacion.
+- Backend completo previo 608/608 corresponde al arreglo auth anterior, no a este
+  nuevo contrato; este bloque usa cobertura backend dirigida a las rutas afectadas.
+- Lectura offline de base sintetica intacta: 67 episodios, 3 SQL frente a 1630,
+  JSON pacientes 11705 frente a 192567 bytes; 0,0068 s aislados, no HTTP concurrente.
+  EXPLAIN: agrupacion unica por relacion, sin migracion/indices nuevos.
+- diff --check correcto. Sin commit/push, reinicio de demo ni nueva carga real.
+  Activacion necesita backend/frontend juntos; comparacion de carga por coordinar.
+
+## Diagnostico offline de panel: 01/11/2026
+
+- Sin cambios de app ni nuevas suites: analisis de codigo y una proyeccion de
+  base sintetica mode=ro/query_only, SHA256 conservado. 67 episodios, 1630 SQL,
+  136 comprobaciones de esquema, 192567 bytes; 0,3793 s en lectura aislada.
+- Fallo inicial de invocacion SQLite por omitir uri=True, corregido; no fallo app.
+- Plan, alcance y limitaciones: DASHBOARD_PERFORMANCE_PLAN.md. No nueva carga HTTP.
+
+## Capacidad treinta tras correccion: 01/11/2026
+
+- Ensayo real aislado autorizado: completed=true, 649 operaciones/114,204 s.
+  30 logins correctos, cero errores inesperados; integridad y referencias correctas.
+  24 escrituras sin duplicados por replay; conflicto 1 exito/11 rechazos esperados.
+- Informe .tmp/capacity-runs/capacity-30-y2c1dc65/report.json; fuente local corregida.
+  Login p95 2480,300 ms; panel p95 6180,726 ms, max 6541,905 ms.
+  Detalles/huellas/alcance en CAPACITY_OBSERVATION.md. Pendiente coste del panel.
+- Puerto privado cerrado, demo propio responde con misma copia. Sin reinicio,
+  commit/push ni nuevas suites: solo se documenta esta observacion autorizada.
+
+## Correccion del bloqueo de autenticacion, 31/10/2026
+
+- Autorizada por usuario. Cambio acotado a backend/app/auth.py, sin migracion.
+- Dirigidas: test_login_concurrency.py, test_auth.py, test_auth_sessions.py,
+  test_auth_router.py y test_accounts.py: 40 passed, 1 warning, 58.16 s.
+  Python .venv, PYTHONPATH=backend, pytest -q --disable-warnings -x;
+  --basetemp .tmp/pytest-auth-lock-directed. Ejecucion fuera del aislamiento
+  de sockets Windows por TestClient; datos temporales, sin trafico al demo.
+- Nuevas pruebas: verificaciones solapadas, reset/desactivacion/reactivacion y
+  permiso durante verificacion, bloqueo controlado 503 y error ajeno no ocultado.
+  Pruebas existentes cubren revocacion posterior y sesiones independientes.
+- Regresion backend completa: 608 passed, 1 warning in 1283.88 s (21:23).
+  Resultado consultado el 01/11/2026; registro .tmp/auth-lock-full-validation.log.
+  Comando: .venv/Scripts/python.exe -m pytest -q --disable-warnings -x backend/tests
+  --basetemp .tmp/pytest-auth-lock-full, con PYTHONPATH=backend.
+  Frontend sin cambios; no se repiten sus suites. diff --check correcto.
+  No repetida carga real de 30 ni reiniciado demo. Sin commit/push.
+
+## Observacion HTTP real aislada: treinta sesiones detenida, 31/10/2026
+
+- Usuario autoriza etapa treinta con misma app, herramienta, datos iniciales y
+  limites. Comando scripts/capacity_probe.py --sessions 30 --execute.
+- completed=false: ensayo 22,953 s, 30 intentos de login; 25 HTTP 200, cinco
+  HTTP 500. Las fases de lecturas/escrituras/reintentos/conflicto no se ejecutaron.
+  No convertir duracion corta en mejora de rendimiento ni afirmar capacidad 30.
+- Informe .tmp/capacity-runs/capacity-30-anjtjkx1/report.json y server.log.
+  Fuente original misma revision 729b8b3 y huellas backend/runner de etapas 5/15.
+  Login p50 3047,426 ms, p95 5412,577, max 5416,347, incluyendo fallos.
+- Las cinco trazas de error son sqlite3.OperationalError database is locked en
+  backend/app/auth.py:114, connection.execute(BEGIN IMMEDIATE). Codigo confirma
+  PBKDF2 dentro de la transaccion de escritura. get_connection usa sqlite3.connect
+  sin timeout explicito; firma instalada confirma timeout=5.0. Limite HTTP=10 s
+  no fue el que produjo el fallo. No se atribuye a red ni a contrasenas incorrectas.
+- Lectura posterior privada: 61 pacientes/episodios, 25 sesiones, 61 eventos de
+  preparacion y cero TRIAGE/MEDICAL_EVALUATION. integrity_check=ok, FK sin errores.
+  Puerto privado cerrado; Status posterior del demo confirma ambos propios y
+  responden con la misma copia de comunicacion, sin reinicio ni sustitucion.
+- Ajuste posterior SOLO en controlador: antes se intentaba decodificar el cuerpo
+  de un HTTP inesperado y el 500 de texto producia mensaje generico de transporte/
+  formato. Ahora se informa HTTP 500 antes de JSON, sin registrar cuerpo sensible.
+  Reporte original no se cambia. Nueva regresion mas herramienta: 26/26 (9,94 s),
+  una advertencia, --basetemp .tmp/pytest-capacity-http-error-final; py_compile ok.
+- No se ejecuta otro ensayo real ni se modifican autenticacion, hash, timeout,
+  bloqueo o configuracion de app. Propuesta siguiente: verificar clave sin bloqueo
+  de escritura y revalidar cuenta/credenciales antes de insertar sesion, con pruebas
+  de reset/desactivacion concurrentes. Pendiente priorizar/implementar y coordinar
+  repeticion; no atribuir validez de 30 a resultados de 5/15.
+
+
+## Observacion HTTP real aislada: quince sesiones, 31/10/2026
+
+- Usuario indica continuar tras explicar la prueba y proponer etapa quince.
+  Comando scripts/capacity_probe.py --sessions 15 --execute, servidor privado
+  loopback y base sintetica nueva; ninguna carga enviada al demo habitual.
+- completed=true: 325 solicitudes medidas en 95,156 s. Quince logins, 270 lecturas,
+  nueve lecturas de preparacion, doce escrituras y doce reintentos, una lectura
+  de conflicto y seis intentos compartidos. Un 200 y cinco 409 esperados, cero
+  respuestas inesperadas. Doce guardados independientes y reintentos sin duplicar.
+- Panel (90): p50 1853,454 ms, p95 2668,450, max 2734,464.
+  Episodio (90): p50 45,152, p95 91,751, max 113,098.
+  Bandejas (90): p50 361,849, p95 583,758, max 767,560.
+  Guardado independiente max 719,164 ms, login max 4779,974 ms.
+- Integridad/referencias/autorias/valores/cantidades correctas: 64 pacientes y
+  episodios sinteticos finales, 61 iniciales mas tres ingresos de Recepcion.
+- Informe .tmp/capacity-runs/capacity-15-tc8fxrzm/report.json. Mismo Windows,
+  Python 3.12.10, ocho CPU logicas, revision 729b8b3 y huellas de backend/runner
+  de la etapa cinco; no cambios de codigo ni configuracion entre observaciones.
+- Puerto privado sin escucha comprobado. demo.ps1 Status posterior confirma ambos
+  servicios propios/respondiendo y misma copia de comunicacion.
+- Resultado funcional correcto con ralentizacion observada del panel y login;
+  no acredita SLA ni capacidad de campo. Etapa treinta pendiente de autorizar.
+  Actualizacion solo documental; no repetir carga ni pruebas de aplicacion.
+
+
+## Observacion HTTP real aislada: cinco sesiones, 31/10/2026
+
+- Usuario autoriza ejecucion tras explicar alcance. Comando .venv Python
+  scripts/capacity_probe.py --sessions 5 --execute, fuera de aislamiento para
+  permitir servidor loopback propio. Ninguna carga enviada al demo habitual.
+- Resultado completed=true: 109 solicitudes medidas, 85,813 s; cero respuestas
+  inesperadas. 90 lecturas, cinco logins, cuatro escrituras y cuatro reintentos,
+  tres lecturas de preparacion de escritura, una preparacion de conflicto y
+  dos intentos sobre version compartida: exactamente un 200 y un 409 esperado.
+- Panel: p50 396,551 ms, p95 604,897, max 644,743 (30 lecturas).
+  Episodio: p50 17,268, p95 50,819, max 54,438 (30).
+  Bandejas: p50 27,344, p95 119,827, max 156,770 (30).
+  Guardado independiente mas lento 158,191 ms; login max 1448,117 ms.
+- SQLite/referencias/autor/valores/cantidades exactas: 62 pacientes y 62 episodios
+  sinteticos finales. Un ingreso nuevo de Recepcion, reintentos sin duplicar,
+  conflicto sin sobrescribir. No se copio ni modifico la base del demo.
+- Proceso propio cerrado por controlador, comprobacion posterior de puerto
+  privado sin escucha. demo.ps1 Status posterior: backend/frontend propios y
+  responden, copia .tmp/communication-rollout-20261030/clinical-communication-working.sqlite3.
+- Informe .tmp/capacity-runs/capacity-5-ph3ac9jv/report.json, junto a base/manifest/log.
+  Windows, Python 3.12.10, ocho CPU logicas. Backend revision 729b8b3, 62 archivos,
+  SHA256 91277be59993da3e079a291adfbedcea6baafc0a92e34d9a77deb2a74af76575.
+  Herramienta SHA256 1910dbeaeb13c4986ee91bc1aa11c099056d2c8daf22468a898d8111d8fc70ce.
+- Sin SLA evaluado ni extrapolacion a usuarios reales, UI, LAN o dispositivos.
+  Etapas 15/30 pendientes de autorizar. Sin cambios de codigo tras ejecucion;
+  solo documentacion, sin repetir pruebas ni nuevo commit/push.
+
+
+## Preparacion de observacion multiusuario: 31/10/2026
+
+- Cambios limitados a scripts/capacity_probe.py, sus pruebas y documentacion.
+  Aplicacion, API publica, UI, dependencias y configuracion del demo sin cambios.
+- Primera validacion dirigida de herramienta: 19/19 (8,74 s). Se amplian controles
+  de identidad de instancia, entorno, arranque simulado, reporte e identidad de
+  codigo. Validacion relacionada: 80/80 (27,98 s), despues 81/81 (26,55 s),
+  incluyendo test_demo_control, test_demo_db_backup y test_laboratory_preparation.
+- Ajuste final de cancelacion: errores/interrupcion senalan cancelacion antes de
+  esperar trabajadores; conexiones y proceso privado se cierran sin buscar PIDs.
+  Solo se repite lo afectado: test_capacity_probe.py 25/25 (11,99 s), una advertencia.
+- Comandos: PYTHONPATH=backend y .venv Python -m pytest -q --disable-warnings -x
+  backend/tests/test_capacity_probe.py backend/tests/test_demo_control.py
+  backend/tests/test_demo_db_backup.py backend/tests/test_laboratory_preparation.py
+  --basetemp .tmp/pytest-capacity-tool-stable. Final especifico:
+  backend/tests/test_capacity_probe.py --basetemp .tmp/pytest-capacity-tool-cancellation-final.
+  py_compile de scripts/capacity_probe.py y su test aprobado.
+- Invocacion real del modo descriptivo --sessions 5 verificada: 5 perfiles,
+  61 episodios sinteticos previstos, 10 ordenes LAB, 90 lecturas y 109 operaciones
+  medidas previstas. No crea servidor ni base; no se uso --execute.
+- Todas las pruebas usaron bases temporales y HTTP/procesos simulados. No son
+  medicion de capacidad ni ensayo directo de la app. No se inician servidores,
+  trafico real de carga ni etapas 15/30. No se repiten suites backend/frontend
+  de aplicacion porque no cambian sus fuentes/contratos; baseline publicada
+  729b8b3 con CI 41161791602 aprobada.
+- Pendiente explicar escenario concreto al usuario y coordinar ejecucion inicial.
+  Sin nuevo commit/push. Aislamiento, limites e interpretacion en CAPACITY_OBSERVATION.md.
+
+
 ## Comunicacion tras alta: 30/10/2026
 
 - Base publicada 589f93d, CI 41146977296 aprobada. Bloque nuevo local, sin commit/push.

@@ -10,7 +10,8 @@ import type { Episode, LaboratoryQueue, SupervisorData } from "../types/clinical
 const first: Episode = { id: 20, name: "José Lara", birth_date: "1990-01-01", document: "DEMO-20", qr_token: "qr-demo",
   status: "ACTIVE", priority: 2, location: "Observación", started_at: "2026-10-17T12:00:00Z", vitals: [], alerts: [], tasks: [], events: [] };
 const second = { ...first, id: 120, name: "Ana Pérez", priority: 3 };
-const dashboard = { active: 2, open_alerts: 0, patients: [first, second], requested_by: "supervisor" };
+const summary = (p: Episode) => ({ id: p.id, name: p.name, priority: p.priority, location: p.location, open_alert_count: 0, pending_task_count: 0 });
+const dashboard = { active: 2, open_alerts: 0, patients: [summary(first), summary(second)], requested_by: "supervisor" };
 const refresh = vi.fn(async () => {});
 const searchBox = () => screen.getByRole("searchbox", { name: "Buscar por nombre o episodio" });
 const search = (query: string) => fireEvent.change(searchBox(), { target: { value: query } });
@@ -26,7 +27,7 @@ it("filtra el control, conserva métricas y búsqueda al actualizar y abre el EP
   expect(screen.getAllByRole("article").map(card => card.textContent)).toEqual(metrics);
   fireEvent.click(screen.getByRole("button", { name: "Abrir" }));
   expect(open).toHaveBeenCalledWith(20);
-  rerender(<DashboardPage dashboard={{ ...dashboard, patients: [second] }} onRefresh={refresh} onOpenEpisode={open} />);
+  rerender(<DashboardPage dashboard={{ ...dashboard, patients: [summary(second)] }} onRefresh={refresh} onOpenEpisode={open} />);
   expect(searchBox()).toHaveValue("lara JOSE");
   expect(screen.getByText("No hay coincidencias con la búsqueda.")).toBeVisible();
   expect(screen.queryByText("No hay pacientes activos.")).not.toBeInTheDocument();

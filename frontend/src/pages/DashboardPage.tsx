@@ -1,5 +1,5 @@
 import { IdentityBadge } from "../components/PatientIdentity";
-import type { DashboardData, Episode } from "../types/clinical";
+import type { DashboardData } from "../types/clinical";
 import PatientSearch from "../components/PatientSearch";
 import { usePatientSearch } from "../hooks/usePatientSearch";
 
@@ -42,7 +42,7 @@ export default function DashboardPage({
           <strong>
             {
               dashboard.patients.filter(
-                (patient: Episode) => patient.priority <= 2,
+                (patient) => patient.priority <= 2,
               ).length
             }
           </strong>
@@ -52,11 +52,9 @@ export default function DashboardPage({
         <article>
           <strong>
             {dashboard.patients.reduce(
-              (total: number, patient: Episode) =>
+              (total, patient) =>
                 total +
-                patient.tasks.filter(
-                  (task) => task.status === "PENDING",
-                ).length,
+                patient.pending_task_count,
               0,
             )}
           </strong>
@@ -85,7 +83,7 @@ export default function DashboardPage({
             </thead>
 
             <tbody>
-              {patients.map((patient: Episode) => (
+              {patients.map((patient) => (
                 <tr key={patient.id}>
                   <td>
                     <strong>{patient.name}</strong><IdentityBadge status={patient.identity_status} />
@@ -99,9 +97,7 @@ export default function DashboardPage({
                   <td>{patient.location}</td>
                   <td>
                     {
-                      patient.alerts.filter(
-                        (alert) => alert.status !== "RESOLVED",
-                      ).length
+                      patient.open_alert_count
                     }
                   </td>
                   <td>

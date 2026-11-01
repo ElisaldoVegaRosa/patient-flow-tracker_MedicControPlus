@@ -2,6 +2,74 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Revision de restauracion completada: frontend completo con maxWorkers=2,
+  83 archivos/767 pruebas aprobados en 209,27 s, sin otras suites simultaneas.
+  Sin cambios de app, esperas, configuracion del runner ni dependencias.
+- Resultado compatible con sensibilidad a carga del fallo anterior, no prueba
+  causal definitiva. Se conservan ambos informes: fallo 766/767 por defecto bajo
+  concurrencia y aprobacion actual con dos trabajadores. No declarar curado un
+  defecto de produccion no reproducido. Detalle en LOCAL_VALIDATION.md.
+- Entrega preparada y revisada: [alcance y validaciones](PERFORMANCE_RELEASE.md).
+  Usuario autoriza commit/push a origin/main y comprobar CI; publicacion en curso.
+  Sin mas carga ni reinicios necesarios.
+
+- Ultima comprobacion 01/11/2026: reinicio autorizado completado con misma base
+  .tmp/communication-rollout-20261030/clinical-communication-working.sqlite3.
+  Backend/frontend propios y respondiendo; no se sustituyo la base.
+- Ensayo aislado autorizado con resumen: 30 sesiones, 649 operaciones/101,235 s,
+  cero errores inesperados. Integridad/FK, 24 escrituras y reintentos sin duplicados;
+  conflicto compartido 1 HTTP 200 y 11 HTTP 409 esperados. Puerto privado cerrado.
+- Panel p95 6180,726 -> 390,208 ms; max 6541,905 -> 514,247 ms. Mismo plan y
+  controlador; medicion local sintetica breve, sin certificar capacidad en campo.
+  Informe .tmp/capacity-runs/capacity-30-70k9j_lc/report.json.
+- Comprobacion visual guiada confirmada por usuario: indicadores, busqueda,
+  limpieza y apertura del episodio correctos. EP-23 cerrado queda fuera del listado
+  activo; se corrigio el ejemplo de prueba sin modificar codigo.
+- Revision posterior de intermitencia: resultado vigente en bloque inicial.
+  Sigue registrada intermitencia frontend: suite 766/767, archivo aislado 2/2;
+  no afirmar suite completa verde. Sin commit/push ni otra carga autorizados.
+
+### Antecedentes y validacion del cambio
+
+- Correccion del bloqueo de autenticacion implementada localmente y validada.
+  PBKDF2 fuera del bloqueo; relectura atomica de cuenta, credenciales, permisos y
+  revision antes de insertar sesion. Cambios concurrentes rechazan el intento.
+  SQLite ocupado devuelve 503 controlado; sin ampliar esperas ni reducir hash.
+- Validacion consultada el 01/11/2026: dirigidas 40/40 (58,16 s); backend completo
+  608/608 (1283,88 s), una advertencia. Frontend sin cambios, no repetido.
+  Registro y comandos en LOCAL_VALIDATION.md. Sin nuevo commit/push.
+- Ensayos anteriores con backend 729b8b3: cinco y quince sesiones completados
+  (109/325 operaciones); treinta detenido en login, 25 HTTP 200 y cinco HTTP 500
+  por bloqueo SQLite. No alcanzo lecturas/escrituras de treinta sesiones.
+  [Plan y resultados historicos](CAPACITY_OBSERVATION.md).
+- Repeticion autorizada 01/11/2026 con correccion local: treinta sesiones,
+  649 operaciones/114,204 s, 30 logins HTTP 200, cero errores inesperados.
+  24 guardados independientes y sus reintentos sin duplicados; conflicto compartido
+  1 HTTP 200/11 HTTP 409 esperados. Integridad/FK/autorias correctas.
+- Login p95 2480,300 ms; panel p95 6180,726 ms y max 6541,905 ms.
+  El bloqueo de acceso no se reproduce; queda demora relevante en panel bajo carga.
+  Ensayo sintetico local corto, no certifica uso real, red o duracion sostenida.
+- Informe .tmp/capacity-runs/capacity-30-y2c1dc65/report.json. Proceso privado
+  detenido/puerto cerrado; demo propio responde con misma copia de comunicacion.
+  Sin reinicio del demo ni commit/push. Fuente es 729b8b3 MAS correccion local;
+  huellas exactas e informe anterior conservados en CAPACITY_OBSERVATION.md.
+- Diagnostico del panel completado 01/11: lectura offline de 67 episodios
+  sinteticos ejecuta 1630 sentencias, 136 comprobaciones de esquema y prepara
+  192567 bytes de detalle. Base intacta; no prueba de carga ni cambio de app.
+- Resumen de /dashboard implementado localmente: consulta agregada y tipo propio,
+  sin historiales. Permisos, orden y detalle al abrir episodio conservados.
+- Lectura offline posterior: 67 episodios, 3 consultas (antes 1630), JSON pacientes
+  11705 bytes (antes 192567), base sintetica intacta. No equivale a carga HTTP.
+  Plan SQLite: barrido unico de tareas/alertas y agrupacion; sin nuevos indices.
+- Validacion: backend relacionado 53/53; interfaz dirigida 11/11; lint/build
+  aprobados. Frontend completo 766/767: un timeout al restaurar sesion; archivo
+  aislado posterior 2/2 sin cambios de codigo/tiempos. No llamar verde a la suite
+  completa. Detalle y limites en LOCAL_VALIDATION.md.
+- Reinicio y ensayo posteriores completados: resultado vigente en bloque inicial.
+  [Alcance](DASHBOARD_PERFORMANCE_PLAN.md). Sin nuevo commit/push.
+
+## Ultima entrega publicada: comunicacion tras alta
+
 - Comunicacion tras alta implementada localmente con reglas aceptadas el 30/10.
   Usuario elige registrar gestiones y consultar telefono fuera de la app.
   Recepcion contacta, medico autoriza; WhatsApp institucional solo avisos.
@@ -19,9 +87,9 @@
   Respaldo posterior y restauracion a archivo nuevo verificados: 22 pacientes,
   23 episodios. Original y copia LAB siguen separados; no reemplazar copia activa
   por snapshot inicial. Agente no opero interfaz.
-- Usuario autoriza expresamente commit/push del bloque validado y comprobar CI.
-  Siguiente paso: publicacion y verificacion remota del mismo SHA. Red local y
-  contacto real quedan fuera.
+- Publicado 729b8b3 en origin/main; CI 41161791602 aprobada para ese SHA
+  (backend/frontend/lint/build, 6:44), con autorizacion expresa.
+- Preparacion del bloque posterior elegida: capacidad multiusuario; estado arriba.
 
 ## Ultimo bloque publicado: esperas y demoras
 
