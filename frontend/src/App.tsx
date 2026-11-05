@@ -1,3 +1,4 @@
+import ShiftHandoverPage from "./pages/ShiftHandoverPage";
 import { validateOperationalForm } from "./forms/inputValidation";
 import LaboratoryFollowupsPage from "./pages/LaboratoryFollowupsPage";
 import OperationalDelaysPage from "./pages/OperationalDelaysPage";
@@ -767,6 +768,7 @@ async function logout() {
         onDelays={user.role === "SUPERVISOR" || user.can_coordinate ? () => guardLifecycle(() => leave.run(() => navigate("operational-delays"))) : undefined}
         onFollowups={(["DOCTOR", "NURSE", "LAB", "SUPERVISOR"].includes(user.role) && (dashboard?.laboratory_enabled || episode?.laboratory))
           ? () => guardLifecycle(() => leave.run(() => navigate("lab-followups"))) : undefined}
+        onHandover={["DOCTOR", "NURSE"].includes(user.role) || (user.role !== "ACCOUNT_ADMIN" && user.can_coordinate) ? () => guardLifecycle(() => leave.run(() => navigate("handover"))) : undefined}
         onCare={() => guardLifecycle(() => leave.run(() => navigate("care")))}
         onStaff={() => guardLifecycle(() => leave.run(() => navigate("staff")))}
         onIdentity={() => guardLifecycle(() => leave.run(() => navigate("identity")))}
@@ -861,6 +863,7 @@ async function logout() {
       {page === "scan" && <ScanPage onSubmit={scanEpisode} />}
       {page === "staff" && <StaffingPage user={user} operations={operations} onHistory={() => guardLifecycle(() => setPage("staff-history"))} />}
       {page === "staff-history" && <StaffHistoryPage user={user} onBack={() => setPage("staff")} />}
+      {page === "handover" && <ShiftHandoverPage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "care" && <CareQueuePage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "operational-delays" && <OperationalDelaysPage user={user} operations={operations} onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
       {page === "communications" && <PatientCommunicationsPage user={user} operations={operations} />}

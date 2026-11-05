@@ -5,6 +5,7 @@ type AppHeaderProps = {
   onCommunications?: () => void;
   onDelays?: () => void;
   onFollowups?: () => void;
+  onHandover?: () => void;
   onCare?: () => void;
   onStaff?: () => void;
   onIdentity?: () => void;
@@ -22,6 +23,7 @@ export default function AppHeader({
   onCommunications,
   onDelays,
   onFollowups,
+  onHandover,
   onCare,
   onStaff,
   onIdentity,
@@ -36,6 +38,7 @@ export default function AppHeader({
           {onCommunications && (["RECEPTION", "DOCTOR", "SUPERVISOR"].includes(user.role) || (["NURSE", "LAB"].includes(user.role) && user.can_coordinate)) && <button onClick={onCommunications}>Contacto tras el alta</button>}
           {onDelays && user.role !== "ACCOUNT_ADMIN" && (user.role === "SUPERVISOR" || user.can_coordinate) && <button onClick={onDelays}>Esperas y demoras</button>}
           {onFollowups && <button onClick={onFollowups}>Seguimiento tras alta</button>}
+          {onHandover && <button onClick={onHandover}>Resumen de relevo</button>}
           {onCare && <button onClick={onCare}>Colas y responsables</button>}
           {onStaff && <button onClick={onStaff}>{user.can_coordinate ? "Personal y turnos" : "Mi turno"}</button>}
           {(user.role === "ADMISSION" || user.role === "SUPERVISOR") && onIdentity && (

@@ -2,6 +2,31 @@
 
 ## Estado actual (leer primero)
 
+- Resumen automatico de relevo implementado localmente: GET /care/handover,
+  vista Resumen de relevo para medicina/enfermeria y permiso de coordinacion.
+  Pendientes agregados por lotes, responsables/propuestas, filtros y apertura.
+  Sin notas manuales ni transferencias/completados al consultar.
+- Alcance de cobertura: muestra responsables ausentes/cuentas inactivas;
+  disponibilidad y cobertura efectiva siguen en Colas y responsables.
+  Seguimiento tras alta conserva sus bandejas; solo activos en el resumen.
+- Validacion: 35 backend relacionadas y test adicional de responsables aprobado;
+  18 frontend dirigidas, lint/build aprobados; frontend completo 770/770
+  (84 archivos, 266,46 s, dos trabajadores). Comprobacion manual guiada confirmada por usuario.
+  Fallos de fixtures corregidos (conexion por hilo y precondiciones care_episodes),
+  sin cambio de reglas de app. Reinicio autorizado completado con misma base;
+  usuario confirma filtros, apertura, actualizacion y busqueda conservada.
+  Entrega revisada y preparada; alcance en SHIFT_HANDOVER_PLAN.md.
+  Pendiente autorizacion de commit/push a origin/main y comprobar CI.
+
+- Publicado 9b3a7efdb9cffd31c08132d8b896d37713ce8896; CI 41353510385 SUCCESS,
+  backend/frontend/lint/build verificados en sesion previa. Demo retomado tras
+  reinicio con misma base; usuario confirma acceso.
+- Bloque elegido para evaluar: resumen de cambio de turno. Analisis encuentra
+  datos existentes en colas/demoras/seguimientos, sin vista compacta de entrega.
+  [Propuesta de alcance](SHIFT_HANDOVER_PLAN.md): consulta de pendientes sin
+  transferencias implicitas; usuario elige resumen automatico, implementacion descrita arriba.
+  Sin carga real, commit ni push nuevos.
+
 - Ensayo sostenido autorizado y completado: 30 sesiones, 41 rondas/600 s,
   3799 operaciones en 625,672 s; cero errores inesperados. 30 logins correctos,
   3690 lecturas; 24 escrituras finales y replay sin duplicados, conflicto protegido.

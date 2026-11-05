@@ -1,5 +1,42 @@
 # Diagnostico de validacion local en Windows
 
+## Resumen de relevo: comprobacion manual confirmada
+
+- Reinicio gestionado autorizado con misma base de comunicacion. Status posterior:
+  backend/frontend propios y responden, ruta exacta conservada. HTTP no comprueba
+  integridad clinica de esa copia; no afirmar lo contrario.
+- Usuario maneja la app: confirma filtro por area, retorno al conjunto, apertura
+  del episodio esperado, busqueda por EP conservada al actualizar, y distincion de
+  medicina/enfermeria, pendientes LAB y alertas en tarjetas.
+- Consulta manual sin acciones de relevo ni finalizacion; no se verifica mediante
+  este ensayo aceptacion real, permisos de cada cuenta o todos los estados LAB.
+  Esos controles tienen pruebas automaticas dirigidas registradas abajo.
+- Sin nuevas suites por esta actualizacion documental, sin commit/push.
+
+
+## Resumen de relevo: implementacion local
+
+- Backend dirigido: test_shift_handover.py, test_care.py y test_operational_delays.py:
+  35 passed, 1 warning, 73.76 s. PYTHONPATH=backend, Python .venv, pytest -q
+  --disable-warnings -x, --basetemp .tmp/pytest-shift-handover-fixed.
+  Log .tmp/shift-handover-backend.log. Pruebas de permisos, consulta acotada,
+  excluidos cerrados, sin escrituras, LAB contra modelo canonico tras correccion/anulacion.
+- Test adicional test_retained_owner_proposal_reevaluation_and_alerts: 1 passed,
+  1 warning, 0.62 s, --basetemp .tmp/pytest-shift-owner-final. Verifica responsable
+  anterior, receptor propuesto, reevaluacion/tarea y exclusion de alerta resuelta.
+- Fallos de preparacion explicados: fixture SQLite compartida con hilo TestClient;
+  se prueba endpoint con inyeccion directa, sin compartir conexion entre hilos.
+  Fixture adicional omitia care_episodes y despues ready_at obligatorio; completado
+  contra esquema real. Nueve casos existentes aprobados en ambas ultimas ejecuciones.
+- Frontend dirigido: ShiftHandoverPage.test.tsx, App.care.test.tsx y CareQueuePage.test.tsx:
+  18/18 en 13.68 s, --maxWorkers=2. Lint/build aprobados.
+- Frontend completo: 770/770, 84 archivos, 266.46 s, --maxWorkers=2,
+  .tmp/shift-handover-frontend.log, sin otras suites en paralelo.
+- Revision final de diff, UTF-8 y diff --check correctos. No commit/push.
+- Backend completo historico no representa esta version; cobertura actual dirigida
+  al nuevo endpoint y colas/demoras. No pruebas directas en app ni reinicio del demo.
+
+
 ## Ensayo sostenido completado
 
 - Ensayo sostenido autorizado y completado: 30 sesiones, 41 rondas/600 s,

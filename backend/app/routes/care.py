@@ -53,6 +53,18 @@ def create_router(connection_factory, timestamp, clinical_user):
         # Audit also records the resulting rotation baseline after this write.
         return care.audit(connection, before, after, user, action, reason, timestamp, discipline, target)
 
+    @router.get('/handover')
+    def handover(user: dict = Depends(clinical_user)):
+        if user['role'] == 'ACCOUNT_ADMIN' or (user['role'] not in ('DOCTOR', 'NURSE') and not user.get('can_coordinate')):
+            raise HTTPException(403, 'Se requiere medicina, enfermeria o coordinacion')
+        from ..shift_handover import read
+        connection = factory()
+        try:
+            connection.execute('BEGIN')
+            return read(connection, timestamp(), user['username'])
+        finally:
+            connection.close()
+
     @router.get('/queue')
     def queue(mine: bool = False, user: dict = Depends(clinical_user)):
         connection = factory()

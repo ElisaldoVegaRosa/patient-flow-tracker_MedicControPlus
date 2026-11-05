@@ -387,3 +387,13 @@ export type Reevaluation = { id: number; episode_id: number; group_id: number; g
   owner_username: string | null; owner_name: string | null; owner_id: number | null; version: string; created_by: string };
 export type ReevaluationChange = { id: number; task_id: number; action: string; actor: string; reason: string;
   created_at: string; old_value: string; new_value: string };
+
+export type HandoverData = { generated_at: string; requested_by: string; patients: {
+  episode_id: number; name: string; identity_status: "REGISTERED" | "PROVISIONAL" | "VERIFIED";
+  priority: number; location: string; area_id: number | null; area_name: string | null;
+  owners: { discipline: string; username: string | null; display_name: string | null; active: number | null;
+    proposed_username: string | null; proposed_name: string | null }[];
+  reevaluations: { service: string; title: string; due_at: string }[];
+  tasks: { MEDICAL: number; NURSING: number }; open_alerts: number;
+  legacy_lab_orders: number; lab_results: number; lab_reviews: number;
+}[] };

@@ -5,6 +5,16 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Resumen automatico de relevo (local)
+
+- Vista de consulta para episodios activos: responsables/propuestas, tareas,
+  reevaluaciones, alertas y pendientes LAB antiguos/estructurados separados.
+- Acceso por medicina, enfermeria o permiso de coordinacion; filtros propios,
+  area, profesional y busqueda. Actualizacion visible cada 15 s y apertura del episodio.
+- Lectura por lotes, sin historiales completos ni transferencias implicitas.
+  Disponibilidad efectiva se sigue consultando en Colas y responsables.
+
+
 - Controlador de capacidad: opcion acotada --steady-minutes 10 para consultas
   sostenidas, conserva escenario breve por defecto y escrituras finales.
   Preparacion validada con 27 pruebas; ensayo autorizado completado: 3799
