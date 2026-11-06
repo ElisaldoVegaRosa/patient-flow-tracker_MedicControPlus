@@ -5,6 +5,14 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Sincronizacion de formularios operacionales limpios (local)
+
+- Evita aviso falso de cambios sin guardar tras confirmar una extension y recargar
+  sus formularios hermanos con la nueva version del servidor.
+- Sincroniza valores iniciales solo sin borrador; conserva texto propio, motivos
+  y baseline de conflictos. Regresiones de planificacion y componente comun.
+
+
 ## Resumen automatico de relevo (local)
 
 - Vista de consulta para episodios activos: responsables/propuestas, tareas,

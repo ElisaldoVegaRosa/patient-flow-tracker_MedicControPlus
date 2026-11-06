@@ -2,6 +2,50 @@
 
 ## Estado actual (leer primero)
 
+- Comprobacion UI autorizada de la correccion: extension ficticia guardada de
+  06/11/2026 08:00 a 09:00 hora dominicana; confirmacion visible del servidor.
+  Navegacion a Resumen de relevo completada sin aviso de campos sin guardar;
+  getJsDialog confirma ausencia de dialogo. No se modifica EP-24 en esta prueba.
+- Captura de evidencia falla por timeout Page.captureScreenshot (dos mecanismos
+  con mismo backend); no afirmar captura guardada. Verificacion por arbol UI
+  y estado de dialogo, no inferida por simple clic. Sin cambio de codigo posterior.
+- Correccion validada localmente (773 frontend, lint/build y prueba directa).
+  Entrega revisada y preparada; pendiente autorizacion de commit/push y CI.
+
+- Aviso tras extension reproducido con test antes de corregir: formulario hermano
+  /staff/shifts/1 (Editar planificacion deshabilitado) recibe defaultValue nuevo
+  al refrescar mientras conserva valor previo. operationalFormDirty marca pendiente.
+- Correccion comun OperationalWriteForm: al cambiar version servidor sincroniza
+  valores nativos solo si no existe borrador. Borradores conservan campos y baseline
+  anterior, con bloqueo/revision de conflicto habitual. Sin cambios de backend.
+- Dirigidas 13 + 2 aprobadas, lint/build correctos tras ajustar tipos de tests.
+  Frontend completo 773/773 (85 archivos, 254,09 s, dos trabajadores)
+  aprobado. Sin nueva prueba directa, reinicio, commit ni push.
+
+- Prueba UI de relevo EP-24 completada por agente con autorizacion del usuario.
+  Consulta retenida durante propuesta a Observacion; tras aceptar con cuenta
+  enfermeria.observacion cambia responsable y se conserva tarea #20 pendiente.
+  Resumen contrastado en coordinacion (actualizacion manual) y receptora; historial
+  PROPOSE por medico.demo1 / ACCEPT por enfermeria.observacion verificados.
+- Preparacion: demo iniciado con misma copia, turno ficticio extendido a
+  06/11/2026 08:00 hora dominicana, triaje P3/Sala de espera por enfermeria demo,
+  area Consulta -> Observacion y asignacion inicial enfermeria.consulta.
+  Usuario inicio sesiones personales; agente no obtuvo contrasenas/tokens.
+- Estado final EP-24 ACTIVE, responsable enfermeria.observacion, inicio sin
+  confirmar, tarea #20 pendiente. No se completan pendientes ni se cierra episodio.
+- Incidencia aparte: aviso de campos sin guardar al salir de extension ya
+  confirmada; bloqueo del control Chrome resuelto mediante intervencion del usuario.
+  Incidencia posteriormente reproducida y corregida; ver bloque inicial.
+  No cambios de codigo, nuevas suites, commit ni push durante este ensayo.
+
+- Publicacion confirmada: 748f342f2bc2b4e90266c54d1f403ff497e51dd8 en origin/main.
+  CI 41947576444 SUCCESS: backend/frontend/lint/build. Resumen activo en demo,
+  comprobacion visual confirmada. Repositorio limpio al completar publicacion.
+- Ensayo posterior completado; evidencia y estado final en bloque inicial.
+
+
+### Contexto publicado anterior (referencia)
+
 - Resumen automatico de relevo implementado localmente: GET /care/handover,
   vista Resumen de relevo para medicina/enfermeria y permiso de coordinacion.
   Pendientes agregados por lotes, responsables/propuestas, filtros y apertura.

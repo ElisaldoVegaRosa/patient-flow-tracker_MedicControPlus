@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { api, isSessionInterruption, VersionConflictError } from "../api/client";
 import type { PendingOperations } from "../hooks/usePendingOperations";
@@ -25,6 +25,17 @@ export default function OperationalWriteForm({ path, version, method, transform,
   const [hasDraft, setHasDraft] = useState(Boolean(initialDraft));
   const form = useRef<HTMLFormElement>(null);
   const restoration = useRef(initialDraft);
+  const renderedVersion = useRef(version);
+  useLayoutEffect(() => {
+    if (renderedVersion.current === version) return;
+    renderedVersion.current = version;
+    // Server defaults can change in sibling (even disabled) forms. Native inputs
+    // retain old values while React updates defaultValue: reset only clean forms.
+    if (!hasDraft && form.current) {
+      form.current.reset();
+      onDirty();
+    }
+  }, [version, hasDraft, onDirty]);
   useEffect(() => {
     const node = form.current;
     if (!node || !restoration.current) return;

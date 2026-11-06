@@ -186,3 +186,27 @@ it("starts planning folded and preserves dirty fields when closing and reopening
   expect(name).toHaveValue("Borrador conservado");
   expect(mutations).not.toHaveBeenCalled();
 });
+
+
+it("leaves every planning form clean after confirmed extension and server refresh", async () => {
+  const { data, update, mutations } = setup();
+  await screen.findByText("Noche demo · Planificado");
+  const active = { ...shift, status: "ACTIVE" as const };
+  update({ ...data, shifts: [active] });
+  fireEvent.click(screen.getByRole("button", { name: "Consultar personal actual" }));
+  const card = screen.getByRole("article", { name: "Turno Noche demo" });
+  await within(card).findByText("Extender horario del turno");
+  card.querySelectorAll("details").forEach(node => { node.open = true; });
+  const form = within(card).getByRole("group", { name: "Confirmar extensión del turno" });
+  fillDate(form, "Nueva hora de fin · hora dominicana", "2026-10-22T20:30");
+  fireEvent.change(within(form).getByLabelText("Motivo"), { target: { value: "Extension ficticia" } });
+  mutations.mockImplementationOnce(async () => {
+    const next = { ...active, ends_at: "2026-10-23T00:30:00Z", version: '"shift-1"' };
+    update({ ...data, shifts: [next], assignments: [{ ...assignment, ends_at: next.ends_at }] });
+    return response(200, next);
+  });
+  fireEvent.click(within(form).getByRole("button", { name: "Confirmar extensión del turno" }));
+  await screen.findByText(/Operación de personal confirmada/);
+  await within(card).findByText(/22\/10\/2026, 08:30 p. m./);
+  expect([...document.querySelectorAll<HTMLFormElement>("form[data-operational]")].filter(operationalFormDirty)).toHaveLength(0);
+});
