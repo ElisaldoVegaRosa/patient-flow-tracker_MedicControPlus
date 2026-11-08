@@ -5,6 +5,14 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Alineación de casillas de contacto tras alta (local)
+
+- Casillas y textos de identidad verificada, aviso transmitido y dificultad de
+  contacto alineados en filas con ancho fijo de casilla. El filtro de contactos
+  completados usa el mismo estilo.
+- Prueba de regresión con CSS real para ancho, disposición y activación mediante
+  la etiqueta. Ensayo EP-26 confirmó la gestión de contacto por recepción.
+
 ## Sincronizacion de formularios operacionales limpios (local)
 
 - Evita aviso falso de cambios sin guardar tras confirmar una extension y recargar

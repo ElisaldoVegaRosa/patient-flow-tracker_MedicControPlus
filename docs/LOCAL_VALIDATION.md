@@ -1,5 +1,24 @@
 # Diagnostico de validacion local en Windows
 
+## Casillas de contacto tras alta, 08/11/2026
+
+- Captura del usuario en EP-26 muestra casillas extendidas al ancho del formulario
+  y textos debajo. Estilos generales input y label explican la disposición.
+- Estilo checkbox-field aplicado a las cuatro etiquetas de esta página, con
+  casilla de ancho fijo y fila flexible. El usuario confirmó después que las
+  casillas aparecen junto a sus textos y bien alineadas.
+- Prueba nueva lee el CSS real y comprueba disposición, ancho, flex-shrink y clic
+  en etiqueta. Primer intento con importación CSS recibió estilo simulado por
+  Vitest. La lectura por URL de módulo falló al resolverse a URL de servidor.
+  Lectura desde src/App.css aprobada en el directorio de ejecución del frontend.
+- Dirigidas 11/11 y frontend completo 774/774, 85 archivos, 443,36 s, aprobados
+  con --maxWorkers=2. Log .tmp/contact-checkbox-frontend-tests.log.
+- Build encontró falta de tipos Node en la prueba. Declaración de tipos añadida
+  al archivo de prueba y build posterior aprobado. Lint final aprobado.
+- Cambios locales preparados. Usuario confirma contacto y aviso de EP-26,
+  explicación clínica por medicina y ambos hechos conservados en el historial
+  al incluir contactos completados.
+
 ## Confirmacion UI de sincronizacion tras extension
 
 - Comprobacion UI autorizada de la correccion: extension ficticia guardada de

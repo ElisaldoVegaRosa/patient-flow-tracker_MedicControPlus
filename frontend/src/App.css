@@ -54,6 +54,20 @@ label {
   font-weight: 700;
 }
 
+.checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+  margin: 0.15rem 0 0;
+  padding: 0;
+}
+
 .logo {
   color: #086c66;
   font-size: 1.35rem;

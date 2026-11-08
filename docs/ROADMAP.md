@@ -2,6 +2,34 @@
 
 ## Decisiones pendientes (leer primero)
 
+- Publicado `10d006b` en `origin/main`, con CI aprobada (backend, frontend, lint y build).
+- CI: https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/42147082147
+- Relevo y correccion del aviso falso de campos sin guardar completados.
+- Inventario y guion integral consolidados. EP-25 y EP-26 completados por el
+  usuario, con resultados registrados y correccion visual comprobada.
+- Nuevas pruebas directas se coordinan con el usuario; nuevos commits y push
+  requieren autorizacion expresa.
+
+- Inventario documental consolidado el 08/11/2026 en [DEMO_READINESS](DEMO_READINESS.md).
+  Guion preparado en [DEMO_INTEGRAL_GUIDE](DEMO_INTEGRAL_GUIDE.md).
+  Circuito principal EP-25 confirmado completo por el usuario, incluido relevo
+  con pendientes conservados, resultados revisados, alta e historial. Respaldo
+  y restauracion aislada previos verificados. Variante EP-26 confirmada: alta
+  con plan, publicacion posterior, revision medica y seguimiento con cero
+  pendientes, responsable y plan conservados. Contacto y explicacion clinica
+  confirmados por el usuario, con ambos hechos conservados en historial.
+
+- EP-26: aviso autorizado y gestion ficticia de contacto confirmada por el
+  usuario. Explicacion clinica e historial confirmados. Casillas desalineadas
+  corregidas localmente. Pruebas dirigidas 11/11 y frontend completo 774/774
+  (85 archivos, 443,36 s, dos trabajadores) aprobados. Build aprobado tras
+  declarar tipos Node usados solo por la prueba de CSS. Lint final aprobado.
+  Usuario confirma casillas junto a sus textos y bien alineadas. Entrega local
+  revisada. Usuario autoriza commit, publicacion en origin/main y comprobar CI.
+  Comprobacion remota pendiente hasta disponer del commit publicado.
+
+### Evidencia previa de la entrega (anterior a publicacion)
+
 - Comprobacion UI autorizada de la correccion: extension ficticia guardada de
   06/11/2026 08:00 a 09:00 hora dominicana; confirmacion visible del servidor.
   Navegacion a Resumen de relevo completada sin aviso de campos sin guardar;

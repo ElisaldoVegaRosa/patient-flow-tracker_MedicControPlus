@@ -1,6 +1,8 @@
+/// <reference types="node" />
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import PatientCommunicationsPage from "./PatientCommunicationsPage";
+import { readFileSync } from "node:fs";
 import { usePendingOperations } from "../hooks/usePendingOperations";
 import { establishSession } from "../api/client";
 import type { CommunicationCase, SessionUser } from "../types/clinical";
@@ -13,6 +15,31 @@ const response = (value: unknown, status = 200) => ({ ok: status < 400, status, 
 const queue = (item = sample) => ({ enabled: true, total: 1, has_more: false, items: [item] });
 function Harness({ user = reception }: { user?: SessionUser }) { const operations = usePendingOperations(); return <PatientCommunicationsPage {...{ user, operations }} />; }
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); sessionStorage.clear(); });
+
+it("mantiene las casillas junto a su texto con ancho fijo y permite activarlas desde la etiqueta", async () => {
+  establishSession("ficticio");
+  vi.stubGlobal("fetch", vi.fn(async () => response(queue())));
+  const style = document.createElement("style");
+  style.textContent = readFileSync("src/App.css", "utf8");
+  document.head.append(style);
+  try {
+    render(<Harness />);
+    await screen.findByText("Registrar gestión de contacto");
+    const checkboxes = screen.getAllByRole("checkbox", { hidden: true });
+    expect(checkboxes).toHaveLength(4);
+    for (const checkbox of checkboxes) {
+      const label = checkbox.closest("label")!;
+      expect(getComputedStyle(label).display).toBe("flex");
+      expect(getComputedStyle(checkbox).width).toBe("1.25rem");
+      expect(getComputedStyle(checkbox).flexShrink).toBe("0");
+    }
+    const identity = screen.getByLabelText("Identidad verificada tras recibir respuesta");
+    fireEvent.click(identity.closest("label")!);
+    expect(identity).toBeChecked();
+  } finally {
+    style.remove();
+  }
+});
 
 it("Recepcion consulta avisos sin acciones medicas ni campo de telefono", async () => {
   establishSession("ficticio"); vi.stubGlobal("fetch", vi.fn(async () => response(queue())));

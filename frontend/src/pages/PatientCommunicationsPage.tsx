@@ -84,7 +84,7 @@ function Board({ user, operations }: Props) {
     {denied && <p role="alert">El acceso cambió. Se retiraron los datos anteriores.</p>}
     {data && !data.enabled && <p role="status">Registro de comunicación todavía no habilitado en esta base. Requiere preparar una copia con respaldo antes del ensayo.</p>}
     {data?.enabled && <>
-      <label><input type="checkbox" checked={resolved} disabled={dirty || operations.hasPending()} onChange={e => { setResolved(e.target.checked); setOffset(0); }} />Incluir contactos y explicaciones completados</label>
+      <label className="checkbox-field"><input type="checkbox" checked={resolved} disabled={dirty || operations.hasPending()} onChange={e => { setResolved(e.target.checked); setOffset(0); }} />Incluir contactos y explicaciones completados</label>
       <p>Seguimientos que coinciden: {data.total}. Actualización cada 15 segundos mientras la pestaña esté visible.</p>
       {data.items.length === 0 && <p>No hay contactos autorizados pendientes en esta página.</p>}
       {data.items.map(item => <Card key={item.followup_id} {...{ item, user, operations }} onDirty={updateDirty} refresh={() => void reload()} />)}
@@ -127,9 +127,9 @@ function Card({ item, operations, user, onDirty, refresh }: CardProps) {
       }}>
         <label>Medio<select name="channel" required defaultValue=""><option value="">Selecciona medio</option>{Object.entries(channelNames).filter(([key]) => key !== "WHATSAPP" || item.mode === "CONTACT_ONLY" || !item.valid).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select></label>
         <label>Resultado de la gestión<select name="outcome" required defaultValue=""><option value="">Selecciona resultado</option>{Object.entries(outcomeNames).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select></label>
-        <label><input type="checkbox" name="identity_verified" />Identidad verificada tras recibir respuesta</label>
-        <label><input type="checkbox" name="transmitted" />Transmití el aviso autorizado</label>
-        <label><input type="checkbox" name="notify_doctor" />Registrar dificultad para atención del médico responsable</label>
+        <label className="checkbox-field"><input type="checkbox" name="identity_verified" />Identidad verificada tras recibir respuesta</label>
+        <label className="checkbox-field"><input type="checkbox" name="transmitted" />Transmití el aviso autorizado</label>
+        <label className="checkbox-field"><input type="checkbox" name="notify_doctor" />Registrar dificultad para atención del médico responsable</label>
         <StaffDateTimeInput name="due_at" label="Próximo intento · hora dominicana" required={false} />
         <p>Programa otro intento si no hubo respuesta verificada y aviso transmitido. No copies teléfonos ni conversaciones en el motivo.</p>
       </ContactForm>
