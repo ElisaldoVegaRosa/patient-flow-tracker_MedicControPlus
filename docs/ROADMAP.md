@@ -2,8 +2,29 @@
 
 ## Decisiones pendientes (leer primero)
 
-- Publicado `10d006b` en `origin/main`, con CI aprobada (backend, frontend, lint y build).
-- CI: https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/42147082147
+- Demo HTTPS LAN comprobado por el usuario desde Redmi Note 11 por Wi-Fi,
+  https://192.168.100.40:5443. CA instalada, acceso y sesion medico.demo1
+  confirmados. Camara lee QR de EP-24, identifica el episodio correcto y permite
+  guardar evaluacion ficticia, confirmada despues en la PC con su autor.
+- Configuracion activa .tmp/demo-lan/bd69559ecb924653985286bf85f48fd6/network.json.
+  Certificado publico del ensayo mediccontrol-demo-ca-wifi.cer. Perfil Wi-Fi
+  Private; regla propia Node/TCP5443, IP local .40 y origen 192.168.100.0/24.
+  Ethernet 2 tambien quedo Private durante la activacion inicial autorizada.
+- Incidencia de Ethernet pendiente: movil 192.168.100.2 devolvio
+  ERR_ADDRESS_UNREACHABLE al acceder a .7. Ping desde .7 falla y desde .40
+  responde; usuario autoriza pasar a Wi-Fi. Detalle en LOCAL_VALIDATION.
+- Backend completo 642 aprobado, con 48 dirigidas posteriores; frontend completo
+  782/782 y gateway dirigido posterior 8/8 aprobados. Lint, build y TLS aprobados.
+  Primer backend aislado incompleto; repeticion fuera del aislamiento aprobada.
+- Respaldo posterior al ensayo verificado, 25 pacientes y 26 episodios, en
+  backups/clinical-20261109T000742Z-69cf0ced.sqlite3; restauracion aislada
+  .tmp/lan-demo-final-restored-69cf0ced.sqlite3, SHA-256 coincidente.
+- Guia vigente [DEMO_LAN_HTTPS](DEMO_LAN_HTTPS.md). Entrega local preparada
+  revisada. Usuario autoriza crear commit, publicar en origin/main y comprobar CI.
+  Resultado remoto pendiente hasta publicar el commit de esta entrega.
+
+- Publicado `f7c9435` en `origin/main`, con CI aprobada (backend, frontend, lint y build).
+- CI: https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/42523463033
 - Relevo y correccion del aviso falso de campos sin guardar completados.
 - Inventario y guion integral consolidados. EP-25 y EP-26 completados por el
   usuario, con resultados registrados y correccion visual comprobada.
@@ -25,8 +46,8 @@
   (85 archivos, 443,36 s, dos trabajadores) aprobados. Build aprobado tras
   declarar tipos Node usados solo por la prueba de CSS. Lint final aprobado.
   Usuario confirma casillas junto a sus textos y bien alineadas. Entrega local
-  revisada. Usuario autoriza commit, publicacion en origin/main y comprobar CI.
-  Comprobacion remota pendiente hasta disponer del commit publicado.
+  revisada y publicada como f7c9435, con CI aprobada. La preparacion LAN
+  posterior permanece local, pendiente de ensayo y nueva autorizacion de commit.
 
 ### Evidencia previa de la entrega (anterior a publicacion)
 

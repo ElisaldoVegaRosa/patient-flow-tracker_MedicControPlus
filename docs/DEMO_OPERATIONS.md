@@ -7,6 +7,11 @@ y volver a iniciar cuando no haya operaciones pendientes.
 
 ## Desde VS Code
 
+El ensayo optativo desde móvil por HTTPS se prepara mediante
+[DEMO_LAN_HTTPS](DEMO_LAN_HTTPS.md), con certificados y compilación propios.
+`Start -LanConfig` agrega su entrada al demo gestionado y `Stop` incluye esa
+entrada cuando está registrada.
+
 Para ensayar el laboratorio nuevo con una copia verificada, consultar
 [la activacion controlada](LABORATORY_ACTIVATION.md). `Start -Database` elige
 una copia LAB existente; `Status` identifica la base del backend propio. Cambiar

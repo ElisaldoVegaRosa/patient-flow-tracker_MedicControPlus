@@ -1,7 +1,8 @@
 param(
     [ValidateSet("Start", "Stop", "Status")]
     [string] $Action = "Status",
-    [string] $Database
+    [string] $Database,
+    [string] $LanConfig
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,5 +13,6 @@ if (-not (Test-Path -LiteralPath $demoPython)) {
 }
 $demoArguments = @((Join-Path $PSScriptRoot "demo_control.py"), $Action.ToLowerInvariant())
 if ($Database) { $demoArguments += @("--database", $Database) }
+if ($LanConfig) { $demoArguments += @("--lan-config", $LanConfig) }
 & $demoPython @demoArguments
 exit $LASTEXITCODE

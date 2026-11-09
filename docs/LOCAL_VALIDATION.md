@@ -1,5 +1,118 @@
 # Diagnostico de validacion local en Windows
 
+## Preparación HTTPS LAN, 08/11/2026
+
+- Usuario autoriza preparar modo de ensayo LAN y coordinar su activación.
+  PC con Ethernet 2 en 192.168.100.7 y Wi-Fi en 192.168.100.40. Se consulta
+  elección de interfaz y se prepara provisionalmente Ethernet 2.
+- Preparación y controlador con 45 pruebas dirigidas aprobadas antes de agregar
+  una comprobación adicional de comandos y ejecutar el backend completo.
+- Gateway con 8 pruebas aisladas aprobadas, usando servidores ficticios en
+  loopback. El aislamiento inicial bloqueó conexiones y junction de prueba.
+  Ejecución fuera del aislamiento aprobada. Se conserva entorno jsdom del repo
+  para compatibilidad con su setup de sesión.
+- Generador real comprobado desde Windows PowerShell. RSA.Create devolvía una
+  implementación con KeySize de solo lectura. Se usa RSACng de 2048 bits.
+  Set-Acl no cargaba el módulo heredado desde PowerShell 7. Se usa la API .NET
+  de permisos de directorio. Generación y comprobación X.509 posterior aprobadas.
+- Lint y build aprobados. Preparación real de certificados y compilación LAN
+  completada en .tmp/demo-lan/4bd90424e0cb4350941f00489f8c38e1/network.json.
+  Comprobación de configuración vigente y destino /api del bundle aprobada.
+- Primer backend completo bajo aislamiento quedó detenido tras cinco pruebas,
+  en test_two_personal_accounts_keep_distinct_authorship_and_permissions. Se
+  comprobó el PID, comando y falta de procesos hijos. La misma prueba fuera del
+  aislamiento pasó en 2,99 s. Se terminó el hijo de ese runner por PID verificado
+  y su sesión cerró con salida 1. El intento quedó incompleto.
+- Repetición backend completa fuera del aislamiento aprobada, 642 pruebas,
+  1 advertencia, 1377,32 s. Log .tmp/demo-lan-backend-all-unrestricted.log.
+  Después se amplió la huella de compilación a recursos públicos y tsconfig,
+  con dos regresiones nuevas. Dirigidas finales de preparación/controlador
+  48/48 aprobadas, 1 advertencia, 1,78 s.
+- Frontend completo aprobado, 782/782, 86 archivos, 237,97 s, dos trabajadores.
+  Log .tmp/demo-lan-frontend-all.log. Gateway dirigido posterior 8/8 aprobado
+  tras fijar conexión directa independiente del agente HTTP global.
+- Preparación final regenerada en .tmp/demo-lan/4bd90424e0cb4350941f00489f8c38e1.
+  Build y comprobación TLS aprobados. Configuración vigente y bundle /api
+  comprobados. Lint aprobado para los archivos frontend de esta entrega.
+- Usuario confirma Ethernet 2, 192.168.100.7, y red doméstica de confianza.
+  Perfil observado Public. Activación, decisión de perfil y permiso de firewall,
+  confianza de CA en Android, cámara y ensayo desde móvil pendientes.
+- Status confirma backend/frontend propios respondiendo con la copia de
+  comunicación seleccionada. La entrada LAN sigue pendiente de activación.
+
+### Activación autorizada
+
+- Usuario confirma que Ethernet 2 y el Wi-Fi del móvil usan el mismo router y
+  autoriza perfil Private, permiso limitado y activación HTTPS.
+- Script temporal revisado en .tmp/lan-activation-6bbad67c/apply-network.ps1,
+  elevado mediante solicitud UAC de Windows. Resultado ok=true. Perfil anterior
+  Public, perfil aplicado Private. Regla MedicControlDemoLanHttps creada.
+- Verificación independiente de regla confirma Inbound/Allow/Enabled, Private,
+  TCP 5443, LocalAddress 192.168.100.7, RemoteAddress 192.168.100.0/24 y
+  Program C:\Program Files\nodejs\node.exe.
+- Start con la copia de comunicación y configuración LAN final completado.
+  Status confirma backend y frontend propios, y gateway propio respondiendo
+  HTTPS en https://192.168.100.7:5443, con validación de CA y nombre/IP.
+- Consulta TCP filtrada State=Listen devolvió cero resultados. Consulta CIM sin
+  ese filtro mostró dirección/puerto correctos y PID 3492, node.exe, con State=0.
+  netstat tampoco mostró el puerto. Se conserva esa inconsistencia diagnóstica;
+  la respuesta HTTPS desde PC está comprobada. Acceso remoto pendiente.
+- Huella de CA pública comprobada por SHA-256 del DER, coincidente con Node.
+  Confianza de certificado en Android y prueba con cámara pendientes.
+
+### Primer intento desde Android
+
+- Usuario confirma copia del certificado público a Descargas e instalación desde
+  Certificado de CA. Al abrir la dirección HTTPS informa No se puede acceder a
+  este sitio. Código de Chrome e IP actual del móvil solicitados para diagnóstico.
+- Revisión desde PC confirma HTTP 200 en `/` y `/api/health`, con validación
+  estricta de la CA. Gateway propio continúa saludable. Ethernet 2 mantiene
+  192.168.100.7/24 y gateway 192.168.100.1, perfil Private.
+- Regla de ensayo presente en ActiveStore y reglas de aplicación de Node
+  consultadas. Coinciden permisos Allow del ensayo Private y dos reglas anteriores
+  Allow en Public. Acceso desde móvil y cámara siguen pendientes de resolución.
+
+### Cambio autorizado a Wi-Fi tras fallo de alcance Ethernet
+
+- Móvil informa ERR_ADDRESS_UNREACHABLE e IP 192.168.100.2. Ping con origen
+  Ethernet 192.168.100.7 obtiene timeout/destino inaccesible. Ping desde Wi-Fi
+  192.168.100.40 obtiene dos respuestas del móvil, 52-159 ms. La causa de la
+  separación de conectividad Ethernet/Wi-Fi queda sin determinar.
+- Usuario elige pasar el ensayo a Wi-Fi de la PC. Preparación de certificados,
+  build y comprobación TLS completadas para .40 en
+  .tmp/demo-lan/bd69559ecb924653985286bf85f48fd6/network.json.
+- Script temporal elevado .tmp/lan-wifi-switch-93c16b42/apply-network.ps1
+  verifica la regla anterior, cambia perfil Wi-Fi Public a Private y actualiza
+  LocalAddress de la regla propia a 192.168.100.40. Origen conserva /24.
+- Entrada HTTPS anterior detenida mediante identidad de proceso y estado del
+  controlador. Start reutiliza backend/frontend propios con la misma base y
+  registra la nueva entrada. Status confirma gateway propio y HTTPS en .40.
+  Verificación independiente confirma perfil Wi-Fi Private y regla acotada a .40.
+- Certificado público copiado dentro del destino preparado con nombre
+  mediccontrol-demo-ca-wifi.cer para distinguirlo del anterior en el móvil.
+  Nueva confianza Android y acceso desde móvil pendientes. La CA de .7 instalada
+  previamente corresponde al ensayo inicial.
+
+### Ensayo Wi-Fi y guardado desde Redmi confirmados
+
+- Usuario confirma instalación de mediccontrol-demo-ca-wifi.cer como CA y acceso
+  a MedicControl+ en https://192.168.100.40:5443 desde Chrome del Redmi Note 11.
+  Modelo indicado por el usuario 22011177L. Confirma sesión de medico.demo1 y
+  lista de pacientes visible.
+- Confirma cámara activa, lectura del QR mostrado en la PC, identificador
+  rellenado y apertura de EP-24 con nombre coincidente tras Identificar paciente.
+- Autoriza la prueba de guardado. Confirma evaluación médica en EP-24 desde el
+  móvil, diagnóstico Prueba técnica de guardado por Wi-Fi, decisión continuar
+  en observación y texto Registro ficticio desde Redmi Note 11 tras lectura QR
+  de EP-24, sin valor clínico.
+- Confirma ese registro en la línea de tiempo del móvil y después en la PC con
+  Médico Demo Uno (medico.demo1) como autor. Ensayo de acceso, consulta, cámara,
+  identificación y persistencia confirmado por el usuario.
+- Respaldo actualizado verificado en backups/clinical-20261109T000742Z-69cf0ced.sqlite3,
+  25 pacientes y 26 episodios. Restauración aislada verificada en
+  .tmp/lan-demo-final-restored-69cf0ced.sqlite3, SHA-256 coincidente.
+- La causa del fallo de alcance por Ethernet permanece sin determinar.
+
 ## Casillas de contacto tras alta, 08/11/2026
 
 - Captura del usuario en EP-26 muestra casillas extendidas al ancho del formulario

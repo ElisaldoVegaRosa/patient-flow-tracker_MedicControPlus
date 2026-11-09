@@ -12,6 +12,11 @@ import subprocess
 import time
 from urllib.request import ProxyHandler, build_opener
 
+if __package__:
+    from . import demo_lan
+else:
+    import demo_lan
+
 
 class ControlError(RuntimeError):
     pass
@@ -47,12 +52,12 @@ def process_identity(pid):
         kernel.CloseHandle(handle)
 
 
-def port_available(port):
+def port_available(port, address="127.0.0.1"):
     with socket.socket() as probe:
         if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
             probe.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
         try:
-            probe.bind(("127.0.0.1", port))
+            probe.bind((address, port))
             return True
         except OSError:
             return False
@@ -71,11 +76,13 @@ def responds(service):
 
 
 class DemoControl:
-    def __init__(self, root, database=None):
+    def __init__(self, root, database=None, lan_config=None):
         self.root = Path(root).resolve()
         self.directory = self.root / ".tmp" / "demo-control"
         self.state_file = self.directory / "processes.json"
         self.database = Path(database).resolve() if database is not None else None
+        self.lan_config = Path(lan_config).resolve() if lan_config is not None else None
+        self.network = None
 
     @contextmanager
     def locked(self):
@@ -101,7 +108,7 @@ class DemoControl:
             return {}
         try:
             state = json.loads(self.state_file.read_text(encoding="utf-8"))
-            if not isinstance(state, dict) or any(key not in PORTS for key in state):
+            if not isinstance(state, dict) or any(key not in {*PORTS, "gateway"} for key in state):
                 raise ValueError()
             for record in state.values():
                 if (not isinstance(record, dict) or type(record.get("pid")) is not int
@@ -110,6 +117,11 @@ class DemoControl:
                         or not record["image"]):
                     raise ValueError()
                 if 'database' in record and (not isinstance(record['database'], str) or not Path(record['database']).is_absolute()):
+                    raise ValueError()
+            if "gateway" in state:
+                gateway = state["gateway"]
+                if (not isinstance(gateway.get("lan_config"), str) or not Path(gateway["lan_config"]).is_absolute()
+                        or not isinstance(gateway.get("network_signature"), str) or len(gateway["network_signature"]) != 64):
                     raise ValueError()
             return state
         except (ValueError, OSError):
@@ -131,11 +143,28 @@ class DemoControl:
         node = shutil.which("node.exe")
         if not python.is_file() or not vite.is_file() or not node:
             raise ControlError("Faltan dependencias: .venv, Node.js o frontend/node_modules. Consulta DEMO_OPERATIONS.md.")
-        return {
+        commands = {
             "backend": ([str(python), "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1",
                          "--port", "8000", "--no-access-log"], self.root),
             "frontend": ([node, str(vite), "--host", "127.0.0.1", "--port", "5173", "--strictPort"], self.root / "frontend"),
         }
+        if self.lan_config is not None:
+            commands["gateway"] = ([node, str(self.root / "scripts" / "demo_lan_gateway.mjs"), str(self.lan_config)], self.root)
+        return commands
+
+    def network_configuration(self, record=None):
+        try:
+            configuration = demo_lan.load_configuration(self.root, record["lan_config"] if record else self.lan_config)
+        except (ValueError, OSError, TypeError) as error:
+            raise ControlError("Configuracion LAN ilegible o desactualizada. Prepara el modo de red antes de iniciar.") from error
+        if record and configuration["signature"] != record["network_signature"]:
+            raise ControlError("Los certificados o configuracion LAN cambiaron. Deten la entrada antes de prepararla de nuevo.")
+        return configuration
+
+    def service_responds(self, service, record=None):
+        if service == "gateway":
+            return demo_lan.responds(self.network_configuration(record))
+        return responds(service)
 
     def stop_record(self, record):
         if not self.owns(record):
@@ -148,6 +177,8 @@ class DemoControl:
         return True
 
     def start(self):
+        if self.lan_config is not None:
+            self.network = self.network_configuration()
         if self.database is not None:
             import sys
             sys.path.insert(0, str(self.root / 'backend'))
@@ -159,17 +190,21 @@ class DemoControl:
         commands = self.commands()
         state = self.load()
         pending = []
-        for service, port in PORTS.items():
+        ports = {**PORTS, **({"gateway": demo_lan.GATEWAY_PORT} if self.network else {})}
+        for service, port in ports.items():
             if service in state and self.owns(state[service]):
                 if service == 'backend':
                     default = self.root / 'backend' / 'clinical.db'
                     current = Path(state[service].get('database', str(default))).resolve()
                     if current != (self.database or default).resolve():
                         raise ControlError('El backend propio usa otra base. Deten el demo antes de cambiar de base.')
-                if not responds(service):
+                if service == "gateway" and self.network_configuration(state[service])["signature"] != self.network["signature"]:
+                    raise ControlError("La entrada HTTPS propia usa otra configuracion. Deten el demo antes de cambiarla.")
+                if not self.service_responds(service, state[service]):
                     raise ControlError(f"{service}: proceso propio sin respuesta; revisa los logs antes de reiniciar.")
                 continue
-            if not port_available(port):
+            available = port_available(port, self.network["host"]) if service == "gateway" else port_available(port)
+            if not available:
                 raise ControlError(f"Puerto {port} ocupado por un servicio no gestionado. No se modifico; usa Status.")
             pending.append(service)
         created = []
@@ -192,6 +227,8 @@ class DemoControl:
                 record = {"pid": process.pid, **identity}
                 if service == 'backend' and self.database is not None:
                     record['database'] = str(self.database)
+                if service == "gateway":
+                    record.update(lan_config=str(self.lan_config), network_signature=self.network["signature"])
                 created.append((service, record))
                 state[service] = record
                 self.save(state)
@@ -199,7 +236,7 @@ class DemoControl:
                 while True:
                     if process.poll() is not None:
                         raise ControlError(f"{service} termino al iniciar. Consulta su log.")
-                    if responds(service):
+                    if self.service_responds(service, record):
                         break
                     if time.monotonic() >= deadline:
                         raise ControlError(f"{service} no respondio en 20 s. Consulta su log.")
@@ -215,6 +252,8 @@ class DemoControl:
             self.save(state)
             raise
         print("Demo disponible en http://localhost:5173/ (solo esta PC).")
+        if self.network:
+            print(f"Entrada de ensayo LAN disponible en {self.network['url']} (certificado de confianza requerido).")
 
     def stop(self):
         state = self.load()
@@ -243,18 +282,26 @@ class DemoControl:
                 print(f"Base del backend propio: {state[service].get('database', self.root / 'backend' / 'clinical.db')}")
         print("Estado HTTP no verifica integridad de base ni circuito clinico.")
         print(f"Logs locales: {self.directory}")
+        if "gateway" in state:
+            configuration = self.network_configuration(state["gateway"])
+            owned = self.owns(state["gateway"])
+            responsive = demo_lan.responds(configuration)
+            print(f"gateway: {'propio' if owned else 'referencia caducada'}; " + ("responde HTTPS" if responsive else "sin respuesta HTTPS") + f"; {configuration['url']}")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Control local del demo MedicControl+ en Windows")
     parser.add_argument("action", choices=("start", "stop", "status"))
     parser.add_argument('--database', type=Path, help='Copia LAB preparada que usara el backend; solo para start')
+    parser.add_argument('--lan-config', type=Path, help='Configuracion HTTPS LAN preparada; solo para start')
     args = parser.parse_args()
     if os.name != "nt":
         parser.exit(1, "Este controlador requiere Windows.\n")
     if args.database is not None and args.action != 'start':
         parser.error('--database solo se usa con start')
-    control = DemoControl(Path(__file__).resolve().parents[1], database=args.database)
+    if args.lan_config is not None and args.action != 'start':
+        parser.error('--lan-config solo se usa con start')
+    control = DemoControl(Path(__file__).resolve().parents[1], database=args.database, lan_config=args.lan_config)
     try:
         with control.locked():
             getattr(control, args.action)()

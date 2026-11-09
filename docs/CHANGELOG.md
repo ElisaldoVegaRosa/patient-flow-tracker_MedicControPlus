@@ -5,6 +5,17 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Preparación HTTPS del demo en red local (local)
+
+- Entrada optativa HTTPS en IPv4 privada y puerto 5443, con frontend compilado
+  y proxy de API al backend local. Certificados de ensayo generados en archivos
+  mediante Windows .NET, con vigencia de 30 días y permisos de directorio acotados.
+- Preparación explícita con compilación `/api`, comprobación TLS y huella de
+  fuentes. Controlador conserva identificación de procesos, reversión y parada.
+- Pruebas de proxy y controlador, y guía para confianza del certificado en Android.
+  Ensayo Wi-Fi desde Redmi confirmado por el usuario, con lectura QR de EP-24
+  y evaluación ficticia guardada desde móvil y consultada en la PC.
+
 ## Alineación de casillas de contacto tras alta (local)
 
 - Casillas y textos de identidad verificada, aviso transmitido y dificultad de
