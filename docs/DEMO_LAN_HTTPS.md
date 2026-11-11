@@ -8,11 +8,19 @@ inició sesión como medico.demo1, leyó el QR de EP-24 y comprobó identidad.
 Guardó una evaluación ficticia desde el móvil y confirmó su aparición en la PC
 con el autor esperado. Registro completo en [LOCAL_VALIDATION](LOCAL_VALIDATION.md).
 
+El 11 de noviembre el usuario autorizó la prueba de recuperación. La PC se
+reconectó a HOME-WIFI y se comprobó una parada y arranque de los tres servicios
+propios. El usuario confirmó después EP-24 y la evaluación guardada desde la PC
+y el Redmi. Antes de retomar el ensayo, comprobar SSID HOME-WIFI, IPv4 .40 y
+vigencia del certificado preparado.
+
 Configuración vigente en `.tmp/demo-lan/bd69559ecb924653985286bf85f48fd6/network.json`.
 Certificado público del ensayo `mediccontrol-demo-ca-wifi.cer` en ese directorio.
 Perfil Wi-Fi Private. Regla MedicControlDemoLanHttps para Node, TCP 5443,
 dirección local 192.168.100.40 y origen 192.168.100.0/24, perfil Private.
-El acceso inicial por Ethernet .7 falló. Su diagnóstico de red queda pendiente.
+El usuario confirmó dos routers distintos en la situación inicial, con cable de
+la PC hacia HOME WIFI2 y Wi-Fi de PC y móvil hacia HOME-WIFI. Ambas conexiones
+de la PC usaban el rango 192.168.100.0/24. El ensayo corresponde a HOME-WIFI.
 
 Modo optativo para datos ficticios en una PC Windows y un móvil de la misma red.
 La entrada HTTPS usa una IPv4 privada elegida y el puerto 5443. Sirve una

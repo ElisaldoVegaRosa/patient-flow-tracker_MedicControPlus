@@ -1,5 +1,58 @@
 # Diagnostico de validacion local en Windows
 
+## Recuperación y reinicio LAN autorizado, 11/11/2026
+
+- Servicios encontrados detenidos y con referencias de procesos caducadas.
+  Wi-Fi de PC conectada a HOME WIFI2, dirección 192.168.100.12.
+- Perfil guardado HOME-WIFI reconectado para recuperar la red del ensayo.
+  SSID HOME-WIFI, IPv4 192.168.100.40 y perfil Private comprobados.
+- Configuración LAN vigente y comprobación TLS de archivos aprobadas con la CA
+  preparada. Respaldo previo verificado en
+  backups/clinical-20261111T131230Z-55065b59.sqlite3, 25 pacientes y 26 episodios.
+- Stop inicial limpió referencias caducadas. Start con la copia de comunicación
+  y configuración bd69559ecb924653985286bf85f48fd6 completado.
+- Con los procesos propios saludables, Stop detuvo gateway, frontend y backend.
+  Status confirmó backend/frontend detenidos y puertos libres. Segundo Start
+  completado. Status confirma tres procesos propios respondiendo y HTTPS .40.
+- Usuario confirma apertura de EP-24 en PC y Redmi tras el reinicio y presencia
+  del texto Registro ficticio desde Redmi Note 11 tras lectura QR de EP-24, sin
+  valor clínico en ambas líneas de tiempo. Recuperación de servicios y consulta
+  de datos previos confirmadas. Actualización documental revisada por diff,
+  enlaces locales y UTF-8; diff --check aprobado.
+
+## Causa de red confirmada por el usuario
+
+El usuario confirma dos servicios de Internet y dos routers distintos. En la
+situación inicial, la PC estaba conectada por cable al router de HOME WIFI2 y
+por Wi-Fi a HOME-WIFI. El teléfono estaba conectado por Wi-Fi a HOME-WIFI.
+Esta identificación explica la diferencia de alcance entre los enlaces y las
+direcciones físicas distintas registradas para 192.168.100.1. Las dos conexiones
+de la PC usaban direcciones del mismo rango 192.168.100.0/24.
+
+El ensayo de MedicControl+ se realizó por HOME-WIFI, dirección 192.168.100.40.
+La comparación física posterior registró comunicación tanto por RJ45 de laptop
+como por dock. La causa confirmada se incorpora como aclaración de la situación
+inicial descrita antes de las pruebas.
+
+## Comparación del dock y RJ45 de la laptop
+
+- Usuario describe conexión RJ45 al dock Dell y USB-C del dock a la laptop.
+  Confirma disponibilidad de puerto RJ45 propio en la laptop.
+- El usuario mueve el mismo cable al puerto de la laptop. Ethernet recibe
+  192.168.100.12/24. Ping con ese origen al móvil 192.168.100.2 responde 2/2.
+  Wi-Fi 192.168.100.40 responde 2/2. Ambas interfaces registran la misma dirección
+  física de la puerta de enlace 192.168.100.1 y resuelven la dirección del móvil.
+- El usuario devuelve el cable al dock. Ethernet 2 recibe 192.168.100.14/24.
+  Ping al móvil con ese origen responde 3/3 y control por Wi-Fi responde 2/2.
+  La puerta de enlace coincide ahora con la de Wi-Fi.
+- El fallo inicial de Ethernet 2 en .7 quedó registrado con destino inaccesible
+  y otra dirección física para la puerta de enlace. La comparación posterior
+  muestra conectividad recuperada tras la reconexión. Posteriormente el usuario
+  confirmó la conexión inicial de PC y teléfono a routers distintos, descrita arriba.
+- Consulta CIM dentro del aislamiento denegada y ping sin acceso al controlador
+  IP. ipconfig permitió identificar los enlaces. Pings de comparación ejecutados
+  fuera del aislamiento. Cambios documentales, revisión de diff y diff --check.
+
 ## Preparación HTTPS LAN, 08/11/2026
 
 - Usuario autoriza preparar modo de ensayo LAN y coordinar su activación.

@@ -2,6 +2,13 @@
 
 ## Decisiones pendientes (leer primero)
 
+- 11/11: reinicio LAN autorizado completado en servicios propios. PC estaba
+  en HOME WIFI2; reconectada a HOME-WIFI, .40, Private. Respaldo previo
+  clinical-20261111T131230Z-55065b59.sqlite3 verificado (25 pacientes/26 episodios).
+  Parada de procesos vivos y arranque posterior aprobados; tres servicios
+  responden. Usuario confirma EP-24 y la evaluacion previa en PC y Redmi.
+  Prueba de recuperacion cerrada. Evidencia documental local pendiente de publicar.
+
 - Demo HTTPS LAN comprobado por el usuario desde Redmi Note 11 por Wi-Fi,
   https://192.168.100.40:5443. CA instalada, acceso y sesion medico.demo1
   confirmados. Camara lee QR de EP-24, identifica el episodio correcto y permite
@@ -10,18 +17,22 @@
   Certificado publico del ensayo mediccontrol-demo-ca-wifi.cer. Perfil Wi-Fi
   Private; regla propia Node/TCP5443, IP local .40 y origen 192.168.100.0/24.
   Ethernet 2 tambien quedo Private durante la activacion inicial autorizada.
-- Incidencia de Ethernet pendiente: movil 192.168.100.2 devolvio
-  ERR_ADDRESS_UNREACHABLE al acceder a .7. Ping desde .7 falla y desde .40
-  responde; usuario autoriza pasar a Wi-Fi. Detalle en LOCAL_VALIDATION.
+- Comparacion fisica completada por el usuario: RJ45 de laptop .12 alcanza
+  al movil .2 (2/2). Al devolver el mismo cable al dock, Ethernet 2 recibe .14
+  y alcanza al movil (3/3), con puerta de enlace coincidente con Wi-Fi.
+  Usuario confirma causa inicial: dos servicios y routers distintos, PC por
+  cable en HOME WIFI2 y Wi-Fi de PC y movil en HOME-WIFI. Ambas conexiones
+  de PC usaban 192.168.100.0/24, con puertas de enlace fisicas distintas.
+  Ensayo de app por HOME-WIFI. Detalle en LOCAL_VALIDATION. Documentacion local.
 - Backend completo 642 aprobado, con 48 dirigidas posteriores; frontend completo
   782/782 y gateway dirigido posterior 8/8 aprobados. Lint, build y TLS aprobados.
   Primer backend aislado incompleto; repeticion fuera del aislamiento aprobada.
 - Respaldo posterior al ensayo verificado, 25 pacientes y 26 episodios, en
   backups/clinical-20261109T000742Z-69cf0ced.sqlite3; restauracion aislada
   .tmp/lan-demo-final-restored-69cf0ced.sqlite3, SHA-256 coincidente.
-- Guia vigente [DEMO_LAN_HTTPS](DEMO_LAN_HTTPS.md). Entrega local preparada
-  revisada. Usuario autoriza crear commit, publicar en origin/main y comprobar CI.
-  Resultado remoto pendiente hasta publicar el commit de esta entrega.
+- Guia vigente [DEMO_LAN_HTTPS](DEMO_LAN_HTTPS.md). Modo LAN publicado como
+  519c558 en origin/main, CI 42539476679 aprobada para backend, frontend, lint
+  y build. La comparacion fisica posterior agrega solo evidencia documental.
 
 - Publicado `f7c9435` en `origin/main`, con CI aprobada (backend, frontend, lint y build).
 - CI: https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/42523463033
