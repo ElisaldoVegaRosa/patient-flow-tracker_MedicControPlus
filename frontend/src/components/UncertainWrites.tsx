@@ -52,7 +52,14 @@ export default function UncertainWrites({ operations, onConfirmed, onRejected }:
   useLayoutEffect(() => { handlers.current = { onConfirmed, onRejected }; }, [onConfirmed, onRejected]);
   useEffect(() => {
     mounted.current = true;
-    const update = () => { setPending(getUncertainWrites()); setReviewRequired(needsInterruptedWriteReview()); setMessages({}); };
+    const update = () => {
+      const current = getUncertainWrites();
+      setPending(current);
+      setReviewRequired(needsInterruptedWriteReview());
+      // A reference refresh is not another transport attempt. Keep the latest
+      // consultation result instead of reviving the original write error.
+      setMessages(previous => Object.fromEntries(Object.entries(previous).filter(([key]) => current.some(item => item.key === key))));
+    };
     window.addEventListener(WRITE_RESULTS_EVENT, update);
     return () => { mounted.current = false; window.removeEventListener(WRITE_RESULTS_EVENT, update); };
   }, []);
@@ -61,6 +68,7 @@ export default function UncertainWrites({ operations, onConfirmed, onRejected }:
     if (!release) return;
     const revision = getSessionRevision();
     const body = getWriteBody(item.key);
+    setMessages(previous => ({ ...previous, [item.key]: retry ? "Reintentando operación original…" : "Consultando resultado…" }));
     try {
       const response = retry ? { status: "confirmed", result: await retryWrite(item.key) } : await inspectWrite(item.key);
       if (!mounted.current || revision !== getSessionRevision()) return;
@@ -74,7 +82,10 @@ export default function UncertainWrites({ operations, onConfirmed, onRejected }:
     } catch (error) {
       if (!mounted.current || revision !== getSessionRevision() || isSessionInterruption(error)) return;
       if (!getUncertainWrites().some(pending => pending.key === item.key)) handlers.current.onRejected?.(item.path, error as Error);
-      setMessages(previous => ({ ...previous, [item.key]: (error as Error).message }));
+      const message = retry
+        ? `No se pudo confirmar el reintento. El envío sigue por confirmar. ${(error as Error).message}`
+        : `No se pudo consultar el resultado. No se ha reenviado la operación. ${(error as Error).message}`;
+      setMessages(previous => ({ ...previous, [item.key]: message }));
     } finally {
       release();
     }
@@ -88,7 +99,7 @@ export default function UncertainWrites({ operations, onConfirmed, onRejected }:
   return <section className="panel" aria-label="Guardados por confirmar">
     <h2>Guardados por confirmar</h2>
     <p>Consultar no vuelve a enviar. Reintentar envía la operación original, aunque hayas editado los campos después.</p>
-    {pending.map(item => <div key={item.key}>
+    {pending.map(item => <div key={item.key} aria-busy={operations.isPending(operationKey(item.path))}>
       <h3>{label(item.path)}</h3>
       <p role="status">{messages[item.key] ?? item.message}</p>
       <button type="button" disabled={operations.isPending(operationKey(item.path))} onClick={() => void resolve(item, false)}>Consultar resultado</button>

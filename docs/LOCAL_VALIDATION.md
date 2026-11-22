@@ -1,5 +1,131 @@
 # Diagnostico de validacion local en Windows
 
+## Envio sin conexion y limpieza tras confirmacion, 22/11/2026
+
+- Diagnostico posterior autorizado de Consultar resultado: revision de cliente,
+  ciclo de solicitudes y proxy sin cambio de transporte. Regresion en
+  UncertainWrites.test.tsx confirma que WRITE_RESULTS_EVENT, aun conservando
+  la misma clave pendiente, borra el mensaje de consulta y revive el error del
+  guardado original. No se afirma que el fetch de consulta fallara en Android:
+  el mensaje observado tambien puede corresponder a ese error anterior.
+- Correccion conserva mensajes solo para claves que siguen pendientes, muestra
+  Consultando resultado / Reintentando operacion original y distingue los
+  errores de cada accion. Aria-busy indica la operacion en curso. No hay
+  reintentos automaticos, cambios de URL, claves, permisos ni plazos de solicitud.
+- Regresiones verifican estado de consulta en curso, error de consulta separado,
+  conservacion de ese error y del estado unknown ante actualizacion de referencias,
+  segunda consulta GET con misma clave y otro AbortSignal, sin reenvio ni falsa
+  confirmacion. Dirigidas 49/49 aprobadas en 14,96 s.
+- npm.cmd run test --prefix frontend -- --maxWorkers=2 fuera del aislamiento:
+  788/788 aprobadas, 86 archivos, 264,33 s. Log en
+  .tmp/consult-result-frontend-20261122.log. Se usa ese entorno por los EACCES
+  de gateway previos, sin cambiar el runner ni los plazos. Lint y build aprobados.
+  Solo documentacion actualizada despues; sin repetir suites ni pruebas de app.
+- Activacion posterior del panel autorizada: nueva compilacion /api en
+  .tmp/demo-lan/consult-result-20261122. Certificados anteriores copiados con
+  igualdad SHA-256 y ACL de directorio comprobada equivalente; CA sin cambios.
+  Node --check y load_configuration aprobados. Respaldo previo verificado
+  clinical-20261122T210130Z-cec6e816.sqlite3 (25 pacientes/26 episodios), SHA-256
+  1235dcfe724d511c2ecaf43b83c6460259568db310ddc19d3fc52dcd0fdfc76f.
+  Stop/Start de servicios propios con la misma base. Status confirma tres
+  respuestas y HTTPS .40; index y assets/index-D-YIcv46.js coinciden por hash
+  con la compilacion preparada.
+- Prueba numero 5 en Redmi confirmada por el usuario: llena la evaluacion de
+  EP-24, desconecta Wi-Fi/datos y guarda una vez; aparece Resultado por confirmar.
+  Tras reconectar HOME-WIFI, Consultar resultado responde Todavia no hay
+  confirmacion. Al pedir comprobar por separado el panel Guardados por confirmar,
+  confirma que alli se conserva ese resultado. El Failed to fetch comunicado
+  antes era el aviso original junto al formulario, no una nueva consulta fallida.
+- Usuario pulsa una vez Reintentar operacion original y confirma los tres
+  criterios: campos vacios, una entrada del diagnostico numero 5 en la linea de
+  tiempo y panel pendiente retirado. Ensayo cerrado. No se acredita un fallo
+  real de transporte de la consulta Android. Sin cambios de codigo posteriores;
+  validaciones anteriores vigentes, solo actualizacion documental revisada.
+
+- Tras reinicio, Wi-Fi estaba apagada. Usuario la activa; SSID HOME-WIFI,
+  IPv4 .40 y perfil Private comprobados. CA anterior vigente y comprobacion
+  TLS aprobada. Respaldo clinical-20261122T194247Z-59696171.sqlite3 verificado,
+  SHA-256 d475785172967b8dbeaef9a01589ac358d8a9dd83b6815ca5274beece7811cb8,
+  25 pacientes y 26 episodios.
+- Controlador rechazo referencias caducadas al no poder consultar el ejecutable
+  de PID reutilizado. Bajo su bloqueo se comprobo GetProcessTimes: backend
+  inexistente, frontend/gateway con fechas distintas. Referencias archivadas en
+  .tmp/demo-control/processes.pre-recovery-20261122.json antes de retirarlas.
+  Ningun proceso detenido. Start y Status posteriores confirman tres servicios
+  propios y la misma base de comunicacion. Sin cambios de codigo del controlador.
+- Usuario opera Redmi, medico.demo1, EP-24, diagnostico Prueba ficticia de envio
+  sin conexion numero 3. Sin Wi-Fi ni datos moviles, un intento de guardar deja
+  campos completos y Resultado por confirmar / Failed to fetch.
+- Tras reconectar, panel Guardados por confirmar localizado arriba de la pagina.
+  Consultar resultado responde Todavia no hay confirmacion. Usuario pulsa una
+  vez Reintentar operacion original, confirma una entrada en la linea de tiempo
+  y ausencia del panel pendiente. Campos siguen llenos sin edicion posterior.
+- Regresion automatica reproduce consulta y reintento tras refresco: FormData
+  omite controles deshabilitados mientras la resolucion esta pendiente y no
+  reconoce el formulario confirmado. Correccion reutiliza operationalFields
+  para comparar valores sin habilitar campos ni cambiar el envio.
+- Pruebas comprueban limpieza de evaluacion sin editar, conservacion de cambios
+  posteriores y otro borrador, consulta sin reenvio, reintento con cuerpo y clave
+  originales. Dirigidas 70/70 aprobadas.
+- npm.cmd run test --prefix frontend -- --maxWorkers=2: 780/786 aprobadas,
+  85 archivos aprobados y seis errores EACCES del gateway en 359,98 s. Log en
+  .tmp/evaluation-recovery-frontend-20261122.log. Sin cambiar codigo ni runner,
+  npm.cmd run test --prefix frontend -- demo-lan.test.mjs --maxWorkers=2 fuera
+  del aislamiento: 8/8 aprobadas en 4,31 s. Cobertura de los 786 casos completada
+  entre ambas ejecuciones; no se afirma una suite completa unica aprobada.
+- npm.cmd run lint --prefix frontend y npm.cmd run build --prefix frontend
+  aprobados. Backend sin cambios, sin repetir sus suites. Diff revisado y
+  git diff --check aprobado. No se ha creado commit ni hecho push.
+- La incidencia visual se confirma por el usuario; no hay inspeccion directa
+  del navegador o de filas de la base durante el ensayo.
+- Actualizacion LAN posterior autorizada: compilacion aparte en
+  .tmp/demo-lan/recovery-cleanup-20261122, VITE_API_URL=/api, mismo certificado
+  vigente y copias locales identicas por hash. ACL de directorio comprobada
+  equivalente a la preparacion anterior. Configuracion validada con Node --check
+  y load_configuration; no se emite otra CA ni se modifican reglas de red.
+- Respaldo previo clinical-20261122T202152Z-9f12f357.sqlite3 verificado,
+  SHA-256 28bdf1de19c0f387e9c7fc6eaa7941aad7226334174efa2389325ca82c1e6ed8,
+  25 pacientes y 26 episodios. Stop/Start de servicios propios con la misma base
+  de comunicacion, Status confirma tres respuestas y HTTPS .40. Lectura HTTPS
+  con CA validada confirma index y JavaScript index-ptzt4io3.js identicos a la
+  nueva compilacion.
+- Usuario recarga y ejecuta prueba ficticia numero 4 en EP-24. Un guardado sin
+  Wi-Fi ni datos deja Resultado por confirmar / Failed to fetch y conserva
+  textos. Tras reconectar, informa Failed to fetch al consultar el resultado.
+  Status de PC confirma tres servicios propios respondiendo. Otra pestana del
+  telefono abre /api/health y muestra status ok; usuario confirma la direccion
+  original 192.168.100.40:5443. No se atribuye aun una causa a esa consulta.
+- Usuario pulsa una vez Reintentar operacion original con conexion. Confirma
+  campos vacios, una sola entrada del diagnostico numero 4 en la linea de tiempo
+  y desaparicion de Guardados por confirmar. Limpieza del formulario comprobada
+  en la compilacion corregida; la consulta fallida queda como incidencia separada
+  pendiente de diagnostico. Sin nuevas modificaciones de codigo ni suites tras
+  esta confirmacion manual. Evidencia aportada por el usuario.
+
+## Borrador movil durante desconexion y guardado posterior, EP-24
+
+- Ensayo manual guiado autorizado; usuario opera Chrome en Redmi Note 11,
+  con la misma copia del demo. Status previo confirma backend y frontend propios
+  y gateway HTTPS en https://192.168.100.40:5443 respondiendo.
+- Un primer borrador se guardo accidentalmente antes de desconectar. Usuario
+  confirma Evaluacion guardada; se conserva como registro ficticio separado.
+- Segundo borrador: diagnostico Prueba ficticia de desconexion numero 2;
+  nota Segundo borrador ficticio EP-24 para comprobar conservacion sin Wi-Fi,
+  sin valor clinico; decision Continuar en observacion.
+- Se guia desactivar Wi-Fi y datos moviles, volver a la misma pestana sin
+  recargar y esperar unos 20 segundos. Usuario informa aviso de Chrome para
+  ver archivos sin conexion y confirma ambos textos completos.
+- Tras reconectar HOME-WIFI y esperar, usuario confirma textos conservados y
+  boton disponible. Pulsa Guardar evaluacion medica una sola vez y confirma
+  Evaluacion guardada. Confirma una sola entrada del segundo diagnostico en
+  la Linea de tiempo auditable.
+- Alcance: conservacion del borrador en una pestana abierta durante una
+  desconexion, seguida de un guardado confirmado en linea. No se intento enviar
+  sin conexion, cerrar o recargar la pestana, ni provocar perdida de respuesta
+  durante el envio. El aviso de Chrome no acredita una funcion offline de la app.
+- Evidencia comunicada por el usuario, sin inspeccion directa de su navegador
+  o de filas de la base en este ensayo. Sin cambios de codigo ni suites nuevas.
+
 ## Recuperación y reinicio LAN autorizado, 11/11/2026
 
 - Servicios encontrados detenidos y con referencias de procesos caducadas.

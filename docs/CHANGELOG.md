@@ -5,6 +5,26 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Limpieza de formularios tras confirmar un envio incierto (local, 22/11/2026)
+
+- Consulta del envio pendiente conserva su ultimo resultado al actualizar
+  referencias, muestra progreso y distingue errores de consulta y reintento
+  del error del guardado original. Evita mostrar de nuevo un error antiguo
+  como si fuera el resultado de la consulta. Sin reenvios automaticos.
+  Dirigidas 49/49 y frontend completo 788/788 aprobados; lint/build aprobados.
+  Panel activado en LAN con autorizacion; prueba numero 5 confirmada: resultado
+  de consulta conservado, campos vacios, una entrada y panel retirado tras reintento.
+- Usuario confirma en Redmi por HTTPS: prueba numero 4 deja una sola entrada,
+  campos vacios y aviso pendiente retirado tras reintento. En la prueba numero 5
+  aclara que Failed to fetch era el error original junto al formulario, mientras
+  el panel conservaba el resultado de consulta. Sin fallo de transporte acreditado.
+- La confirmacion por consulta o reintento reconoce los valores de los campos
+  temporalmente deshabilitados y limpia el formulario que coincide con el envio.
+- Conserva ediciones posteriores y borradores de otros formularios. Reutiliza
+  la lectura comun existente; no cambia permisos, persistencia ni claves de envio.
+- Regresiones de evaluacion medica tras refresco cubren consulta y reintento,
+  conservacion de ediciones y reutilizacion del cuerpo y clave originales.
+
 ## Preparación HTTPS del demo en red local (local)
 
 - Entrada optativa HTTPS en IPv4 privada y puerto 5443, con frontend compilado

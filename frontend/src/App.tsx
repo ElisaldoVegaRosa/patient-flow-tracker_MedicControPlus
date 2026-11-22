@@ -36,7 +36,7 @@ import StaffingPage from "./pages/StaffingPage";
 import StaffHistoryPage from "./pages/StaffHistoryPage";
 import CareQueuePage from "./pages/CareQueuePage";
 import { clearSpecimenDrafts, claimSpecimenDraftOwner } from "./session/specimenDrafts";
-import { notifyOperationalConfirmation, notifyOperationalConflict, operationalFormDirty } from "./session/operationalWrites";
+import { notifyOperationalConfirmation, notifyOperationalConflict, operationalFields, operationalFormDirty } from "./session/operationalWrites";
 import EpisodePresence from "./components/EpisodePresence";
 import AppHeader from "./components/AppHeader";
 import type {
@@ -293,7 +293,8 @@ function App() {
       form.dataset.draftKind === kind &&
       (!form.dataset.episodeId || Number(form.dataset.episodeId) === updated.id) &&
       (!form.dataset.taskId || path === `/tasks/${form.dataset.taskId}/complete`) &&
-      matchesSubmittedFields(new FormData(form), payload));
+      // Pending controls remain disabled until React commits the release.
+      matchesSubmittedFields(operationalFields(form), payload));
     // A receipt can return later changes by another session. Do not silently
     // adopt their triage version underneath local edits still awaiting review.
     if (!["triage", "identity"].includes(kind ?? "") || savedForm || Object.entries(payload).every(([name, value]) => String((updated as unknown as Record<string, unknown>)[name] ?? "") === String(value ?? ""))) writes.forget(path);

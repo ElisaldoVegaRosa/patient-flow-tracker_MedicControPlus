@@ -14,7 +14,17 @@ propios. El usuario confirmó después EP-24 y la evaluación guardada desde la 
 y el Redmi. Antes de retomar el ensayo, comprobar SSID HOME-WIFI, IPv4 .40 y
 vigencia del certificado preparado.
 
-Configuración vigente en `.tmp/demo-lan/bd69559ecb924653985286bf85f48fd6/network.json`.
+Configuracion vigente en `.tmp/demo-lan/consult-result-20261122/network.json`.
+Incluye el panel que conserva el ultimo resultado de consulta y distingue
+su error del guardado original. Prueba numero 5 confirmada por el usuario:
+consulta conserva Todavia no hay confirmacion y el reintento limpia campos,
+registra una entrada y retira el panel pendiente.
+Actualizada el 22 de noviembre con la correccion de limpieza del formulario
+confirmado, conservando el mismo certificado de confianza. Usuario confirma
+limpieza de campos, una entrada y retirada del aviso tras reintento en la prueba
+numero 4. El aviso Failed to fetch observado durante la consulta se aclaro en
+la prueba numero 5: correspondia al error original junto al formulario, mientras
+el panel conservaba el resultado de la consulta. No se acredita fallo de transporte.
 Certificado público del ensayo `mediccontrol-demo-ca-wifi.cer` en ese directorio.
 Perfil Wi-Fi Private. Regla MedicControlDemoLanHttps para Node, TCP 5443,
 dirección local 192.168.100.40 y origen 192.168.100.0/24, perfil Private.

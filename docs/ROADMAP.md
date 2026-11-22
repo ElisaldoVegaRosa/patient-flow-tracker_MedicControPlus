@@ -2,18 +2,53 @@
 
 ## Decisiones pendientes (leer primero)
 
+- 22/11: ensayo EP-24 de envio sin conexion confirmado por el usuario:
+  consulta sin confirmacion, reintento original tras reconectar, una entrada
+  del diagnostico numero 3 y retirada del aviso pendiente. Formulario conservaba
+  textos sin editar: fallo reproducido en consulta y reintento tras refresco.
+  Correccion local usa lectura de campos incluso deshabilitados para reconocer
+  el borrador confirmado; conserva ediciones posteriores y otros formularios.
+  Dirigidas 70/70 aprobadas. Suite frontend: 780/786; seis fallos EACCES
+  del gateway aislado. Gateway fuera del aislamiento 8/8; lint/build aprobados.
+  Compilacion corregida activada con autorizacion en HTTPS .40, misma base y
+  certificado. Configuracion .tmp/demo-lan/recovery-cleanup-20261122/network.json.
+  Servicios propios responden; index y JavaScript servidos coinciden por hash.
+  Usuario confirma prueba numero 4: tras reintento, campos vacios, una sola
+  entrada en historial y panel pendiente retirado. Limpieza manual aprobada.
+  Consulta: regresion reproduce que una actualizacion de referencias borra
+  su resultado y revive el error del guardado original. Correccion local
+  conserva el ultimo resultado por clave, muestra consulta/reintento en curso
+  y distingue el error de consulta del error original. Dirigidas 49/49;
+  frontend completo 788/788 (86 archivos, 264,33 s) fuera del aislamiento,
+  lint/build aprobados. Esto no demuestra una causa de red en Android.
+  Panel actualizado en LAN con autorizacion: configuracion activa
+  .tmp/demo-lan/consult-result-20261122/network.json, misma base y CA.
+  Tres servicios propios responden; index y JavaScript verificados por hash.
+  Usuario confirma prueba numero 5: consulta devuelve y conserva Todavia
+  no hay confirmacion. El Failed to fetch visible era el error original junto
+  al formulario; no demuestra un fallo de consulta. Reintento: campos vacios,
+  una entrada y panel retirado. Prueba manual cerrada; usuario autoriza crear
+  commit, publicar en origin/main y comprobar CI para esta entrega revisada.
+
+- Ensayo manual de desconexion movil EP-24 confirmado por el usuario:
+  borrador numero 2 conservado en la misma pestana sin recargar, con Wi-Fi y
+  datos moviles desactivados. Tras reconectar HOME-WIFI, un solo guardado
+  confirmado y una sola entrada del segundo diagnostico en el historial.
+  El primer guardado accidental corresponde a otro registro ficticio.
+  Evidencia de la prueba previa; ensayo de envio posterior registrado arriba.
+
 - 11/11: reinicio LAN autorizado completado en servicios propios. PC estaba
   en HOME WIFI2; reconectada a HOME-WIFI, .40, Private. Respaldo previo
   clinical-20261111T131230Z-55065b59.sqlite3 verificado (25 pacientes/26 episodios).
   Parada de procesos vivos y arranque posterior aprobados; tres servicios
   responden. Usuario confirma EP-24 y la evaluacion previa en PC y Redmi.
-  Prueba de recuperacion cerrada. Evidencia documental local pendiente de publicar.
+  Prueba de recuperacion publicada como 48b6cb0; CI 43029663568 aprobada.
 
 - Demo HTTPS LAN comprobado por el usuario desde Redmi Note 11 por Wi-Fi,
   https://192.168.100.40:5443. CA instalada, acceso y sesion medico.demo1
   confirmados. Camara lee QR de EP-24, identifica el episodio correcto y permite
   guardar evaluacion ficticia, confirmada despues en la PC con su autor.
-- Configuracion activa .tmp/demo-lan/bd69559ecb924653985286bf85f48fd6/network.json.
+- Configuracion activa .tmp/demo-lan/consult-result-20261122/network.json.
   Certificado publico del ensayo mediccontrol-demo-ca-wifi.cer. Perfil Wi-Fi
   Private; regla propia Node/TCP5443, IP local .40 y origen 192.168.100.0/24.
   Ethernet 2 tambien quedo Private durante la activacion inicial autorizada.

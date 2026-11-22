@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, it, vi } from "vitest";
 import App from "./App";
@@ -67,3 +67,53 @@ it.each(["consultar", "reintentar", "consultar sin editar", "consultar cambios p
 
 // Isolate existing clinical flows; presence composition has its own integration tests.
 vi.mock("./components/EpisodePresence", () => ({ default: () => null }));
+
+it.each([
+  ["consultar", false], ["reintentar", false],
+  ["consultar", true], ["reintentar", true],
+])("%s una evaluación tras refrescar respeta la edición posterior: %s", async (mode, edited) => {
+  localStorage.setItem("token", "ficticio");
+  const identity = { username: "medico", role: "DOCTOR" };
+  let attempts = 0;
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = new URL(String(input)).pathname;
+    if (path === "/auth/me") return response(identity);
+    if (path === "/dashboard") return response({ active: 1, open_alerts: 0, patients: [initial], requested_by: identity.username });
+    if (path === "/scan/qr56" || path === "/episodes/42") return response({ ...initial });
+    if (path === "/write-result") return response({ status: "confirmed", result: { ...initial } });
+    if (path === "/episodes/42/medical-evaluation") {
+      attempts++;
+      if (attempts === 1) throw new Error("Failed to fetch");
+      return response({ ...initial });
+    }
+    throw new Error(`Petición inesperada: ${path} ${init?.method ?? "GET"}`);
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(await screen.findByRole("button", { name: "Escanear pulsera" }));
+  fireEvent.change(screen.getByPlaceholderText("Token de la pulsera"), { target: { value: "qr56" } });
+  await user.click(screen.getByRole("button", { name: "Identificar paciente" }));
+  fireEvent.change(await screen.findByLabelText("Diagnóstico o impresión clínica"), { target: { value: "Evaluación ficticia sin conexión" } });
+  fireEvent.change(screen.getByLabelText("Nota de evaluación"), { target: { value: "Texto original que debe limpiarse al confirmar" } });
+  fireEvent.change(screen.getByLabelText("Orden o procedimiento solicitado"), { target: { value: "Otro borrador que debe conservarse" } });
+  await user.click(screen.getByRole("button", { name: "Guardar evaluación médica" }));
+  await screen.findByRole("region", { name: "Guardados por confirmar" });
+  await act(async () => { window.dispatchEvent(new Event("focus")); });
+  await waitFor(() => expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/episodes/42"))).toBe(true));
+  const evaluationForm = screen.getByRole("button", { name: "Guardar evaluación médica" }).closest("form")!;
+  expect(Object.fromEntries(new FormData(evaluationForm))).toEqual(JSON.parse(String(fetchMock.mock.calls.find(([url]) => String(url).endsWith("/medical-evaluation"))![1]?.body)));
+  expect((screen.getByLabelText("Diagnóstico o impresión clínica") as HTMLInputElement).defaultValue).toBe("");
+  if (edited) fireEvent.change(screen.getByLabelText("Nota de evaluación"), { target: { value: "Edición posterior que no fue enviada" } });
+  await user.click(screen.getByRole("button", { name: mode === "reintentar" ? "Reintentar operación original" : "Consultar resultado" }));
+  await waitFor(() => expect(screen.queryByRole("region", { name: "Guardados por confirmar" })).not.toBeInTheDocument());
+  expect(screen.getByLabelText("Diagnóstico o impresión clínica")).toHaveValue(edited ? "Evaluación ficticia sin conexión" : "");
+  expect(screen.getByLabelText("Nota de evaluación")).toHaveValue(edited ? "Edición posterior que no fue enviada" : "");
+  expect(screen.getByLabelText("Orden o procedimiento solicitado")).toHaveValue("Otro borrador que debe conservarse");
+  const writes = fetchMock.mock.calls.filter(([url]) => String(url).endsWith("/medical-evaluation"));
+  expect(writes).toHaveLength(mode === "reintentar" ? 2 : 1);
+  if (mode === "reintentar") {
+    expect(writes[1][1]?.body).toBe(writes[0][1]?.body);
+    expect(new Headers(writes[1][1]?.headers).get("Idempotency-Key")).toBe(new Headers(writes[0][1]?.headers).get("Idempotency-Key"));
+  }
+});

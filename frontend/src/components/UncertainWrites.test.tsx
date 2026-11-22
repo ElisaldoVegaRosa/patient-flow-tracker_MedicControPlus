@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { api, establishSession, invalidateSession } from "../api/client";
+import { api, establishSession, invalidateSession, WRITE_RESULTS_EVENT } from "../api/client";
 import { usePendingOperations } from "../hooks/usePendingOperations";
 import UncertainWrites from "./UncertainWrites";
 import { REQUEST_TIMEOUT_MS } from "../api/requestLifetime";
@@ -26,6 +26,37 @@ describe("Revisión explícita de guardados inciertos", () => {
     expect(await screen.findByText(/Esto no demuestra/)).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[1][1].method).toBeUndefined();
+    expect(onConfirmed).not.toHaveBeenCalled();
+  });
+  it("conserva el resultado de la consulta al actualizar referencias del mismo envio", async () => {
+    const { fetchMock } = await setup();
+    fetchMock.mockResolvedValueOnce(response({ status: "unknown" }));
+    fireEvent.click(screen.getByText("Consultar resultado"));
+    await screen.findByText(/Esto no demuestra/);
+    act(() => { window.dispatchEvent(new Event(WRITE_RESULTS_EVENT)); });
+    expect(screen.getByText(/Esto no demuestra/)).toBeVisible();
+  });
+  it("distingue la consulta del error original y permite consultar otra vez sin reenviar", async () => {
+    const { fetchMock, onConfirmed } = await setup();
+    let rejectRead!: (error: Error) => void;
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((_, reject) => { rejectRead = reject; }));
+    fireEvent.click(screen.getByText("Consultar resultado"));
+    expect(screen.getByText("Consultando resultado…")).toBeVisible();
+    await act(async () => { rejectRead(new TypeError("Failed to fetch")); });
+    expect(screen.getByText(/No se pudo consultar el resultado/)).toBeVisible();
+    act(() => { window.dispatchEvent(new Event(WRITE_RESULTS_EVENT)); });
+    expect(screen.getByText(/No se pudo consultar el resultado/)).toBeVisible();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][1].signal).not.toBe(fetchMock.mock.calls[0][1].signal);
+    fetchMock.mockResolvedValueOnce(response({ status: "unknown" }));
+    fireEvent.click(screen.getByText("Consultar resultado"));
+    await screen.findByText(/Esto no demuestra/);
+    act(() => { window.dispatchEvent(new Event(WRITE_RESULTS_EVENT)); });
+    expect(screen.getByText(/Esto no demuestra/)).toBeVisible();
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock.mock.calls.slice(1).every(([, options]) => !options.method || options.method === "GET")).toBe(true);
+    expect(new Headers(fetchMock.mock.calls[2][1].headers).get("Idempotency-Key"))
+      .toBe(new Headers(fetchMock.mock.calls[0][1].headers).get("Idempotency-Key"));
     expect(onConfirmed).not.toHaveBeenCalled();
   });
   it("un recibo confirmado actualiza la interfaz sin hacer otra escritura", async () => {
