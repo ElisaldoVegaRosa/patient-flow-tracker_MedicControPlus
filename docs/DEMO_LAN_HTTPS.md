@@ -93,7 +93,7 @@ guardados. Usar las rutas exactas devueltas por la preparación. Ejemplo de la
 configuración Wi-Fi comprobada, sujeto a confirmación de dirección y vigencia.
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\demo.ps1 Start -Database ".tmp\communication-rollout-20261030\clinical-communication-working.sqlite3" -LanConfig ".tmp\demo-lan\bd69559ecb924653985286bf85f48fd6\network.json"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\demo.ps1 Start -Database ".tmp\communication-rollout-20261030\clinical-communication-working.sqlite3" -LanConfig ".tmp\demo-lan\consult-result-20261122\network.json"
 ```
 
 El controlador reutiliza sus procesos saludables si corresponden a la misma
@@ -134,7 +134,7 @@ Remove-NetFirewallRule -Name "MedicControlDemoLanHttps"
 El perfil observado inicialmente fue Public. Si se acuerda recuperar esa
 clasificación al cerrar el ensayo, usar la misma interfaz con `-NetworkCategory Public`.
 
-## Recorrido manual pendiente
+## Guion para futuros ensayos
 
 1. Confirmar IP de la PC, red del móvil y certificado instalado.
 2. Activar la entrada con la base respaldada y comprobar Status.

@@ -2,6 +2,38 @@
 
 ## Estado actual (leer primero)
 
+- Cierre del 22/11: nueva copia USB verificada en
+  D:/MedicControlPlus-demo-20261122-574f8a1e, respaldo
+  clinical-20261122T225307Z-574f8a1e.sqlite3, 25 pacientes/26 episodios.
+  Restauracion .tmp/usb-restore-20261122-574f8a1e.sqlite3 aprobada, mismo hash
+  que la copia anterior. Anterior conservada; base activa sin sustituir.
+  Status previo: backend/frontend responden; gateway propio sin respuesta HTTPS.
+  No se interviene en la red ni se reinicia el demo durante este respaldo.
+
+- 22/11: inventario actualizado en DEMO_READINESS.md sobre 1f65d6d y evidencia
+  EP-24/25/26; elimina pendientes ya completados y distingue condiciones de campo.
+  Guia DEMO_QUICK_START.md preparada con arranque de la copia correcta, LAN,
+  envios pendientes, parada y respaldo USB. Enlace desde DEMO_OPERATIONS.md;
+  ejemplo LAN actualizado a consult-result-20261122. Revision solo documental,
+  sin ejecucion de comandos operativos ni nuevas pruebas de app.
+  Rutina manual acordada: al terminar cada sesion y antes de cambios importantes.
+  Usuario conecta/guarda USB; asistente prepara, verifica y restaura copia aislada
+  cuando se lo pida. Conserva copias anteriores, sin programacion automatica.
+  Siguiente decision: elegir objetivo del proximo ensayo o presentacion.
+  Entrega documental revisada; usuario autoriza commit, push a origin/main y CI.
+
+- 22/11: respaldo externo verificado en Kingston DataTraveler USB, disco 1,
+  D: FAT32, separado del disco NVMe de Windows. Carpeta nueva
+  D:/MedicControlPlus-demo-20261122-2311eb7d con SQLite, SHA-256 y LEEME.
+  Respaldo clinical-20261122T222347Z-2311eb7d.sqlite3: 25 pacientes/26 episodios.
+  Verificacion desde USB y restauracion aislada en
+  .tmp/usb-restore-20261122-2311eb7d.sqlite3 aprobadas, hash coincidente.
+  Base activa conservada; no se inicia app con la restaurada. Documentacion
+  nueva local; inventario y guia consolidados en la revision descrita arriba.
+  Ensayos de app se coordinan antes.
+- Controlador publicado como 1f65d6d en origin/main; CI 45072785037 aprobada
+  para backend, frontend, lint y build. Repositorio limpio antes de estas notas.
+
 - 22/11: correccion local del controlador tras reiniciar Windows. Compara
   primero la fecha de creacion del PID registrado; si es distinta, descarta
   su identidad sin consultar el ejecutable del proceso ajeno. Si no puede

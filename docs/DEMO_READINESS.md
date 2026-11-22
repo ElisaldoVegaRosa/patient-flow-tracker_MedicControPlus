@@ -1,59 +1,70 @@
 # Inventario de preparación del demo
 
-Revisión documental del 8 de noviembre de 2026 sobre la entrega `10d006b`.
-Las comprobaciones citadas corresponden a sus fechas originales. Esta revisión
-consolida evidencia existente. La próxima ejecución del circuito requiere acordar
-la base, el caso ficticio y quién operará la app.
+Actualizado el **22 de noviembre de 2026**, sobre la entrega publicada `1f65d6d`.
+Consolida pruebas anteriores y sus límites; esta revisión no ejecuta otra prueba
+clínica. La CI de esa entrega aprobó backend, frontend, análisis y compilación.
 
-## Capacidades y evidencia disponible
+## Estado del demo local
 
-| Capacidad | Evidencia registrada | Pendiente para el próximo ensayo |
+Los circuitos principales tienen evidencia funcional en esta PC y con el Redmi.
+Las pruebas EP-25 y EP-26 cubren el recorrido integral y el seguimiento tras alta.
+EP-24 cubre relevo y recuperación de envíos tras desconexión. La guía breve de
+[arranque y contingencia](DEMO_QUICK_START.md) reúne los pasos operativos actuales.
+
+| Capacidad | Evidencia disponible | Pendiente o límite de esa evidencia |
 |---|---|---|
-| Inicio, parada y diagnóstico | Ciclo Start, Stop y Status confirmado en esta PC | Confirmar disponibilidad tras el reinicio cuando se prepare el ensayo |
-| Ingreso, triaje, atención, alta e historial | Circuito ficticio EP-17 completado | Actualizar el guion integral con los flujos actuales |
-| Corrección, anulación y reapertura | Casos EP-18 y EP-19 confirmados | Incorporar los casos de excepción al guion |
-| Identidad provisional y verificación | Flujo de admisión/archivo y EP-21 confirmados | Definir reglas de consolidación de fichas antes de implementar fusión |
-| Pulsera y lectura QR | PDF y lectura en Redmi Note 11 confirmados | Impresión física, material de pulsera y tableta |
-| Cuentas personales y coordinación | Altas, permisos, revocación y auditoría comprobados | Preparar cuentas y responsables de cada escenario del ensayo |
-| Áreas, turnos y disponibilidad | Planificación, inicio, pausa, cierre y extensión comprobados | Preparar un turno ficticio vigente y participantes disponibles |
-| Asignación, inicio y relevo | EP-22 y relevo de enfermería EP-24 comprobados | Recorrer un cambio de turno con pendientes de varias clases |
-| Reevaluaciones | Acciones independientes, realización y bloqueo del alta confirmados | Incluir realización, cancelación y relevo en el recorrido integral |
-| Laboratorio por analítica y muestra | Circuito múltiple EP-23 y seguimiento tras alta confirmados | Integrar sus pasos en el guion actualizado |
-| Contacto tras alta | Intentos y comunicación ficticia registrados por recepción | Ensayar la continuidad con responsables del siguiente turno |
-| Esperas y resumen de relevo | Vistas implementadas y comprobaciones documentadas | Revisar su utilidad durante el circuito integral |
-| Respaldo y restauración | Herramienta de copia consistente, verificación y restauración aislada | Elegir la copia previa del próximo ensayo y comprobar su recuperación |
-| Capacidad local | Ensayo aislado de 30 sesiones, 3.799 operaciones en 625,672 s | Medición con dispositivos y red del centro al preparar el piloto |
+| Inicio, parada y diagnóstico | Ciclos Start/Stop/Status y recuperación tras reinicio comprobados; PID reutilizado cubierto por 50 pruebas de controlador/LAN | La corrección de identidad se comprobó con API nativa y simulación, sin forzar otro reinicio de la PC |
+| Ingreso, triaje, atención, alta e historial | EP-17 y circuito integral EP-25 confirmados; EP-25 y EP-26 cerrados con historial | Para otro ensayo, preparar caso ficticio y acordar quién opera; no repetir de rutina lo ya aprobado |
+| Corrección, anulación y reapertura | EP-18 y EP-19 confirmados con historial auditable | No equivale a fusión de identidades ni borrado de fichas clínicas |
+| Identidad provisional y verificación | EP-21 y flujo de admisión/archivo confirmados | Definir autorización, consolidación y rectificación antes de implementar fusión de duplicados |
+| Pulsera y QR | PDF y lectura por cámara del Redmi confirmados; acceso HTTPS por HOME-WIFI | Falta pulsera física, impresora, consumibles y prueba en tableta |
+| Cuentas y coordinación | Altas, cambios de permiso, revocación y auditoría comprobados | Para el centro, acordar responsables de cuentas, accesos y soporte |
+| Áreas, turnos y disponibilidad | Planificación, disponibilidad, pausa, cierre y extensión comprobados | Los turnos ficticios antiguos pueden estar vencidos; preparar los vigentes para cada ensayo |
+| Asignación, inicio y relevo | EP-22/EP-24 y EP-25: el anterior conserva responsabilidad hasta aceptar; el inicio se confirma aparte | Validar la operación con el personal y la distribución reales del centro |
+| Reevaluaciones | Acciones por disciplina y bloqueo del alta comprobados; EP-25 conserva pendientes durante relevo y completa ambas acciones | Los tiempos los decide el médico; no se han establecido protocolos clínicos institucionales |
+| Laboratorio por analítica y muestra | EP-23 y EP-25: muestras, resultados parciales, nueva muestra, revisión e historial; EP-26 publica y revisa después del alta | Programa actual de laboratorio desconocido; integración no definida |
+| Contacto tras alta | EP-26: aviso autorizado, contacto ficticio por recepción, explicación médica e historial confirmados | No hubo llamadas ni mensajes reales; teléfonos se consultan fuera de la app |
+| Esperas y resumen de relevo | Vistas por rol y permiso comprobadas; continuidad de pendientes en EP-25 | Evaluar utilidad con procesos, usuarios y tiempos reales al preparar el piloto |
+| Red y desconexión | Redmi por HTTPS, lectura QR y escritura consultada en PC; EP-24 pruebas 2 a 5: borrador conservado, consulta y reintento sin duplicado | Misma pestaña abierta; no acredita trabajo autónomo sin red ni una pérdida de respuesta en medio del envío |
+| Respaldo externo | USB Kingston en disco distinto a Windows; copia y restauración aislada verificadas, mismo hash, 25 pacientes/26 episodios | No se ejecutó la app con la restaurada ni se reconstruyó otra PC; nuevas escrituras requieren otra copia |
+| Capacidad local | Ensayo sintético de 30 sesiones, 3.799 operaciones en 625,672 s | No equivale a 30 dispositivos físicos ni a medición en la red del centro |
 
-Fuentes de los recorridos y validaciones en [LOCAL_DEMO_CHECK](LOCAL_DEMO_CHECK.md),
-[LOCAL_VALIDATION](LOCAL_VALIDATION.md), [QR_CAMERA_DEMO](QR_CAMERA_DEMO.md),
-[WRISTBAND_PDF_DEMO](WRISTBAND_PDF_DEMO.md),
-[DEMO_DATABASE_BACKUP](DEMO_DATABASE_BACKUP.md) y
-[CAPACITY_OBSERVATION](CAPACITY_OBSERVATION.md).
+Validación vigente de software: frontend completo **788/788**, análisis y
+compilación aprobados para las correcciones de envíos; controlador/LAN **50/50**
+en Windows para la corrección posterior. CI de `1f65d6d` aprobada:
+[GitHub Actions 45072785037](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45072785037).
+Las fechas y resultados anteriores se conservan en [LOCAL_VALIDATION](LOCAL_VALIDATION.md).
 
-## Orden inmediato propuesto
+Fuentes: [guion integral y resultados EP-25/26](DEMO_INTEGRAL_GUIDE.md),
+[comprobaciones previas](LOCAL_DEMO_CHECK.md), [ensayo LAN](DEMO_LAN_HTTPS.md),
+[pulsera PDF](WRISTBAND_PDF_DEMO.md), [cámara QR](QR_CAMERA_DEMO.md),
+[respaldo](DEMO_DATABASE_BACKUP.md) y [capacidad](CAPACITY_OBSERVATION.md).
 
-1. Preparar un guion integral actualizado con cuentas personales, turno vigente,
-   responsabilidades y criterios de aceptación por etapa. Reutilizar las pruebas
-   anteriores para concentrar el recorrido en la continuidad entre módulos.
-2. Identificar explícitamente la base activa y preparar respaldo verificable
-   antes de ejecutar el guion. Registrar por separado la restauración aislada.
-3. Acordar con el usuario la ejecución manual, sus participantes y los datos
-   ficticios. Registrar resultado y fallos por causa compartida.
-4. Resolver los fallos observados y cerrar el inventario del demo local con
-   evidencia de la versión ensayada.
+## Próximas prioridades
 
-## Condiciones que requieren preparación de campo
+1. Revisar con el usuario la guía breve y elegir el objetivo del próximo ensayo
+   o presentación. La documentación ya está preparada; otra prueba directa de
+   la app requiere acordar caso, base y quién la opera.
+2. Aplicar la rutina manual acordada: al terminar cada sesión y antes de cambios
+   importantes, el usuario conecta el USB y solicita al asistente crear, verificar
+   y restaurar la copia en una ruta aislada. El usuario lo guarda separado y se
+   conservan las copias anteriores. No existe una programación automática.
+3. Preparar las condiciones de un ensayo de campo cuando haya equipo y aprobación
+   institucional. Conservar una lista de pendientes y criterios de aceptación
+   antes de estimar fechas o comprar dispositivos.
 
-| Bloque | Información o trabajo pendiente |
+## Pendientes para un piloto en el centro
+
+| Bloque | Lo que falta concretar |
 |---|---|
-| Dispositivos e identificación | Tableta, impresora, consumibles y ensayo de lectura de pulsera física |
-| Despliegue en el centro | Servidor, red local, HTTPS, cámaras y prueba de interrupciones y recuperación |
-| Operación | Responsables de soporte, copias fuera del equipo, recuperación y procedimiento de contingencia |
-| Laboratorio existente | Nombre del programa, estados disponibles, resultados y posibilidades de integración |
-| Identidades duplicadas | Reglas autorizadas para consolidación, trazabilidad y rectificación de errores |
-| Organización institucional | Fuente oficial del registro, permisos, formación y aprobación del piloto |
+| Identificación física | Tableta, impresora y material; impresión, comodidad y lectura de la pulsera en condiciones reales |
+| Instalación | Equipo servidor, red del centro, dirección y confianza HTTPS, energía y recuperación ante cortes |
+| Operación | Responsable de soporte, rutina de copias fuera del equipo, recuperación y contingencia acordada con el centro |
+| Laboratorio existente | Nombre del programa y acceso autorizado a estados/resultados para evaluar integración |
+| Identidades duplicadas | Procedimiento autorizado de consolidación, auditoría y corrección de errores |
+| Organización institucional | Fuente oficial del registro durante el piloto, permisos, formación y aprobación administrativa |
 
-El plan de piloto conserva las decisiones institucionales y las fases posteriores
-de acceso remoto y expediente oficial. Las estimaciones antiguas de paquetes
-necesitan actualizarse sobre el alcance pendiente de cada entrega.
-[Plan de urgencias](URGENCIAS_PILOT_PLAN.md).
+El demo local no acredita todavía estos puntos de campo. El acceso remoto,
+telemedicina y la posible adopción como registro oficial siguen siendo fases
+posteriores del [plan de urgencias](URGENCIAS_PILOT_PLAN.md). Sus estimaciones
+requieren actualizarse al concretar el alcance pendiente.

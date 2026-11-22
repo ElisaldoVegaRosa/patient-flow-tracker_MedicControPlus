@@ -1,5 +1,70 @@
 # Diagnostico de validacion local en Windows
 
+## Respaldo de cierre USB, 22/11/2026, 6:53 p. m. hora dominicana
+
+- Usuario solicita el respaldo de cierre segun la rutina manual acordada.
+  Memoria Kingston DataTraveler 2.0 reidentificada: USB disco 1 no sistema,
+  D: FAT32; carpeta anterior conservada y E: sin modificar.
+- Status confirma la base de comunicacion del backend propio y respuesta de
+  backend/frontend. Gateway propio sin respuesta HTTPS; se registra el estado
+  sin intervenir en red o procesos. El respaldo opera sobre el archivo SQLite.
+- Nueva copia clinical-20261122T225307Z-574f8a1e.sqlite3 verificada: 25 pacientes,
+  26 episodios. SHA-256 7b1306185ad107dc837ca6103524f18fb84cb69ff3618acbee08fffe88db3a0f
+  coincide con la copia anterior; datos sin cambios entre esos respaldos.
+- Nueva carpeta D:/MedicControlPlus-demo-20261122-574f8a1e, sin sobrescritura.
+  SQLite, sidecar SHA-256 y LEEME.txt copiados y comparados por hash. Nota incluye
+  origen, fecha, version 1f65d6d y comandos de verificacion/restauracion.
+- verify desde USB con acceso a D: aprobado; restore hacia archivo nuevo
+  .tmp/usb-restore-20261122-574f8a1e.sqlite3 aprobado con mismo hash y recuentos.
+  Base activa conservada; sin arrancar la app restaurada ni detener servicios.
+  Codigo y certificados no forman parte de este respaldo de datos.
+- Actualizacion documental de la copia mas reciente, revision de diff, UTF-8
+  y enlaces. Sin nuevas suites, commit o push.
+
+## Consolidacion del inventario y guia breve, 22/11/2026
+
+- Usuario acuerda rutina manual al terminar cada sesion y antes de cambios
+  importantes. Usuario conecta y guarda USB; asistente prepara/verifica cuando
+  lo solicite. Procedimiento documentado con base explicita, carpeta USB nueva,
+  verificacion externa y restauracion aislada; conserva copias anteriores.
+  No se ejecuta otro respaldo ni se programa automatizacion en este bloque.
+- Revision documental sobre 1f65d6d. DEMO_READINESS.md actualiza evidencia
+  EP-24/25/26, ensayos LAN/QR, envios inciertos y USB/restauracion aislada;
+  distingue pendientes de dispositivos, red del centro y operacion institucional.
+- Guia DEMO_QUICK_START.md explicita PowerShell/carpeta del proyecto, Database
+  actual en Start, opcion LAN vigente y tratamiento de incidencias. Certificado
+  publico server.cer consultado sin iniciar servicios: vence 08/12/2026.
+- DEMO_OPERATIONS.md enlaza la guia breve y DEMO_LAN_HTTPS.md corrige el ejemplo
+  al network.json vigente; recorrido anterior pasa a guion para futuros ensayos.
+- Sin cambios de codigo, contratos, herramientas o comandos de ejecucion.
+  Revision de diff, UTF-8, rutas y enlaces locales; comandos PowerShell revisados
+  por parser sin ejecutarlos. No se repiten suites aprobadas ni pruebas de app.
+
+## Respaldo USB y restauracion aislada, 22/11/2026
+
+- Usuario confirma memoria USB para respaldar fuera de la PC. Get-Disk,
+  Get-Partition y Get-Volume identifican Kingston DataTraveler 2.0, BusType USB,
+  disco 1 no Boot/System; D: FAT32 con unos 28 GB libres. Windows reside en
+  NVMe disco 0. Particion E: pequena de la misma memoria no se modifica.
+- Copia consistente desde .tmp/communication-rollout-20261030/
+  clinical-communication-working.sqlite3, creada por demo_db_backup.py backup.
+  Respaldo local clinical-20261122T222347Z-2311eb7d.sqlite3 verificado: SHA-256
+  7b1306185ad107dc837ca6103524f18fb84cb69ff3618acbee08fffe88db3a0f,
+  25 pacientes y 26 episodios.
+- Se crea solo D:/MedicControlPlus-demo-20261122-2311eb7d, previa comprobacion
+  de unidad USB, disco no sistema y destino inexistente. Copiados SQLite,
+  sidecar .sqlite3.sha256 y LEEME.txt con version 1f65d6d e instrucciones de
+  verificacion/restauracion. Igualdad de hashes para los tres archivos aprobada.
+  No se sobrescriben archivos existentes ni se cambia el formato de la memoria.
+- verify del SQLite en D: desde el aislamiento falla con WinError 5. Repeticion
+  con acceso a la unidad externa: verificacion SHA-256, integridad, referencias
+  y esquema aprobada. restore desde D: a archivo nuevo
+  .tmp/usb-restore-20261122-2311eb7d.sqlite3 aprobado, mismo hash y recuentos.
+- Sin sustitucion de base activa, reinicio ni prueba clinica de la app restaurada.
+  La copia contiene datos del demo; no es una imagen de programas/certificados
+  ni incluye cambios posteriores. Los tres archivos de respaldo quedan fuera
+  de Git. Documentacion revisada por diff, UTF-8 y enlaces; no hay cambio de codigo.
+
 ## Identificacion de PID reutilizado tras reinicio, 22/11/2026
 
 - Incidencia observada al retomar: PID antiguo reutilizado por otro proceso.

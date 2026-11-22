@@ -5,6 +5,24 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Inventario y guia breve del demo (22/11/2026)
+
+- Rutina manual de respaldo acordada: al terminar cada sesion y antes de cambios
+  importantes; usuario conecta/guarda USB y solicita al asistente la preparacion
+  y verificacion. Incluye restauracion aislada y conserva copias anteriores.
+- Inventario actualizado con evidencia de circuitos integrales, recuperacion
+  de envios y respaldo externo; pendientes de campo separados de lo comprobado.
+- Guia de arranque y contingencia con la copia activa y configuracion LAN
+  vigentes, consultas de envios pendientes y ubicacion del respaldo USB.
+- Solo documentacion; no se cambian funciones ni se repiten ensayos de la app.
+
+## Respaldo externo del demo verificado (22/11/2026)
+
+- Copia consistente verificada en memoria USB separada del disco de Windows,
+  con SHA-256 y guia de recuperacion. Restauracion desde USB a archivo aislado
+  comprobada: mismo hash, 25 pacientes y 26 episodios, base activa conservada.
+- Sin cambios de codigo ni ejecucion de la app sobre la base restaurada.
+
 ## Referencias de procesos tras reiniciar Windows (local, 22/11/2026)
 
 - El controlador descarta un PID reutilizado al comprobar una fecha de creacion

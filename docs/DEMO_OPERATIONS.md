@@ -1,5 +1,8 @@
 # Operar el demo local en Windows
 
+Para retomar la copia actual y resolver incidencias frecuentes, consultar la
+[guia breve de arranque y contingencia](DEMO_QUICK_START.md).
+
 Este controlador es para la PC de desarrollo y datos ficticios. No configura
 acceso de tabletas, HTTPS ni instalacion de campo. Usa los puertos 8000 y 5173
 en loopback, sin recarga automatica del backend. Tras editar backend, detener
