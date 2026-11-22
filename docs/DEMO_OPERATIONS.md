@@ -76,8 +76,11 @@ tokens QR en las rutas de escaneo.
   se conservan servicios propios que ya funcionaban y referencias de parada fallida.
 - **Estado ilegible o acceso denegado**: detenerse y revisar. No borrar el archivo
   para forzar otra ejecucion ni matar procesos por nombre o numero de puerto.
-- **Tras reiniciar Windows**: PID, fecha de creacion y ejecutable deben coincidir
-  antes de detener un proceso. Una referencia caducada no autoriza cerrar otro.
+- **Tras reiniciar Windows**: primero se compara la fecha de creacion del PID.
+  Si es distinta, la referencia se reconoce como caducada sin consultar el
+  ejecutable del proceso ajeno. Para detenerlo deben coincidir PID, fecha y
+  ejecutable. Si la identidad no puede verificarse, la referencia se conserva.
+  Una referencia caducada no autoriza cerrar otro proceso.
 
 ## Antes de detener o reiniciar
 

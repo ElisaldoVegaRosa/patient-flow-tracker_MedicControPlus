@@ -5,6 +5,14 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Referencias de procesos tras reiniciar Windows (local, 22/11/2026)
+
+- El controlador descarta un PID reutilizado al comprobar una fecha de creacion
+  distinta, sin exigir leer el ejecutable del proceso ajeno ni detenerlo.
+- Mantiene el bloqueo si no puede verificar la fecha o si, con fecha coincidente,
+  no puede comprobar el ejecutable. No adopta servicios por nombre o puerto.
+- Regresion del fallo y 50 pruebas de controlador/LAN aprobadas en Windows.
+
 ## Limpieza de formularios tras confirmar un envio incierto (local, 22/11/2026)
 
 - Consulta del envio pendiente conserva su ultimo resultado al actualizar

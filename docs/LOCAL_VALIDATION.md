@@ -1,5 +1,27 @@
 # Diagnostico de validacion local en Windows
 
+## Identificacion de PID reutilizado tras reinicio, 22/11/2026
+
+- Incidencia observada al retomar: PID antiguo reutilizado por otro proceso.
+  GetProcessTimes permitia comprobar fecha distinta, pero el controlador pedía
+  primero tambien QueryFullProcessImageNameW y bloqueaba si no podia leerla.
+- Regresion de API nativa simulada reproduce el bloqueo con fecha distinta y
+  ejecutable inaccesible: antes del cambio, 1 fallo y 1 aprobado (caso de fecha
+  coincidente que debe seguir bloqueando). No se cierra ningun proceso real.
+- process_identity acepta expected_created y descarta identidad si la fecha
+  obtenida del mismo handle no coincide. owns pasa la fecha del registro. Fecha
+  coincidente sigue exigiendo ejecutable; no se ignoran errores de verificacion.
+- Validacion aplicable final: $env:PYTHONPATH = 'backend' en PowerShell, Python explicito
+  .venv/Scripts/python.exe -m pytest -q --disable-warnings -x
+  backend/tests/test_demo_control.py backend/tests/test_demo_lan.py
+  --basetemp .tmp/pytest-demo-pid-final: 50 aprobadas, 1 warning, 2,56 s.
+  Incluye API Windows sobre el propio proceso de pytest con fecha correcta e
+  incorrecta; conserva pruebas de PID/imagen ajenos, permisos y rollback LAN.
+- Solo cambia el controlador y dobles de pruebas. API clinica, base, frontend,
+  compilacion LAN y comandos publicos sin cambios; no se repiten suites de esas
+  capas aprobadas en CI 45070973667 para 7f97717. Sin ensayo directo de app,
+  reinicio del demo, commit o push durante esta correccion.
+
 ## Envio sin conexion y limpieza tras confirmacion, 22/11/2026
 
 - Diagnostico posterior autorizado de Consultar resultado: revision de cliente,

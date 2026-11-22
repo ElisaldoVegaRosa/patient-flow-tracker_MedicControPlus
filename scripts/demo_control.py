@@ -25,7 +25,7 @@ class ControlError(RuntimeError):
 PORTS = {"backend": 8000, "frontend": 5173}
 
 
-def process_identity(pid):
+def process_identity(pid, expected_created=None):
     """Creation time + executable prevents stopping a recycled PID. Windows only."""
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
     kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
@@ -42,11 +42,16 @@ def process_identity(pid):
         times = [wintypes.FILETIME() for _ in range(4)]
         if not kernel.GetProcessTimes(handle, *(ctypes.byref(value) for value in times)):
             raise ControlError("No se puede verificar la fecha del proceso.")
+        created = (times[0].dwHighDateTime << 32) | times[0].dwLowDateTime
+        # A different creation time already proves PID reuse. The unrelated
+        # process's executable can be protected; do not query or stop it.
+        if expected_created is not None and created != expected_created:
+            return None
         image = ctypes.create_unicode_buffer(32768)
         size = wintypes.DWORD(len(image))
         if not kernel.QueryFullProcessImageNameW(handle, 0, image, ctypes.byref(size)):
             raise ControlError("No se puede verificar el ejecutable del proceso.")
-        return {"created": (times[0].dwHighDateTime << 32) | times[0].dwLowDateTime,
+        return {"created": created,
                 "image": os.path.normcase(image.value)}
     finally:
         kernel.CloseHandle(handle)
@@ -134,7 +139,7 @@ class DemoControl:
         temporary.replace(self.state_file)
 
     def owns(self, record):
-        identity = process_identity(record["pid"])
+        identity = process_identity(record["pid"], expected_created=record["created"])
         return identity == {key: record[key] for key in ("created", "image")}
 
     def commands(self):

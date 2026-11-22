@@ -154,7 +154,7 @@ def test_failed_gateway_start_preserves_existing_backend_and_frontend(configured
     monkeypatch.setattr(manager, "commands", lambda: {key: ([key], root) for key in ("backend", "frontend", "gateway")})
     monkeypatch.setattr(demo, "responds", lambda service: True)
     monkeypatch.setattr(demo, "port_available", lambda *args: True)
-    monkeypatch.setattr(demo, "process_identity", lambda pid: {"created": 130, "image": "node.exe"})
+    monkeypatch.setattr(demo, "process_identity", lambda pid, expected_created=None: {"created": 130, "image": "node.exe"})
     monkeypatch.setattr(demo.subprocess, "CREATE_NO_WINDOW", 0, raising=False)
     monkeypatch.setattr(demo.subprocess, "Popen", lambda *args, **kwargs: SimpleNamespace(pid=13, poll=lambda: 1))
     stopped = []

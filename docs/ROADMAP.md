@@ -2,6 +2,16 @@
 
 ## Decisiones pendientes (leer primero)
 
+- 22/11: correccion local del controlador tras reiniciar Windows. Compara
+  primero la fecha de creacion del PID registrado; si es distinta, descarta
+  su identidad sin consultar el ejecutable del proceso ajeno. Si no puede
+  verificar fecha o ejecutable con fecha coincidente, conserva el bloqueo.
+  Regresion reproduce el fallo anterior; controlador y LAN 50/50 aprobadas,
+  incluida comprobacion nativa del proceso de pytest. Sin arranque ni parada
+  de servidores en estas pruebas. Entrega revisada; commit/push y CI autorizados.
+- Entrega anterior 7f97717 publicada en origin/main; CI 45070973667 aprobada
+  para backend, frontend, lint y build. Pruebas moviles EP-24 cerradas.
+
 - 22/11: ensayo EP-24 de envio sin conexion confirmado por el usuario:
   consulta sin confirmacion, reintento original tras reconectar, una entrada
   del diagnostico numero 3 y retirada del aviso pendiente. Formulario conservaba

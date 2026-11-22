@@ -13,7 +13,7 @@ from scripts import demo_control as demo
 def control(tmp_path, monkeypatch):
     manager = demo.DemoControl(tmp_path / "Proyecto con espacios")
     manager.directory.mkdir(parents=True)
-    monkeypatch.setattr(demo, "process_identity", lambda pid: {"created": pid * 10, "image": "python.exe"})
+    monkeypatch.setattr(demo, "process_identity", lambda pid, expected_created=None: {"created": pid * 10, "image": "python.exe"})
     monkeypatch.setattr(demo, "port_available", lambda port: True)
     monkeypatch.setattr(demo, "responds", lambda service: True)
     monkeypatch.setattr(demo.subprocess, "CREATE_NO_WINDOW", 0, raising=False)
@@ -23,6 +23,50 @@ def control(tmp_path, monkeypatch):
 
 def record(pid):
     return {"pid": pid, "created": pid * 10, "image": "python.exe"}
+
+
+@pytest.mark.parametrize("created", [100, 101])
+def test_native_reused_pid_does_not_require_an_accessible_executable(tmp_path, monkeypatch, created):
+    class NativeCall:
+        def __init__(self, callback):
+            self.callback = callback
+
+        def __call__(self, *args):
+            return self.callback(*args)
+
+    closed = []
+    images = []
+
+    def times(handle, creation, *unused):
+        creation._obj.dwLowDateTime = created
+        creation._obj.dwHighDateTime = 0
+        return True
+
+    def image(*args):
+        images.append(args)
+        return False
+
+    kernel = SimpleNamespace(
+        OpenProcess=NativeCall(lambda *args: 123),
+        CloseHandle=NativeCall(lambda handle: closed.append(handle)),
+        GetProcessTimes=NativeCall(times),
+        QueryFullProcessImageNameW=NativeCall(image),
+    )
+    monkeypatch.setattr(demo.ctypes, "WinDLL", lambda *args, **kwargs: kernel, raising=False)
+    monkeypatch.setattr(demo.subprocess, "run", lambda *args, **kwargs: pytest.fail("No process may be stopped"))
+    manager = demo.DemoControl(tmp_path)
+    state = {"backend": {"pid": 12, "created": 100, "image": "python.exe"}}
+    manager.save(state)
+    if created == 100:
+        with pytest.raises(demo.ControlError, match="Referencias conservadas"):
+            manager.stop()
+        assert manager.load() == state
+        assert len(images) == 1
+    else:
+        manager.stop()
+        assert manager.load() == {}
+        assert images == []
+    assert closed == [123]
 
 
 def test_occupied_port_never_starts_or_adopts_a_server(control, monkeypatch):
@@ -49,7 +93,7 @@ def test_image_mismatch_is_never_killed(control, monkeypatch):
 
 def test_missing_process_is_not_killed(control, monkeypatch):
     control.save({"backend": record(11)})
-    monkeypatch.setattr(demo, "process_identity", lambda pid: None)
+    monkeypatch.setattr(demo, "process_identity", lambda pid, expected_created=None: None)
     monkeypatch.setattr(demo.subprocess, "run", lambda *a, **kw: pytest.fail("Stale PID"))
     control.stop()
     assert control.load() == {}
@@ -66,7 +110,7 @@ def test_stop_only_kills_verified_tree(control, monkeypatch):
 
 def test_unverifiable_process_keeps_reference(control, monkeypatch):
     control.save({"backend": record(11)})
-    def denied(pid):
+    def denied(pid, expected_created=None):
         raise demo.ControlError("Denied")
     monkeypatch.setattr(demo, "process_identity", denied)
     with pytest.raises(demo.ControlError, match="Referencias conservadas"):
@@ -244,6 +288,8 @@ def test_taskkill_os_failure_keeps_reference(control, monkeypatch):
 def test_windows_identity_is_stable_for_current_test_process():
     identity = demo.process_identity(os.getpid())
     assert identity == demo.process_identity(os.getpid())
+    assert identity == demo.process_identity(os.getpid(), expected_created=identity["created"])
+    assert demo.process_identity(os.getpid(), expected_created=identity["created"] + 1) is None
     assert identity["created"] > 0
     assert Path(identity["image"]).is_file()
 
