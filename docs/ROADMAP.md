@@ -4,7 +4,7 @@
 
 ### Acciones funcionales prioritarias (23/11)
 
-- Completado: circuitos integrales, recuperacion de envios, arranque con PID
+- Entrega previa completada: circuitos integrales, recuperacion de envios, arranque con PID
   reutilizado, respaldo USB y guias. Publicado c373ac1, CI 45081866848 aprobada.
 - Completado local: motivo de consulta opcional al registrar llegada, guardado
   por episodio, visible tras el alta y recuperable con el borrador. Permisos,
@@ -30,12 +30,12 @@
   25 pacientes/26 episodios, registros clinicos y auditoria conservados.
   API de correccion activa, seis archivos HTTPS identicos a la compilacion.
   Excluye eliminar texto, corregir episodios cerrados/anulados y fusionar fichas.
-  En curso: publicacion autorizada de la entrega completa, incluida nota final
-  de validacion; crear commits, push a origin/main y comprobar GitHub Actions.
-  Siguiente: cerrar publicacion/CI y seleccionar otra necesidad funcional concreta.
-  No se han realizado
-  correcciones ni nuevas pruebas manuales sobre el demo.
-  Publicacion y nota de cierre expresamente autorizadas por el usuario.
+  Publicado en origin/main: 19b5714, CI 45297509066 aprobada para backend,
+  frontend, analisis y compilacion. Nota de cierre exclusivamente documental;
+  sin repetir suites locales ni reiniciar el demo por documentacion.
+  Siguiente: seleccionar otra necesidad funcional concreta.
+  El asistente no ha ejecutado correcciones ni nuevas pruebas manuales sobre
+  el demo. Publicacion y nota de cierre expresamente autorizadas por el usuario.
 - Descartado: demostracion/recorrido para el usuario; conoce el flujo. Cada
   siguiente tarea debe resolver un problema funcional y tener criterio de cierre.
 

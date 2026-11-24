@@ -5,8 +5,10 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Correccion auditable del motivo de consulta (local, 23/11/2026)
+## Correccion auditable del motivo de consulta (23/11/2026)
 
+- Ingreso y correccion publicados en 19b5714; [CI 45297509066](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45297509066)
+  aprobada para backend, frontend, analisis y compilacion.
 - Recepcion y Supervisor pueden rectificar el motivo de un episodio activo con
   justificacion obligatoria. El evento original del ingreso permanece intacto;
   anterior/nuevo, justificacion, autor y fecha quedan en el historial existente.
@@ -25,7 +27,7 @@ las verificaciones realizadas y el estado de cada etapa.
   API nueva y seis archivos HTTPS verificados. Sin correcciones ni nuevas
   pruebas manuales sobre los datos del demo.
 
-## Motivo de consulta por episodio (local, 23/11/2026)
+## Motivo de consulta por episodio (23/11/2026)
 
 - Campo opcional al registrar llegada: entre 3 y 1.000 caracteres cuando se
   completa. Conserva el texto y sus saltos de linea, sin inferir diagnosticos.

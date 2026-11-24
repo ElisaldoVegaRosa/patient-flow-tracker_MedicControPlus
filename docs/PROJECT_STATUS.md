@@ -11,9 +11,12 @@
   por cuenta/rol en esta pestana; consulta/reintento confirma solo el envio
   original y conserva ediciones posteriores. Backend completo 655/655 (2.087,04 s),
   frontend completo 809/809 en 88 archivos (371,07 s), lint/build aprobados.
-  Sin fallos pendientes. Base de trabajo c373ac1. Usuario autoriza los commits,
-  push a origin/main, comprobacion de GitHub Actions y nota final de validacion.
-  Publicacion en curso; resultado remoto pendiente de verificar.
+  Sin fallos pendientes. Entrega funcional publicada en origin/main como
+  19b5714d6662071bc95ef312758228a4b54586d4, sobre base c373ac1.
+  CI [45297509066](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45297509066)
+  aprobada para backend, frontend, analisis y compilacion; SHA remoto verificado.
+  Publicacion y nota de cierre autorizadas. Esta revision de cierre solo cambia
+  documentacion; conserva la validacion de aplicacion sin repetir suites locales.
   Respaldo local backups/clinical-20261124T000938Z-5f005841.sqlite3 verificado y
   restaurado en .tmp/consultation-correction-restore-20261123.sqlite3; 25 pacientes
   y 26 episodios, SHA-256 ade3573e95d530a6bdaed57bea435972b202ab9f1405d62d2c0da487b3f97bea.
@@ -28,8 +31,7 @@
   auditoria identicos al respaldo final (sesiones/presencia efimeras excluidas).
   Sin nuevas pruebas manuales ni correcciones sobre el demo. Base activa sigue
   siendo communication-rollout-20261030; 25 pacientes/26 episodios conservados.
-  Siguiente: verificar CI de la entrega y publicar su nota de cierre antes de
-  elegir otra necesidad funcional concreta.
+  Entrega funcional cerrada. Siguiente: elegir otra necesidad funcional concreta.
 
 - 23/11: motivo de consulta opcional implementado y activado en el demo. Texto por
   episodio, conservado despues del alta y en la auditoria del ingreso. Los
@@ -51,8 +53,7 @@
   Verificacion del asistente sin nuevas escrituras clinicas. Usuario confirma
   acceso en PC y movil tras la activacion; no equivale a probar otro ingreso.
   Bloque inicial completado; la correccion posterior se detalla arriba.
-  Cambios locales sin commit/push;
-  ultima publicacion c373ac1 con CI 45081866848 aprobada.
+  Ingreso y correccion publicados juntos en 19b5714; validacion remota arriba.
   Prioridad acordada: progreso funcional; sin recorridos de familiarizacion.
 
 - Cierre del 22/11: nueva copia USB verificada en

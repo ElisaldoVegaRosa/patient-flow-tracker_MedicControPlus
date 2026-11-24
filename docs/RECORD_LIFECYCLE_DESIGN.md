@@ -10,7 +10,7 @@ su restauración tras confirmar salida/recarga no forma parte de esta entrega.
 
 ## Problema y evidencia inicial
 
-Ampliacion local autorizada el 23/11/2026: motivo de consulta por episodio.
+Ampliacion autorizada el 23/11/2026: motivo de consulta por episodio.
 Recepcion/Supervisor rectifican solo episodios ACTIVE, con nuevo texto no vacio
 y justificacion; no se permite vaciarlo ni editar episodios CLOSED/ANNULLED.
 Conserva el evento de ingreso y agrega CORRECT_CONSULTATION_REASON al historial
@@ -21,6 +21,8 @@ antes de reenviar. No incluye fusion de identidades ni otra politica de permisos
 Validacion de esta ampliacion: backend completo 655/655, frontend completo
 809/809, lint/build aprobados. Activada con reinicio expresamente autorizado,
 misma base y certificado, respaldo/restauracion final a35a5032 verificados.
+Publicada en 19b5714; CI 45297509066 aprobada para backend, frontend,
+analisis y compilacion.
 
 Durante EP-17 el usuario confirmo el flujo LAB corregido y planteo deshacer,
 modificar y eliminar resultados/notas, altas erroneas y pacientes creados por
