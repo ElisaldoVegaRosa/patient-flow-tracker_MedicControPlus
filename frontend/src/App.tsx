@@ -266,6 +266,12 @@ function App() {
   }
 
   function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
+    if (/^\/episodes\/\d+\/consultation-reason$/.test(path)) {
+      notifyOperationalConfirmation(path, body);
+      setWriteNotice("Corrección del motivo de consulta confirmada por el servidor.");
+      if (page === "episode" && episode?.id === (result as Episode).id) updateEpisode(result as Episode);
+      return;
+    }
     if (path.startsWith("/communications/")) {
       notifyOperationalConfirmation(path, body);
       setWriteNotice("Gestión de comunicación confirmada por el servidor. No se ha duplicado el registro.");
@@ -495,6 +501,7 @@ useEffect(() => {
           document: form.get("provisional") === "true" && !String(form.get("document") ?? "").trim() ? null : form.get("document"),
           priority: Number(form.get("priority")),
           location: form.get("location"),
+          ...(String(form.get("consultation_reason") ?? "").trim() ? { consultation_reason: form.get("consultation_reason") } : {}),
         }),
       });
 
@@ -832,6 +839,7 @@ async function logout() {
       <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
         setError(exception.message);
         if (exception instanceof VersionConflictError) {
+          if (/^\/episodes\/\d+\/consultation-reason$/.test(path)) { notifyOperationalConflict(path); return; }
           if (path.startsWith("/communications/")) { notifyOperationalConflict(path); return; }
           if (/^\/episodes\/\d+\/lab-orders$/.test(path) || (path.endsWith("/discharge") && episode?.laboratory?.orders.length)) { notifyOperationalConflict(path); return; }
           if (/^\/lab\/(specimens|analyses|results|followups)\//.test(path)) { notifyOperationalConflict(path); return; }

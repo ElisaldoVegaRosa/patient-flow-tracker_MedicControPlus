@@ -2,6 +2,59 @@
 
 ## Estado actual (leer primero)
 
+- 23/11: correccion auditable del motivo de consulta implementada y validada localmente,
+  autorizada al continuar con la recomendacion. Recepcion/Supervisor, solo
+  episodios activos; texto nuevo no vacio (3-1.000), justificacion obligatoria
+  (3-2.000). Conserva evento original y agrega anterior/nuevo, autor y fecha a
+  record_changes; sin nueva migracion ni borrado. Version propia, If-Match y
+  clave de idempotencia protegen concurrencia y reintentos. Borrador temporal
+  por cuenta/rol en esta pestana; consulta/reintento confirma solo el envio
+  original y conserva ediciones posteriores. Backend completo 655/655 (2.087,04 s),
+  frontend completo 809/809 en 88 archivos (371,07 s), lint/build aprobados.
+  Sin fallos pendientes. Base de trabajo c373ac1. Usuario autoriza los commits,
+  push a origin/main, comprobacion de GitHub Actions y nota final de validacion.
+  Publicacion en curso; resultado remoto pendiente de verificar.
+  Respaldo local backups/clinical-20261124T000938Z-5f005841.sqlite3 verificado y
+  restaurado en .tmp/consultation-correction-restore-20261123.sqlite3; 25 pacientes
+  y 26 episodios, SHA-256 ade3573e95d530a6bdaed57bea435972b202ab9f1405d62d2c0da487b3f97bea.
+  Usuario confirma "Si, reiniciar y activar ahora". Servicios propios reiniciados
+  con la misma base y CA; activos backend, frontend y HTTPS .40:5443.
+  LAN vigente .tmp/demo-lan/consultation-correction-20261123/network.json.
+  Copia final con servicios detenidos: backups/clinical-20261124T002230Z-a35a5032.sqlite3,
+  mismo hash que 5f005841; restaurada en
+  .tmp/consultation-correction-activation-restore-52c6c19d.sqlite3.
+  API PATCH de correccion activa; seis archivos HTTPS identicos a la compilacion.
+  Base activa: integridad/FK correctas; pacientes, episodios, datos clinicos y
+  auditoria identicos al respaldo final (sesiones/presencia efimeras excluidas).
+  Sin nuevas pruebas manuales ni correcciones sobre el demo. Base activa sigue
+  siendo communication-rollout-20261030; 25 pacientes/26 episodios conservados.
+  Siguiente: verificar CI de la entrega y publicar su nota de cierre antes de
+  elegir otra necesidad funcional concreta.
+
+- 23/11: motivo de consulta opcional implementado y activado en el demo. Texto por
+  episodio, conservado despues del alta y en la auditoria del ingreso. Los
+  episodios anteriores mantienen NULL y muestran "No registrado". Limite de
+  1.000 caracteres; no cambia triaje, permisos ni identidad. Recuperacion del
+  borrador incluida. Backend completo: 649/649 (1.846,68 s). Frontend completo:
+  792/793 (249,93 s); unico fallo por contar dos "No registrado" en identidad
+  provisional cuando ahora hay un tercero. Asercion acotada a documento y
+  nacimiento; archivo corregido 4/4 (11,29 s). Sin fallos pendientes de pruebas.
+  Lint y build finales aprobados; sin cambios funcionales adicionales.
+  Activacion autorizada con "Cont": respaldo local verificado
+  backups/clinical-20261123T231545Z-4b0bc800.sqlite3 (25 pacientes/26 episodios).
+  Restauracion y migracion aisladas aprobadas; registros anteriores identicos.
+  Servicios propios reiniciados con la misma base communication-rollout-20261030;
+  LAN .tmp/demo-lan/consultation-reason-20261123/network.json, HTTPS .40:5443.
+  Mismo certificado/CA del movil. API actualizada y seis archivos servidos
+  identicos a la compilacion. Base activa: integridad/FK correctas, registros
+  anteriores identicos al respaldo, 26 episodios con motivo NULL conservado.
+  Verificacion del asistente sin nuevas escrituras clinicas. Usuario confirma
+  acceso en PC y movil tras la activacion; no equivale a probar otro ingreso.
+  Bloque inicial completado; la correccion posterior se detalla arriba.
+  Cambios locales sin commit/push;
+  ultima publicacion c373ac1 con CI 45081866848 aprobada.
+  Prioridad acordada: progreso funcional; sin recorridos de familiarizacion.
+
 - Cierre del 22/11: nueva copia USB verificada en
   D:/MedicControlPlus-demo-20261122-574f8a1e, respaldo
   clinical-20261122T225307Z-574f8a1e.sqlite3, 25 pacientes/26 episodios.

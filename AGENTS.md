@@ -278,6 +278,12 @@ antes de continuar.
 
 ## Eficiencia Y Continuidad
 
+- Priorizar progreso funcional real. El usuario conoce el flujo del sistema y
+  no requiere demostraciones ni recorridos de familiarizacion. No proponerlos
+  como siguiente etapa salvo que los solicite.
+- Mantener en el bloque inicial de ROADMAP una lista breve de completado,
+  en curso y siguiente accion. Vincular cada tarea a un problema y resultado
+  concreto; agrupar documentacion y validaciones necesarias con esa entrega.
 - Al retomar, revisar Git y leer solo el bloque inicial de estado actual en
   docs/PROJECT_STATUS.md y de decisiones pendientes en docs/ROADMAP.md.
   Consultar el historial por busqueda dirigida cuando una decision lo necesite;

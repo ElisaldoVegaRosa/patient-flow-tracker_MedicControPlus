@@ -26,7 +26,7 @@ def test_registration_route_registered_once() -> None:
 def test_registration_permissions_defaults_and_persistence(tmp_path, monkeypatch, username) -> None:
     monkeypatch.setattr(main, "DATABASE_PATH", tmp_path / "registration.db")
     with TestClient(main.app) as client:
-        data = patient("TEST-33H")
+        data = patient("TEST-33H") | {"consultation_reason": "Motivo ficticio por rol"}
         assert client.post("/episodes", json=data).status_code == 401
         headers = login(client, username)
         response = client.post("/episodes", headers=headers, json=data)
@@ -48,7 +48,8 @@ def test_registration_permissions_defaults_and_persistence(tmp_path, monkeypatch
                 event = episode["events"][0]
                 assert event["type"] == "EPISODE_CREATED"
                 assert event["username"] == username
-                assert event["note"] == "Ingreso registrado"
+                assert episode["consultation_reason"] == data["consultation_reason"]
+                assert event["note"] == "Ingreso registrado\nMotivo de consulta: " + data["consultation_reason"]
                 stored = connection.execute("SELECT patient_id, qr_token FROM episodes WHERE id = ?", (episode["id"],)).fetchone()
                 assert stored["qr_token"] == episode["qr_token"]
                 assert connection.execute("SELECT document FROM patients WHERE id = ?", (stored["patient_id"],)).fetchone()[0] == data["document"]

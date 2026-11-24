@@ -139,6 +139,8 @@ export type Episode = {
   priority: number;
   location: string;
   assigned_to?: string | null;
+  consultation_reason?: string | null;
+  consultation_reason_version?: string;
   started_at: string;
   closed_at?: string | null;
   vitals: VitalSigns[];

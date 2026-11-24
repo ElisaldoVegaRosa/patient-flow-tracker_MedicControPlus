@@ -78,6 +78,7 @@ def initialize_database(
             priority INTEGER NOT NULL,
             location TEXT NOT NULL,
             assigned_to TEXT,
+            consultation_reason TEXT,
             started_at TEXT NOT NULL,
             closed_at TEXT
         );
@@ -176,6 +177,10 @@ def initialize_database(
         CREATE INDEX IF NOT EXISTS idx_patient_identity_changes ON patient_identity_changes(patient_id, id);
         """
     )
+
+    # Additive upgrade: legacy episodes keep an unknown admission reason.
+    if "consultation_reason" not in {row["name"] for row in connection.execute("PRAGMA table_info(episodes)")}:
+        connection.execute("ALTER TABLE episodes ADD COLUMN consultation_reason TEXT")
 
     migrate_patients(connection)
     migrate_accounts(connection)

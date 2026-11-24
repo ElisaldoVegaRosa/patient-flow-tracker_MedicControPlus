@@ -157,10 +157,12 @@ describe('Recuperación de todos los formularios en App', () => {
     change('arrival', 'birth_date', '1990-01-01');
     change('arrival', 'document', 'DEMO54');
     change('arrival', 'priority', '2');
+    change('arrival', 'consultation_reason', 'Motivo ficticio que debe recuperarse');
     submit('arrival');
     await restore();
     expect(await screen.findByLabelText('Nombre completo')).toHaveValue('Paciente ficticio');
     expect(screen.getByLabelText('Prioridad inicial')).toHaveValue('2');
+    expect(screen.getByLabelText('Motivo de consulta (opcional)')).toHaveValue('Motivo ficticio que debe recuperarse');
     expect(writes(fetchMock)).toHaveLength(1);
     server.writesFail = false;
     server.refreshFails = true;

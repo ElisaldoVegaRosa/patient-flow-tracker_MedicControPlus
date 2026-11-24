@@ -45,7 +45,7 @@ const labels = {
     ALERT_ESCALATED: "Alerta escalada", ALERT_RESOLVED: "Alerta resuelta",
     EPISODE_REOPENED: "Episodio reabierto", ARRIVAL_ANNULLED: "Ingreso anulado",
   },
-  changeAction: { CORRECT: "Corrección", ANNUL: "Anulación", REOPEN: "Reapertura" },
+  changeAction: { CORRECT: "Corrección", CORRECT_CONSULTATION_REASON: "Corrección del motivo de consulta", ANNUL: "Anulación", REOPEN: "Reapertura" },
   recordTarget: { TASK: "Orden", EVENT: "Evento", EPISODE: "Episodio" },
 } satisfies Record<string, Record<string, string>>;
 

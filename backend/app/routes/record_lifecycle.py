@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, model_validator
 
 from ..write_operations import atomic_write, transaction_factory
+from ..input_validation import ConsultationReason, ClinicalNote
 
 
 class Reason(BaseModel):
@@ -18,6 +19,11 @@ class Reason(BaseModel):
         if len(self.reason) < 3:
             raise ValueError("Explica el motivo")
         return self
+
+
+class ConsultationReasonCorrection(BaseModel):
+    value: ConsultationReason
+    reason: ClinicalNote
 
 
 class Correction(Reason):
@@ -51,6 +57,23 @@ def create_router(
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (episode_id, target_type, target_id, action, old_value, new_value, reason, user["username"], timestamp()),
         )
+
+    @router.patch("/episodes/{episode_id}/consultation-reason")
+    @atomic_write(connection_factory, detail, require_key=True)
+    def correct_consultation_reason(episode_id: int, data: ConsultationReasonCorrection,
+                                    user: dict[str, str] = Depends(require_roles("RECEPTION", "SUPERVISOR"))) -> dict:
+        connection = connection_factory()
+        episode = connection.execute("SELECT * FROM episodes WHERE id = ?", (episode_id,)).fetchone()
+        if episode is None:
+            raise HTTPException(404, "Episodio no encontrado")
+        if episode["status"] != "ACTIVE":
+            raise HTTPException(409, "Solo se puede corregir el motivo de consulta de un episodio activo")
+        if episode["consultation_reason"] == data.value:
+            raise HTTPException(409, "El motivo de consulta coincide con el vigente")
+        record(connection, episode_id, "EPISODE", episode_id, "CORRECT_CONSULTATION_REASON",
+               episode["consultation_reason"], data.value, data.reason, user)
+        connection.execute("UPDATE episodes SET consultation_reason = ? WHERE id = ?", (data.value, episode_id))
+        return detail(connection, episode_id)
 
     @router.patch("/tasks/{task_id}/result")
     @atomic_write(connection_factory, detail, require_key=True)

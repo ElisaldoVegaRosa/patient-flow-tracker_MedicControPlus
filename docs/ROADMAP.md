@@ -2,6 +2,43 @@
 
 ## Decisiones pendientes (leer primero)
 
+### Acciones funcionales prioritarias (23/11)
+
+- Completado: circuitos integrales, recuperacion de envios, arranque con PID
+  reutilizado, respaldo USB y guias. Publicado c373ac1, CI 45081866848 aprobada.
+- Completado local: motivo de consulta opcional al registrar llegada, guardado
+  por episodio, visible tras el alta y recuperable con el borrador. Permisos,
+  migracion de episodios antiguos y reintentos comprobados en bases temporales.
+- Completado: activacion autorizada en PC y LAN .40:5443, misma base y CA.
+  Respaldo previo 4b0bc800 verificado, migracion aislada y activa comprobadas:
+  registros anteriores identicos, 25 pacientes/26 episodios. Servicios propios
+  responden y seis archivos HTTPS coinciden con la compilacion preparada.
+  Configuracion .tmp/demo-lan/consultation-reason-20261123/network.json.
+  Lint/build finales aprobados.
+  Backend 649/649; frontend 792/793 y archivo de la unica asercion corregida
+  repetido 4/4. Sin fallos de pruebas pendientes ni pruebas nuevas de app.
+- Usuario confirma acceso PC y movil tras activar el campo. Completado:
+  correccion auditable del motivo por Recepcion/Supervisor en episodios activos,
+  con justificacion, historial, version propia y recuperacion de envios/borrador.
+  Cierre: permisos y estados, auditoria atomica, concurrencia sin sobrescrituras,
+  reintentos sin duplicados y preservacion de ediciones posteriores verificados.
+  Backend completo 655/655 y frontend completo 809/809, lint/build aprobados.
+  Sin fallos pendientes. Respaldo local/restauracion aislada
+  5f005841 y compilacion LAN consultation-correction-20261123 verificados.
+  Activacion autorizada expresamente: servicios propios reiniciados, misma base,
+  direccion Wi-Fi y CA. Copia final a35a5032 con restauracion aislada aprobada;
+  25 pacientes/26 episodios, registros clinicos y auditoria conservados.
+  API de correccion activa, seis archivos HTTPS identicos a la compilacion.
+  Excluye eliminar texto, corregir episodios cerrados/anulados y fusionar fichas.
+  En curso: publicacion autorizada de la entrega completa, incluida nota final
+  de validacion; crear commits, push a origin/main y comprobar GitHub Actions.
+  Siguiente: cerrar publicacion/CI y seleccionar otra necesidad funcional concreta.
+  No se han realizado
+  correcciones ni nuevas pruebas manuales sobre el demo.
+  Publicacion y nota de cierre expresamente autorizadas por el usuario.
+- Descartado: demostracion/recorrido para el usuario; conoce el flujo. Cada
+  siguiente tarea debe resolver un problema funcional y tener criterio de cierre.
+
 - Cierre del 22/11: nueva copia USB verificada en
   D:/MedicControlPlus-demo-20261122-574f8a1e, respaldo
   clinical-20261122T225307Z-574f8a1e.sqlite3, 25 pacientes/26 episodios.
@@ -19,7 +56,7 @@
   Rutina manual acordada: al terminar cada sesion y antes de cambios importantes.
   Usuario conecta/guarda USB; asistente prepara, verifica y restaura copia aislada
   cuando se lo pida. Conserva copias anteriores, sin programacion automatica.
-  Siguiente decision: elegir objetivo del proximo ensayo o presentacion.
+  Siguiente decision sustituida por las prioridades funcionales del 23/11.
   Entrega documental revisada; usuario autoriza commit, push a origin/main y CI.
 
 - 22/11: respaldo externo verificado en Kingston DataTraveler USB, disco 1,

@@ -43,7 +43,8 @@ it("registra identidad desconocida con null explícito, sin fechas ni documentos
   const call = fetchMock.mock.calls.find(([url, options]) => new URL(String(url)).pathname === "/episodes" && options?.method === "POST")!;
   expect(JSON.parse(String(call[1]?.body))).toEqual({ name: null, birth_date: null, document: null, provisional: true, priority: 3, location: "Recepción" });
   expect(screen.getAllByText(/Identidad provisional/).length).toBeGreaterThan(0);
-  expect(screen.getAllByText("No registrado")).toHaveLength(2);
+  expect(screen.getByText("Documento:").parentElement).toHaveTextContent("No registrado");
+  expect(screen.getByText("Nacimiento:").parentElement).toHaveTextContent("No registrado");
 });
 
 it("recupera el modo provisional tras recarga y vuelve a exigir campos en modo conocido", async () => {

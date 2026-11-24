@@ -37,7 +37,9 @@ describe("Cotejo de identidad al ingresar", () => {
     const form = screen.getByLabelText("Documento").closest("form")!;
     expect(new FormData(form).get("patient_id")).toBe("20");
     fireEvent.change(screen.getByLabelText("Prioridad inicial"), { target: { value: "2" } });
+    fireEvent.change(screen.getByLabelText("Motivo de consulta (opcional)"), { target: { value: "Motivo de este nuevo episodio" } });
     expect(confirm).toBeChecked();
+    expect(new FormData(form).get("consultation_reason")).toBe("Motivo de este nuevo episodio");
     fireEvent.change(screen.getByLabelText("Documento"), { target: { value: "OTHER" } });
     expect(screen.queryByRole("radio")).not.toBeInTheDocument();
     expect(new FormData(form).get("patient_id")).toBeNull();

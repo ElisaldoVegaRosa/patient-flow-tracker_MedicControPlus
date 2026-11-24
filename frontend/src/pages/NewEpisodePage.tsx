@@ -82,6 +82,11 @@ export default function NewEpisodePage({ onSubmit, onOpenEpisode, submitting = f
             <input disabled={submitting} name="location" defaultValue="Recepción" />
           </label>
 
+          <label>
+            Motivo de consulta (opcional)
+            <textarea name="consultation_reason" disabled={submitting} minLength={3} maxLength={1000}
+              rows={3} placeholder="Describe brevemente por qué acude el paciente" />
+          </label>
           {reviewing && <section className="admission-review" aria-label="Revisión de identidad">
             <h2>Revisar identidad del paciente</h2>
             <p>Comprueba documento, nombre y nacimiento. No se fusionan fichas. El documento distingue mayúsculas; el nombre no. Se ignoran espacios exteriores.</p>

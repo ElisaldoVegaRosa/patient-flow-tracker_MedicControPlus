@@ -13,6 +13,8 @@ function operationKey(path: string) {
 }
 
 function label(path: string) {
+  const consultation = path.match(/^\/episodes\/(\d+)\/consultation-reason$/);
+  if (consultation) return `EP-${consultation[1]} · Corrección del motivo de consulta`;
   const contact = path.match(/^\/communications\/(\d+)\/(authorize|attempt|explain|rectify)$/);
   if (contact) return `Contacto del seguimiento #${contact[1]} · ${{ authorize: "Autorizar aviso", attempt: "Gestión de contacto", explain: "Explicación clínica", rectify: "Rectificación" }[contact[2]]}`;
   const followup = path.match(/^\/lab\/followups\/(\d+)\/(plan|propose|accept|cancel-handoff)$/);

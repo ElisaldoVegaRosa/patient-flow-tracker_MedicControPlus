@@ -46,6 +46,11 @@ def annotate_versions(episode):
     if identity_revision:
         triage_state.append(identity_revision)
     episode["triage_version"] = etag(triage_state)
+    episode["consultation_reason_version"] = etag([
+        episode["id"], episode["status"], episode.get("consultation_reason"),
+        [change["id"] for change in episode.get("record_changes", [])
+         if change["target_type"] == "EPISODE" and change["action"] == "CORRECT_CONSULTATION_REASON"],
+    ])
     clinical_state = [
         episode["triage_version"], episode.get("closed_at"), episode["vitals"],
         clinical_tasks, episode["alerts"], clinical_events,
@@ -68,6 +73,9 @@ def guarded_resource(method, path):
         if match:
             return match[2], int(match[1])
     if method == "PATCH":
+        match = re.fullmatch(r"/episodes/(\d+)/consultation-reason", path)
+        if match:
+            return "consultation_reason", int(match[1])
         match = re.fullmatch(r"/episodes/(\d+)/identity", path)
         if match:
             return "identity", int(match[1])
@@ -111,6 +119,8 @@ def check_version(connection, detail, request, user, payload):
         raise HTTPException(428, "Consulta la versión actual antes de guardar")
     if kind == "identity":
         actual = episode["identity_version"]
+    elif kind == "consultation_reason":
+        actual = episode["consultation_reason_version"]
     elif kind == "triage":
         actual = episode["triage_version"]
     elif kind in ("discharge", "reopen", "annul"):

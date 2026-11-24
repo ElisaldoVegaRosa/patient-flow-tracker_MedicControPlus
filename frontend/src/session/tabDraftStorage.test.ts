@@ -22,8 +22,9 @@ describe("Borradores temporales de la pestaña", () => {
     expect(recovered.forUser({ username: "archivo", role: "SUPERVISOR" })).toBeNull();
     const arrival = new FormDraftRecovery(journal());
     const reception = { username: "recepcion", role: "RECEPTION" };
-    arrival.track(reception, { kind: "arrival", fields: { provisional: "true", name: "", birth_date: "", document: "" } });
+    arrival.track(reception, { kind: "arrival", fields: { provisional: "true", name: "", birth_date: "", document: "", consultation_reason: "Motivo ficticio de ingreso" } });
     expect(new FormDraftRecovery(journal()).forUser(reception)?.drafts[0].fields.provisional).toBe("true");
+    expect(new FormDraftRecovery(journal()).forUser(reception)?.drafts[0].fields.consultation_reason).toBe("Motivo ficticio de ingreso");
   });
   it("recupera tras recrear el almacén con identidad, texto y versión originales", () => {
     const store = new FormDraftRecovery(journal());

@@ -1,4 +1,4 @@
-from ..input_validation import Name, Document, Location, BirthDate
+from ..input_validation import Name, Document, Location, BirthDate, ConsultationReason
 from ..write_operations import atomic_write, transaction_factory
 from collections.abc import Callable
 import secrets
@@ -16,6 +16,7 @@ class EpisodeCreate(BaseModel):
     provisional: bool = False
     priority: int = Field(default=3, ge=1, le=5)
     location: Location = "Recepción"
+    consultation_reason: ConsultationReason | None = None
     patient_id: int | None = Field(default=None, gt=0)
 
     @model_validator(mode="after")
@@ -34,6 +35,8 @@ class EpisodeCreate(BaseModel):
             result.pop("patient_id", None)
         if not self.provisional:
             result.pop("provisional", None)
+        if self.consultation_reason is None:
+            result.pop("consultation_reason", None)
         return result
 
 
@@ -110,15 +113,17 @@ def create_router(
                 status,
                 priority,
                 location,
+                consultation_reason,
                 started_at
             )
-            VALUES (?, ?, 'ACTIVE', ?, ?, ?)
+            VALUES (?, ?, 'ACTIVE', ?, ?, ?, ?)
             """,
             (
                 patient_id,
                 secrets.token_urlsafe(24),
                 data.priority,
                 data.location,
+                data.consultation_reason,
                 timestamp(),
             ),
         )
@@ -130,7 +135,7 @@ def create_router(
             episode_id,
             "EPISODE_CREATED",
             user["username"],
-            "Ingreso registrado",
+            "Ingreso registrado" + ("\nMotivo de consulta: " + data.consultation_reason if data.consultation_reason is not None else ""),
         )
 
         connection.commit()

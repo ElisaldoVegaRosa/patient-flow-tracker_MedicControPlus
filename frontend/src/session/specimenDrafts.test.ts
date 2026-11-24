@@ -6,6 +6,15 @@ const user = { username: "lab.demo", role: "LAB" };
 const path = "/lab/specimens/1/receipt";
 
 describe("borradores de muestras de esta pestaña", () => {
+  it("recupera una corrección de motivo por episodio y elimina el borrador al cambiar de rol", () => {
+    const reception = { username: "recepcion", role: "RECEPTION" };
+    const correction = "/episodes/42/consultation-reason";
+    saveSpecimenDraft(reception, correction, '"v1"', { value: "Motivo corregido", reason: "Error ficticio" }, true);
+    expect(readSpecimenDraft(reception, correction).draft).toMatchObject({ baseline: '"v1"', fields: { value: "Motivo corregido", reason: "Error ficticio" } });
+    expect(readSpecimenDraft(reception, "/episodes/43/consultation-reason").draft).toBeUndefined();
+    expect(readSpecimenDraft({ ...reception, role: "SUPERVISOR" }, correction).draft).toBeUndefined();
+    expect(readSpecimenDraft(reception, correction).draft).toBeUndefined();
+  });
   it("recupera campos y versión solo para la misma cuenta y acción, sin tokens", () => {
     saveSpecimenDraft(user, path, '"v1"', { reason: "Motivo ficticio", password: "no conservar" }, true);
     expect(readSpecimenDraft(user, path).draft).toMatchObject({ baseline: '"v1"', fields: { reason: "Motivo ficticio" } });

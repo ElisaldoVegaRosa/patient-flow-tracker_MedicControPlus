@@ -5,6 +5,47 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Correccion auditable del motivo de consulta (local, 23/11/2026)
+
+- Recepcion y Supervisor pueden rectificar el motivo de un episodio activo con
+  justificacion obligatoria. El evento original del ingreso permanece intacto;
+  anterior/nuevo, justificacion, autor y fecha quedan en el historial existente.
+- Sin nuevo esquema de base. Version del motivo e idempotencia obligatorias;
+  dos sesiones no pueden sobrescribir silenciosamente una correccion. Cambiar
+  el motivo invalida la revision previa al alta, sin modificar el triaje.
+- Formulario compartido con conservacion del borrador por pestana/cuenta/rol,
+  revision expresa de cambios remotos y resolucion de envios inciertos. La
+  confirmacion retira campos coincidentes; conserva las ediciones posteriores.
+- Backend completo 655/655 y frontend completo 809/809 (88 archivos), lint/build
+  aprobados. Sin fallos pendientes. Respaldo y restauracion
+  aislada 5f005841 y nueva compilacion LAN preparados/verificados.
+- Activacion autorizada expresamente: servicios propios reiniciados con la
+  misma base y CA. Copia final a35a5032 verificada/restaurada; 25 pacientes y
+  26 episodios conservados, registros clinicos y auditoria iguales al respaldo.
+  API nueva y seis archivos HTTPS verificados. Sin correcciones ni nuevas
+  pruebas manuales sobre los datos del demo.
+
+## Motivo de consulta por episodio (local, 23/11/2026)
+
+- Campo opcional al registrar llegada: entre 3 y 1.000 caracteres cuando se
+  completa. Conserva el texto y sus saltos de linea, sin inferir diagnosticos.
+- Guardado en el episodio y en el evento de ingreso; visible en el detalle
+  tanto activo como cerrado. Una nueva visita permite un motivo diferente.
+- Migracion aditiva 013: episodios anteriores sin motivo muestran "No
+  registrado". Los ingresos sin campo conservan su compatibilidad con recibos
+  de idempotencia anteriores.
+- Recuperacion del motivo junto con el borrador del ingreso. Los permisos de
+  creacion siguen limitados a Recepcion y Supervisor.
+- Backend completo: 649/649. Frontend completo: 792/793; unica asercion antigua
+  actualizada para comprobar documento y nacimiento por separado; su archivo
+  repetido aprueba 4/4. Sin fallos de pruebas pendientes. Lint/build finales
+  aprobados.
+- Activado con autorizacion en la misma copia del demo y HTTPS .40:5443.
+  Respaldo local previo 4b0bc800 verificado y migracion aislada aprobada.
+  Datos anteriores identicos tras migrar la base activa; integridad/FK correctas,
+  25 pacientes/26 episodios. Mismo certificado/CA, seis archivos HTTPS identicos
+  a la compilacion nueva. Sin altas ficticias nuevas ni pruebas manuales de app.
+
 ## Inventario y guia breve del demo (22/11/2026)
 
 - Rutina manual de respaldo acordada: al terminar cada sesion y antes de cambios

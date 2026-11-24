@@ -19,6 +19,8 @@ import WriteConflicts from "../components/WriteConflicts";
 import RecordCorrectionForm from "../components/RecordCorrectionForm";
 import ReasonActionForm from "../components/ReasonActionForm";
 import PatientIdentity from "../components/PatientIdentity";
+import ConsultationReasonEditor from "../components/ConsultationReasonEditor";
+import { staffingAuditDate } from "../components/staffingAuditDate";
 import WristbandPrint from "../components/WristbandPrint";
 import { QRCodeSVG } from "qrcode.react";
 import { api, isSessionInterruption, WRITE_CONFIRMED_EVENT } from "../api/client";
@@ -381,6 +383,8 @@ async function createClinicalOrder(
           <p><strong>Ubicación:</strong> {episode.location}</p>
           <p><strong>Documento:</strong> {episode.document ?? "No registrado"}</p>
           <p><strong>Nacimiento:</strong> {episode.birth_date ?? "No registrado"}</p>
+          <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}><strong>Motivo de consulta:</strong>{" "}{episode.consultation_reason ?? "No registrado"}</p>
+          <ConsultationReasonEditor episode={episode} user={user} operations={operations} onUpdated={updateEpisode} />
           <p>
             <strong>{episode.care ? "Referencia previa (texto libre):" : "Asignado:"}</strong>{" "}
             {episode.assigned_to || "Sin asignar"}
@@ -1005,9 +1009,9 @@ async function createClinicalOrder(
           {(episode.record_changes ?? []).map(change => <article key={change.id}>
             <strong>{clinicalLabel("recordTarget", change.target_type)} #{change.target_id} · {clinicalLabel("changeAction", change.action)}</strong>
             <p>Motivo: {change.reason}</p>
-            <p>Anterior: {change.target_type === "EPISODE" && change.old_value !== null ? clinicalLabel("episodeStatus", change.old_value) : change.old_value ?? "Sin texto"}</p>
-            <p>Nuevo: {change.target_type === "EPISODE" && change.new_value !== null ? clinicalLabel("episodeStatus", change.new_value) : change.new_value ?? "Sin texto vigente"}</p>
-            <small>{change.username} · {new Date(change.created_at).toLocaleString()}</small>
+            <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>Anterior: {change.target_type === "EPISODE" && change.action !== "CORRECT_CONSULTATION_REASON" && change.old_value !== null ? clinicalLabel("episodeStatus", change.old_value) : change.old_value ?? "Sin texto"}</p>
+            <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>Nuevo: {change.target_type === "EPISODE" && change.action !== "CORRECT_CONSULTATION_REASON" && change.new_value !== null ? clinicalLabel("episodeStatus", change.new_value) : change.new_value ?? "Sin texto vigente"}</p>
+            <small>{change.username} · {change.action === "CORRECT_CONSULTATION_REASON" ? staffingAuditDate(change.created_at) : new Date(change.created_at).toLocaleString()}</small>
           </article>)}
         </section>}
       </div>

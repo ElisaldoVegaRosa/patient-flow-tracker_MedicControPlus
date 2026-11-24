@@ -2,7 +2,7 @@ import sqlite3
 
 import pytest
 
-from app.database import get_connection
+from app.database import get_connection, initialize_database
 
 
 def test_connection_uses_named_rows_and_enforces_foreign_keys(tmp_path) -> None:
@@ -36,3 +36,30 @@ def test_connections_use_the_supplied_database_independently(tmp_path) -> None:
     finally:
         first.close()
         second.close()
+
+
+def test_admission_reason_upgrade_preserves_existing_episodes_and_is_idempotent(tmp_path):
+    database = tmp_path / "admission-reason-migration.db"
+    def initialize():
+        initialize_database(get_connection(database), {}, lambda password: ("unused", "unused"), lambda: "2026-11-23T12:00:00+00:00")
+
+    initialize()
+    connection = get_connection(database)
+    try:
+        connection.execute("INSERT INTO patients(name,birth_date,document) VALUES ('Paciente previo','1990-01-01','PREVIOUS-REASON')")
+        connection.execute("INSERT INTO episodes(patient_id,qr_token,status,priority,location,started_at) VALUES (1,'previous-qr','CLOSED',3,'Recepción','2026-11-22')")
+        connection.execute("ALTER TABLE episodes DROP COLUMN consultation_reason")
+        connection.commit()
+        initialize()
+        previous = connection.execute("SELECT * FROM episodes").fetchone()
+        assert previous["consultation_reason"] is None
+        assert previous["qr_token"] == "previous-qr"
+        assert previous["status"] == "CLOSED"
+        connection.execute("UPDATE episodes SET consultation_reason='Motivo ficticio conservado' WHERE id=1")
+        connection.commit()
+        initialize()
+        assert connection.execute("SELECT consultation_reason FROM episodes").fetchone()[0] == "Motivo ficticio conservado"
+        assert connection.execute("SELECT COUNT(*) FROM episodes").fetchone()[0] == 1
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+    finally:
+        connection.close()
