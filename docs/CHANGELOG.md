@@ -5,7 +5,7 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
-## Historial del paciente desde el episodio (local, 24/11/2026)
+## Historial del paciente desde el episodio (24/11/2026)
 
 - Consulta otros episodios cerrados y anulados de la misma ficha, con fecha de
   ingreso/cierre, estado y motivo de consulta. No agrupa por coincidencias de
@@ -27,8 +27,11 @@ las verificaciones realizadas y el estado de cada etapa.
 - Activacion/publicacion autorizadas. Demo reiniciado con la misma base/CA;
   respaldo final 85df63ef verificado/restaurado, 25 pacientes/26 episodios.
   Indice 014 activo, integridad/FK correctas; datos clinicos/auditoria iguales
-  al respaldo final. API protegida y seis archivos HTTPS verificados. Publicacion
-  en curso; sin nuevos ensayos manuales ni escrituras clinicas del asistente.
+  al respaldo final. API protegida y seis archivos HTTPS verificados.
+  Sin nuevos ensayos manuales ni escrituras clinicas del asistente.
+- Publicado en 27fa2ba; [CI 45515457290](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45515457290)
+  aprobada para backend, frontend, analisis y compilacion. Cierre documental
+  autorizado, sin cambios de codigo ni repeticion de suites locales.
 
 ## Correccion auditable del motivo de consulta (23/11/2026)
 

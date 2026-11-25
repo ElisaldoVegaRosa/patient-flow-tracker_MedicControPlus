@@ -23,8 +23,8 @@
   secuencias identicos, integridad/FK correctas. LAN preparada y TLS verificado:
   .tmp/demo-lan/patient-history-20261124/network.json, HOME-WIFI privada .40,
   misma CA del movil. Preparacion detallada en .tmp/patient-history-preparation.json.
-  Base de trabajo f9b3c72; cambios locales
-  de la entrega funcional. Usuario autoriza activar y publicar la entrega:
+  Base de trabajo f9b3c72; entrega funcional publicada en 27fa2ba.
+  Usuario autoriza activar y publicar la entrega:
   reinicio con la misma base/certificado, commits, push a origin/main y nota final
   de validacion/CI. Servicios propios reiniciados y respondiendo; LAN vigente
   .tmp/demo-lan/patient-history-20261124/network.json, HTTPS .40:5443.
@@ -35,8 +35,11 @@
   Datos clinicos y auditoria identicos al respaldo final (sesiones/presencia
   efimeras excluidas), 25 pacientes/26 episodios. Sin consultas clinicas
   autenticadas ni nuevos ensayos manuales del asistente sobre el demo.
-  Misma base communication-rollout-20261030. Siguiente: publicar, comprobar CI
-  y cerrar la nota de validacion; publicacion en curso.
+  Misma base communication-rollout-20261030. Publicacion funcional verificada:
+  [CI 45515457290](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45515457290)
+  aprobada para 27fa2ba: backend, frontend, analisis y compilacion.
+  Cierre documental sin cambios de codigo ni nuevas suites locales.
+  Siguiente: elegir la proxima necesidad funcional; no hay decision nueva aprobada.
 
 - 23/11: correccion auditable del motivo de consulta implementada y validada localmente,
   autorizada al continuar con la recomendacion. Recepcion/Supervisor, solo

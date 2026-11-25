@@ -6,7 +6,7 @@
 
 - Completado: ingreso y correccion auditable del motivo, activos en PC/movil;
   entrega funcional 19b5714 y cierre f9b3c72 publicados, ambas CI aprobadas.
-- En curso y autorizado: historial del paciente desde su episodio. Consulta
+- Completado y activo: historial del paciente desde su episodio. Consulta
   otros episodios cerrados/anulados de la misma ficha; conserva permisos de
   Historial y los avisos de formularios sin guardar al abrir otra visita.
 - Cierre: no cruza fichas con igual nombre/documento, excluye el episodio
@@ -19,15 +19,18 @@
   Lint/build finales aprobados; advertencia de tamano (500,61 kB), sin ampliar
   limite. Respaldo c86499ab y migracion aislada a5a39980 verificados: registros,
   secuencias e integridad conservados, 25 pacientes/26 episodios.
-  LAN patient-history-20261124 preparada con .40/HOME-WIFI y misma CA, sin reinicio.
+  LAN patient-history-20261124 preparada con .40/HOME-WIFI y misma CA.
   Indice aditivo 014, sin fusion ni
   ampliacion de permisos. Activado tras autorizacion expresa: misma base/CA,
   servicios propios responden y seis archivos HTTPS coinciden con la compilacion.
   Respaldo final 85df63ef verificado/restaurado; indice 014 instalado sin cambios
   de datos clinicos/auditoria, 25 pacientes/26 episodios conservados.
-- En curso y autorizado: commits, push a origin/main y comprobacion de CI,
-  incluida nota final de validacion. Siguiente: cerrar la publicacion y elegir
-  otra necesidad funcional. Sin nuevos ensayos manuales ni escrituras clinicas.
+- Publicado: 27fa2ba en origin/main, con
+  [CI 45515457290](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45515457290)
+  aprobada para backend, frontend, analisis y compilacion. Nota final de
+  validacion autorizada; cierre documental sin repetir suites locales.
+- Siguiente decision: elegir otra necesidad funcional; ninguna nueva aprobada.
+  Sin nuevos ensayos manuales ni escrituras clinicas.
 
 ### Acciones funcionales prioritarias (23/11)
 
