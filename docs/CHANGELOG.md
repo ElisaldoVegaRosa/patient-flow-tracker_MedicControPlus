@@ -34,7 +34,10 @@ las verificaciones realizadas y el estado de cada etapa.
   base/CA; respaldo final 747372b0 y restauracion aislada 3d7ee97f verificados.
   API protegida, seis archivos HTTPS coinciden con la compilacion; datos
   clinicos/auditoria conservados e integridad/FK correctas, 25 pacientes/26
-  episodios. Publicacion en curso, sin nuevos ensayos manuales del asistente.
+  episodios. Sin nuevos ensayos manuales del asistente.
+- Publicado en 3d6ffae; [CI 45525716520](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45525716520)
+  aprobada para backend, frontend, analisis y compilacion. Nota final autorizada,
+  sin cambios de codigo ni repeticion de suites locales.
 
 ## Historial del paciente desde el episodio (24/11/2026)
 

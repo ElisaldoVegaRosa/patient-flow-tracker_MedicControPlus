@@ -2,8 +2,8 @@
 
 ## Estado actual (leer primero)
 
-- Implementado y activo (24/11): busqueda y filtros del Historial general, autorizados al
-  continuar. Problema: descarga todos los episodios y filtra solo en navegador.
+- Completado, activo y publicado (24/11): busqueda y filtros del Historial general.
+  Problema resuelto: descargaba todos los episodios y filtraba solo en navegador.
   Alcance: nombre/documento/EP, estado cerrado/anulado, fechas de cierre en hora
   dominicana y paginas de 20 desde API (maximo 50). Sin escrituras clinicas,
   fusion de fichas ni ampliacion de permisos. Cierre: filtros combinados,
@@ -21,7 +21,7 @@
   .tmp/general-history-preparation.json. No sustituye la base activa ni copia USB.
 - Completado: backend completo 687/687 (2.382,31 s), una advertencia existente.
   Diff revisado, UTF-8 y enlaces locales correctos. Base de trabajo 083b71f;
-  publicacion de esta entrega en curso.
+  entrega funcional 3d6ffae publicada en origin/main.
 - Autorizado por el usuario: activar API/movil con la misma base/CA, commits,
   push a origin/main, nota final y comprobacion de CI. No pedir otra vez esa
   autorizacion para esta entrega.
@@ -33,9 +33,11 @@
   clinicos/auditoria identicos al respaldo, excluidas sesiones/presencia efimeras.
   Integridad/FK correctas, 25 pacientes/26 episodios. Sin nuevas escrituras
   clinicas ni ensayos manuales del asistente.
-- En curso: commits/push a origin/main y comprobacion de CI, incluida nota final
-  autorizada. La revision automatica ya permitio el reinicio; bloqueo resuelto.
-  Siguiente: cerrar la publicacion verificada de esta entrega.
+- Publicacion funcional verificada: 3d6ffae, con
+  [CI 45525716520](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45525716520)
+  aprobada para backend, frontend, analisis y compilacion. Nota final autorizada,
+  exclusivamente documental; no repite suites locales ni reinicia el demo.
+- Siguiente decision: elegir otra necesidad funcional; ninguna nueva aprobada.
 
 
 - 24/11: historial del paciente desde su episodio implementado, validado y activo.
