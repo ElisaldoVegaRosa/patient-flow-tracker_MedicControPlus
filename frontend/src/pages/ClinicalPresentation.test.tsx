@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 import EpisodePage from "./EpisodePage";
 import EpisodeHistoryPage from "./EpisodeHistoryPage";
+import { establishSession } from "../api/client";
 import LaboratoryPage from "./LaboratoryPage";
 import RetainedDrafts from "../components/RetainedDrafts";
 import type { Episode, LaboratoryQueue } from "../types/clinical";
@@ -88,16 +89,20 @@ it("traduce laboratorio y conserva el valor de filtro enviado al controlador", (
   expect(onFilterChange).toHaveBeenCalledWith("PENDING");
 });
 
-it("muestra estados históricos en español y abre el episodio con su identificador", () => {
+it("muestra estados históricos en español y abre el episodio con su identificador", async () => {
   const onOpenEpisode = vi.fn(async () => {});
-  render(<EpisodeHistoryPage historyData={{ total: 2, requested_by: "supervisor", episodes: [
+  establishSession("clinical-presentation-ficticio");
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ total: 2, limit: 20, offset: 0, requested_by: "supervisor", episodes: [
     { ...base, assigned_to: null, closed_at: date, status: "CLOSED", event_count: 1, alert_count: 0, task_count: 0 },
     { ...base, id: 43, assigned_to: null, closed_at: date, status: "ANNULLED", event_count: 1, alert_count: 0, task_count: 0 },
-  ] }} onRefresh={vi.fn(async () => {})} onOpenEpisode={onOpenEpisode} />);
-  const row = screen.getByText("Cerrado").closest("tr")!;
+  ] }) }));
+  render(<EpisodeHistoryPage onOpenEpisode={onOpenEpisode} />);
+  const row = (await screen.findByText("Cerrado")).closest("tr")!;
   expect(screen.getByText("Anulado")).toBeVisible();
   fireEvent.click(within(row).getByRole("button", { name: "Ver línea de tiempo" }));
   expect(onOpenEpisode).toHaveBeenCalledWith(42);
+  vi.unstubAllGlobals();
+  localStorage.clear();
 });
 
 it("traduce opciones de borradores y conserva el texto libre que coincide con códigos", () => {

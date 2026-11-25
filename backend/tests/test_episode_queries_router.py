@@ -28,7 +28,7 @@ def test_empty_history_permissions_and_missing_episode(tmp_path, monkeypatch, us
         response = client.get("/episodes/history", headers=headers)
         if username in ["recepcion", "medico", "supervisor"]:
             assert response.status_code == 200
-            assert response.json() == {"total": 0, "episodes": [], "requested_by": username}
+            assert response.json() == {"total": 0, "episodes": [], "requested_by": username, "limit": 20, "offset": 0}
         else:
             assert response.status_code == 403
         missing = client.get("/episodes/999", headers=headers)

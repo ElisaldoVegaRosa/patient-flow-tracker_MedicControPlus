@@ -170,7 +170,7 @@ describe("Historial de episodios", () => {
 
   async function openHistory() {
     const historyResponse = vi.fn().mockResolvedValue({
-      total: 0, episodes: [], requested_by: "medico",
+      total: 0, episodes: [], requested_by: "medico", limit: 20, offset: 0,
     });
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const path = new URL(String(input)).pathname;
@@ -207,7 +207,7 @@ describe("Historial de episodios", () => {
   it("Actualizar historial consulta de nuevo y muestra los datos actualizados", async () => {
     const { user, fetchMock, historyResponse } = await openHistory();
     const updated: import("./types/clinical").HistoryData = {
-      total: 1, requested_by: "medico", episodes: [{
+      total: 1, requested_by: "medico", limit: 20, offset: 0, episodes: [{
         id: 73, name: "Paciente actualizado", document: "QA-HISTORY",
         status: "CLOSED", priority: 2, location: "Observación",
         assigned_to: null, started_at: "2026-10-03T12:00:00Z", closed_at: null,
@@ -219,7 +219,7 @@ describe("Historial de episodios", () => {
     await user.click(screen.getByRole("button", { name: "Actualizar historial" }));
     expect(await screen.findByText("Paciente actualizado")).toBeVisible();
     expect(fetchMock.mock.calls.slice(callsBeforeRefresh)).toEqual([
-      ["http://localhost:8000/episodes/history", expect.objectContaining({
+      ["http://localhost:8000/episodes/history?limit=20&offset=0", expect.objectContaining({
         headers: expect.objectContaining({ Authorization: "Bearer token-de-prueba" }),
       })],
     ]);
@@ -701,7 +701,7 @@ describe("EpisodePage: solo lectura y permisos por rol", () => {
     expect(screen.getByText(/Seguimiento ambulatorio indicado/)).toHaveTextContent("Control en consulta.");
     expect(screen.queryByLabelText("Nota de alta")).not.toBeInTheDocument();
     fetchMock.mockResolvedValueOnce({ ok: true, status: 200,
-      json: async () => ({ total: 1, episodes: [closed], requested_by: "medico" }) } as Response);
+      json: async () => ({ total: 1, limit: 20, offset: 0, episodes: [closed], requested_by: "medico" }) } as Response);
     await user.click(screen.getByRole("button", { name: "Historial de episodios" }));
     fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => closed } as Response);
     await user.click(await screen.findByRole("button", { name: "Ver línea de tiempo" }));

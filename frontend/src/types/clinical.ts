@@ -211,6 +211,8 @@ export type ClosedEpisode = {
 };
 
 export type HistoryData = {
+  limit: number;
+  offset: number;
   total: number;
   episodes: ClosedEpisode[];
   requested_by: string;

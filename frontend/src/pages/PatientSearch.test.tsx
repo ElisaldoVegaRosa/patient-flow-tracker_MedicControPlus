@@ -2,7 +2,6 @@ import { useState } from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 import DashboardPage from "./DashboardPage";
-import EpisodeHistoryPage from "./EpisodeHistoryPage";
 import SupervisorPage from "./SupervisorPage";
 import LaboratoryPage from "./LaboratoryPage";
 import type { Episode, LaboratoryQueue, SupervisorData } from "../types/clinical";
@@ -35,21 +34,6 @@ it("filtra el control, conserva métricas y búsqueda al actualizar y abre el EP
   expect(screen.getByRole("row", { name: /Ana Pérez/ })).toBeVisible();
 });
 
-it("busca un EP exacto en historial, conserva el total y permite limpiar", () => {
-  const open = vi.fn(async () => {});
-  const episodes = [first, second].map(episode => ({ ...episode, status: "CLOSED", assigned_to: null, closed_at: first.started_at, event_count: 2, alert_count: 0, task_count: 0 }));
-  render(<EpisodeHistoryPage historyData={{ total: 2, requested_by: "supervisor", episodes }} onRefresh={refresh} onOpenEpisode={open} />);
-  search(" ep-20 ");
-  expect(screen.queryByRole("row", { name: /Ana Pérez/ })).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "Ver línea de tiempo" }));
-  expect(open).toHaveBeenCalledWith(20);
-  expect(screen.getByRole("article")).toHaveTextContent("2Episodios históricos");
-  search("No existe");
-  expect(screen.getByText("No hay coincidencias con la búsqueda.")).toBeVisible();
-  expect(screen.queryByText("No existen episodios históricos")).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "Limpiar búsqueda" }));
-  expect(screen.getAllByRole("button", { name: "Ver línea de tiempo" })).toHaveLength(2);
-});
 
 it("combina búsqueda y filtros del supervisor sin alterar indicadores generales", () => {
   const data: SupervisorData = { metrics: { active_patients: 2, high_priority_patients: 1, patients_at_risk: 1, open_alerts: 1, pending_tasks: 0 },
@@ -123,14 +107,13 @@ it("mantiene laboratorio en consulta y busca dentro del estado seleccionado", ()
   expect(filter).toHaveBeenCalledWith("PENDING");
 });
 
-it.each(["control", "historial", "laboratorio", "supervisor"])("distingue una lista vacía en %s de una búsqueda sin coincidencias", page => {
+it.each(["control", "laboratorio", "supervisor"])("distingue una lista vacía en %s de una búsqueda sin coincidencias", page => {
   if (page === "control") render(<DashboardPage dashboard={{ ...dashboard, patients: [], active: 0 }} onRefresh={refresh} onOpenEpisode={vi.fn(async () => {})} />);
-  if (page === "historial") render(<EpisodeHistoryPage historyData={{ total: 0, requested_by: "supervisor", episodes: [] }} onRefresh={refresh} onOpenEpisode={vi.fn(async () => {})} />);
   if (page === "laboratorio") render(<LaboratoryPage laboratoryQueue={{ ...queue, orders: [], total: 0 }} onRefresh={refresh} onCompleteOrder={vi.fn(async () => {})} />);
   if (page === "supervisor") render(<SupervisorPage supervisorData={{ metrics: { active_patients: 0, high_priority_patients: 0, patients_at_risk: 0, open_alerts: 0, pending_tasks: 0 },
     rules: { evaluated_episodes: 0, generated_alerts: 0 }, patients: [], generated_at: first.started_at, requested_by: "supervisor" }}
     supervisorFilter="ALL" rulesMessage="" evaluatingRules={false} onFilterChange={vi.fn()} onLoadDemo={refresh} onEvaluateRules={refresh} onRefresh={refresh} onOpenEpisode={vi.fn(async () => {})} />);
   search("20");
   expect(screen.queryByText(/No hay coincidencias/)).not.toBeInTheDocument();
-  expect(screen.getByText(page === "control" || page === "supervisor" ? "No hay pacientes activos." : page === "historial" ? "No existen episodios históricos" : "No hay órdenes en este filtro")).toBeVisible();
+  expect(screen.getByText(page === "control" || page === "supervisor" ? "No hay pacientes activos." : "No hay órdenes en este filtro")).toBeVisible();
 });

@@ -5,6 +5,37 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Busqueda y filtros del Historial general (24/11/2026)
+
+- Consulta por nombre (sin distinguir acentos/mayusculas), documento literal o
+  episodio. EP-numero busca solo ese episodio; numeros sin prefijo tambien
+  pueden coincidir con documentos. Filtros combinables por cerrado/anulado y
+  fechas de cierre inclusivas en hora dominicana. Fechas visibles en 12 horas.
+- API paginada: 20 resultados por defecto, maximo 50, total filtrado y orden
+  estable por instante de cierre/numero. Conserva cierres sin fecha si no hay
+  filtro de fechas; excluye episodios activos. Total y pagina en una lectura
+  coherente; consulta parametrizada, sin cambios de esquema ni datos clinicos.
+- Interfaz con aplicar/limpiar filtros, actualizar, anterior/siguiente y
+  reintento. Cancela consultas al cambiar filtros o salir; respuestas antiguas
+  no cambian la vista elegida. Abrir otra visita respeta guardados pendientes.
+- Permisos conservados: Recepcion, Medico y Supervisor. Pruebas dirigidas
+  backend 27/27 y frontend 45/45 aprobadas. Dos timeouts iniciales en sandbox;
+  repeticion aislada detecto una respuesta ficticia antigua sin paginacion,
+  actualizada al nuevo contrato. Repeticion dirigida final aprobada sin ampliar
+  tiempos ni cambiar runner. Frontend completo 836/837; unica prueba antigua de
+  presentacion adaptada a la consulta asincrona y repetida con el historial:
+  15/15 aprobadas. Backend completo 687/687 (2.382,31 s), una advertencia
+  existente. Lint limpio y build aprobado;
+  advertencia Vite 503,77 kB/146,24 kB gzip, sin aumentar limites.
+- Compilacion LAN general-history-20261124 y TLS verificados con la misma CA.
+  Respaldo local 72d3391d verificado/restaurado en f3868d67, 25 pacientes/26
+  episodios. Detalle en .tmp/general-history-preparation.json; no es copia USB.
+- Activacion/publicacion autorizadas. Servicios propios reiniciados con la misma
+  base/CA; respaldo final 747372b0 y restauracion aislada 3d7ee97f verificados.
+  API protegida, seis archivos HTTPS coinciden con la compilacion; datos
+  clinicos/auditoria conservados e integridad/FK correctas, 25 pacientes/26
+  episodios. Publicacion en curso, sin nuevos ensayos manuales del asistente.
+
 ## Historial del paciente desde el episodio (24/11/2026)
 
 - Consulta otros episodios cerrados y anulados de la misma ficha, con fecha de

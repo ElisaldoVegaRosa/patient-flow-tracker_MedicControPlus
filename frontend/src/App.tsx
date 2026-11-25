@@ -43,7 +43,6 @@ import type {
   DashboardData,
   DemoSeedResponse,
   Episode,
-  HistoryData,
   LaboratoryQueue,
   LogoutResponse,
   SessionUser,
@@ -64,8 +63,6 @@ function App() {
   const [supervisorData, setSupervisorData] =
     useState<SupervisorData | null>(null);
   const [supervisorFilter, setSupervisorFilter] = useState("ALL");
-  const [historyData, setHistoryData] =
-    useState<HistoryData | null>(null);
   const [rulesMessage, setRulesMessage] = useState("");
   const operations = usePendingOperations();
   const evaluatingRules = operations.isPending("rules");
@@ -346,7 +343,6 @@ function App() {
       setDashboard(null);
       setLaboratoryQueue(null);
       setSupervisorData(null);
-      setHistoryData(null);
       setPage("dashboard");
       setRestoringSession(false);
       setRulesMessage("");
@@ -605,17 +601,9 @@ async function loadDemoData() {
  * El historial es de consulta y no reactiva episodios dados de alta.
  */
 async function openEpisodeHistory() {
-    clearRecovery();
-    setRecoveredNote("");
-  try {
-    const result = await api<HistoryData>("/episodes/history");
-
-    setHistoryData(result);
-    setPage("history");
-  } catch (exception) {
-    if (isSessionInterruption(exception)) return;
-    setError((exception as Error).message);
-  }
+  clearRecovery();
+  setRecoveredNote("");
+  setPage("history");
 }
 
   /**
@@ -754,7 +742,6 @@ async function logout() {
   setDashboard(null);
   setLaboratoryQueue(null);
   setSupervisorData(null);
-  setHistoryData(null);
   setPage("dashboard");
   setError("");
   setRulesMessage("");
@@ -897,10 +884,10 @@ async function logout() {
       {page === "identity" && <IdentityQueuePage user={user}
         onOpenEpisode={async id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))} />}
 
-      {page === "history" && historyData && (
+      {page === "history" && (
         <EpisodeHistoryPage
-          historyData={historyData}
-          onRefresh={openEpisodeHistory}
+          key={`${user.username}:${user.role}`}
+          openingBlocked={operations.hasPending()}
           onOpenEpisode={async (id) => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))}
         />
       )}

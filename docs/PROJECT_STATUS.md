@@ -2,6 +2,42 @@
 
 ## Estado actual (leer primero)
 
+- Implementado y activo (24/11): busqueda y filtros del Historial general, autorizados al
+  continuar. Problema: descarga todos los episodios y filtra solo en navegador.
+  Alcance: nombre/documento/EP, estado cerrado/anulado, fechas de cierre en hora
+  dominicana y paginas de 20 desde API (maximo 50). Sin escrituras clinicas,
+  fusion de fichas ni ampliacion de permisos. Cierre: filtros combinados,
+  limites, fechas, permisos, errores y respuestas tardias cubiertos por pruebas.
+- Completado: historial por ficha activo y publicado; cierre 083b71f, CI
+  45516916565 aprobada.
+- Validacion de la mejora general: dirigidas backend 27/27 y frontend 45/45.
+  Frontend completo 836/837; unico fallo en prueba de presentacion antigua,
+  adaptada al nuevo contrato y repetida junto al historial: 15/15 aprobadas.
+  Sin cambios de aplicacion despues de iniciar las suites completas.
+  Lint limpio y build aprobado (advertencia Vite 503,77 kB/146,24 kB gzip,
+  limites sin cambios). LAN general-history-20261124 compilada y TLS verificado
+  con la misma CA. Respaldo local 72d3391d verificado y restaurado
+  en copia aislada f3868d67: 25 pacientes/26 episodios. Detalle en
+  .tmp/general-history-preparation.json. No sustituye la base activa ni copia USB.
+- Completado: backend completo 687/687 (2.382,31 s), una advertencia existente.
+  Diff revisado, UTF-8 y enlaces locales correctos. Base de trabajo 083b71f;
+  publicacion de esta entrega en curso.
+- Autorizado por el usuario: activar API/movil con la misma base/CA, commits,
+  push a origin/main, nota final y comprobacion de CI. No pedir otra vez esa
+  autorizacion para esta entrega.
+- Activado: servicios propios reiniciados con la misma base y certificado;
+  LAN vigente .tmp/demo-lan/general-history-20261124/network.json (.40:5443).
+  Respaldo final 747372b0 con servicios detenidos, mismo hash que 72d3391d;
+  restauracion aislada 3d7ee97f verificada. API con nuevos filtros protegida
+  (401 sin sesion), seis archivos HTTPS identicos a la compilacion; datos
+  clinicos/auditoria identicos al respaldo, excluidas sesiones/presencia efimeras.
+  Integridad/FK correctas, 25 pacientes/26 episodios. Sin nuevas escrituras
+  clinicas ni ensayos manuales del asistente.
+- En curso: commits/push a origin/main y comprobacion de CI, incluida nota final
+  autorizada. La revision automatica ya permitio el reinicio; bloqueo resuelto.
+  Siguiente: cerrar la publicacion verificada de esta entrega.
+
+
 - 24/11: historial del paciente desde su episodio implementado, validado y activo.
   Solo consulta: otros episodios CLOSED/ANNULLED de la misma patient_id, sin
   coincidencias por nombre/documento ni fusion. Permisos actuales de Historial:
