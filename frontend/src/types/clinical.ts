@@ -216,6 +216,24 @@ export type HistoryData = {
   requested_by: string;
 };
 
+export type PatientEpisodeHistoryData = {
+  source_episode_id: number;
+  patient_id: number;
+  total: number;
+  limit: number;
+  offset: number;
+  requested_by: string;
+  episodes: {
+    id: number;
+    status: "CLOSED" | "ANNULLED";
+    priority: number;
+    location: string;
+    started_at: string;
+    closed_at: string | null;
+    consultation_reason: string | null;
+  }[];
+};
+
 export type DelayStage = "TRIAGE" | "DOCTOR" | "NURSE" | "LAB_COLLECTION" | "LAB_DELIVERY" | "LAB_RECEIPT" | "LAB_SUITABILITY" | "LAB_REPLACEMENT" | "LAB_RESULT" | "LAB_REVIEW" | "LAB_LEGACY";
 export type CommunicationEvent = { id: number; kind: "ATTEMPT" | "EXPLAIN" | "RECTIFY"; actor: string; own: boolean; created_at: string; voided: boolean; reason: string | null;
   payload: { channel?: "PHONE" | "IN_PERSON" | "WHATSAPP"; outcome?: "NO_RESPONSE" | "SENT" | "READ" | "CONFIRMED"; transmitted?: boolean; identity_verified?: boolean; notify_doctor?: boolean; next_attempt_at?: string | null }; rectifies_id: number | null };

@@ -63,3 +63,24 @@ def test_admission_reason_upgrade_preserves_existing_episodes_and_is_idempotent(
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
     finally:
         connection.close()
+
+
+def test_patient_history_index_upgrade_is_additive_and_repeatable(tmp_path):
+    path = tmp_path / "patient-history-index.db"
+    def initialize():
+        initialize_database(get_connection(path), {}, lambda password: ("unused", "unused"), lambda: "2026-11-24T12:00:00+00:00")
+    initialize()
+    connection = get_connection(path)
+    try:
+        connection.execute("INSERT INTO patients(name,birth_date,document) VALUES ('Paciente indice ficticio','1990-01-01','HISTORY-INDEX')")
+        connection.execute("INSERT INTO episodes(patient_id,qr_token,status,priority,location,started_at) VALUES (1,'index-qr','CLOSED',3,'Consulta','2026-11-23T12:00:00+00:00')")
+        connection.execute("DROP INDEX idx_episodes_patient_history")
+        connection.commit()
+        before = tuple(connection.execute("SELECT * FROM episodes").fetchone())
+        initialize()
+        initialize()
+        assert tuple(connection.execute("SELECT * FROM episodes").fetchone()) == before
+        assert [row["name"] for row in connection.execute("PRAGMA index_info(idx_episodes_patient_history)")] == ["patient_id", "started_at", "id"]
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+    finally:
+        connection.close()

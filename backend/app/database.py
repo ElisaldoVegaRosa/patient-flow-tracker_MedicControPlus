@@ -82,6 +82,8 @@ def initialize_database(
             started_at TEXT NOT NULL,
             closed_at TEXT
         );
+        CREATE INDEX IF NOT EXISTS idx_episodes_patient_history
+        ON episodes (patient_id, started_at DESC, id DESC);
 
         CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,

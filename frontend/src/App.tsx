@@ -91,6 +91,13 @@ function App() {
   }, [clearDraft, clearLeave, clearWrites]);
   const [recoveredNote, setRecoveredNote] = useState("");
   const draftRoot = useRef<HTMLDivElement>(null);
+  const episodeOpen = useRef<{ ticket: number; controller: AbortController | null }>({ ticket: 0, controller: null });
+  const cancelEpisodeOpen = useCallback(() => {
+    episodeOpen.current.ticket++;
+    episodeOpen.current.controller?.abort();
+    episodeOpen.current.controller = null;
+  }, []);
+  useEffect(() => () => cancelEpisodeOpen(), [cancelEpisodeOpen]);
   const [retainedDrafts, setRetainedDrafts] = useState<FormDraft[]>([]);
   useEffect(() => { if (user) claimSpecimenDraftOwner(user); }, [user]);
   const lifecycleDirty = useCallback(() => {
@@ -100,6 +107,7 @@ function App() {
         (form.dataset.operational || form.dataset.draftKind === "identity" ? field.value !== field.defaultValue : Boolean(field.value.trim()))));
   }, []);
   function guardLifecycle(action: () => void) {
+    cancelEpisodeOpen();
     if (lifecycleDirty() && !window.confirm("Hay una corrección o motivo sin guardar. ¿Descartar esos campos y salir?")) return;
     action();
   }
@@ -520,14 +528,22 @@ useEffect(() => {
   }
 
   async function openEpisode(id: number) {
+    cancelEpisodeOpen();
+    const ticket = episodeOpen.current.ticket;
+    const controller = new AbortController();
+    episodeOpen.current.controller = controller;
     clearRecovery();
     setRecoveredNote("");
     try {
-      setEpisode(await api<Episode>(`/episodes/${id}`));
+      const result = await api<Episode>(`/episodes/${id}`, { signal: controller.signal });
+      if (ticket !== episodeOpen.current.ticket || controller.signal.aborted) return;
+      setEpisode(result);
       setPage("episode");
     } catch (exception) {
-      if (isSessionInterruption(exception)) return;
+      if (ticket !== episodeOpen.current.ticket || controller.signal.aborted || isSessionInterruption(exception)) return;
       setError((exception as Error).message);
+    } finally {
+      if (episodeOpen.current.controller === controller) episodeOpen.current.controller = null;
     }
   }
 
@@ -927,6 +943,7 @@ async function logout() {
       {page === "episode" && episode && (
         <EpisodePage
           key={`${user.username}:${episode.id}`}
+          onOpenEpisode={id => guardLifecycle(() => leave.run(() => { void openEpisode(id); }))}
           onOpenLaboratory={() => guardLifecycle(() => leave.run(() => { void openLaboratoryQueue(); }))}
           onDraftSaved={(kind) => { recovery.remove(kind, episode.id); setRestoredForms(previous => previous.filter(draft => draft.kind !== kind)); }}
           pendingOperations={operations}

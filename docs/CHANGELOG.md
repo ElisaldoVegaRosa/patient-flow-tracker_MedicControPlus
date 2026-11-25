@@ -5,6 +5,31 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Historial del paciente desde el episodio (local, 24/11/2026)
+
+- Consulta otros episodios cerrados y anulados de la misma ficha, con fecha de
+  ingreso/cierre, estado y motivo de consulta. No agrupa por coincidencias de
+  nombre/documento ni fusiona identidades. Permisos de Historial conservados:
+  Recepcion, Medico y Supervisor.
+- Consulta explicita y paginada; apertura del episodio elegido con los avisos
+  existentes para evaluaciones, correcciones y otros campos sin guardar.
+- Lectura coherente de total/pagina y respuestas vinculadas al episodio/ficha
+  solicitado. Indice aditivo 014; no modifica registros clinicos ni auditoria.
+- Dos regresiones reproducen una respuesta tardia que abre una visita ya
+  reemplazada o vuelve al episodio despues de salir al tablero. La apertura
+  comun por seleccion cancela lecturas anteriores y conserva la ultima
+  eleccion, incluido seguir editando despues de un aviso de campos pendientes.
+- Abrir otra visita se bloquea mientras hay un guardado pendiente; consultar
+  la lista sigue disponible. Evita cambiar el contexto de una escritura en curso.
+- Backend completo 667/667 y frontend completo 832/832 en 90 archivos; lint/build
+  aprobados (advertencia de tamano 500,61 kB, sin ampliar limites). Respaldo,
+  migracion aislada y LAN verificados.
+- Activacion/publicacion autorizadas. Demo reiniciado con la misma base/CA;
+  respaldo final 85df63ef verificado/restaurado, 25 pacientes/26 episodios.
+  Indice 014 activo, integridad/FK correctas; datos clinicos/auditoria iguales
+  al respaldo final. API protegida y seis archivos HTTPS verificados. Publicacion
+  en curso; sin nuevos ensayos manuales ni escrituras clinicas del asistente.
+
 ## Correccion auditable del motivo de consulta (23/11/2026)
 
 - Ingreso y correccion publicados en 19b5714; [CI 45297509066](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45297509066)

@@ -20,6 +20,7 @@ import RecordCorrectionForm from "../components/RecordCorrectionForm";
 import ReasonActionForm from "../components/ReasonActionForm";
 import PatientIdentity from "../components/PatientIdentity";
 import ConsultationReasonEditor from "../components/ConsultationReasonEditor";
+import PatientEpisodeHistory from "../components/PatientEpisodeHistory";
 import { staffingAuditDate } from "../components/staffingAuditDate";
 import WristbandPrint from "../components/WristbandPrint";
 import { QRCodeSVG } from "qrcode.react";
@@ -32,6 +33,7 @@ type EpisodePageProps = {
   versionedWrites?: VersionedWrites;
   onDraftSaved?: (kind: DraftKind) => void;
   onOpenLaboratory?: () => void;
+  onOpenEpisode?: (id: number) => void;
   episode: Episode;
   user: User;
   updateEpisode: (episode: Episode) => void;
@@ -51,6 +53,7 @@ export default function EpisodePage({
   versionedWrites,
   onDraftSaved,
   onOpenLaboratory,
+  onOpenEpisode,
   initialDischargeNote = "",
   onDischargeNoteChange,
   onMedicalEvaluationChange,
@@ -376,6 +379,9 @@ async function createClinicalOrder(
           <p>Anula este ingreso sin actividad clínica. La ficha quedará consultable en historial.</p>
           <ReasonActionForm label="Anular ingreso" onAction={reason => changeEpisodeState("annul", reason)} />
         </section>}
+
+      <PatientEpisodeHistory episode={episode} user={user} openingBlocked={operations.hasPending()}
+        onOpenEpisode={onOpenEpisode ? id => { if (!operations.hasPending()) onOpenEpisode(id); } : undefined} />
 
       <div className="clinical-grid">
         <section className="panel">

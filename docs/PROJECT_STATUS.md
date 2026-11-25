@@ -2,6 +2,42 @@
 
 ## Estado actual (leer primero)
 
+- 24/11: historial del paciente desde su episodio implementado, validado y activo.
+  Solo consulta: otros episodios CLOSED/ANNULLED de la misma patient_id, sin
+  coincidencias por nombre/documento ni fusion. Permisos actuales de Historial:
+  Recepcion, Medico y Supervisor. Lista paginada, motivo vigente y fechas en
+  hora dominicana; apertura con los avisos existentes de campos sin guardar.
+  Indice aditivo 014 para la consulta por ficha; no cambia datos clinicos.
+  Dirigidas backend 22/22 y frontend final 23/23 aprobadas. La lista puede
+  consultarse durante un guardado; abrir otra visita queda bloqueado hasta
+  confirmarlo para evitar cambiar el contexto de una escritura pendiente.
+  Dos regresiones reprodujeron respuestas tardias que cambiaban la visita
+  elegida o regresaban tras salir al tablero; apertura comun por seleccion
+  corregida con cancelacion y control de la ultima solicitud. Tambien protege
+  al usuario que decide seguir editando. Backend completo 667/667 (2.135,99 s);
+  frontend completo 832/832 en 90 archivos (291,77 s). Build aprobado con
+  advertencia Vite por paquete principal
+  de 500,61 kB (145,31 kB gzip), sin aumentar limites. Lint y build finales
+  aprobados. Respaldo c86499ab y restauracion aislada a5a39980 verificados:
+  25 pacientes/26 episodios. Indice 014 agregado en la copia; registros y
+  secuencias identicos, integridad/FK correctas. LAN preparada y TLS verificado:
+  .tmp/demo-lan/patient-history-20261124/network.json, HOME-WIFI privada .40,
+  misma CA del movil. Preparacion detallada en .tmp/patient-history-preparation.json.
+  Base de trabajo f9b3c72; cambios locales
+  de la entrega funcional. Usuario autoriza activar y publicar la entrega:
+  reinicio con la misma base/certificado, commits, push a origin/main y nota final
+  de validacion/CI. Servicios propios reiniciados y respondiendo; LAN vigente
+  .tmp/demo-lan/patient-history-20261124/network.json, HTTPS .40:5443.
+  Copia final con servicios detenidos: backups/clinical-20261125T000328Z-85df63ef.sqlite3,
+  mismo hash que c86499ab; restaurada en
+  .tmp/patient-history-activation-restore-777c5132.sqlite3. API protegida y seis
+  archivos HTTPS verificados; indice 014 activo e integridad/FK correctas.
+  Datos clinicos y auditoria identicos al respaldo final (sesiones/presencia
+  efimeras excluidas), 25 pacientes/26 episodios. Sin consultas clinicas
+  autenticadas ni nuevos ensayos manuales del asistente sobre el demo.
+  Misma base communication-rollout-20261030. Siguiente: publicar, comprobar CI
+  y cerrar la nota de validacion; publicacion en curso.
+
 - 23/11: correccion auditable del motivo de consulta implementada y validada localmente,
   autorizada al continuar con la recomendacion. Recepcion/Supervisor, solo
   episodios activos; texto nuevo no vacio (3-1.000), justificacion obligatoria

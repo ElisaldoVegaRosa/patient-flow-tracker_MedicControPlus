@@ -2,6 +2,33 @@
 
 ## Decisiones pendientes (leer primero)
 
+### Acciones funcionales prioritarias (24/11)
+
+- Completado: ingreso y correccion auditable del motivo, activos en PC/movil;
+  entrega funcional 19b5714 y cierre f9b3c72 publicados, ambas CI aprobadas.
+- En curso y autorizado: historial del paciente desde su episodio. Consulta
+  otros episodios cerrados/anulados de la misma ficha; conserva permisos de
+  Historial y los avisos de formularios sin guardar al abrir otra visita.
+- Cierre: no cruza fichas con igual nombre/documento, excluye el episodio
+  consultado y otros activos, pagina sin cargar historias completas, no escribe
+  datos clinicos y descarta respuestas tardias de otro contexto.
+- Validacion: dirigidas backend 22/22 y frontend final 23/23;
+  backend completo 667/667 y frontend completo 832/832. Dos regresiones de
+  respuesta tardia reproducidas y corregidas en la apertura comun por seleccion.
+  Apertura bloqueada mientras hay un guardado pendiente, conservando la lectura.
+  Lint/build finales aprobados; advertencia de tamano (500,61 kB), sin ampliar
+  limite. Respaldo c86499ab y migracion aislada a5a39980 verificados: registros,
+  secuencias e integridad conservados, 25 pacientes/26 episodios.
+  LAN patient-history-20261124 preparada con .40/HOME-WIFI y misma CA, sin reinicio.
+  Indice aditivo 014, sin fusion ni
+  ampliacion de permisos. Activado tras autorizacion expresa: misma base/CA,
+  servicios propios responden y seis archivos HTTPS coinciden con la compilacion.
+  Respaldo final 85df63ef verificado/restaurado; indice 014 instalado sin cambios
+  de datos clinicos/auditoria, 25 pacientes/26 episodios conservados.
+- En curso y autorizado: commits, push a origin/main y comprobacion de CI,
+  incluida nota final de validacion. Siguiente: cerrar la publicacion y elegir
+  otra necesidad funcional. Sin nuevos ensayos manuales ni escrituras clinicas.
+
 ### Acciones funcionales prioritarias (23/11)
 
 - Entrega previa completada: circuitos integrales, recuperacion de envios, arranque con PID
