@@ -30,7 +30,10 @@ las verificaciones realizadas y el estado de cada etapa.
   restauracion ef497859 verificados: todas las filas/secuencias previas intactas,
   integridad/FK correctas, 25 pacientes/26 episodios. Salud HTTP/HTTPS y servicios
   propios verificados; sin nuevas escrituras clinicas durante la comprobacion.
-  Publicacion autorizada en curso.
+- Publicado: f823849 en origin/main. GitHub Actions
+  [45758335081](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45758335081)
+  aprobada para el SHA funcional: backend, frontend, analisis y compilacion.
+  Nota de cierre documental incluida en la autorizacion de publicacion.
 
 ## Registro de alergias por medico responsable (25/11/2026)
 

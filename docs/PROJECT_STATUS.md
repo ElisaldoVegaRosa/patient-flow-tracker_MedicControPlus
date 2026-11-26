@@ -19,10 +19,13 @@
   y secuencias anteriores conservadas tras activar, integridad/FK correctas,
   25 pacientes/26 episodios. Dos tablas nuevas vacias, sin inferir ausencia.
   Preparacion y evidencia: .tmp/background-preparation.json.
-- En curso, autorizado: commits y push a origin/main de la entrega completa,
-  incluida nota final de validacion y comprobacion de GitHub Actions.
-- Siguiente: comprobar CI para el SHA publicado y registrar cierre. Sin nuevas
-  reglas de alta, medicacion habitual ni otros antecedentes en esta entrega.
+- Publicado en origin/main: funcional f823849. GitHub Actions
+  [45758335081](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45758335081)
+  aprobada para ese SHA: backend, frontend, analisis y compilacion.
+- Cierre: activacion, respaldo, conservacion de datos y validacion registrados.
+  Alcance entregado: antecedentes medicos/quirurgicos; medicamentos habituales,
+  otros antecedentes y nuevas reglas de alta quedan fuera de esta entrega.
+- Siguiente decision: priorizar el proximo bloque funcional con el usuario.
 
 - Completado, activo y publicado (24/11): busqueda y filtros del Historial general.
   Problema resuelto: descargaba todos los episodios y filtraba solo en navegador.
