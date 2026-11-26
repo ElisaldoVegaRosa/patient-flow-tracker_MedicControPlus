@@ -2,7 +2,7 @@
 
 ## Estado actual (leer primero)
 
-- 25/11: registro de alergias implementado, validado y activo en PC/movil.
+- 25/11: registro de alergias completado, activo y publicado en PC/movil.
   Misma base communication-rollout-20261030, LAN allergies-20261125,
   HOME-WIFI privada .40 y mismo certificado. Servicios propios responden.
 - Alcance autorizado: registro de alergias. Solo el medico responsable
@@ -33,7 +33,7 @@
   con la misma CA. UTF-8, enlaces y firma de fuentes comprobados.
 - Backend completo 717/717 (2.089,05 s), una advertencia existente; frontend
   completo 857/857. Sin cambios de codigo despues de iniciar las suites completas.
-  Base de trabajo c63eb12; publicacion en curso.
+  Base de trabajo c63eb12; entrega funcional cdd0e96 publicada en origin/main.
 - Activacion/publicacion autorizadas: reinicio con la misma base/CA, commits,
   push a origin/main, nota final de validacion y comprobacion de CI.
 - Activado: respaldo final 41f091ef con servicios detenidos, mismo SHA-256 que
@@ -43,8 +43,12 @@
   25 pacientes/26 episodios, integridad/FK correctas. API rechaza consulta sin
   sesion (401) y seis archivos HTTPS coinciden con la compilacion validada.
   LAN vigente: .tmp/demo-lan/allergies-20261125/network.json.
-- En curso: publicar y verificar CI, incluida nota final autorizada.
+- Publicacion funcional verificada: cdd0e96, con
+  [CI 45748521782](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45748521782)
+  aprobada para backend, frontend, analisis y compilacion. Nota final autorizada,
+  exclusivamente documental; no repite suites locales ni reinicia el demo.
   Sin nuevos ensayos manuales ni escrituras clinicas del asistente.
+- Siguiente decision: elegir el proximo bloque funcional; ninguno nuevo aprobado.
 
 
 - Completado, activo y publicado (24/11): busqueda y filtros del Historial general.

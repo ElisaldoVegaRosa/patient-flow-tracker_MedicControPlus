@@ -33,8 +33,11 @@ las verificaciones realizadas y el estado de cada etapa.
   y CA, LAN allergies-20261125. Respaldo final 41f091ef y restauracion e99f2dc4
   verificados; migracion 015 activa y tablas nuevas vacias. Filas/secuencias
   anteriores conservadas, integridad/FK correctas; API protegida y seis archivos
-  HTTPS identicos a la compilacion. Publicacion en curso. Sin nuevas escrituras
-  clinicas ni ensayos manuales del asistente.
+  HTTPS identicos a la compilacion. Sin nuevas escrituras clinicas ni ensayos
+  manuales del asistente.
+- Publicado en cdd0e96; [CI 45748521782](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45748521782)
+  aprobada para backend, frontend, analisis y compilacion. Cierre documental
+  autorizado, sin cambios de codigo ni repeticion de suites locales.
 
 ## Busqueda y filtros del Historial general (24/11/2026)
 
