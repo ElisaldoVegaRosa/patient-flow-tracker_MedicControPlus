@@ -5,6 +5,37 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Registro de alergias por medico responsable (25/11/2026)
+
+- Estados explicitos: sin informacion, sin alergias conocidas y alergias
+  registradas. Descripcion, fuente y revision por el medico responsable; la
+  revision del registro no se presenta como confirmacion mediante pruebas.
+- Solo el medico responsable confirmado puede registrar/corregir desde episodio
+  activo; enfermeria consulta. Una propuesta de relevo no cambia al responsable.
+  Perfil por patient_id, sin vincular fichas por nombre/documento. Otros roles
+  no reciben descripciones ni fuentes en la API general o en recibos de envio.
+- Historial paginado con anterior/nuevo, autor, fecha, episodio y motivo.
+  En visitas historicas se identifica que se consulta el registro vigente.
+  Version, transaccion atomica e idempotencia evitan sobrescrituras/duplicados.
+- Migracion aditiva 015: crea perfil e historial sin marcar pacientes antiguos
+  como libres de alergias. Respaldo 2e66ef99 y migracion aislada 38b38797:
+  todas las filas/secuencias anteriores conservadas, integridad/FK correctas,
+  25 pacientes/26 episodios en la prueba aislada.
+- Formulario con borrador por cuenta/rol/episodio y resolucion de envios inciertos.
+  Correcciones compartidas: liberar la operacion rechazada antes de refrescar;
+  actualizar valores iniciales nativos de selectores limpios sin perder borradores.
+  Regresiones reproducidas y corregidas, sin ampliar tiempos ni cambiar runner.
+- Dirigidas backend 48/48 y frontend final 39/39 aprobadas. Frontend completo
+  857/857 en 93 archivos; lint/build aprobados, advertencia Vite 510,91 kB
+  (148,04 kB gzip), sin ampliar limites. Backend completo 717/717 (2.089,05 s),
+  una advertencia existente; sin cambios de codigo despues de iniciar las suites.
+- Activacion/publicacion autorizadas. Servicios propios reiniciados, misma base
+  y CA, LAN allergies-20261125. Respaldo final 41f091ef y restauracion e99f2dc4
+  verificados; migracion 015 activa y tablas nuevas vacias. Filas/secuencias
+  anteriores conservadas, integridad/FK correctas; API protegida y seis archivos
+  HTTPS identicos a la compilacion. Publicacion en curso. Sin nuevas escrituras
+  clinicas ni ensayos manuales del asistente.
+
 ## Busqueda y filtros del Historial general (24/11/2026)
 
 - Consulta por nombre (sin distinguir acentos/mayusculas), documento literal o

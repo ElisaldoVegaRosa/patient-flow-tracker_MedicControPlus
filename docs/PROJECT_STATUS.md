@@ -2,6 +2,51 @@
 
 ## Estado actual (leer primero)
 
+- 25/11: registro de alergias implementado, validado y activo en PC/movil.
+  Misma base communication-rollout-20261030, LAN allergies-20261125,
+  HOME-WIFI privada .40 y mismo certificado. Servicios propios responden.
+- Alcance autorizado: registro de alergias. Solo el medico responsable
+  confirmado del episodio activo registra/revisa/corrige; enfermeria consulta.
+  Alcance: estado desconocido/sin alergias conocidas/alergias registradas,
+  descripcion, fuente, autor/fecha e historial por patient_id. No cruza fichas
+  por nombre/documento. La vista historica identifica que es el registro vigente.
+  Excluye catalogos, decisiones terapeuticas y nuevas reglas de alta.
+- Implementado: API separada de consulta/edicion, perfil vigente por ficha
+  e historial paginado. Medicina/enfermeria consultan a peticion; la vista no
+  consultada no implica ausencia de alergias. Otros roles no reciben el perfil.
+  Solo el responsable medico confirmado edita desde episodio activo; relevo
+  propuesto no transfiere esa facultad. Episodio historico identifica registro
+  vigente, que puede incluir revisiones posteriores. Motivo y fuente obligatorios.
+- Correcciones comunes: liberar el bloqueo de una escritura rechazada antes de
+  consultar cambios, y sincronizar valores iniciales nativos de selectores limpios
+  sin sobrescribir campos sucios. Regresiones reproducidas y corregidas.
+- Dirigidas aprobadas: backend 48/48 (96,39 s), frontend final 39/39 (16,37 s).
+  Incluyen auditoria/rollback, concurrencia, idempotencia, permisos, borradores
+  y confirmacion de envios inciertos preservando ediciones posteriores.
+- Respaldo local 2e66ef99 y migracion aislada 38b38797 verificados: todas las
+  tablas/filas/secuencias previas identicas, integridad/FK correctas, 25 pacientes
+  y 26 episodios. Nuevas tablas vacias; no se infiere ausencia de alergias.
+  Detalle de preparacion aislada: .tmp/allergies-preparation.json.
+- Frontend completo 857/857 en 93 archivos (415,40 s). Lint final limpio y build
+  aprobado; advertencia Vite 510,91 kB/148,04 kB gzip, sin ampliar limites.
+  LAN .tmp/demo-lan/allergies-20261125/network.json compilada y TLS verificado
+  con la misma CA. UTF-8, enlaces y firma de fuentes comprobados.
+- Backend completo 717/717 (2.089,05 s), una advertencia existente; frontend
+  completo 857/857. Sin cambios de codigo despues de iniciar las suites completas.
+  Base de trabajo c63eb12; publicacion en curso.
+- Activacion/publicacion autorizadas: reinicio con la misma base/CA, commits,
+  push a origin/main, nota final de validacion y comprobacion de CI.
+- Activado: respaldo final 41f091ef con servicios detenidos, mismo SHA-256 que
+  2e66ef99; restauracion aislada e99f2dc4 verificada. Migracion 015 instalada;
+  tablas nuevas vacias, sin inferir ausencia de alergias. Todas las filas y
+  secuencias previas identicas al respaldo (excepto sesiones/presencia efimeras),
+  25 pacientes/26 episodios, integridad/FK correctas. API rechaza consulta sin
+  sesion (401) y seis archivos HTTPS coinciden con la compilacion validada.
+  LAN vigente: .tmp/demo-lan/allergies-20261125/network.json.
+- En curso: publicar y verificar CI, incluida nota final autorizada.
+  Sin nuevos ensayos manuales ni escrituras clinicas del asistente.
+
+
 - Completado, activo y publicado (24/11): busqueda y filtros del Historial general.
   Problema resuelto: descargaba todos los episodios y filtraba solo en navegador.
   Alcance: nombre/documento/EP, estado cerrado/anulado, fechas de cierre en hora

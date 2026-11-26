@@ -36,6 +36,7 @@ const labels = {
     LAB_FOLLOWUP_ACCEPT: "Relevo de seguimiento aceptado", LAB_FOLLOWUP_CANCEL_HANDOFF: "Relevo de seguimiento cancelado",
     REEVALUATION_CREATED: "Reevaluación programada", REEVALUATION_COMPLETE: "Acción de reevaluación realizada",
     REEVALUATION_RESCHEDULE: "Acción de reevaluación reprogramada", REEVALUATION_CANCEL: "Acción de reevaluación cancelada",
+    PATIENT_ALLERGIES_UPDATED: "Registro de alergias actualizado",
     IDENTITY_VERIFIED: "Identidad verificada",
     EPISODE_CREATED: "Ingreso registrado", TRIAGE: "Triaje",
     VITALS_RECORDED: "Signos vitales registrados", QR_SCANNED: "Pulsera escaneada",

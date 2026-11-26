@@ -12,7 +12,8 @@ function defaultPayload(fields: FormData): Record<string, unknown> {
   return data;
 }
 
-export default function OperationalWriteForm({ path, version, method, transform, blocked = false, conflictNoun = "cuenta", reasonLabel = "Motivo", label, children, operations, onApplied, onConflict, onDirty, initialDraft, onDraft, structureRevision = 0 }: {
+export default function OperationalWriteForm({ selectDefaults, path, version, method, transform, blocked = false, conflictNoun = "cuenta", reasonLabel = "Motivo", label, children, operations, onApplied, onConflict, onDirty, initialDraft, onDraft, structureRevision = 0 }: {
+  selectDefaults?: Record<string, string>;
   structureRevision?: number;
   initialDraft?: { baseline: string; fields: Record<string, string> };
   onDraft?: (baseline: string, fields: Record<string, string>, dirty: boolean) => void;
@@ -29,13 +30,22 @@ export default function OperationalWriteForm({ path, version, method, transform,
   useLayoutEffect(() => {
     if (renderedVersion.current === version) return;
     renderedVersion.current = version;
+    // React does not update native select defaults when defaultValue changes.
+    // Preserve the live draft while rebasing the authoritative reset target.
+    if (form.current) for (const [name, value] of Object.entries(selectDefaults ?? {})) {
+      const select = form.current.elements.namedItem(name);
+      if (!(select instanceof HTMLSelectElement)) continue;
+      const current = select.value;
+      for (const option of select.options) option.defaultSelected = option.value === value;
+      select.value = current;
+    }
     // Server defaults can change in sibling (even disabled) forms. Native inputs
     // retain old values while React updates defaultValue: reset only clean forms.
     if (!hasDraft && form.current) {
       form.current.reset();
       onDirty();
     }
-  }, [version, hasDraft, onDirty]);
+  }, [version, hasDraft, onDirty, selectDefaults]);
   useEffect(() => {
     const node = form.current;
     if (!node || !restoration.current) return;
@@ -102,6 +112,7 @@ export default function OperationalWriteForm({ path, version, method, transform,
         setError((exception as Error).message);
         if (exception instanceof VersionConflictError) {
           setBaseline(baseline ?? version ?? null);
+          release(); // The rejected write is finished; current-data reads must not remain paused.
           onConflict();
         }
       }

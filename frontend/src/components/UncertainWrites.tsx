@@ -13,6 +13,8 @@ function operationKey(path: string) {
 }
 
 function label(path: string) {
+  const allergy = path.match(/^\/episodes\/(\d+)\/allergies$/);
+  if (allergy) return `EP-${allergy[1]} · Registro de alergias`;
   const consultation = path.match(/^\/episodes\/(\d+)\/consultation-reason$/);
   if (consultation) return `EP-${consultation[1]} · Corrección del motivo de consulta`;
   const contact = path.match(/^\/communications\/(\d+)\/(authorize|attempt|explain|rectify)$/);
@@ -83,7 +85,10 @@ export default function UncertainWrites({ operations, onConfirmed, onRejected }:
       }
     } catch (error) {
       if (!mounted.current || revision !== getSessionRevision() || isSessionInterruption(error)) return;
-      if (!getUncertainWrites().some(pending => pending.key === item.key)) handlers.current.onRejected?.(item.path, error as Error);
+      if (!getUncertainWrites().some(pending => pending.key === item.key)) {
+        release();
+        handlers.current.onRejected?.(item.path, error as Error);
+      }
       const message = retry
         ? `No se pudo confirmar el reintento. El envío sigue por confirmar. ${(error as Error).message}`
         : `No se pudo consultar el resultado. No se ha reenviado la operación. ${(error as Error).message}`;

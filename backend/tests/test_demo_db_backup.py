@@ -157,3 +157,27 @@ def test_broken_foreign_key_is_not_backed_up(tmp_path):
     with pytest.raises(BackupError, match="referencias"):
         create_backup(source, output)
     assert not output.exists()
+
+
+@pytest.mark.parametrize('table', ['patient_allergy_profiles', 'patient_allergy_changes'])
+def test_allergy_backup_requires_profile_and_audit(tmp_path, table):
+    source = tmp_path / 'allergy-incomplete.db'
+    demo_database(source)
+    with sqlite3.connect(source) as connection:
+        connection.execute(f'DROP TABLE {table}')
+    with pytest.raises(BackupError, match=table):
+        create_backup(source, tmp_path / 'incomplete-allergies.sqlite3')
+
+
+def test_allergy_backup_restore_keeps_profile_and_history(tmp_path):
+    source = tmp_path / 'allergy.db'
+    demo_database(source)
+    with sqlite3.connect(source) as connection:
+        connection.execute("INSERT INTO users(username,password_hash,password_salt,role,active,created_at) VALUES ('medico','hash','salt','DOCTOR',1,'2026-11-25T12:00:00Z')")
+        connection.execute("INSERT INTO patient_allergy_profiles VALUES (1,'REPORTED','Reaccion ficticia','Paciente ficticio','medico','2026-11-25T12:00:00Z',1,1)")
+        connection.execute("INSERT INTO patient_allergy_changes(patient_id,episode_id,username,created_at,reason,old_value,new_value) VALUES (1,1,'medico','2026-11-25T12:00:00Z','Motivo ficticio','{}','{}')")
+    backup=create_backup(source,tmp_path/'backup-allergies.sqlite3')
+    restored=restore_backup(backup,tmp_path/'restored-allergies.sqlite3')
+    with sqlite3.connect(restored) as connection:
+        assert connection.execute('SELECT description,reviewed_by,revision FROM patient_allergy_profiles').fetchall()==[('Reaccion ficticia','medico',1)]
+        assert connection.execute('SELECT reason FROM patient_allergy_changes').fetchall()==[('Motivo ficticio',)]

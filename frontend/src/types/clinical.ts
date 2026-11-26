@@ -419,3 +419,13 @@ export type HandoverData = { generated_at: string; requested_by: string; patient
   tasks: { MEDICAL: number; NURSING: number }; open_alerts: number;
   legacy_lab_orders: number; lab_results: number; lab_reviews: number;
 }[] };
+
+export type AllergyStatus = "UNKNOWN" | "NONE_KNOWN" | "REPORTED";
+export type AllergyValues = { status: AllergyStatus; description: string; source: string };
+export type PatientAllergyData = {
+  episode_id: number; patient_id: number; version: string; can_edit: boolean; responsible: string | null;
+  profile: AllergyValues & { reviewed_by: string | null; reviewed_at: string | null; episode_id: number | null; revision: number };
+  history: { id: number; episode_id: number; username: string; created_at: string; reason: string;
+    before: AllergyValues; after: AllergyValues }[];
+  total: number; limit: number; offset: number;
+};

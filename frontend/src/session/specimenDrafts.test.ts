@@ -5,6 +5,17 @@ import { RECOVERY_DURATION_MS } from "./dischargeDraft";
 const user = { username: "lab.demo", role: "LAB" };
 const path = "/lab/specimens/1/receipt";
 
+it("conserva el borrador de alergias solo para el mismo medico, episodio y rol", () => {
+  const owner = { username: "medico", role: "DOCTOR" };
+  const allergyPath = "/episodes/42/allergies";
+  const fields = { allergy_status: "REPORTED", allergy_description: "Reaccion ficticia", allergy_source: "Paciente ficticio", reason: "Revision ficticia" };
+  saveSpecimenDraft(owner, allergyPath, '"v1"', fields, true);
+  expect(readSpecimenDraft(owner, allergyPath).draft).toMatchObject({ baseline: '"v1"', fields });
+  expect(readSpecimenDraft(owner, "/episodes/43/allergies").draft).toBeUndefined();
+  expect(readSpecimenDraft({ ...owner, role: "NURSE" }, allergyPath).draft).toBeUndefined();
+  expect(readSpecimenDraft(owner, allergyPath).draft).toBeUndefined();
+});
+
 describe("borradores de muestras de esta pestaña", () => {
   it("recupera una corrección de motivo por episodio y elimina el borrador al cambiar de rol", () => {
     const reception = { username: "recepcion", role: "RECEPTION" };
