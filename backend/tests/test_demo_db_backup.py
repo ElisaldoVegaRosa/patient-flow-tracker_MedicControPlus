@@ -181,3 +181,24 @@ def test_allergy_backup_restore_keeps_profile_and_history(tmp_path):
     with sqlite3.connect(restored) as connection:
         assert connection.execute('SELECT description,reviewed_by,revision FROM patient_allergy_profiles').fetchall()==[('Reaccion ficticia','medico',1)]
         assert connection.execute('SELECT reason FROM patient_allergy_changes').fetchall()==[('Motivo ficticio',)]
+
+
+@pytest.mark.parametrize('table',['patient_background_profiles','patient_background_changes'])
+def test_background_backup_requires_both_tables(tmp_path,table):
+    source=tmp_path/'background-incomplete.db';demo_database(source)
+    with sqlite3.connect(source) as connection:connection.execute(f'DROP TABLE {table}')
+    with pytest.raises(BackupError,match=table):create_backup(source,tmp_path/'incomplete-background.sqlite3')
+
+
+def test_background_backup_preserves_both_sections_and_history(tmp_path):
+    source=tmp_path/'background.db';demo_database(source)
+    with sqlite3.connect(source) as connection:
+        connection.execute("INSERT INTO users(username,password_hash,password_salt,role,active,created_at) VALUES ('medico','hash','salt','DOCTOR',1,'2026-11-26T12:00:00Z')")
+        for category in ['MEDICAL','SURGICAL']:
+            connection.execute("INSERT INTO patient_background_profiles VALUES (1,?,'REPORTED','Texto ficticio','Paciente ficticio','medico','2026-11-26T12:00:00Z',1,1)",(category,))
+            connection.execute("INSERT INTO patient_background_changes(patient_id,category,episode_id,username,created_at,reason,old_value,new_value) VALUES (1,?,1,'medico','2026-11-26T12:00:00Z','Revision ficticia','{}','{}')",(category,))
+    backup=create_backup(source,tmp_path/'background-copy.sqlite3')
+    restored=restore_backup(backup,tmp_path/'background-restored.sqlite3')
+    with sqlite3.connect(restored) as connection:
+        assert connection.execute('SELECT category,description FROM patient_background_profiles ORDER BY category').fetchall()==[('MEDICAL','Texto ficticio'),('SURGICAL','Texto ficticio')]
+        assert connection.execute('SELECT COUNT(*) FROM patient_background_changes').fetchone()[0]==2

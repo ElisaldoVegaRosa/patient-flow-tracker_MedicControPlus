@@ -5,6 +5,33 @@ las verificaciones realizadas y el estado de cada etapa.
 
 ---
 
+## Antecedentes medicos y quirurgicos por ficha (26/11/2026)
+
+- Dos apartados independientes: enfermedades relevantes y cirugias previas.
+  Cada uno distingue sin informacion, no refiere y antecedentes registrados;
+  requiere fuente y motivo, conserva autor/fecha y cambios anteriores/nuevos.
+- Solo el medico responsable confirmado registra o corrige desde episodio
+  activo; enfermeria consulta. Perfil por patient_id, sin cruces por nombre o
+  documento. En visitas historicas se identifica el registro vigente de la ficha.
+- Versiones, borradores e historial separados por apartado. Recuperacion de
+  guardados inciertos conserva la operacion original y cualquier edicion posterior.
+  Se comparte el panel de registro con alergias, conservando su comportamiento.
+- Migracion aditiva 016 y respaldo/restauracion incluyen ambos apartados.
+  Migracion aislada 8d9d252b: filas/secuencias anteriores intactas, integridad/FK
+  correctas y 25 pacientes/26 episodios conservados; sin inferir ausencia.
+- Validacion dirigida: 52 backend/respaldo, 27 de compatibilidad backend de
+  alergias y 48 frontend aprobadas. Lint y build aprobados; Vite avisa 513,17 kB
+  (148,78 kB gzip). Completa frontend: 879/879 con dos workers (95 archivos,
+  468,13 s); primera ejecucion por defecto 871/879, 8 fallos de carga/espera.
+  Los 8 archivos aprobaron 106/106 con dos workers, sin cambios ni mayor timeout;
+  por esa evidencia se repitio completa con ese limite. Backend completo:
+  748/748, una advertencia, 2263,84 s.
+- Activado en PC/movil con misma base y CA. Respaldo final a96aaca1 y
+  restauracion ef497859 verificados: todas las filas/secuencias previas intactas,
+  integridad/FK correctas, 25 pacientes/26 episodios. Salud HTTP/HTTPS y servicios
+  propios verificados; sin nuevas escrituras clinicas durante la comprobacion.
+  Publicacion autorizada en curso.
+
 ## Registro de alergias por medico responsable (25/11/2026)
 
 - Estados explicitos: sin informacion, sin alergias conocidas y alergias

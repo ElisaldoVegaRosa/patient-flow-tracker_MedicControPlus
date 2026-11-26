@@ -73,6 +73,9 @@ def inspect_database(path: Path) -> dict[str, int]:
             has_laboratory = any(name.startswith("lab_") for name in tables)
             if has_laboratory:
                 missing |= LABORATORY_TABLES - tables
+            background_tables = {"patient_background_profiles", "patient_background_changes"}
+            if tables & background_tables:
+                missing |= background_tables - tables
             allergy_tables = {"patient_allergy_profiles", "patient_allergy_changes"}
             if tables & allergy_tables:
                 missing |= allergy_tables - tables

@@ -271,9 +271,9 @@ function App() {
   }
 
   function confirmedWrite(path: string, result: unknown, body: BodyInit | null | undefined) {
-    if (/^\/episodes\/\d+\/allergies$/.test(path)) {
+    if (/^\/episodes\/\d+\/(?:allergies|background\/(?:MEDICAL|SURGICAL))$/.test(path)) {
       notifyOperationalConfirmation(path, body);
-      setWriteNotice("Registro de alergias confirmado por el servidor.");
+      setWriteNotice(path.endsWith("/allergies") ? "Registro de alergias confirmado por el servidor." : "Antecedentes confirmados por el servidor.");
       if (page === "episode" && episode?.id === (result as Episode).id) updateEpisode(result as Episode);
       return;
     }
@@ -848,7 +848,7 @@ async function logout() {
       <UncertainWrites operations={operations} onConfirmed={confirmedWrite} onRejected={(path, exception) => {
         setError(exception.message);
         if (exception instanceof VersionConflictError) {
-          if (/^\/episodes\/\d+\/allergies$/.test(path)) { notifyOperationalConflict(path); return; }
+          if (/^\/episodes\/\d+\/(?:allergies|background\/(?:MEDICAL|SURGICAL))$/.test(path)) { notifyOperationalConflict(path); return; }
           if (/^\/episodes\/\d+\/consultation-reason$/.test(path)) { notifyOperationalConflict(path); return; }
           if (path.startsWith("/communications/")) { notifyOperationalConflict(path); return; }
           if (/^\/episodes\/\d+\/lab-orders$/.test(path) || (path.endsWith("/discharge") && episode?.laboratory?.orders.length)) { notifyOperationalConflict(path); return; }

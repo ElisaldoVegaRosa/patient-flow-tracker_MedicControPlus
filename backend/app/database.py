@@ -7,6 +7,7 @@ from .staffing import migrate_staffing
 from .care import migrate_care
 from .reevaluations import migrate_reevaluations
 from .patient_allergies import migrate_allergies
+from .patient_background import migrate_background
 
 
 def get_connection(database_path: Path) -> sqlite3.Connection:
@@ -191,6 +192,7 @@ def initialize_database(
     migrate_care(connection)
     migrate_reevaluations(connection)
     migrate_allergies(connection)
+    migrate_background(connection)
 
     for username, demo_user in demo_users.items():
         existing_user = connection.execute(

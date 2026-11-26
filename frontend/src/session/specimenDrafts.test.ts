@@ -74,3 +74,10 @@ describe("borradores de muestras de esta pestaña", () => {
     expect(readSpecimenDraft(user, "/lab/results/41/review").draft).toBeUndefined();
   });
 });
+
+it("conserva antecedentes separados por categoria sin mezclar con alergias", () => {
+ const owner={username:"medico",role:"DOCTOR"};const medical="/episodes/42/background/MEDICAL";const surgical="/episodes/42/background/SURGICAL";
+ saveSpecimenDraft(owner,medical,'"m1"',{background_status:"REPORTED",background_description:"Medico ficticio",background_source:"Paciente ficticio",reason:"Revision ficticia"},true);
+ saveSpecimenDraft(owner,surgical,'"s1"',{background_status:"NONE_REPORTED",background_description:"",background_source:"Paciente ficticio",reason:"Revision quirurgica"},true);
+ expect(readSpecimenDraft(owner,medical).draft?.fields.background_description).toBe("Medico ficticio");expect(readSpecimenDraft(owner,surgical).draft?.fields.background_status).toBe("NONE_REPORTED");expect(readSpecimenDraft(owner,"/episodes/42/allergies").draft).toBeUndefined();expect(readSpecimenDraft(owner,"/episodes/42/background/UNKNOWN").draft).toBeUndefined();
+});

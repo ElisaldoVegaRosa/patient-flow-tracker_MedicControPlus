@@ -13,6 +13,8 @@ function operationKey(path: string) {
 }
 
 function label(path: string) {
+  const background = path.match(/^\/episodes\/(\d+)\/background\/(MEDICAL|SURGICAL)$/);
+  if (background) return `EP-${background[1]} · Antecedentes ${background[2] === "MEDICAL" ? "médicos" : "quirúrgicos"}`;
   const allergy = path.match(/^\/episodes\/(\d+)\/allergies$/);
   if (allergy) return `EP-${allergy[1]} · Registro de alergias`;
   const consultation = path.match(/^\/episodes\/(\d+)\/consultation-reason$/);

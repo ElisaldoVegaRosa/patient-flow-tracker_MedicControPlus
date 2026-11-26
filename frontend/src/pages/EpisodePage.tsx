@@ -22,6 +22,7 @@ import PatientIdentity from "../components/PatientIdentity";
 import ConsultationReasonEditor from "../components/ConsultationReasonEditor";
 import PatientEpisodeHistory from "../components/PatientEpisodeHistory";
 import PatientAllergies from "../components/PatientAllergies";
+import PatientBackgrounds from "../components/PatientBackgrounds";
 import { staffingAuditDate } from "../components/staffingAuditDate";
 import WristbandPrint from "../components/WristbandPrint";
 import { QRCodeSVG } from "qrcode.react";
@@ -382,6 +383,7 @@ async function createClinicalOrder(
         </section>}
 
       <PatientAllergies episode={episode} user={user} operations={operations} onUpdated={updateEpisode} />
+      <PatientBackgrounds episode={episode} user={user} operations={operations} onUpdated={updateEpisode} />
       <PatientEpisodeHistory episode={episode} user={user} openingBlocked={operations.hasPending()}
         onOpenEpisode={onOpenEpisode ? id => { if (!operations.hasPending()) onOpenEpisode(id); } : undefined} />
 

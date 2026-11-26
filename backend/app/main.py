@@ -28,6 +28,7 @@ from .routes.demo import create_router as create_demo_router
 from .routes.episode_registration import create_router as create_episode_registration_router
 from .routes.identity import create_router as create_identity_router
 from .routes.patient_allergies import create_router as create_allergies_router
+from .routes.patient_background import create_router as create_background_router
 from .routes.accounts import create_router as create_accounts_router
 from .routes.staffing import create_router as create_staffing_router
 from .routes.care import create_router as create_care_router
@@ -551,6 +552,10 @@ app.include_router(create_identity_router(
 ))
 
 app.include_router(create_allergies_router(
+    get_connection, utc_now, episode_detail, add_event, require_roles,
+))
+
+app.include_router(create_background_router(
     get_connection, utc_now, episode_detail, add_event, require_roles,
 ))
 

@@ -2,62 +2,27 @@
 
 ## Decisiones pendientes (leer primero)
 
-- 25/11: registro de alergias completado, activo y publicado en PC/movil.
-  Misma base communication-rollout-20261030, LAN allergies-ci-sync-20261125,
-  HOME-WIFI privada .40 y mismo certificado. Servicios propios responden.
-- Alcance autorizado: registro de alergias. Solo el medico responsable
-  confirmado del episodio activo registra/revisa/corrige; enfermeria consulta.
-  Alcance: estado desconocido/sin alergias conocidas/alergias registradas,
-  descripcion, fuente, autor/fecha e historial por patient_id. No cruza fichas
-  por nombre/documento. La vista historica identifica que es el registro vigente.
-  Excluye catalogos, decisiones terapeuticas y nuevas reglas de alta.
-- Implementado: API separada de consulta/edicion, perfil vigente por ficha
-  e historial paginado. Medicina/enfermeria consultan a peticion; la vista no
-  consultada no implica ausencia de alergias. Otros roles no reciben el perfil.
-  Solo el responsable medico confirmado edita desde episodio activo; relevo
-  propuesto no transfiere esa facultad. Episodio historico identifica registro
-  vigente, que puede incluir revisiones posteriores. Motivo y fuente obligatorios.
-- Correcciones comunes: liberar el bloqueo de una escritura rechazada antes de
-  consultar cambios, y sincronizar valores iniciales nativos de selectores limpios
-  sin sobrescribir campos sucios. Regresiones reproducidas y corregidas.
-- Dirigidas aprobadas: backend 48/48 (96,39 s), frontend final 39/39 (16,37 s).
-  Incluyen auditoria/rollback, concurrencia, idempotencia, permisos, borradores
-  y confirmacion de envios inciertos preservando ediciones posteriores.
-- Respaldo local 2e66ef99 y migracion aislada 38b38797 verificados: todas las
-  tablas/filas/secuencias previas identicas, integridad/FK correctas, 25 pacientes
-  y 26 episodios. Nuevas tablas vacias; no se infiere ausencia de alergias.
-  Detalle de preparacion aislada: .tmp/allergies-preparation.json.
-- Frontend completo 857/857 en 93 archivos (415,40 s). Lint final limpio y build
-  aprobado; advertencia Vite 510,91 kB/148,04 kB gzip, sin ampliar limites.
-  LAN .tmp/demo-lan/allergies-20261125/network.json compilada y TLS verificado
-  con la misma CA. UTF-8, enlaces y firma de fuentes comprobados.
-- Backend completo 717/717 (2.089,05 s), una advertencia existente; frontend
-  completo 857/857. Sin cambios de codigo despues de iniciar las suites completas.
-  Base de trabajo c63eb12; entrega funcional cdd0e96 publicada en origin/main.
-- Activacion/publicacion autorizadas: reinicio con la misma base/CA, commits,
-  push a origin/main, nota final de validacion y comprobacion de CI.
-- Activado: respaldo final 41f091ef con servicios detenidos, mismo SHA-256 que
-  2e66ef99; restauracion aislada e99f2dc4 verificada. Migracion 015 instalada;
-  tablas nuevas vacias, sin inferir ausencia de alergias. Todas las filas y
-  secuencias previas identicas al respaldo (excepto sesiones/presencia efimeras),
-  25 pacientes/26 episodios, integridad/FK correctas. API rechaza consulta sin
-  sesion (401) y seis archivos HTTPS coinciden con la compilacion validada.
-  LAN vigente: .tmp/demo-lan/allergies-ci-sync-20261125/network.json.
-- Publicacion funcional verificada: cdd0e96, con
-  [CI 45748521782](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45748521782)
-  aprobada para backend, frontend, analisis y compilacion. Nota final autorizada,
-  exclusivamente documental; no repite suites locales ni reinicia el demo.
-  Sin nuevos ensayos manuales ni escrituras clinicas del asistente.
-- Cierre documental 2145989: CI 45749417130 aprobo backend y fallo una prueba
-  de pulsera (856/857 frontend). La vista previa aparecia antes de liberar el
-  bloqueo: el boton seguia como Comprobando datos. El helper ahora espera el
-  control de impresion habilitado; no cambia aplicacion, runner ni tiempos.
-  Repeticion dirigida 23/23, lint/build aprobados y seis archivos de produccion
-  con SHA-256 identico. La firma LAN incluye pruebas: entrada HTTPS actualizada
-  conservando distribucion, CA, base y procesos backend/frontend; seis archivos
-  servidos verificados. Correccion de prueba incluida en esta entrega.
-- Siguiente decision: elegir el proximo bloque funcional; ninguno nuevo aprobado.
-
+- Completado y activo: enfermedades relevantes y cirugias previas por ficha,
+  independientes entre si y de alergias. Distinguen sin informacion, no refiere
+  y registrado. Medico responsable confirmado edita; enfermeria consulta.
+  Fuente, motivo, autor/fecha e historial; versiones y borradores separados.
+- Validacion local de esta entrega sobre 7bb58c8: backend 748/748 (2263,84 s),
+  frontend 879/879 (95 archivos, dos workers, 468,13 s), lint/build aprobados.
+  Primera completa frontend: 8 fallos de espera al cargar sesion/pantallas;
+  mismos archivos 106/106 y completa 879/879 con dos workers, sin cambiar
+  aplicacion ni timeout. Detalle en CHANGELOG. Vite: 513,17 kB/148,78 kB gzip.
+- Demo reiniciado y verificado: misma base
+  .tmp/communication-rollout-20261030/clinical-communication-working.sqlite3;
+  PC http://localhost:5173/ y movil https://192.168.100.40:5443/.
+  LAN .tmp/demo-lan/background-20261126/network.json, misma CA y HOME-WIFI.
+- Respaldo final a96aaca1 y restauracion ef497859 verificados: todas las filas
+  y secuencias anteriores conservadas tras activar, integridad/FK correctas,
+  25 pacientes/26 episodios. Dos tablas nuevas vacias, sin inferir ausencia.
+  Preparacion y evidencia: .tmp/background-preparation.json.
+- En curso, autorizado: commits y push a origin/main de la entrega completa,
+  incluida nota final de validacion y comprobacion de GitHub Actions.
+- Siguiente: comprobar CI para el SHA publicado y registrar cierre. Sin nuevas
+  reglas de alta, medicacion habitual ni otros antecedentes en esta entrega.
 
 ### Acciones funcionales prioritarias (24/11)
 
