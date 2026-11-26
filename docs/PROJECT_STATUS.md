@@ -3,7 +3,7 @@
 ## Estado actual (leer primero)
 
 - 25/11: registro de alergias completado, activo y publicado en PC/movil.
-  Misma base communication-rollout-20261030, LAN allergies-20261125,
+  Misma base communication-rollout-20261030, LAN allergies-ci-sync-20261125,
   HOME-WIFI privada .40 y mismo certificado. Servicios propios responden.
 - Alcance autorizado: registro de alergias. Solo el medico responsable
   confirmado del episodio activo registra/revisa/corrige; enfermeria consulta.
@@ -42,12 +42,20 @@
   secuencias previas identicas al respaldo (excepto sesiones/presencia efimeras),
   25 pacientes/26 episodios, integridad/FK correctas. API rechaza consulta sin
   sesion (401) y seis archivos HTTPS coinciden con la compilacion validada.
-  LAN vigente: .tmp/demo-lan/allergies-20261125/network.json.
+  LAN vigente: .tmp/demo-lan/allergies-ci-sync-20261125/network.json.
 - Publicacion funcional verificada: cdd0e96, con
   [CI 45748521782](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45748521782)
   aprobada para backend, frontend, analisis y compilacion. Nota final autorizada,
   exclusivamente documental; no repite suites locales ni reinicia el demo.
   Sin nuevos ensayos manuales ni escrituras clinicas del asistente.
+- Cierre documental 2145989: CI 45749417130 aprobo backend y fallo una prueba
+  de pulsera (856/857 frontend). La vista previa aparecia antes de liberar el
+  bloqueo: el boton seguia como Comprobando datos. El helper ahora espera el
+  control de impresion habilitado; no cambia aplicacion, runner ni tiempos.
+  Repeticion dirigida 23/23, lint/build aprobados y seis archivos de produccion
+  con SHA-256 identico. La firma LAN incluye pruebas: entrada HTTPS actualizada
+  conservando distribucion, CA, base y procesos backend/frontend; seis archivos
+  servidos verificados. Correccion de prueba incluida en esta entrega.
 - Siguiente decision: elegir el proximo bloque funcional; ninguno nuevo aprobado.
 
 

@@ -38,6 +38,13 @@ las verificaciones realizadas y el estado de cada etapa.
 - Publicado en cdd0e96; [CI 45748521782](https://github.com/ElisaldoVegaRosa/patient-flow-tracker_MedicControPlus/actions/runs/45748521782)
   aprobada para backend, frontend, analisis y compilacion. Cierre documental
   autorizado, sin cambios de codigo ni repeticion de suites locales.
+- La CI del cierre 2145989 detecto una carrera en la prueba de pulsera: la
+  aparicion del dialogo no garantizaba que el boton de imprimir estuviera listo.
+  Helper corregido para esperar control habilitado, sin ampliar tiempos.
+  Repeticion dirigida 23/23, lint/build aprobados; seis archivos de produccion
+  identicos. Misma CA/base/distribucion; solo entrada HTTPS actualizada a
+  allergies-ci-sync-20261125 para reconocer la nueva firma que incluye pruebas.
+  Backend/frontend conservan sus procesos. Sin cambios de aplicacion.
 
 ## Busqueda y filtros del Historial general (24/11/2026)
 

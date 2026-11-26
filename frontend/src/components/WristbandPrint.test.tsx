@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import WristbandPrint from "./WristbandPrint";
 import type { Episode, User } from "../types/clinical";
@@ -20,7 +20,10 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 const open = async () => {
   fireEvent.click(screen.getByRole("button", { name: "Preparar pulsera / PDF" }));
-  return screen.findByRole("dialog");
+  const dialog = await screen.findByRole("dialog");
+  // The portal appears before the preparation lock is released and committed.
+  await waitFor(() => expect(within(dialog).getByRole("button", { name: "Imprimir / guardar PDF" })).toBeEnabled());
+  return dialog;
 };
 
 it.each(["RECEPTION", "DOCTOR", "LAB", "ADMISSION"])("no ofrece impresión al perfil %s", role => {
